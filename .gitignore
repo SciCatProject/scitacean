@@ -1,0 +1,14 @@
+build
+dist
+.tox
+src/scowl.egg-info
+
+.idea/
+.vscode/
+*.ipynb_checkpoints
+__pycache__/
+.vs/
+.virtual_documents
+.hypothesis
+.pytest_cache
+.mypy_cache
