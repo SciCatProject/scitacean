@@ -1,0 +1,19 @@
+[build-system]
+requires = [
+  "setuptools>=45",
+  "setuptools_scm[toml]>=7.0",
+]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+
+[tool.pytest.ini_options]
+addopts = "-ra -v"
+testpaths = "tests"
+filterwarnings = [
+  "error",
+]
+
+[tool.mypy]
+mypy_path = "src"
+ignore_missing_imports = true
