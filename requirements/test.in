@@ -1,0 +1,4 @@
+-r base.in
+pyfakefs
+pytest
+requests_mock
