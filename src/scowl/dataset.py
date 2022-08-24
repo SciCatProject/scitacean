@@ -144,7 +144,7 @@ class DatasetRENAMEME:
                 f"Failed to upload original datablocks for SciCat dataset {dset.pid}:"
                 f"\n{exc.args}\nThe dataset and data files were successfully uploaded "
                 "but are not linked with each other. Please fix the dataset manually!"
-            )
+            ) from exc
 
         return dset
 
