@@ -1,4 +1,4 @@
-.. currentmodule:: scowl
+.. currentmodule:: scitacean
 
 Modules
 =======

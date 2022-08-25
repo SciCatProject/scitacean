@@ -1,7 +1,7 @@
 build
 dist
 .tox
-src/scowl.egg-info
+src/scitacean.egg-info
 
 .idea/
 .vscode/

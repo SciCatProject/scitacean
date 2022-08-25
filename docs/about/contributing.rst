@@ -1,7 +1,7 @@
 .. _contributing:
 
-Contributing to Scowl
-=====================
+Contributing to Scitacean
+=========================
 
 Overview
 --------

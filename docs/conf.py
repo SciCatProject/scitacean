@@ -1,6 +1,6 @@
 import doctest
 
-import scowl
+import scitacean
 
 import os
 import sys
@@ -10,12 +10,12 @@ sys.path.insert(0, os.path.abspath("."))
 from version import VersionInfo  # noqa: E402
 
 # General information about the project.
-project = "scowl"
-copyright = "2022 scowl contributors"
-author = "Scowl contributors"
+project = "scitacean"
+copyright = "2022 scitacean contributors"
+author = "Scitacean contributors"
 
 version_info = VersionInfo(repo=project)
-long_version = scowl.__version__
+long_version = scitacean.__version__
 outdated = not version_info.is_latest(long_version)
 
 html_show_sourcelink = True
@@ -44,8 +44,8 @@ extensions = [
 ]
 
 rst_epilog = f"""
-.. |SCOWL_RELEASE_MONTH| replace:: {os.popen("git show -s --format=%cd --date=format:'%B %Y'").read()}
-.. |SCOWL_VERSION| replace:: {os.popen("git describe --tags --abbrev=0").read()}
+.. |SCITACEAN_RELEASE_MONTH| replace:: {os.popen("git show -s --format=%cd --date=format:'%B %Y'").read()}
+.. |SCITACEAN_VERSION| replace:: {os.popen("git describe --tags --abbrev=0").read()}
 """  # noqa: E501
 
 intersphinx_mapping = {
@@ -123,7 +123,7 @@ html_theme = "sphinx_book_theme"
 #
 html_theme_options = {
     "logo_only": True,
-    "repository_url": "https://github.com/SciCatProject/scowl",
+    "repository_url": "https://github.com/SciCatProject/scitacean",
     "repository_branch": "main",
     "path_to_docs": "docs",
     "use_repository_button": True,
@@ -134,7 +134,7 @@ html_theme_options = {
 
 if outdated:
     html_theme_options["announcement"] = (
-        "⚠️ You are viewing the documentation for an old version of scowl. "
+        "⚠️ You are viewing the documentation for an old version of scitacean. "
         "Switch to <a href='https://scicatproject.github.io/pyscicat/' "
         "style='color:white;text-decoration:underline;'"
         ">latest</a> version. ⚠️"
@@ -151,7 +151,7 @@ html_static_path = ["_static"]
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = "scowldoc"
+htmlhelp_basename = "scitaceandoc"
 
 # -- Options for doctest --------------------------------------------------
 
@@ -177,5 +177,5 @@ linkcheck_ignore = [
     # Specific lines in GitHub blobs cannot be found by linkcheck.
     r"https?://github\.com/.*?/blob/[a-f0-9]+/.+?#",
     # Many links for PRs from our release notes. Slow and unlikely to cause issues.
-    "https://github.com/SciCatProject/scowl/pulls/[0-9]+",
+    "https://github.com/SciCatProject/scitacean/pulls/[0-9]+",
 ]

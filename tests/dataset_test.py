@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2022 Scowl contributors (https://github.com/SciCatProject/scowl)
+# Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
 # @author Jan-Lukas Wynen
 
 from urllib.parse import quote_plus
 
 from pyscicat.model import DatasetType, DerivedDataset, Ownable
 import pytest
-from scowl import DatasetRENAMEME
+from scitacean import DatasetRENAMEME
 
 
 @pytest.fixture

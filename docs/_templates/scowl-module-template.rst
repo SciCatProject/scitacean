@@ -32,7 +32,7 @@
 
    .. autosummary::
       :toctree:
-      :template: scowl-class-template.rst
+      :template: scitacean-class-template.rst
    {% for item in classes %}
       {{ item }}
    {%- endfor %}
@@ -57,7 +57,7 @@
 
 .. autosummary::
    :toctree:
-   :template: scowl-module-template.rst
+   :template: scitacean-module-template.rst
    :recursive:
 {% for item in modules %}
    {{ item }}

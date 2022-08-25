@@ -13,7 +13,7 @@ The exception to this are Python docstrings, for which we use the
 `numpy docstring format <https://www.sphinx-doc.org/en/master/usage/extensions/example_numpy.html>`_.
 We use a tool to automatically insert type hints into the docstrings.
 Our format, therefore, deviates from the default numpy example given by the link above.
-The example below shows how docstrings should be laid out in scowl including spacing and punctuation.
+The example below shows how docstrings should be laid out in scitacean including spacing and punctuation.
 
 .. code-block:: python
 
@@ -49,19 +49,19 @@ The example below shows how docstrings should be laid out in scowl including spa
 
         See Also
         --------
-        scowl.bar:
+        scitacean.bar:
             A bit less foo.
 
         Examples
         --------
         This is how to use it:
 
-          >>> scowl.foo(1, 2)
+          >>> scitacean.foo(1, 2)
           3
 
         And also:
 
-          >>> scowl.foo(1, 3)
+          >>> scitacean.foo(1, 3)
           6
         """
 

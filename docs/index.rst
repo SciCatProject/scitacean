@@ -1,5 +1,5 @@
-scowl needs a new name
-======================
+Scitacean
+=========
 
 .. toctree::
    :hidden:
