@@ -48,13 +48,4 @@ jobs:
     uses: ./.github/workflows/docs.yml
     with:
       publish: ${{ github.event_name == 'release' && github.event.action == 'published' }}
-      publish-folder: ${{ format('release/{0}', github.ref_name) }}
-    secrets: inherit
-
-  docs-root:
-    needs: docs
-    uses: ./.github/workflows/docs.yml
-    with:
-      publish: ${{ github.event_name == 'release' && github.event.action == 'published' }}
-      publish-folder: ''
     secrets: inherit
