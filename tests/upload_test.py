@@ -35,6 +35,7 @@ def derived_dataset(ownable):
         contactEmail="slartibartfast@magrathea.org",
         creationTime="2022-06-14T12:34:56",
         owner="slartibartfast",
+        investigator="slartibartfast",
         sourceFolder="UPLOAD",
         type=DatasetType.derived,
         inputDatasets=[],

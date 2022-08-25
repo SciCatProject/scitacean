@@ -14,6 +14,7 @@ def dataset_json():
     return {
         "pid": "01.432.56789/12345678-abcd-0987-0123456789ab",
         "owner": "slartibartfast",
+        "investigator": "slartibartfast",
         "contactEmail": "slartibartfast@magrathea.org",
         "sourceFolder": "/remote/source",
         "size": 168456,
@@ -87,6 +88,7 @@ def derived_dataset(ownable):
         contactEmail="slartibartfast@magrathea.org",
         creationTime="2022-06-14T12:34:56",
         owner="slartibartfast",
+        investigator="slartibartfast",
         sourceFolder="UPLOAD",
         type=DatasetType.derived,
         inputDatasets=[],
