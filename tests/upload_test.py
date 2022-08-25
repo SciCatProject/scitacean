@@ -9,7 +9,7 @@ from urllib.parse import urljoin
 from pyscicat.client import ScicatCommError
 from pyscicat.model import DatasetType, DerivedDataset, Ownable
 import pytest
-from scitacean import DatasetRENAMEME
+from scitacean import Dataset
 
 
 @pytest.fixture
@@ -48,7 +48,7 @@ def derived_dataset(ownable):
 def dataset(derived_dataset, fs):
     fs.create_file("file1.nxs", st_size=9876)
     fs.create_file("file2.log", st_size=123)
-    dset = DatasetRENAMEME.new(derived_dataset)
+    dset = Dataset.new(derived_dataset)
     dset.add_local_files("file1.nxs", "file2.log")
     return dset
 

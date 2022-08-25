@@ -24,7 +24,7 @@ from ._utils import wrap_model
 # TODO handle orig vs non-orig datablocks
 # TODO add derive method
 @wrap_model(DerivedDataset, "model", exclude=("numberOfFiles", "size", "type"))
-class DatasetRENAMEME:
+class Dataset:
     # TODO support RawDataset
     def __init__(
         self,
@@ -38,16 +38,14 @@ class DatasetRENAMEME:
         self._datablock = datablock
 
     @classmethod
-    def new(cls, model: Optional[DerivedDataset] = None, **kwargs) -> DatasetRENAMEME:
+    def new(cls, model: Optional[DerivedDataset] = None, **kwargs) -> Dataset:
         model_dict = model.dict(exclude_none=True) if model is not None else {}
         model_dict.update(kwargs)
         model_dict.setdefault("sourceFolder", "<PLACEHOLDER>")
-        return DatasetRENAMEME(
-            model=DerivedDataset(**model_dict), files=[], datablock=None
-        )
+        return Dataset(model=DerivedDataset(**model_dict), files=[], datablock=None)
 
     @classmethod
-    def from_scicat(cls, client: ScicatClient, pid: str) -> DatasetRENAMEME:
+    def from_scicat(cls, client: ScicatClient, pid: str) -> Dataset:
         model = _get_dataset_model(pid, client)
         dblock_json = _get_orig_datablock(pid, client)
 
@@ -61,7 +59,7 @@ class DatasetRENAMEME:
             **dblock_json, dataFileList=[file.model for file in files]
         )
 
-        return DatasetRENAMEME(model=model, files=files, datablock=dblock)
+        return Dataset(model=model, files=files, datablock=dblock)
 
     @property
     def model(self) -> DerivedDataset:
@@ -93,7 +91,7 @@ class DatasetRENAMEME:
             *(File.from_local(path, relative_to=relative_to) for path in paths)
         )
 
-    def prepare_as_new(self) -> DatasetRENAMEME:
+    def prepare_as_new(self) -> Dataset:
         files = list(map(File.with_model_from_local_file, self._files))
         total_size = sum(file.model.size for file in files)
         dataset_id = str(uuid4())
@@ -114,7 +112,7 @@ class DatasetRENAMEME:
                 "sourceFolder": "<PLACEHOLDER>",
             }
         )
-        return DatasetRENAMEME(model=model, files=files, datablock=datablock)
+        return Dataset(model=model, files=files, datablock=datablock)
 
     def upload_new_dataset_now(self, client: ScicatClient, uploader_factory):
         if self._datablock is None:

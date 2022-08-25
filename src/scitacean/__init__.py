@@ -10,6 +10,6 @@ except importlib.metadata.PackageNotFoundError:
     __version__ = "0.0.0"
 
 from .file import File
-from .dataset import DatasetRENAMEME
+from .dataset import Dataset
 
-__all__ = ("File", "DatasetRENAMEME")
+__all__ = ("File", "Dataset")

@@ -6,7 +6,7 @@ from urllib.parse import quote_plus
 
 from pyscicat.model import DatasetType, DerivedDataset, Ownable
 import pytest
-from scitacean import DatasetRENAMEME
+from scitacean import Dataset
 
 
 @pytest.fixture
@@ -98,14 +98,14 @@ def derived_dataset(ownable):
 
 
 def test_can_get_dataset_properties(derived_dataset):
-    dset = DatasetRENAMEME.new(derived_dataset)
+    dset = Dataset.new(derived_dataset)
     assert dset.owner == "slartibartfast"
     assert dset.usedSoftware == ["PySciCat"]
     assert dset.datasetName is None
 
 
 def test_can_set_dataset_properties(derived_dataset):
-    dset = DatasetRENAMEME.new(derived_dataset)
+    dset = Dataset.new(derived_dataset)
     dset.owner = "marvin"
     dset.usedSoftware.append("Python")
     dset.datasetName = "Heart of Gold"
@@ -117,7 +117,7 @@ def test_can_set_dataset_properties(derived_dataset):
 def test_setting_dataset_properties_does_not_affect_other_attributes(derived_dataset):
     expected_fields = dict(derived_dataset)
     del expected_fields["owner"]
-    dset = DatasetRENAMEME.new(derived_dataset)
+    dset = Dataset.new(derived_dataset)
 
     dset.owner = "marvin"
     fields = dict(dset.model)
@@ -127,7 +127,7 @@ def test_setting_dataset_properties_does_not_affect_other_attributes(derived_dat
 
 
 def test_cannot_access_some_dataset_properties(derived_dataset):
-    dset = DatasetRENAMEME.new(derived_dataset)
+    dset = Dataset.new(derived_dataset)
     with pytest.raises(AttributeError):
         _ = dset.size
     with pytest.raises(AttributeError):
@@ -139,7 +139,7 @@ def test_cannot_access_some_dataset_properties(derived_dataset):
 
 
 def test_meta_behaves_like_dict(derived_dataset):
-    dset = DatasetRENAMEME.new(derived_dataset)
+    dset = Dataset.new(derived_dataset)
     assert dset.model.scientificMetadata is None
     assert dset.meta == {}
 
@@ -170,7 +170,7 @@ def test_meta_behaves_like_dict(derived_dataset):
 
 
 def test_dataset_from_scicat(client, mock_request, dataset_json):
-    dset = DatasetRENAMEME.from_scicat(client, dataset_json["pid"])
+    dset = Dataset.from_scicat(client, dataset_json["pid"])
 
     assert dset.sourceFolder == "/remote/source"
     assert dset.creationTime == "2011-08-24T12:34:56Z"
