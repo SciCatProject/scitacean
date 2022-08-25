@@ -30,20 +30,12 @@ jobs:
       - run: tox -e docs
       - uses: actions/upload-artifact@v3
         with:
-          name: github-pages
+          name: documentation
           path: html/
-
-  deploy:
-    name: Deploy to GitHub pages
-    needs: docs
-    runs-on: ubuntu-20.04
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v1
+      - uses: JamesIves/github-pages-deploy-action@v4.4.0
+        if: ${{ inputs.publish }}
+        with:
+          branch: gh-pages
+          folder: html
+          single-commit: true
+          ssh-key: ${{ secrets.GH_PAGES_DEPLOY_KEY }}
