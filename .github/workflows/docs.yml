@@ -5,20 +5,15 @@ on:
     inputs:
       publish:
         default: false
-        type: boolean
-      publish-folder:
-        default: ''
+        description: Publish docs
         required: false
-        type: string
+        type: boolean
   workflow_call:
     inputs:
       publish:
         default: false
-        type: boolean
-      publish-folder:
-        default: ''
         required: false
-        type: string
+        type: boolean
 
 jobs:
   docs:
@@ -38,15 +33,20 @@ jobs:
         if: ${{ !(github.event.inputs.publish == 'true' || inputs.publish) }}
       - uses: actions/upload-artifact@v3
         with:
-          name: html
+          name: github-pages
           path: html/
 
-      - uses: JamesIves/github-pages-deploy-action@v4.4.0
-        if: ${{ github.event.inputs.publish == 'true' || inputs.publish }}
-        with:
-          branch: gh-pages
-          folder: html
-          target-folder: ${{ github.event.inputs.publish-folder || inputs.publish-folder }}
-          single-commit: true
-          clean-exclude: release
-          ssh-key: ${{ secrets.GH_PAGES_DEPLOY_KEY }}
+  deploy:
+    name: Deploy to GitHub pages
+    needs: docs
+    runs-on: ubuntu-20.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
