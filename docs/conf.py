@@ -7,16 +7,10 @@ import sys
 
 sys.path.insert(0, os.path.abspath("."))
 
-from version import VersionInfo  # noqa: E402
-
 # General information about the project.
 project = "scitacean"
 copyright = "2022 scitacean contributors"
 author = "Scitacean contributors"
-
-version_info = VersionInfo(repo=project)
-long_version = scitacean.__version__
-outdated = not version_info.is_latest(long_version)
 
 html_show_sourcelink = True
 
@@ -38,12 +32,11 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx_autodoc_typehints",
     "sphinx_copybutton",
-    "nbsphinx",
 ]
 
 rst_epilog = f"""
 .. |SCITACEAN_RELEASE_MONTH| replace:: {os.popen("git show -s --format=%cd --date=format:'%B %Y'").read()}
-.. |SCITACEAN_VERSION| replace:: {os.popen("git describe --tags --abbrev=0").read()}
+.. |SCITACEAN_VERSION| replace:: {scitacean.__version__}
 """  # noqa: E501
 
 intersphinx_mapping = {
@@ -129,14 +122,6 @@ html_theme_options = {
     "use_edit_page_button": True,
     "show_toc_level": 2,  # Show subheadings in secondary sidebar
 }
-
-if outdated:
-    html_theme_options["announcement"] = (
-        "⚠️ You are viewing the documentation for an old version of scitacean. "
-        "Switch to <a href='https://scicatproject.github.io/pyscicat/' "
-        "style='color:white;text-decoration:underline;'"
-        ">latest</a> version. ⚠️"
-    )
 
 html_logo = "_static/logo.svg"
 html_favicon = "_static/favicon.ico"
