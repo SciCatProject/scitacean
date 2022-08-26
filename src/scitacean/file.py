@@ -11,6 +11,9 @@ from typing import Optional, Union
 
 from pyscicat.model import DataFile
 
+from .error import IntegrityError
+from .logging import get_logger
+
 
 class File:
     def __init__(
@@ -71,35 +74,89 @@ class File:
         return self._local_path
 
     @property
+    def checksum(self) -> Optional[str]:
+        return self._model.chk
+
+    @property
     def model(self) -> Optional[DataFile]:
         return self._model
 
-    def with_model_from_local_file(self) -> File:
-        # TODO checksum once supported by the model
+    def with_model_from_local_file(self, *, checksum_algorithm: str = "md5") -> File:
         assert self._local_path is not None
         st = self._local_path.stat()
+        chk = checksum_of_file(self._local_path, algorithm=checksum_algorithm)
         return File(
             source_path=self._source_path,
             source_folder=self._source_folder,
             local_path=self._local_path,
             model=DataFile(
-                path=str(self.source_path), size=st.st_size, time=_creation_time_str(st)
+                path=str(self.source_path),
+                size=st.st_size,
+                time=_creation_time_str(st),
+                chk=chk,
             ),
         )
 
-    def provide_locally(self, directory: Union[str, Path], *, downloader) -> Path:
+    def provide_locally(
+        self,
+        directory: Union[str, Path],
+        *,
+        downloader,
+        checksum_algorithm: Optional[str],
+    ) -> Path:
         directory = Path(directory)
         directory.mkdir(exist_ok=True)
         local_path = directory / self.source_path
         downloader.get(local=local_path, remote=self.remote_access_path)
         self._local_path = local_path
+        self._validate_local_file(checksum_algorithm=checksum_algorithm)
         return local_path
+
+    def _validate_local_file(self, *, checksum_algorithm):
+        if not self._model.chk:
+            get_logger().info(
+                "Dataset does not contain a checksum for file '%s'. Skipping check.",
+                self._local_path,
+            )
+            return self._validate_local_file_size()
+        if not checksum_algorithm:
+            get_logger().warning(
+                "File '%s' has a checksum but no algorithm has been defined. "
+                "Skipping check. Checksum is %s",
+                self._local_path,
+                self._model.chk,
+            )
+            return self._validate_local_file_size()
+        actual = checksum_of_file(self._local_path, algorithm=checksum_algorithm)
+        if actual != self._model.chk:
+            _log_and_raise(
+                IntegrityError,
+                f"Checksum of file '{self._local_path}' ({actual}) "
+                f"does not match checksum stored in dataset "
+                f"({self._model.chk}). Using algorithm "
+                f"'{checksum_algorithm}'.",
+            )
+
+    def _validate_local_file_size(self):
+        st = self._local_path.stat()
+        actual = st.st_size
+        if actual != self._model.size:
+            _log_and_raise(
+                IntegrityError,
+                f"Size of file '{self._local_path}' ({actual}B) does not "
+                f"match size stored in dataset ({self._model.size}B)",
+            )
 
     def __repr__(self):
         return (
             f"File(source_folder={self.source_folder}, source_path={self.source_path}, "
             f"local_path={self.local_path}, model={self.model!r})"
         )
+
+
+def _log_and_raise(typ, msg):
+    get_logger().error(msg)
+    raise typ(msg)
 
 
 def _creation_time_str(st: os.stat_result) -> str:
@@ -118,10 +175,10 @@ def _creation_time_str(st: os.stat_result) -> str:
 
 
 # size based on http://git.savannah.gnu.org/gitweb/?p=coreutils.git;a=blob;f=src/ioblksize.h;h=ed2f4a9c4d77462f357353eb73ee4306c28b37f1;hb=HEAD#l23  # noqa
-def md5sum(path: Union[str, Path]) -> str:
-    md5 = hashlib.md5()
+def checksum_of_file(path: Union[str, Path], *, algorithm: str) -> str:
+    chk = hashlib.new(algorithm)
     buffer = memoryview(bytearray(128 * 1024))
     with open(path, "rb", buffering=0) as file:
         for n in iter(lambda: file.readinto(buffer), 0):
-            md5.update(buffer[:n])
-    return md5.hexdigest()
+            chk.update(buffer[:n])
+    return chk.hexdigest()
