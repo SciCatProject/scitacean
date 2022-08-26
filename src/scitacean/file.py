@@ -13,6 +13,7 @@ from pyscicat.model import DataFile
 
 from .error import IntegrityError
 from .logging import get_logger
+from .typing import Downloader
 
 
 class File:
@@ -101,7 +102,7 @@ class File:
         self,
         directory: Union[str, Path],
         *,
-        downloader,
+        downloader: Downloader,
         checksum_algorithm: Optional[str],
     ) -> Path:
         directory = Path(directory)
