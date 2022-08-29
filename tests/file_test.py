@@ -2,8 +2,7 @@
 # Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
 # @author Jan-Lukas Wynen
 
-from datetime import datetime, timedelta, timezone
-import hashlib
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict
 
@@ -13,19 +12,12 @@ from scitacean import File
 from scitacean.error import IntegrityError
 from scitacean.file import checksum_of_file
 
+from .common.files import make_file
+
 
 @pytest.fixture
 def fake_file(fs):
-    contents = b"a bunch of file contents"
-    checksum = hashlib.new("md5")
-    checksum.update(contents)
-    checksum = checksum.hexdigest()
-    path = Path("./dir/events.nxs")
-    fs.create_file(path, contents=contents)
-    creation_time = datetime.now().astimezone(timezone.utc)
-    return dict(
-        path=path, creation_time=creation_time, checksum=checksum, size=len(contents)
-    )
+    return make_file(fs, path="./dir/events.nxs")
 
 
 def test_file_from_local():
