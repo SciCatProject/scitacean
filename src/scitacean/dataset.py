@@ -126,7 +126,7 @@ class Dataset:
             uploader.put(local=file.local_path, remote=file.remote_access_path)
 
         try:
-            dataset_id = client.datasets_create(dset.model)["pid"]
+            dataset_id = client.datasets_create(dset.model)
         except ScicatCommError:
             for file in dset.files:
                 uploader.revert_put(
