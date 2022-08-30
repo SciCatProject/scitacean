@@ -127,6 +127,9 @@ class Dataset:
 
         try:
             dataset_id = client.datasets_create(dset.model)
+            # TODO remove when pyscicat is updated
+            if isinstance(dataset_id, dict):
+                dataset_id = dataset_id["pid"]
         except ScicatCommError:
             for file in dset.files:
                 uploader.revert_put(
