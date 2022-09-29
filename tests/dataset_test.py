@@ -4,19 +4,21 @@
 
 from urllib.parse import quote_plus
 
-from pyscicat.model import DatasetType, DerivedDataset, Ownable
+from hypothesis import given, settings
 import pytest
+
 from scitacean import Dataset
+from scitacean.testing import strategies as sst
 
 
 @pytest.fixture
 def dataset_json():
     return {
         "pid": "01.432.56789/12345678-abcd-0987-0123456789ab",
-        "owner": "slartibartfast",
-        "investigator": "slartibartfast",
-        "contactEmail": "slartibartfast@magrathea.org",
-        "sourceFolder": "/remote/source",
+        "owner": "PonderStibbons",
+        "investigator": "Ridcully",
+        "contactEmail": "p.stibbons@uu.am",
+        "sourceFolder": "/hex/source123",
         "size": 168456,
         "numberOfFiles": 2,
         "creationTime": "2011-08-24T12:34:56Z",
@@ -25,7 +27,8 @@ def dataset_json():
         "ownerGroup": "group_o",
         "accessGroups": ["group1", "2nd_group"],
         "inputDatasets": [],
-        "usedSoftware": ["PySciCat"],
+        "usedSoftware": ["EasyScience"],
+        # TODO does not always look like this
         "scientificMetadata": {
             "data_type": {"value": "event data", "unit": ""},
             "reference_calibration_dataset": {
@@ -77,55 +80,46 @@ def mock_request(mock_request, local_url, catamel_token, dataset_json, datablock
     return mock_request
 
 
-@pytest.fixture
-def ownable():
-    return Ownable(ownerGroup="ownerGroup", accessGroups=["group1", "group2"])
-
-
-@pytest.fixture
-def derived_dataset(ownable):
-    return DerivedDataset(
-        contactEmail="slartibartfast@magrathea.org",
-        creationTime="2022-06-14T12:34:56",
-        owner="slartibartfast",
-        investigator="slartibartfast",
-        sourceFolder="UPLOAD",
-        type=DatasetType.derived,
-        inputDatasets=[],
-        usedSoftware=["PySciCat"],
-        **ownable.dict(),
-    )
-
-
+@settings(max_examples=10)
+@given(
+    sst.derived_datasets(owner="Nanny Ogg", usedSoftware=["Magick"], isPublished=True)
+)
 def test_can_get_dataset_properties(derived_dataset):
     dset = Dataset.new(derived_dataset)
-    assert dset.owner == "slartibartfast"
-    assert dset.usedSoftware == ["PySciCat"]
-    assert dset.datasetName is None
+    assert dset.owner == "Nanny Ogg"
+    assert dset.usedSoftware == ["Magick"]
+    assert dset.isPublished
 
 
+@settings(max_examples=10)
+@given(sst.derived_datasets())
 def test_can_set_dataset_properties(derived_dataset):
     dset = Dataset.new(derived_dataset)
-    dset.owner = "marvin"
-    dset.usedSoftware.append("Python")
-    dset.datasetName = "Heart of Gold"
-    assert dset.owner == "marvin"
-    assert dset.usedSoftware == ["PySciCat", "Python"]
-    assert dset.datasetName == "Heart of Gold"
+    dset.owner = "Esmeralda Weatherwax"
+    dset.sourceFolder = "/lancre/coven"
+    assert dset.owner == "Esmeralda Weatherwax"
+    assert dset.sourceFolder == "/lancre/coven"
 
 
+# Setting isPublished because the model has a default of False which
+# causes a test failure then derived_dataset.isPublished=None
+# TODO this isPublished should probably not be optional or not have a default value
+@settings(max_examples=10)
+@given(sst.derived_datasets(isPublished=True))
 def test_setting_dataset_properties_does_not_affect_other_attributes(derived_dataset):
     expected_fields = dict(derived_dataset)
     del expected_fields["owner"]
     dset = Dataset.new(derived_dataset)
 
-    dset.owner = "marvin"
+    dset.owner = "Granny"
     fields = dict(dset.model)
     del fields["owner"]
 
     assert fields == expected_fields
 
 
+@settings(max_examples=10)
+@given(sst.derived_datasets())
 def test_cannot_access_some_dataset_properties(derived_dataset):
     dset = Dataset.new(derived_dataset)
     with pytest.raises(AttributeError):
@@ -138,6 +132,8 @@ def test_cannot_access_some_dataset_properties(derived_dataset):
         dset.numberOfFiles = 2
 
 
+@settings(max_examples=10)
+@given(sst.derived_datasets())
 def test_meta_behaves_like_dict(derived_dataset):
     dset = Dataset.new(derived_dataset)
     assert dset.model.scientificMetadata is None
@@ -172,7 +168,7 @@ def test_meta_behaves_like_dict(derived_dataset):
 def test_dataset_from_scicat(client, mock_request, dataset_json):
     dset = Dataset.from_scicat(client, dataset_json["pid"])
 
-    assert dset.sourceFolder == "/remote/source"
+    assert dset.sourceFolder == "/hex/source123"
     assert dset.creationTime == "2011-08-24T12:34:56Z"
     assert dset.accessGroups == ["group1", "2nd_group"]
     assert dset.meta["temperature"] == {"value": "123", "unit": "K"}
@@ -180,5 +176,5 @@ def test_dataset_from_scicat(client, mock_request, dataset_json):
 
     assert dset.files[0].local_path is None
     assert dset.files[1].local_path is None
-    assert str(dset.files[0].remote_access_path) == "/remote/source/file1.nxs"
-    assert str(dset.files[1].remote_access_path) == "/remote/source/sub/file2.nxs"
+    assert str(dset.files[0].remote_access_path) == "/hex/source123/file1.nxs"
+    assert str(dset.files[1].remote_access_path) == "/hex/source123/sub/file2.nxs"

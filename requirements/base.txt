@@ -5,13 +5,13 @@
 #
 #    pip-compile-multi
 #
-certifi==2022.6.15
+certifi==2022.9.24
     # via requests
 charset-normalizer==2.1.1
     # via requests
-idna==3.3
+idna==3.4
     # via requests
-pydantic==1.9.2
+pydantic==1.10.2
     # via pyscicat
 pyscicat==0.2.3
     # via -r requirements/base.in
