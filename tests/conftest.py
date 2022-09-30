@@ -4,9 +4,10 @@
 
 from urllib.parse import urljoin
 
-from pyscicat.client import ScicatClient
 import pytest
 import requests_mock
+
+from scitacean import Client
 
 
 @pytest.fixture
@@ -30,9 +31,7 @@ def mock_request(local_url, catamel_token):
 
 
 @pytest.fixture
-def client(mock_request, local_url) -> ScicatClient:
-    return ScicatClient(
-        base_url=local_url,
-        username="Zaphod",
-        password="heartofgold",
+def client(mock_request, local_url) -> Client:
+    return Client.from_credentials(
+        url=local_url, username="Ponder Stibbons", password="thaum"
     )

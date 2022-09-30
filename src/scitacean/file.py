@@ -25,6 +25,7 @@ class File:
         local_path: Optional[Union[str, Path]],
         model: Optional[DataFile],
     ):
+        # TODO sourcePath is not required to be an actual Path. Could be, e.g. URL
         self._source_path = Path(source_path)  # relative to source folder
         self._source_folder = Path(source_folder) if source_folder is not None else None
         self._local_path = Path(local_path) if local_path is not None else None

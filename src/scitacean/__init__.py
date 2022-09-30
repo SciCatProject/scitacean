@@ -9,7 +9,8 @@ try:
 except importlib.metadata.PackageNotFoundError:
     __version__ = "0.0.0"
 
-from .file import File
+from .client import Client
 from .dataset import Dataset
+from .file import File
 
-__all__ = ("File", "Dataset")
+__all__ = ("Client", "Dataset", "File")

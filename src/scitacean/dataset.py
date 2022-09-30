@@ -7,15 +7,14 @@ from pathlib import Path
 from typing import List, Optional, Tuple, Union
 from uuid import uuid4
 
-from pyscicat.client import ScicatClient, ScicatCommError
+from pyscicat.client import ScicatCommError
 from pyscicat.model import (
     DerivedDataset,
-    DataFile,
     DatasetType,
-    RawDataset,
     OrigDatablock,
 )
 
+from .client import Client
 from .file import File
 from .metadata import ScientificMetadata
 from ._utils import wrap_model
@@ -45,21 +44,17 @@ class Dataset:
         return Dataset(model=DerivedDataset(**model_dict), files=[], datablock=None)
 
     @classmethod
-    def from_scicat(cls, client: ScicatClient, pid: str) -> Dataset:
-        model = _get_dataset_model(pid, client)
-        dblock_json = _get_orig_datablock(pid, client)
-
-        files = [
-            File.from_scicat(DataFile(**file_json), model.sourceFolder)
-            for file_json in dblock_json["dataFileList"]
-        ]
-
-        del dblock_json["dataFileList"]
-        dblock = OrigDatablock(
-            **dblock_json, dataFileList=[file.model for file in files]
+    def from_scicat(cls, client: Client, pid: str) -> Dataset:
+        model = client.get_dataset(pid)
+        dblock = client.get_orig_datablock(pid)
+        return Dataset(
+            model=model,
+            files=[
+                File.from_scicat(file, model.sourceFolder)
+                for file in dblock.dataFileList
+            ],
+            datablock=dblock,
         )
-
-        return Dataset(model=model, files=files, datablock=dblock)
 
     @property
     def model(self) -> DerivedDataset:
@@ -114,7 +109,7 @@ class Dataset:
         )
         return Dataset(model=model, files=files, datablock=datablock)
 
-    def upload_new_dataset_now(self, client: ScicatClient, uploader_factory):
+    def upload_new_dataset_now(self, client: Client, uploader_factory):
         if self._datablock is None:
             dset = self.prepare_as_new()
         else:
@@ -126,10 +121,7 @@ class Dataset:
             uploader.put(local=file.local_path, remote=file.remote_access_path)
 
         try:
-            dataset_id = client.datasets_create(dset.model)
-            # TODO remove when pyscicat is updated
-            if isinstance(dataset_id, dict):
-                dataset_id = dataset_id["pid"]
+            dataset_id = client.create_dataset(dset.model)
         except ScicatCommError:
             for file in dset.files:
                 uploader.revert_put(
@@ -139,7 +131,7 @@ class Dataset:
 
         dset.datablock.datasetId = dataset_id
         try:
-            client.datasets_origdatablock_create(dset.datablock)
+            client.create_orig_datablock(dset.datablock)
         except ScicatCommError as exc:
             raise RuntimeError(
                 f"Failed to upload original datablocks for SciCat dataset {dset.pid}:"
@@ -148,22 +140,3 @@ class Dataset:
             ) from exc
 
         return dset
-
-
-def _get_dataset_model(pid, client) -> Union[DerivedDataset, RawDataset]:
-    dset_json = client.get_dataset_by_pid(pid)
-    return (
-        DerivedDataset(**dset_json)
-        if dset_json["type"] == "derived"
-        else RawDataset(**dset_json)
-    )
-
-
-def _get_orig_datablock(pid, client) -> dict:
-    dblock_json = client.get_dataset_origdatablocks(pid)
-    if len(dblock_json) != 1:
-        raise NotImplementedError(
-            f"Got {len(dblock_json)} original datablocks for dataset {pid} "
-            "but only support for one is implemented."
-        )
-    return dblock_json[0]
