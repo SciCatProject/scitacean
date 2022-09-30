@@ -25,7 +25,7 @@ class Client:
         self._client = client
 
     @classmethod
-    def from_token(cls, *, url, token) -> Client:
+    def from_token(cls, *, url: str, token: str) -> Client:
         """Create a new client and authenticate with a token.
 
         Parameters
@@ -44,7 +44,7 @@ class Client:
         return Client(client=pyscicat.client.from_token(base_url=url, token=token))
 
     @classmethod
-    def from_credentials(cls, *, url, username, password) -> Client:
+    def from_credentials(cls, *, url: str, username: str, password: str) -> Client:
         """Create a new client and authenticate with username and password.
 
         Parameters

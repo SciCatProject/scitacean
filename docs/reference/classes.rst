@@ -9,3 +9,5 @@ Classes
    :recursive:
 
    Client
+   Dataset
+   File
