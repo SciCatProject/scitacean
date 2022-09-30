@@ -2,6 +2,7 @@
 # Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
 # @author Jan-Lukas Wynen
 
+from contextlib import contextmanager
 from pathlib import Path
 import re
 from urllib.parse import urljoin
@@ -66,23 +67,24 @@ class FakeUpload:
         return self
 
     @property
-    def remote_upload_path(self):
+    def source_dir(self):
         return "/remote/upload"
 
-    def put(self, local, remote):
+    def upload_file(self, local, remote):
         self.uploaded.append({"local": local, "remote": remote})
 
-    def revert_put(self, local, remote):
+    def revert_upload(self, local, remote):
         item = {"local": local, "remote": remote}
         del self.uploaded[self.uploaded.index(item)]
         self.reverted.append(item)
 
-    def get(self, local, remote):
-        raise RuntimeError("upload should never call get")
+    @contextmanager
+    def connect_for_upload(self, pid):
+        yield self
 
 
 def test_upload_creates_dataset(mock_request, client, dataset):
-    finalized = dataset.upload_new_dataset_now(client, uploader_factory=FakeUpload)
+    finalized = dataset.upload_new_dataset_now(client, uploader=FakeUpload())
     dataset_requests = [
         req
         for req in mock_request.request_history
@@ -94,7 +96,7 @@ def test_upload_creates_dataset(mock_request, client, dataset):
 
 def test_upload_uploads_files_to_source_folder(client, dataset):
     uploader = FakeUpload()
-    dataset.upload_new_dataset_now(client, uploader_factory=uploader)
+    dataset.upload_new_dataset_now(client, uploader=uploader)
     assert sorted(uploader.uploaded, key=lambda d: d["local"]) == [
         {"local": Path("file.nxs"), "remote": Path("/remote/upload/file.nxs")},
         {
@@ -108,11 +110,15 @@ def test_upload_does_not_create_dataset_if_file_upload_fails(
     mock_request, client, dataset
 ):
     class RaisingUpload(FakeUpload):
-        def put(self, local, remote):
+        def upload_file(self, *, local, remote):
             raise RuntimeError("Fake upload failure")
 
+        @contextmanager
+        def connect_for_upload(self, pid):
+            yield self
+
     with pytest.raises(RuntimeError):
-        dataset.upload_new_dataset_now(client, uploader_factory=RaisingUpload)
+        dataset.upload_new_dataset_now(client, uploader=RaisingUpload())
 
     assert all("Dataset" not in str(req) for req in mock_request.request_history)
 
@@ -131,7 +137,7 @@ def test_upload_cleans_up_files_if_dataset_ingestion_fails(
 
     uploader = FakeUpload()
     with pytest.raises(ScicatCommError):
-        dataset.upload_new_dataset_now(client, uploader_factory=uploader)
+        dataset.upload_new_dataset_now(client, uploader=uploader)
 
     assert not uploader.uploaded
 
@@ -141,7 +147,7 @@ def test_upload_creates_orig_data_blocks(
     client,
     dataset,
 ):
-    finalized = dataset.upload_new_dataset_now(client, uploader_factory=FakeUpload)
+    finalized = dataset.upload_new_dataset_now(client, uploader=FakeUpload())
     datablock_requests = [
         req for req in mock_request.request_history if "datablock" in str(req)
     ]
@@ -158,7 +164,7 @@ def test_failed_datablock_upload_does_not_revert(mock_request, client, dataset):
 
     uploader = FakeUpload()
     with pytest.raises(RuntimeError):
-        dataset.upload_new_dataset_now(client, uploader_factory=uploader)
+        dataset.upload_new_dataset_now(client, uploader=uploader)
 
     assert uploader.uploaded
     assert not uploader.reverted
