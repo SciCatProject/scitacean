@@ -2,10 +2,14 @@
 # Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
 # @author Jan-Lukas Wynen
 from __future__ import annotations
-from typing import Union
+from pathlib import Path
+from typing import Optional, Union
 
 import pyscicat.client
 from pyscicat import model
+
+from .typing import FileTransfer
+
 
 # TODO check that PID is handled as described in create_* methods
 
@@ -13,19 +17,28 @@ from pyscicat import model
 class Client:
     """SciCat client to communicate with a backend.
 
-    Users of Scitacean should instantiate this class but not use it directly.
-    The corresponding methods of ``Dataset`` should be preferred as ``Client``
-    handles basic API calls to SciCat but not files.
+    Clients hold all information needed to communicate with a SciCat instance
+    and a filesystem that holds data files. Users of Scitacean should instantiate
+    this class but not use it directly. Instead, the corresponding methods of
+    ``Dataset`` should be called to download and upload data.
 
     Use :func:`Client.from_token` or :func:`Client.from_credentials` to initialize
     a client instead of the constructor directly.
     """
 
-    def __init__(self, *, client):
+    def __init__(
+        self,
+        *,
+        client: pyscicat.client.ScicatClient,
+        file_transfer: Optional[FileTransfer],
+    ):
         self._client = client
+        self._file_transfer = file_transfer
 
     @classmethod
-    def from_token(cls, *, url: str, token: str) -> Client:
+    def from_token(
+        cls, *, url: str, token: str, file_transfer: Optional[FileTransfer] = None
+    ) -> Client:
         """Create a new client and authenticate with a token.
 
         Parameters
@@ -41,10 +54,20 @@ class Client:
         :
             A new client.
         """
-        return Client(client=pyscicat.client.from_token(base_url=url, token=token))
+        return Client(
+            client=pyscicat.client.from_token(base_url=url, token=token),
+            file_transfer=file_transfer,
+        )
 
     @classmethod
-    def from_credentials(cls, *, url: str, username: str, password: str) -> Client:
+    def from_credentials(
+        cls,
+        *,
+        url: str,
+        username: str,
+        password: str,
+        file_transfer: Optional[FileTransfer] = None,
+    ) -> Client:
         """Create a new client and authenticate with username and password.
 
         Parameters
@@ -65,7 +88,8 @@ class Client:
         return Client(
             client=pyscicat.client.from_credentials(
                 base_url=url, username=username, password=password
-            )
+            ),
+            file_transfer=file_transfer,
         )
 
     def get_dataset(self, pid: str) -> Union[model.DerivedDataset, model.RawDataset]:
@@ -176,6 +200,20 @@ class Client:
             fails for some other reason.
         """
         self._client.datasets_origdatablock_create(dblock)
+
+    def download_file(self, *, remote: Union[str, Path], local: Union[str, Path]):
+        if self._file_transfer is None:
+            raise RuntimeError(
+                f"No file transfer handler specified, cannot download file {remote}"
+            )
+        self._file_transfer.download_file(remote=remote, local=local)
+
+    def upload_file(self, *, remote: Union[str, Path], local: Union[str, Path]) -> Path:
+        if self._file_transfer is None:
+            raise RuntimeError(
+                f"No file transfer handler specified, cannot upload file {local}"
+            )
+        return self._file_transfer.upload_file(remote=remote, local=local)
 
 
 def _make_orig_datablock(fields):

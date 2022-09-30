@@ -107,9 +107,10 @@ class File:
         checksum_algorithm: Optional[str],
     ) -> Path:
         directory = Path(directory)
-        directory.mkdir(exist_ok=True)
+        directory.mkdir(exist_ok=True)  # TODO undo if later fails
         local_path = directory / self.source_path
-        downloader.get(local=local_path, remote=self.remote_access_path)
+        with downloader.connect_for_download() as con:
+            con.download_file(local=local_path, remote=self.remote_access_path)
         self._local_path = local_path
         self._validate_local_file(checksum_algorithm=checksum_algorithm)
         return local_path

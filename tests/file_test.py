@@ -2,6 +2,7 @@
 # Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
 # @author Jan-Lukas Wynen
 
+from contextlib import contextmanager
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict
@@ -79,8 +80,12 @@ class FakeDownloader:
         self.files = files
         self.fs = fs
 
-    def get(self, *, remote, local):
+    def download_file(self, *, remote, local):
         self.fs.create_file(local, contents=self.files[remote])
+
+    @contextmanager
+    def connect_for_download(self):
+        yield self
 
 
 def test_provide_locally_ignores_checksum_if_alg_is_none(fs):

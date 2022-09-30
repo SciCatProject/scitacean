@@ -17,6 +17,7 @@ from pyscicat.model import (
 from .client import Client
 from .file import File
 from .metadata import ScientificMetadata
+from .typing import Uploader
 from ._utils import wrap_model
 
 
@@ -109,25 +110,25 @@ class Dataset:
         )
         return Dataset(model=model, files=files, datablock=datablock)
 
-    def upload_new_dataset_now(self, client: Client, uploader_factory):
+    def upload_new_dataset_now(self, client: Client, uploader: Uploader):
         if self._datablock is None:
             dset = self.prepare_as_new()
         else:
             dset = self
-        uploader = uploader_factory(dataset_id=dset.pid)
-        dset.sourceFolder = str(uploader.remote_upload_path)
-        for file in dset.files:
-            file.source_folder = dset.sourceFolder
-            uploader.put(local=file.local_path, remote=file.remote_access_path)
-
-        try:
-            dataset_id = client.create_dataset(dset.model)
-        except ScicatCommError:
+        with uploader.connect_for_upload(dset.pid) as con:
+            dset.sourceFolder = con.source_dir
             for file in dset.files:
-                uploader.revert_put(
-                    local=file.local_path, remote=file.remote_access_path
-                )
-            raise
+                file.source_folder = dset.sourceFolder
+                con.upload_file(local=file.local_path, remote=file.remote_access_path)
+
+            try:
+                dataset_id = client.create_dataset(dset.model)
+            except ScicatCommError:
+                for file in dset.files:
+                    con.revert_upload(
+                        local=file.local_path, remote=file.remote_access_path
+                    )
+                raise
 
         dset.datablock.datasetId = dataset_id
         try:
