@@ -3,75 +3,84 @@
 # @author Jan-Lukas Wynen
 
 from __future__ import annotations
+
+import dataclasses
+from collections import namedtuple
 from pathlib import Path
-from typing import List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 from uuid import uuid4
 
 from pyscicat.client import ScicatCommError
-from pyscicat.model import (
-    DerivedDataset,
-    DatasetType,
-    OrigDatablock,
-)
+from pyscicat.model import DerivedDataset, OrigDatablock, RawDataset
 
 from .client import Client
 from .file import File
-from .metadata import ScientificMetadata
 from .typing import Uploader
-from ._utils import wrap_model
+from ._dataset_fields import DatasetFields
+
+
+SciCatModels = namedtuple("SciCatModels", ["dataset", "datablock"])
 
 
 # TODO handle orig vs non-orig datablocks
 # TODO add derive method
-@wrap_model(DerivedDataset, "model", exclude=("numberOfFiles", "size", "type"))
-class Dataset:
-    # TODO support RawDataset
+class Dataset(DatasetFields):
+    # If self._datablock is None, the dataset does not exist on remote
     def __init__(
         self,
         *,
-        model: DerivedDataset,
         files: List[File],
         datablock: Optional[OrigDatablock],
+        meta: Dict[str, Any],
+        **kwargs,
     ):
-        self._model = model
+        super().__init__(**kwargs)
         self._files = files
         self._datablock = datablock
+        self._meta = dict(meta)
 
     @classmethod
-    def new(cls, model: Optional[DerivedDataset] = None, **kwargs) -> Dataset:
-        model_dict = model.dict(exclude_none=True) if model is not None else {}
+    def new(
+        cls,
+        *,
+        model: Optional[Union[DerivedDataset, RawDataset]] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        **kwargs,
+    ) -> Dataset:
+        # TODO some model fields are ignores, e.g. size
+        model_dict = cls._map_model_to_field_dict(model) if model is not None else {}
         model_dict.update(kwargs)
-        model_dict.setdefault("sourceFolder", "<PLACEHOLDER>")
-        return Dataset(model=DerivedDataset(**model_dict), files=[], datablock=None)
+        meta = {} if meta is None else dict(meta)
+        if model.scientificMetadata:
+            meta.update(model.scientificMetadata)
+            model.scientificMetadata = None
+        return Dataset(files=[], datablock=None, meta=meta, **model_dict)
 
     @classmethod
     def from_scicat(cls, client: Client, pid: str) -> Dataset:
         model = client.get_dataset(pid)
         dblock = client.get_orig_datablock(pid)
+        meta = model.scientificMetadata
+        if meta is None:
+            meta = {}
+        model.scientificMetadata = None
         return Dataset(
-            model=model,
             files=[
-                File.from_scicat(file, model.sourceFolder)
+                File.from_scicat(file, source_folder=model.sourceFolder)
                 for file in dblock.dataFileList
             ],
             datablock=dblock,
+            meta=meta,
+            **cls._map_model_to_field_dict(model),
         )
 
     @property
-    def model(self) -> DerivedDataset:
-        return self._model
+    def meta(self) -> Dict[str, Any]:
+        return self._meta
 
     @property
-    def datablock(self) -> Optional[OrigDatablock]:
-        return self._datablock
-
-    @property
-    def meta(self):
-        return ScientificMetadata(self.model)
-
-    @property
-    def dataset_type(self) -> DatasetType:
-        return self._model.type
+    def size(self) -> int:
+        return sum(file.size for file in self.files)
 
     @property
     def files(self) -> Tuple[File, ...]:
@@ -81,48 +90,63 @@ class Dataset:
         self._files.extend(files)
 
     def add_local_files(
-        self, *paths: Union[str, Path], relative_to: Union[str, Path] = ""
+        self,
+        *paths: Union[str, Path],
+        base_path: Union[str, Path] = "",
     ):
-        self.add_files(
-            *(File.from_local(path, relative_to=relative_to) for path in paths)
-        )
+        self.add_files(*(File.from_local(path, base_path=base_path) for path in paths))
 
-    def prepare_as_new(self) -> Dataset:
-        files = list(map(File.with_model_from_local_file, self._files))
-        total_size = sum(file.model.size for file in files)
-        dataset_id = str(uuid4())
+    def assign_new_pid(self):
+        self.pid = str(uuid4())
+
+    def make_scicat_models(self) -> SciCatModels:
+        if self.pid is None:
+            raise ValueError(
+                "The dataset PID must be set before creating SciCat models."
+            )
+        total_size = sum(file.model.size for file in self.files)
         datablock = OrigDatablock(
             size=total_size,
-            dataFileList=[file.model for file in files],
-            datasetId=dataset_id,
-            ownerGroup=self.model.ownerGroup,
-            accessGroups=self.model.accessGroups,
+            dataFileList=[file.model for file in self.files],
+            datasetId=self.pid,
+            ownerGroup=self.owner_group,
+            accessGroups=self.access_groups,
         )
-        model = DerivedDataset(
-            **{
-                **self.model.dict(exclude_none=True),
-                "pid": dataset_id,
-                "numberOfFiles": len(files),
-                "numberOfFilesArchived": None,
-                "size": total_size,
-                "sourceFolder": "<PLACEHOLDER>",
-            }
-        )
-        return Dataset(model=model, files=files, datablock=datablock)
+        try:
+            model = self._map_to_model(
+                number_of_files=len(self.files) or None,
+                number_of_files_archived=None,
+                packed_size=None,
+                size=total_size or None,
+                scientific_metadata=self.meta or None,
+            )
+        except KeyError as err:
+            raise TypeError(
+                f"Field {err} is not allowed in {self.dataset_type} datasets"
+            ) from None
+        return SciCatModels(dataset=model, datablock=datablock)
 
-    def upload_new_dataset_now(self, client: Client, uploader: Uploader):
-        if self._datablock is None:
-            dset = self.prepare_as_new()
-        else:
-            dset = self
+    def prepare_as_new(self):
+        dset = Dataset(
+            files=self._files,
+            datablock=self._datablock,
+            meta=self._meta,
+            **dataclasses.asdict(self),
+        )
+        dset.assign_new_pid()
+        return dset
+
+    def upload_new_dataset_now(self, client: Client, uploader: Uploader) -> Dataset:
+        dset = self.prepare_as_new()
         with uploader.connect_for_upload(dset.pid) as con:
-            dset.sourceFolder = con.source_dir
+            dset.source_folder = con.source_dir
             for file in dset.files:
-                file.source_folder = dset.sourceFolder
+                file.source_folder = dset.source_folder
                 con.upload_file(local=file.local_path, remote=file.remote_access_path)
 
+            models = dset.make_scicat_models()
             try:
-                dataset_id = client.create_dataset(dset.model)
+                dataset_id = client.create_dataset(models.dataset)
             except ScicatCommError:
                 for file in dset.files:
                     con.revert_upload(
@@ -130,9 +154,9 @@ class Dataset:
                     )
                 raise
 
-        dset.datablock.datasetId = dataset_id
+        models.datablock.datasetId = dataset_id
         try:
-            client.create_orig_datablock(dset.datablock)
+            client.create_orig_datablock(models.datablock)
         except ScicatCommError as exc:
             raise RuntimeError(
                 f"Failed to upload original datablocks for SciCat dataset {dset.pid}:"

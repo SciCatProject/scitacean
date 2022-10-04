@@ -36,3 +36,7 @@ def datasets(**kwargs) -> st.SearchStrategy[m.Dataset]:
 
 def derived_datasets(**kwargs) -> st.SearchStrategy[m.DerivedDataset]:
     return builds_model(m.DerivedDataset, ("classification", "isPublished"), kwargs)
+
+
+def raw_datasets(**kwargs) -> st.SearchStrategy[m.RawDataset]:
+    return builds_model(m.RawDataset, ("classification", "isPublished"), kwargs)

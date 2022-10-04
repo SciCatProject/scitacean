@@ -2,13 +2,18 @@
 # Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
 # @author Jan-Lukas Wynen
 
+from datetime import datetime, timedelta
+from pathlib import Path
 from urllib.parse import quote_plus
 
 from hypothesis import given, settings
 import pytest
+from pyscicat import model
 
 from scitacean import Dataset
 from scitacean.testing import strategies as sst
+
+from .common.files import make_file
 
 
 @pytest.fixture
@@ -28,13 +33,8 @@ def dataset_json():
         "accessGroups": ["group1", "2nd_group"],
         "inputDatasets": [],
         "usedSoftware": ["EasyScience"],
-        # TODO does not always look like this
         "scientificMetadata": {
-            "data_type": {"value": "event data", "unit": ""},
-            "reference_calibration_dataset": {
-                "value": "f1.432.56789/12345678-abcd-0987-0123456789ab",
-                "unit": "",
-            },
+            "data_type": "event data",
             "temperature": {"value": "123", "unit": "K"},
             "weight": {"value": "42", "unit": "mg"},
         },
@@ -63,6 +63,11 @@ def datablocks_json(dataset_json):
 
 
 @pytest.fixture
+def single_derived_dataset(dataset_json):
+    return model.DerivedDataset(**dataset_json)
+
+
+@pytest.fixture
 def mock_request(mock_request, local_url, catamel_token, dataset_json, datablocks_json):
     encoded_pid = quote_plus(dataset_json["pid"])
 
@@ -84,97 +89,228 @@ def mock_request(mock_request, local_url, catamel_token, dataset_json, datablock
 @given(
     sst.derived_datasets(owner="Nanny Ogg", usedSoftware=["Magick"], isPublished=True)
 )
-def test_can_get_dataset_properties(derived_dataset):
-    dset = Dataset.new(derived_dataset)
+def test_can_get_dataset_properties_derived(derived_dataset):
+    dset = Dataset.new(model=derived_dataset)
     assert dset.owner == "Nanny Ogg"
-    assert dset.usedSoftware == ["Magick"]
-    assert dset.isPublished
+    assert dset.used_software == ["Magick"]
+    assert dset.data_format is None  # only used for raw datasets
+    assert dset.is_published
+    assert dset.license == derived_dataset.license
+
+
+@settings(max_examples=10)
+@given(sst.raw_datasets(owner="Nanny Ogg", dataFormat="SpellBook", isPublished=True))
+def test_can_get_dataset_properties_raw(raw_dataset):
+    dset = Dataset.new(model=raw_dataset)
+    assert dset.owner == "Nanny Ogg"
+    assert dset.used_software is None  # only used for derived datasets
+    assert dset.data_format == "SpellBook"
+    assert dset.is_published
+    assert dset.license == raw_dataset.license
 
 
 @settings(max_examples=10)
 @given(sst.derived_datasets())
 def test_can_set_dataset_properties(derived_dataset):
-    dset = Dataset.new(derived_dataset)
+    dset = Dataset.new(model=derived_dataset)
     dset.owner = "Esmeralda Weatherwax"
-    dset.sourceFolder = "/lancre/coven"
+    dset.source_folder = "/lancre/coven"
     assert dset.owner == "Esmeralda Weatherwax"
-    assert dset.sourceFolder == "/lancre/coven"
-
-
-# Setting isPublished because the model has a default of False which
-# causes a test failure then derived_dataset.isPublished=None
-# TODO this isPublished should probably not be optional or not have a default value
-@settings(max_examples=10)
-@given(sst.derived_datasets(isPublished=True))
-def test_setting_dataset_properties_does_not_affect_other_attributes(derived_dataset):
-    expected_fields = dict(derived_dataset)
-    del expected_fields["owner"]
-    dset = Dataset.new(derived_dataset)
-
-    dset.owner = "Granny"
-    fields = dict(dset.model)
-    del fields["owner"]
-
-    assert fields == expected_fields
+    assert dset.source_folder == "/lancre/coven"
 
 
 @settings(max_examples=10)
 @given(sst.derived_datasets())
 def test_cannot_access_some_dataset_properties(derived_dataset):
-    dset = Dataset.new(derived_dataset)
+    # Some of DataFile's properties are exposed in a read only way.
+    dset = Dataset.new(model=derived_dataset)
     with pytest.raises(AttributeError):
-        _ = dset.size
+        dset.size = 1  # noqa
     with pytest.raises(AttributeError):
-        dset.size = 1
-    with pytest.raises(AttributeError):
-        _ = dset.numberOfFiles
-    with pytest.raises(AttributeError):
-        dset.numberOfFiles = 2
+        dset.files = [model.DataFile(path="path", size=4)]  # noqa
+
+
+def test_can_access_scientific_metadata(single_derived_dataset):
+    dset = Dataset.new(model=single_derived_dataset)
+    assert dset.meta["temperature"] == {"value": "123", "unit": "K"}
+    assert dset.meta["data_type"] == "event data"
+
+
+def test_can_add_more_metadata_in_new(single_derived_dataset):
+    dset = Dataset.new(model=single_derived_dataset, meta={"mood": "grumpy"})
+    assert dset.meta["temperature"] == {"value": "123", "unit": "K"}
+    assert dset.meta["data_type"] == "event data"
+    assert dset.meta["mood"] == "grumpy"
+
+
+def test_only_explicit_metadata_in_new(single_derived_dataset):
+    single_derived_dataset.scientificMetadata = None
+    dset = Dataset.new(model=single_derived_dataset, meta={"mood": "grumpy"})
+    assert "temperature" not in dset.meta
+    assert "data_type" not in dset.meta
+    assert dset.meta["mood"] == "grumpy"
 
 
 @settings(max_examples=10)
 @given(sst.derived_datasets())
-def test_meta_behaves_like_dict(derived_dataset):
-    dset = Dataset.new(derived_dataset)
-    assert dset.model.scientificMetadata is None
-    assert dset.meta == {}
+def test_new_dataset_has_no_files(derived_dataset):
+    dset = Dataset.new(model=derived_dataset)
+    assert len(dset.files) == 0
+    assert dset.size == 0
 
-    dset.meta["a"] = dict(value=3, unit="m")
-    dset.meta["b"] = dict(value=-1.2, unit="s")
-    assert dset.meta["a"] == dict(value=3, unit="m")
-    assert dset.meta["b"] == dict(value=-1.2, unit="s")
-    assert dset.model.scientificMetadata["a"] == dict(value=3, unit="m")
-    assert dset.model.scientificMetadata["b"] == dict(value=-1.2, unit="s")
 
-    assert len(dset.meta) == 2
-    assert list(dset.meta) == ["a", "b"]
-    assert list(dset.meta.keys()) == ["a", "b"]
-    assert list(dset.meta.values()) == [
-        dict(value=3, unit="m"),
-        dict(value=-1.2, unit="s"),
-    ]
-    assert list(dset.meta.items()) == [
-        ("a", dict(value=3, unit="m")),
-        ("b", dict(value=-1.2, unit="s")),
-    ]
+def test_add_local_file_to_new_dataset(single_derived_dataset, fs):
+    f = make_file(fs, "local/folder/data.dat")
 
-    del dset.meta["a"]
-    assert "a" not in dset.meta
-    assert "a" not in dset.model.scientificMetadata
-    assert dset.meta["b"] == dict(value=-1.2, unit="s")
-    assert dset.model.scientificMetadata["b"] == dict(value=-1.2, unit="s")
+    dset = Dataset.new(model=single_derived_dataset)
+    dset.add_local_files("local/folder/data.dat")
+
+    assert len(dset.files) == 1
+    assert dset.size == f["size"]
+
+    assert dset.files[0].source_folder is None
+    assert dset.files[0].remote_access_path is None
+    assert dset.files[0].local_path == Path("local/folder/data.dat")
+    assert dset.files[0].size == f["size"]
+
+    assert abs(f["creation_time"] - dset.files[0].creation_time) < timedelta(seconds=1)
+    t = datetime.fromisoformat(dset.files[0].model.time)
+    assert abs(f["creation_time"] - t) < timedelta(seconds=1)
+
+
+def test_add_multiple_local_files_to_new_dataset(single_derived_dataset, fs):
+    f0 = make_file(fs, "common/location1/data.dat")
+    f1 = make_file(fs, "common/song.mp3")
+
+    dset = Dataset.new(model=single_derived_dataset)
+    dset.add_local_files("common/location1/data.dat", "common/song.mp3")
+
+    assert len(dset.files) == 2
+    assert dset.size == f0["size"] + f1["size"]
+
+    assert dset.files[0].source_folder is None
+    assert dset.files[0].remote_access_path is None
+    assert dset.files[0].local_path == Path("common/location1/data.dat")
+    assert dset.files[0].size == f0["size"]
+    assert dset.files[0].model.path == "common/location1/data.dat"
+
+    assert dset.files[1].source_folder is None
+    assert dset.files[1].remote_access_path is None
+    assert dset.files[1].local_path == Path("common/song.mp3")
+    assert dset.files[1].size == f1["size"]
+    assert dset.files[1].model.path == "common/song.mp3"
+
+
+def test_add_multiple_local_files_to_new_dataset_with_base_path(
+    single_derived_dataset, fs
+):
+    f0 = make_file(fs, "common/location1/data.dat")
+    f1 = make_file(fs, "common/song.mp3")
+
+    dset = Dataset.new(model=single_derived_dataset)
+    dset.add_local_files(
+        "common/location1/data.dat", "common/song.mp3", base_path="common"
+    )
+
+    assert len(dset.files) == 2
+    assert dset.size == f0["size"] + f1["size"]
+
+    assert dset.files[0].source_folder is None
+    assert dset.files[0].remote_access_path is None
+    assert dset.files[0].local_path == Path("common/location1/data.dat")
+    assert dset.files[0].size == f0["size"]
+    assert dset.files[0].model.path == "location1/data.dat"
+
+    assert dset.files[1].source_folder is None
+    assert dset.files[1].remote_access_path is None
+    assert dset.files[1].local_path == Path("common/song.mp3")
+    assert dset.files[1].size == f1["size"]
+    assert dset.files[1].model.path == "song.mp3"
 
 
 def test_dataset_from_scicat(client, mock_request, dataset_json):
     dset = Dataset.from_scicat(client, dataset_json["pid"])
 
-    assert dset.sourceFolder == "/hex/source123"
-    assert dset.creationTime == "2011-08-24T12:34:56Z"
-    assert dset.accessGroups == ["group1", "2nd_group"]
+    assert dset.source_folder == "/hex/source123"
+    assert dset.creation_time == "2011-08-24T12:34:56Z"
+    assert dset.access_groups == ["group1", "2nd_group"]
     assert dset.meta["temperature"] == {"value": "123", "unit": "K"}
-    assert dset.meta["weight"] == {"value": "42", "unit": "mg"}
+    assert dset.meta["data_type"] == "event data"
 
+    assert dset.files[0].source_folder == "/hex/source123"
+    assert dset.files[0].remote_access_path == "/hex/source123/file1.nxs"
     assert dset.files[0].local_path is None
+    assert dset.files[1].source_folder == "/hex/source123"
+    assert dset.files[1].remote_access_path == "/hex/source123/sub/file2.nxs"
     assert dset.files[1].local_path is None
-    assert str(dset.files[0].remote_access_path) == "/hex/source123/file1.nxs"
-    assert str(dset.files[1].remote_access_path) == "/hex/source123/sub/file2.nxs"
+
+
+@settings(max_examples=10)
+@given(sst.derived_datasets())
+def test_make_scicat_models_creates_correct_dataset(derived_dataset):
+    derived_dataset.pid = "some-pid"
+    dset = Dataset.new(model=derived_dataset)
+    mod = dset.make_scicat_models().dataset
+    assert mod == derived_dataset
+
+
+@settings(max_examples=10)
+@given(sst.derived_datasets())
+def test_make_scicat_models_datablock_without_files(derived_dataset):
+    derived_dataset.pid = "some-pid"
+    dset = Dataset.new(model=derived_dataset)
+    mod = dset.make_scicat_models().datablock
+    assert mod.id is None
+    assert mod.size == 0
+    assert len(mod.dataFileList) == 0
+    assert mod.datasetId == dset.pid
+
+
+def test_make_scicat_models_datablock_with_files(single_derived_dataset, fs):
+    f0 = make_file(fs, "base/folder/events.nxs")
+    f1 = make_file(fs, "base/folder/log/wtf.log")
+
+    dset = Dataset.new(model=single_derived_dataset)
+    dset.add_local_files(
+        "base/folder/events.nxs", "base/folder/log/wtf.log", base_path="base/folder"
+    )
+
+    mod = dset.make_scicat_models().datablock
+
+    assert mod.id is None
+    assert mod.size == f0["size"] + f1["size"]
+    assert len(mod.dataFileList) == 2
+    assert mod.datasetId == dset.pid
+
+    assert mod.dataFileList[0].path == "events.nxs"
+    assert mod.dataFileList[0].size == f0["size"]
+    assert mod.dataFileList[1].path == "log/wtf.log"
+    assert mod.dataFileList[1].size == f1["size"]
+
+
+@settings(max_examples=10)
+@given(sst.derived_datasets(pid=None))
+def test_make_scicat_models_requires_pid(derived_dataset):
+    dset = Dataset.new(model=derived_dataset)
+    with pytest.raises(ValueError):
+        _ = dset.make_scicat_models()
+
+
+# inputDatasets is only allowed in derived datasets
+@settings(max_examples=10)
+@given(sst.derived_datasets(pid="0987-poi", inputDatasets=["abcd-1234"]))
+def test_make_derived_scicat_models_fails_with_raw_dataset_type(derived_dataset):
+    dset = Dataset.new(model=derived_dataset)
+    dset.dataset_type = model.DatasetType.raw
+    with pytest.raises(TypeError):
+        _ = dset.make_scicat_models()
+
+
+# sampleId is only allowed in raw datasets
+@settings(max_examples=10)
+@given(sst.raw_datasets(pid="abcd-1234", sampleId="sample-xyz"))
+def test_make_raw_scicat_models_fails_with_derived_dataset_type(raw_dataset):
+    dset = Dataset.new(model=raw_dataset)
+    dset.dataset_type = model.DatasetType.derived
+    with pytest.raises(TypeError):
+        _ = dset.make_scicat_models()

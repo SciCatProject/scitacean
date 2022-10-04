@@ -14,6 +14,8 @@ from scitacean import Dataset
 
 from .common.files import make_file
 
+# TODO source_folder changed / populated in file after upload
+
 
 @pytest.fixture
 def mock_request(local_url, mock_request):
@@ -51,7 +53,7 @@ def derived_dataset(ownable):
 def dataset(derived_dataset, fs):
     make_file(fs, path="file.nxs")
     make_file(fs, path="the_log_file.log")
-    dset = Dataset.new(derived_dataset)
+    dset = Dataset.new(model=derived_dataset)
     dset.add_local_files("file.nxs", "the_log_file.log")
     return dset
 
@@ -98,10 +100,10 @@ def test_upload_uploads_files_to_source_folder(client, dataset):
     uploader = FakeUpload()
     dataset.upload_new_dataset_now(client, uploader=uploader)
     assert sorted(uploader.uploaded, key=lambda d: d["local"]) == [
-        {"local": Path("file.nxs"), "remote": Path("/remote/upload/file.nxs")},
+        {"local": Path("file.nxs"), "remote": "/remote/upload/file.nxs"},
         {
             "local": Path("the_log_file.log"),
-            "remote": Path("/remote/upload/the_log_file.log"),
+            "remote": "/remote/upload/the_log_file.log",
         },
     ]
 

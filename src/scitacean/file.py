@@ -48,6 +48,9 @@ class File:
         source_dir:                remote/storage
         -> remote_path:            folder/file.nxs  (deduced now but can be overridden)
         -> actual remote location: remote/storage/folder/file.nxs  (always deduced)
+
+        source_dir is only populated when file exists on remote
+        but dataset may have a source dir regardless
         """
         path = Path(path)
         if not remote_path:
