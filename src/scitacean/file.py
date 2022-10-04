@@ -6,7 +6,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 import hashlib
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Optional, Union
 
 from pyscicat.model import DataFile
@@ -20,55 +20,80 @@ class File:
     def __init__(
         self,
         *,
-        source_path: Union[str, Path],
-        source_folder: Optional[Union[str, Path]],
+        source_folder: Optional[str],
         local_path: Optional[Union[str, Path]],
-        model: Optional[DataFile],
+        model: DataFile,
     ):
-        # TODO sourcePath is not required to be an actual Path. Could be, e.g. URL
-        self._source_path = Path(source_path)  # relative to source folder
-        self._source_folder = Path(source_folder) if source_folder is not None else None
         self._local_path = Path(local_path) if local_path is not None else None
+        self._source_folder = str(source_folder) if source_folder is not None else None
+        # remote_path is stored as model.path
         self._model = model
 
     @classmethod
     def from_local(
-        cls, path: Union[str, Path], *, relative_to: Union[str, Path] = ""
+        cls,
+        path: Union[str, Path],
+        *,
+        base_path: Union[str, Path] = "",
+        remote_path: Optional[Union[str, PurePosixPath]] = None,
+        source_folder: Optional[Union[str, PurePosixPath]] = None,
+        checksum_algorithm: str = "md5",
+        remote_uid: Optional[str] = None,
+        remote_gid: Optional[str] = None,
+        remote_perm: Optional[str] = None,
     ) -> File:
+        """
+        path:                      somewhere/on/local/folder/file.nxs
+        base_bath:                 somewhere/on/local
+        source_dir:                remote/storage
+        -> remote_path:            folder/file.nxs  (deduced now but can be overridden)
+        -> actual remote location: remote/storage/folder/file.nxs  (always deduced)
+        """
+        path = Path(path)
+        if not remote_path:
+            remote_path = path.relative_to(base_path)
         return File(
-            source_path=Path(relative_to) / Path(path).name,
-            source_folder=None,
             local_path=path,
-            model=None,
+            source_folder=source_folder,
+            model=file_model_from_local_file(
+                path,
+                remote_path=remote_path,
+                checksum_algorithm=checksum_algorithm,
+                uid=remote_uid,
+                gid=remote_gid,
+                perm=remote_perm,
+            ),
         )
 
     @classmethod
-    def from_scicat(cls, model: DataFile, sourceFolder: str) -> File:
+    def from_scicat(
+        cls,
+        model: DataFile,
+        *,
+        source_folder: Union[str, PurePosixPath],
+        local_path: Union[str, Path] = None,
+    ) -> File:
         return File(
-            source_path=model.path,
-            source_folder=sourceFolder,
-            local_path=None,
+            source_folder=source_folder,
+            local_path=local_path,
             model=model,
         )
 
     @property
-    def source_path(self) -> Path:
-        return self._source_path
-
-    @property
-    def source_folder(self) -> Optional[Path]:
+    def source_folder(self) -> Optional[str]:
         return self._source_folder
 
     @source_folder.setter
-    def source_folder(self, value: Optional[Union[str, Path]]):
-        self._source_folder = Path(value) if value is not None else None
+    def source_folder(self, value: Optional[str]):
+        """Must be consistent with dataset!"""
+        self._source_folder = value
 
     @property
     def remote_access_path(self) -> Optional[str]:
         return (
             None
             if self.source_folder is None
-            else self._source_folder / self.source_path
+            else os.path.join(self.source_folder, self.model.path)
         )
 
     @property
@@ -80,24 +105,16 @@ class File:
         return self._model.chk
 
     @property
+    def size(self) -> int:
+        return self._model.size
+
+    @property
+    def creation_time(self) -> datetime:
+        return datetime.fromisoformat(self.model.time)
+
+    @property
     def model(self) -> Optional[DataFile]:
         return self._model
-
-    def with_model_from_local_file(self, *, checksum_algorithm: str = "md5") -> File:
-        assert self._local_path is not None
-        st = self._local_path.stat()
-        chk = checksum_of_file(self._local_path, algorithm=checksum_algorithm)
-        return File(
-            source_path=self._source_path,
-            source_folder=self._source_folder,
-            local_path=self._local_path,
-            model=DataFile(
-                path=str(self.source_path),
-                size=st.st_size,
-                time=_creation_time_str(st),
-                chk=chk,
-            ),
-        )
 
     def provide_locally(
         self,
@@ -108,7 +125,7 @@ class File:
     ) -> Path:
         directory = Path(directory)
         directory.mkdir(exist_ok=True)  # TODO undo if later fails
-        local_path = directory / self.source_path
+        local_path = directory / self.model.path
         with downloader.connect_for_download() as con:
             con.download_file(local=local_path, remote=self.remote_access_path)
         self._local_path = local_path
@@ -152,8 +169,8 @@ class File:
 
     def __repr__(self):
         return (
-            f"File(source_folder={self.source_folder}, source_path={self.source_path}, "
-            f"local_path={self.local_path}, model={self.model!r})"
+            f"File(source_folder={self.source_folder}, local_path={self.local_path}, "
+            f"model={self.model!r})"
         )
 
 
@@ -185,3 +202,25 @@ def checksum_of_file(path: Union[str, Path], *, algorithm: str) -> str:
         for n in iter(lambda: file.readinto(buffer), 0):
             chk.update(buffer[:n])
     return chk.hexdigest()
+
+
+def file_model_from_local_file(
+    path: Path,
+    *,
+    remote_path: PurePosixPath,
+    checksum_algorithm: str,
+    uid: Optional[str],
+    gid: Optional[str],
+    perm: Optional[str],
+) -> DataFile:
+    st = path.stat()
+    chk = checksum_of_file(path, algorithm=checksum_algorithm)
+    return DataFile(
+        path=str(remote_path),
+        size=st.st_size,
+        time=_creation_time_str(st),
+        chk=chk,
+        uid=uid,
+        gid=gid,
+        perm=perm,
+    )
