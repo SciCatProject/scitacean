@@ -93,7 +93,9 @@ def test_upload_creates_dataset(mock_request, client, dataset):
         if re.search(r"/Datasets([^/]|$)", str(req))
     ]
     assert len(dataset_requests) == 1
-    assert dataset_requests[0].json() == finalized.model.dict(exclude_none=True)
+    assert dataset_requests[0].json() == finalized.make_scicat_models().dataset.dict(
+        exclude_none=True
+    )
 
 
 def test_upload_uploads_files_to_source_folder(client, dataset):
@@ -155,7 +157,9 @@ def test_upload_creates_orig_data_blocks(
     ]
     assert len(datablock_requests) == 1
     assert f"Datasets/{finalized.pid}" in str(datablock_requests[0])
-    assert datablock_requests[0].json() == finalized.datablock.dict(exclude_none=True)
+    assert datablock_requests[
+        0
+    ].json() == finalized.make_scicat_models().datablock.dict(exclude_none=True)
 
 
 def test_failed_datablock_upload_does_not_revert(mock_request, client, dataset):

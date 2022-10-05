@@ -249,6 +249,8 @@ def test_dataset_from_scicat(client, mock_request, dataset_json):
 @given(sst.derived_datasets())
 def test_make_scicat_models_creates_correct_dataset(derived_dataset):
     derived_dataset.pid = "some-pid"
+    # The default arg of isPublished messes with model creation in Dataset
+    derived_dataset.isPublished = False
     dset = Dataset.new(model=derived_dataset)
     mod = dset.make_scicat_models().dataset
     assert mod == derived_dataset
