@@ -1,5 +1,0 @@
--r base.in
-hypothesis
-pyfakefs
-pytest
-requests_mock
