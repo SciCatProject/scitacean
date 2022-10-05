@@ -164,7 +164,7 @@ class DatasetFields:
                 mapped[name_mapping[name]] = val
             except KeyError:raise TypeError(
                     f"Field {{name}} is not allowed" f" in {{type_name}} datasets"
-                )
+                ) from None
         return mapped
 
     def _map_to_model(
