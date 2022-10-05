@@ -1,0 +1,63 @@
+import dataclasses
+from typing import Any, Dict, Optional, Union
+import typing
+
+from pyscicat.model import DatasetType, DerivedDataset, RawDataset
+
+_NAME_IN_DERIVED = $name_to_derived_map
+_NAME_IN_RAW = $name_to_raw_map
+_OMITTED_FIELDS = $omitted_fields
+
+
+@dataclasses.dataclass
+class DatasetFields:
+$dataclass_fields
+
+    def _map_fields(self, name_mapping, type_name: str) -> Dict[str, Any]:
+        mapped = {}
+        for name, val in filter(
+            lambda t: t[1] is not None, dataclasses.asdict(self).items()
+        ):
+            try:
+                mapped[name_mapping[name]] = val
+            except KeyError:
+                raise TypeError(
+                    f"Field {name} is not allowed" f" in {type_name} datasets"
+                ) from None
+        return mapped
+
+    def _map_to_model(
+        self,
+        $omitted_arg_list,
+    ) -> Union[DerivedDataset, RawDataset]:
+        if self.dataset_type == DatasetType.derived:
+            name_mapping = _NAME_IN_DERIVED
+            type_name = "derived"
+            model = DerivedDataset
+        else:
+            name_mapping = _NAME_IN_RAW
+            type_name = "raw"
+            model = RawDataset
+        mapped = self._map_fields(name_mapping, type_name)
+$omitted_assignment
+        return model(**mapped)
+
+    @staticmethod
+    def _find_field_name_for_model_name(s, mapping):
+        for scitacean_name, model_name in mapping.items():
+            if model_name == s:
+                return scitacean_name
+        raise ValueError(f"{s} is not a valid field name")
+
+    @staticmethod
+    def _map_model_to_field_dict(model):
+        d = {
+            DatasetFields._find_field_name_for_model_name(
+                name,
+                _NAME_IN_DERIVED if model.type == DatasetType.derived else _NAME_IN_RAW,
+            ): val
+            for name, val in model.dict(exclude_none=True).items()
+        }
+        for name in _OMITTED_FIELDS:
+            d.pop(name, None)
+        return d
