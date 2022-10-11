@@ -5,7 +5,7 @@
 #
 #    pip-compile-multi
 #
-bcrypt==4.0.0
+bcrypt==4.0.1
     # via paramiko
 certifi==2022.9.24
     # via requests
@@ -41,7 +41,7 @@ six==1.16.0
     # via
     #   paramiko
     #   pathlib2
-typing-extensions==4.3.0
+typing-extensions==4.4.0
     # via pydantic
 urllib3==1.26.12
     # via requests

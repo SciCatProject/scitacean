@@ -1,7 +1,7 @@
 [build-system]
 requires = [
-  "setuptools>=45",
-  "setuptools_scm[toml]>=7.0",
+    "setuptools>=45",
+    "setuptools_scm[toml]>=7.0",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -11,9 +11,12 @@ build-backend = "setuptools.build_meta"
 addopts = "-ra -v"
 testpaths = "tests"
 filterwarnings = [
-  "error",
+    "error",
 ]
 
 [tool.mypy]
 mypy_path = "src"
 ignore_missing_imports = true
+
+[tool.bandit]
+exclude_dirs = ["docs/conf.py"]

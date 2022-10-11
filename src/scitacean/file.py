@@ -197,9 +197,17 @@ def _creation_time_str(st: os.stat_result) -> str:
     )
 
 
+def _new_hash(algorithm: str):
+    try:
+        return hashlib.new(algorithm, usedforsecurity=False)
+    except TypeError:
+        # Fallback for Python < 3.9
+        return hashlib.new(algorithm)
+
+
 # size based on http://git.savannah.gnu.org/gitweb/?p=coreutils.git;a=blob;f=src/ioblksize.h;h=ed2f4a9c4d77462f357353eb73ee4306c28b37f1;hb=HEAD#l23  # noqa
 def checksum_of_file(path: Union[str, Path], *, algorithm: str) -> str:
-    chk = hashlib.new(algorithm)
+    chk = _new_hash(algorithm)
     buffer = memoryview(bytearray(128 * 1024))
     with open(path, "rb", buffering=0) as file:
         for n in iter(lambda: file.readinto(buffer), 0):
