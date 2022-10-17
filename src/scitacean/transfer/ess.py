@@ -28,76 +28,21 @@ class ESSTestFileTransfer:
         self,
         *,
         host: str = "login.esss.dk",
+        port: Optional[int] = None,
         remote_base_path: str = "/mnt/groupdata/scicat/upload",
-        username: Optional[str] = None,
-        password: Optional[str] = None,
     ):
         self._host = host
+        self._port = port
         self._remote_base_path = remote_base_path
-        # TODO really store them?
-        self._username = username
-        self._password = password
-
-    @staticmethod
-    def _ask_for_key_passphrase() -> str:
-        return getpass("The private key is encrypted, enter passphrase: ")
-
-    def _ask_for_credentials(self) -> Tuple[str, str]:
-        print(f"You need to authenticate to access {self._host}")
-        username = input("Username: ")
-        password = getpass("Password: ")
-        return username, password
-
-    @contextmanager
-    def _generic_connect(self, **kwargs):
-        with Connection(self._host, **kwargs) as con:
-            con.open()
-            yield con
-
-    @contextmanager
-    def _unauthenticated_connect(self):
-        with self._generic_connect() as con:
-            yield con
-
-    @contextmanager
-    def _authenticated_connect(self, exc: AuthenticationException):
-        # TODO fail fast if output going to file
-        if isinstance(exc, PasswordRequiredException) and "encrypted" in exc.args[0]:
-            with self._generic_connect(
-                connect_kwargs={
-                    "passphrase": ESSTestFileTransfer._ask_for_key_passphrase()
-                }
-            ) as con:
-                yield con
-        else:
-            if self._username is not None and self._password is not None:
-                username, password = self._username, self._password
-            else:
-                username, password = self._ask_for_credentials()
-            with self._generic_connect(
-                user=username, connect_kwargs={"password": password}
-            ) as con:
-                yield con
-
-    @contextmanager
-    def _connect(self):
-        try:
-            with self._unauthenticated_connect() as con:
-                yield con
-        except AuthenticationException as exc:
-            # TODO backtrace is confusing when the op fails
-            #  because it includes the previous exception
-            with self._authenticated_connect(exc) as con:
-                yield con
 
     @contextmanager
     def connect_for_download(self):
-        with self._connect() as con:
+        with _connect(self._host, self._port) as con:
             yield _ESSDownloadConnection(connection=con)
 
     @contextmanager
     def connect_for_upload(self, dataset_id):
-        with self._connect() as con:
+        with _connect(self._host, self._port) as con:
             yield _ESSUploadConnection(
                 connection=con,
                 dataset_id=dataset_id,
@@ -188,6 +133,68 @@ class _ESSUploadConnection:
                     self._connection.host,
                     exc.result,
                 )
+
+
+def _ask_for_key_passphrase() -> str:
+    return getpass("The private key is encrypted, enter passphrase: ")
+
+
+def _ask_for_credentials(host) -> Tuple[str, str]:
+    print(f"You need to authenticate to access {host}")
+    username = input("Username: ")
+    password = getpass("Password: ")
+    return username, password
+
+
+@contextmanager
+def _generic_connect(host, port, **kwargs):
+    with Connection(host=host, port=port, **kwargs) as con:
+        con.open()
+        yield con
+
+
+@contextmanager
+def _unauthenticated_connect(host, port):
+    with _generic_connect(host, port) as con:
+        yield con
+
+
+@contextmanager
+def _authenticated_connect(host, port, exc: AuthenticationException):
+    # TODO fail fast if output going to file
+    if isinstance(exc, PasswordRequiredException) and "encrypted" in exc.args[0]:
+        # TODO does not work anymore, exception is always AuthenticationException
+        with _generic_connect(
+            host=host,
+            port=port,
+            connect_kwargs={"passphrase": _ask_for_key_passphrase()},
+        ) as con:
+            yield con
+    else:
+        username, password = _ask_for_credentials(host)
+        with _generic_connect(
+            host=host, port=port, user=username, connect_kwargs={"password": password}
+        ) as con:
+            yield con
+
+
+@contextmanager
+def _connect(host, port):
+    # Catch all exceptions and remove traceback up to this point.
+    # We pass secrets as arguments to functions called in this block and those
+    # can be leaked through exception handlers.
+    try:
+        try:
+            with _unauthenticated_connect(host, port) as con:
+                yield con
+        except AuthenticationException as exc:
+            with _authenticated_connect(host, port, exc) as con:
+                yield con
+    except Exception as exc:
+        # TODO dedicated exception type?
+        raise type(exc)(exc.args) from None
+    except BaseException as exc:
+        raise type(exc)(exc.args) from None
 
 
 def _get_logger():
