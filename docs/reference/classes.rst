@@ -11,3 +11,15 @@ Classes
    Client
    Dataset
    File
+
+DataClasses
+===========
+
+.. currentmodule:: scitacean._dataset_fields
+
+.. autosummary::
+   :toctree: ../generated/classes
+   :template: scitacean-dataclass-template.rst
+   :recursive:
+
+   DatasetFields
