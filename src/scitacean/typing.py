@@ -5,6 +5,8 @@
 from pathlib import Path
 from typing import ContextManager, Protocol, Union
 
+# TODO docs
+
 
 class DownloadConnection(Protocol):
     """"""
@@ -26,7 +28,7 @@ class UploadConnection(Protocol):
     source_dir: str
 
     def upload_file(self, *, remote: Union[str, Path], local: Union[str, Path]) -> str:
-        """remote is only part, there is common path"""
+        """remote is only part, there is common path, returns remote"""
         ...
 
     def revert_upload(self, *, remote: Union[str, Path], local: Union[str, Path] = ""):
