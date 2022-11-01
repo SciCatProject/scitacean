@@ -19,4 +19,4 @@ mypy_path = "src"
 ignore_missing_imports = true
 
 [tool.bandit]
-exclude_dirs = ["docs/conf.py"]
+exclude_dirs = ["docs/conf.py", "tests", "src/scitacean.egg-info"]
