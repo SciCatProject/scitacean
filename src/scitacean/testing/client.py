@@ -44,7 +44,9 @@ class FakeClient:
         try:
             return self.datasets[pid]
         except KeyError:
-            raise pyscicat.client.ScicatCommError(f"Unable to retrieve dataset {pid}")
+            raise pyscicat.client.ScicatCommError(
+                f"Unable to retrieve dataset {pid}"
+            ) from None
 
     def get_orig_datablock(self, pid: str) -> model.OrigDatablock:
         try:
@@ -52,7 +54,7 @@ class FakeClient:
         except KeyError:
             raise pyscicat.client.ScicatCommError(
                 f"Unable to retrieve orig datablock for dataset {pid}"
-            )
+            ) from None
         if len(dblocks) != 1:
             raise NotImplementedError(
                 f"Got {len(dblocks)} original datablocks for dataset {pid} "
