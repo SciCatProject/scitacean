@@ -154,6 +154,7 @@ class Dataset(DatasetFields):
                     )
                 raise
 
+        dset.pid = dataset_id
         models.datablock.datasetId = dataset_id
         try:
             client.create_orig_datablock(models.datablock)

@@ -4,7 +4,6 @@
 
 from datetime import datetime, timedelta
 from pathlib import Path
-from urllib.parse import quote_plus
 
 from hypothesis import given, settings
 import pytest
@@ -12,77 +11,63 @@ from pyscicat import model
 
 from scitacean import Dataset
 from scitacean.testing import strategies as sst
+from scitacean.testing.client import FakeClient
 
 from .common.files import make_file
 
 
 @pytest.fixture
-def dataset_json():
-    return {
-        "pid": "01.432.56789/12345678-abcd-0987-0123456789ab",
-        "owner": "PonderStibbons",
-        "investigator": "Ridcully",
-        "contactEmail": "p.stibbons@uu.am",
-        "sourceFolder": "/hex/source123",
-        "size": 168456,
-        "numberOfFiles": 2,
-        "creationTime": "2011-08-24T12:34:56Z",
-        "type": "derived",
-        "datasetName": "Data A38",
-        "ownerGroup": "group_o",
-        "accessGroups": ["group1", "2nd_group"],
-        "inputDatasets": [],
-        "usedSoftware": ["EasyScience"],
-        "scientificMetadata": {
+def ownable():
+    return model.Ownable(ownerGroup="uu", accessGroups=["group1", "2nd_group"])
+
+
+@pytest.fixture
+def derived_dataset_model(ownable):
+    return model.DerivedDataset(
+        pid="01.432.56789/12345678-abcd-0987-0123456789ab",
+        owner="PonderStibbons",
+        investigator="Ridcully",
+        contactEmail="p.stibbons@uu.am",
+        sourceFolder="/hex/source123",
+        size=168456,
+        numberOfFiles=2,
+        creationTime="2011-08-24T12:34:56Z",
+        datasetName="Data A38",
+        inputDatasets=[],
+        usedSoftware=["EasyScience"],
+        scientificMetadata={
             "data_type": "event data",
             "temperature": {"value": "123", "unit": "K"},
             "weight": {"value": "42", "unit": "mg"},
         },
-    }
-
-
-@pytest.fixture
-def datablocks_json(dataset_json):
-    return [
-        {
-            "id": "fedcba98-5647-a3b2-a0b1c2d3e4f567",
-            "size": 168456,
-            "ownerGroup": "group_o",
-            "accessGroups": ["group1"],
-            "datasetId": dataset_json["pid"],
-            "dataFileList": [
-                {"path": "file1.nxs", "size": 123456, "time": "2022-02-02T12:34:56Z"},
-                {
-                    "path": "sub/file2.nxs",
-                    "size": 45000,
-                    "time": "2022-02-02T12:54:32Z",
-                },
-            ],
-        }
-    ]
-
-
-@pytest.fixture
-def single_derived_dataset(dataset_json):
-    return model.DerivedDataset(**dataset_json)
-
-
-@pytest.fixture
-def mock_request(mock_request, local_url, catamel_token, dataset_json, datablocks_json):
-    encoded_pid = quote_plus(dataset_json["pid"])
-
-    # TODO client inserts 2 slashes before 'Dataset':
-    #  http://localhost:3000/api/v3//Datasets/...
-    mock_request.get(
-        f"{local_url}/Datasets/{encoded_pid}?access_token={catamel_token}",
-        json=dataset_json,
+        **ownable.dict(),
     )
-    mock_request.get(
-        f"{local_url}/Datasets/{encoded_pid}/"
-        f"origdatablocks?access_token={catamel_token}",
-        json=datablocks_json,
+
+
+@pytest.fixture
+def orig_datablock_model(derived_dataset_model, ownable):
+    return model.OrigDatablock(
+        id="fedcba98-5647-a3b2-a0b1c2d3e4f567",
+        size=168456,
+        datasetId=derived_dataset_model.pid,
+        dataFileList=[
+            model.DataFile(path="file1.nxs", size=123456, time="2022-02-02T12:34:56Z"),
+            model.DataFile(
+                path="sub/file2.nxs",
+                size=45000,
+                time="2022-02-02T12:54:32Z",
+            ),
+        ],
+        **ownable.dict(),
     )
-    return mock_request
+
+
+@pytest.fixture
+def client(derived_dataset_model, orig_datablock_model):
+    client = FakeClient(file_transfer=None)
+    client.datasets[derived_dataset_model.pid] = derived_dataset_model
+    client.orig_datablocks[derived_dataset_model.pid] = [orig_datablock_model]
+    return client
 
 
 @settings(max_examples=10)
@@ -130,22 +115,22 @@ def test_cannot_access_some_dataset_properties(derived_dataset):
         dset.files = [model.DataFile(path="path", size=4)]  # noqa
 
 
-def test_can_access_scientific_metadata(single_derived_dataset):
-    dset = Dataset.new(model=single_derived_dataset)
+def test_can_access_scientific_metadata(derived_dataset_model):
+    dset = Dataset.new(model=derived_dataset_model)
     assert dset.meta["temperature"] == {"value": "123", "unit": "K"}
     assert dset.meta["data_type"] == "event data"
 
 
-def test_can_add_more_metadata_in_new(single_derived_dataset):
-    dset = Dataset.new(model=single_derived_dataset, meta={"mood": "grumpy"})
+def test_can_add_more_metadata_in_new(derived_dataset_model):
+    dset = Dataset.new(model=derived_dataset_model, meta={"mood": "grumpy"})
     assert dset.meta["temperature"] == {"value": "123", "unit": "K"}
     assert dset.meta["data_type"] == "event data"
     assert dset.meta["mood"] == "grumpy"
 
 
-def test_only_explicit_metadata_in_new(single_derived_dataset):
-    single_derived_dataset.scientificMetadata = None
-    dset = Dataset.new(model=single_derived_dataset, meta={"mood": "grumpy"})
+def test_only_explicit_metadata_in_new(derived_dataset_model):
+    derived_dataset_model.scientificMetadata = None
+    dset = Dataset.new(model=derived_dataset_model, meta={"mood": "grumpy"})
     assert "temperature" not in dset.meta
     assert "data_type" not in dset.meta
     assert dset.meta["mood"] == "grumpy"
@@ -159,10 +144,10 @@ def test_new_dataset_has_no_files(derived_dataset):
     assert dset.size == 0
 
 
-def test_add_local_file_to_new_dataset(single_derived_dataset, fs):
+def test_add_local_file_to_new_dataset(derived_dataset_model, fs):
     f = make_file(fs, "local/folder/data.dat")
 
-    dset = Dataset.new(model=single_derived_dataset)
+    dset = Dataset.new(model=derived_dataset_model)
     dset.add_local_files("local/folder/data.dat")
 
     assert len(dset.files) == 1
@@ -178,11 +163,11 @@ def test_add_local_file_to_new_dataset(single_derived_dataset, fs):
     assert abs(f["creation_time"] - t) < timedelta(seconds=1)
 
 
-def test_add_multiple_local_files_to_new_dataset(single_derived_dataset, fs):
+def test_add_multiple_local_files_to_new_dataset(derived_dataset_model, fs):
     f0 = make_file(fs, "common/location1/data.dat")
     f1 = make_file(fs, "common/song.mp3")
 
-    dset = Dataset.new(model=single_derived_dataset)
+    dset = Dataset.new(model=derived_dataset_model)
     dset.add_local_files("common/location1/data.dat", "common/song.mp3")
 
     assert len(dset.files) == 2
@@ -202,12 +187,12 @@ def test_add_multiple_local_files_to_new_dataset(single_derived_dataset, fs):
 
 
 def test_add_multiple_local_files_to_new_dataset_with_base_path(
-    single_derived_dataset, fs
+    derived_dataset_model, fs
 ):
     f0 = make_file(fs, "common/location1/data.dat")
     f1 = make_file(fs, "common/song.mp3")
 
-    dset = Dataset.new(model=single_derived_dataset)
+    dset = Dataset.new(model=derived_dataset_model)
     dset.add_local_files(
         "common/location1/data.dat", "common/song.mp3", base_path="common"
     )
@@ -228,8 +213,8 @@ def test_add_multiple_local_files_to_new_dataset_with_base_path(
     assert dset.files[1].model.path == "song.mp3"
 
 
-def test_dataset_from_scicat(client, mock_request, dataset_json):
-    dset = Dataset.from_scicat(client, dataset_json["pid"])
+def test_dataset_from_scicat(client, derived_dataset_model):
+    dset = Dataset.from_scicat(client, derived_dataset_model.pid)
 
     assert dset.source_folder == "/hex/source123"
     assert dset.creation_time == "2011-08-24T12:34:56Z"
@@ -268,11 +253,11 @@ def test_make_scicat_models_datablock_without_files(derived_dataset):
     assert mod.datasetId == dset.pid
 
 
-def test_make_scicat_models_datablock_with_files(single_derived_dataset, fs):
+def test_make_scicat_models_datablock_with_files(derived_dataset_model, fs):
     f0 = make_file(fs, "base/folder/events.nxs")
     f1 = make_file(fs, "base/folder/log/wtf.log")
 
-    dset = Dataset.new(model=single_derived_dataset)
+    dset = Dataset.new(model=derived_dataset_model)
     dset.add_local_files(
         "base/folder/events.nxs", "base/folder/log/wtf.log", base_path="base/folder"
     )

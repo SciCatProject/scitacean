@@ -3,14 +3,14 @@
 # @author Jan-Lukas Wynen
 
 from contextlib import contextmanager
+from copy import deepcopy
 from pathlib import Path
-import re
-from urllib.parse import urljoin
 
 from pyscicat.client import ScicatCommError
-from pyscicat.model import DatasetType, DerivedDataset, Ownable
+from pyscicat import model
 import pytest
 from scitacean import Dataset
+from scitacean.testing.client import FakeClient
 
 from .common.files import make_file
 
@@ -18,42 +18,43 @@ from .common.files import make_file
 
 
 @pytest.fixture
-def mock_request(local_url, mock_request):
-    mock_request.post(
-        urljoin(local_url, "Datasets?"),
-        json=lambda request, context: {"pid": request.json()["pid"]},
-    )
-    mock_request.post(
-        re.compile(r"/Datasets/[\da-f\-]+/origdatablocks"), json={"pid": "datablock_id"}
-    )
-    return mock_request
-
-
-@pytest.fixture
 def ownable():
-    return Ownable(ownerGroup="ownerGroup", accessGroups=["group1", "group2"])
+    return model.Ownable(ownerGroup="uu", accessGroups=["group1", "2nd_group"])
 
 
 @pytest.fixture
-def derived_dataset(ownable):
-    return DerivedDataset(
-        contactEmail="slartibartfast@magrathea.org",
-        creationTime="2022-06-14T12:34:56",
-        owner="slartibartfast",
-        investigator="slartibartfast",
-        sourceFolder="UPLOAD",
-        type=DatasetType.derived,
+def derived_dataset_model(ownable):
+    return model.DerivedDataset(
+        pid="01.432.56789/12345678-abcd-0987-0123456789ab",
+        owner="PonderStibbons",
+        investigator="Ridcully",
+        contactEmail="p.stibbons@uu.am",
+        sourceFolder="/hex/source123",
+        size=0,
+        numberOfFiles=0,
+        creationTime="2011-08-24T12:34:56Z",
+        datasetName="Data A38",
         inputDatasets=[],
-        usedSoftware=["PySciCat"],
+        usedSoftware=["EasyScience"],
+        scientificMetadata={
+            "data_type": "event data",
+            "temperature": {"value": "123", "unit": "K"},
+            "weight": {"value": "42", "unit": "mg"},
+        },
         **ownable.dict(),
     )
 
 
 @pytest.fixture
-def dataset(derived_dataset, fs):
+def client():
+    return FakeClient(file_transfer=None)
+
+
+@pytest.fixture
+def dataset(derived_dataset_model, fs):
     make_file(fs, path="file.nxs")
     make_file(fs, path="the_log_file.log")
-    dset = Dataset.new(model=derived_dataset)
+    dset = Dataset.new(model=derived_dataset_model)
     dset.add_local_files("file.nxs", "the_log_file.log")
     return dset
 
@@ -85,17 +86,20 @@ class FakeUpload:
         yield self
 
 
-def test_upload_creates_dataset(mock_request, client, dataset):
+def test_upload_assigns_fixes_fields(client, dataset):
     finalized = dataset.upload_new_dataset_now(client, uploader=FakeUpload())
-    dataset_requests = [
-        req
-        for req in mock_request.request_history
-        if re.search(r"/Datasets([^/]|$)", str(req))
+    expected = deepcopy(dataset)
+    expected.pid = finalized.pid
+    expected.source_folder = FakeUpload().source_dir
+    assert finalized == expected
+
+
+def test_upload_creates_dataset_and_datablock(client, dataset):
+    finalized = dataset.upload_new_dataset_now(client, uploader=FakeUpload())
+    assert client.datasets[finalized.pid] == finalized.make_scicat_models().dataset
+    assert client.orig_datablocks[finalized.pid] == [
+        finalized.make_scicat_models().datablock
     ]
-    assert len(dataset_requests) == 1
-    assert dataset_requests[0].json() == finalized.make_scicat_models().dataset.dict(
-        exclude_none=True
-    )
 
 
 def test_upload_uploads_files_to_source_folder(client, dataset):
@@ -110,9 +114,7 @@ def test_upload_uploads_files_to_source_folder(client, dataset):
     ]
 
 
-def test_upload_does_not_create_dataset_if_file_upload_fails(
-    mock_request, client, dataset
-):
+def test_upload_does_not_create_dataset_if_file_upload_fails(client, dataset):
     class RaisingUpload(FakeUpload):
         def upload_file(self, *, local, remote):
             raise RuntimeError("Fake upload failure")
@@ -124,53 +126,37 @@ def test_upload_does_not_create_dataset_if_file_upload_fails(
     with pytest.raises(RuntimeError):
         dataset.upload_new_dataset_now(client, uploader=RaisingUpload())
 
-    assert all("Dataset" not in str(req) for req in mock_request.request_history)
+    assert dataset.pid not in client.datasets
+    assert dataset.pid not in client.orig_datablocks
 
 
-def test_upload_cleans_up_files_if_dataset_ingestion_fails(
-    local_url, mock_request, client, dataset
-):
-    def fail_ingestion(_request, _context):
-        raise ScicatCommError("Ingestion failed")
-
-    mock_request.reset()
-    mock_request.post(
-        urljoin(local_url, "Datasets?"),
-        json=fail_ingestion,
-    )
+def test_upload_cleans_up_files_if_dataset_ingestion_fails(dataset):
+    class FailingClient(FakeClient):
+        def create_dataset_model(self, dset: model.Dataset) -> str:
+            raise ScicatCommError("Ingestion failed")
 
     uploader = FakeUpload()
     with pytest.raises(ScicatCommError):
-        dataset.upload_new_dataset_now(client, uploader=uploader)
+        dataset.upload_new_dataset_now(
+            FailingClient(file_transfer=None), uploader=uploader
+        )
 
     assert not uploader.uploaded
 
 
-def test_upload_creates_orig_data_blocks(
-    mock_request,
-    client,
-    dataset,
-):
-    finalized = dataset.upload_new_dataset_now(client, uploader=FakeUpload())
-    datablock_requests = [
-        req for req in mock_request.request_history if "datablock" in str(req)
-    ]
-    assert len(datablock_requests) == 1
-    assert f"Datasets/{finalized.pid}" in str(datablock_requests[0])
-    assert datablock_requests[
-        0
-    ].json() == finalized.make_scicat_models().datablock.dict(exclude_none=True)
+def test_failed_datablock_upload_does_not_revert(dataset):
+    class FailingClient(FakeClient):
+        def create_orig_datablock(self, dblock: model.OrigDatablock):
+            raise ScicatCommError("Ingestion failed")
 
-
-def test_failed_datablock_upload_does_not_revert(mock_request, client, dataset):
-    def fail_ingestion(_request, _context):
-        raise ScicatCommError("Ingestion failed")
-
-    mock_request.post(re.compile("origdatablocks"), json=fail_ingestion)
-
+    client = FailingClient(file_transfer=None)
     uploader = FakeUpload()
     with pytest.raises(RuntimeError):
         dataset.upload_new_dataset_now(client, uploader=uploader)
 
+    uploaded_dset = next(iter(client.datasets.values()))
+    dataset.pid = uploaded_dset.pid
+    dataset.source_folder = uploaded_dset.sourceFolder
+    assert uploaded_dset == dataset.make_scicat_models().dataset
     assert uploader.uploaded
     assert not uploader.reverted
