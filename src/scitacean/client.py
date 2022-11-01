@@ -92,7 +92,9 @@ class Client:
             file_transfer=file_transfer,
         )
 
-    def get_dataset(self, pid: str) -> Union[model.DerivedDataset, model.RawDataset]:
+    def get_dataset_model(
+        self, pid: str
+    ) -> Union[model.DerivedDataset, model.RawDataset]:
         """Fetch a dataset from SciCat.
 
         Parameters
@@ -148,7 +150,7 @@ class Client:
             f"Unable to retrieve orig datablock for dataset {pid}"
         )
 
-    def create_dataset(self, dset: model.Dataset) -> str:
+    def create_dataset_model(self, dset: model.Dataset) -> str:
         """Create a new dataset in SciCat.
 
         The dataset PID must be either
@@ -206,14 +208,18 @@ class Client:
             raise RuntimeError(
                 f"No file transfer handler specified, cannot download file {remote}"
             )
-        self._file_transfer.download_file(remote=remote, local=local)
+        with self._file_transfer.connect_for_download() as con:
+            con.download_file(remote=remote, local=local)
 
-    def upload_file(self, *, remote: Union[str, Path], local: Union[str, Path]) -> Path:
+    def upload_file(
+        self, *, dataset_id: str, remote: Union[str, Path], local: Union[str, Path]
+    ) -> str:
         if self._file_transfer is None:
             raise RuntimeError(
                 f"No file transfer handler specified, cannot upload file {local}"
             )
-        return self._file_transfer.upload_file(remote=remote, local=local)
+        with self._file_transfer.connect_for_upload(dataset_id) as con:
+            return con.upload_file(remote=remote, local=local)
 
 
 def _make_orig_datablock(fields):
