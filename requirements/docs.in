@@ -1,5 +1,6 @@
 -r base.in
+nbsphinx
 sphinx
-sphinx-autodoc-typehints==1.17.0  # later incompatible with with book-theme
+sphinx-autodoc-typehints==1.18.3  # later incompatible with with book-theme
 sphinx-book-theme>=0.3
 sphinx-copybutton
