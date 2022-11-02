@@ -121,7 +121,7 @@ class FakeScicatClient(ScicatClient):
     @_conditionally_disabled
     def create_dataset_model(self, dset: model.Dataset) -> str:
         pid = PID(
-            pid=dset.pid if dset.pid is not None else str(uuid.uuid4().hex),
+            pid=dset.pid if dset.pid is not None else str(uuid.uuid4()),
             prefix="PID.SAMPLE.PREFIX",
         )
         if pid in self.main.datasets:
