@@ -7,6 +7,7 @@ Scitacean
    :maxdepth: 3
 
    user-guide/getting-started
+   user-guide/downloading
 
 .. toctree::
    :hidden:
