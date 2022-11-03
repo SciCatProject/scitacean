@@ -4,7 +4,6 @@ import subprocess
 import time
 from urllib.parse import urljoin, quote_plus
 
-import pytest
 
 _SCICAT_DOCKER_CONFIG = (
     Path(__file__).resolve().parent.parent / "scicatlive/docker-compose.yaml"
@@ -55,11 +54,3 @@ def stop_backend_containers():
     subprocess.check_call(
         ["docker", "compose", "--file", _SCICAT_DOCKER_CONFIG, "down", "--volumes"]
     )
-
-
-@pytest.fixture(scope="module")
-def scicat_backend():
-    start_backend_containers()
-    wait_until_backend_is_live(max_time=20, n_tries=20)
-    yield
-    stop_backend_containers()
