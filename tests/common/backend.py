@@ -6,10 +6,13 @@ from urllib.parse import urljoin, quote_plus
 
 import pytest
 
-
-SCICAT_DOCKER_CONFIG = (
+_SCICAT_DOCKER_CONFIG = (
     Path(__file__).resolve().parent.parent / "scicatlive/docker-compose.yaml"
 )
+
+# List of required services for tests.
+# We only need the backend and API to run tests.
+_SERVICES = ("catamel", "mongodb", "mongodb_seed", "reverse-proxy")
 
 
 def can_connect():
@@ -39,17 +42,18 @@ def start_backend_containers():
             "docker",
             "compose",
             "--file",
-            SCICAT_DOCKER_CONFIG,
+            _SCICAT_DOCKER_CONFIG,
             "up",
             "--detach",
             "--force-recreate",
+            *_SERVICES,
         ]
     )
 
 
 def stop_backend_containers():
     subprocess.check_call(
-        ["docker", "compose", "--file", SCICAT_DOCKER_CONFIG, "down", "--volumes"]
+        ["docker", "compose", "--file", _SCICAT_DOCKER_CONFIG, "down", "--volumes"]
     )
 
 
