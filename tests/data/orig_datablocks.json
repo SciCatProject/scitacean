@@ -1,0 +1,40 @@
+[
+  {
+    "_id": "darkest_magic_orig_block",
+    "createdBy": "mridcully",
+    "createdAt": {
+      "$date": "2104-06-13T01:45:28.123Z"
+    },
+    "ownerGroup": "uu",
+    "accessGroups": [
+      "darkmagic",
+      "faculty"
+    ],
+    "size": 619,
+    "dataFileList": [
+      {
+        "path": "file1.ant",
+        "size": 341,
+        "createdAt": {
+          "$date": "2104-06-13T01:45:28.123Z"
+        },
+        "time": {
+          "$date": "2104-06-13T01:22:05.000Z"
+        },
+        "chk": "abcd"
+      },
+      {
+        "path": "folder/file2.bug",
+        "size": 278,
+        "createdAt": {
+          "$date": "2104-06-13T01:45:28.123Z"
+        },
+        "time": {
+          "$date": "2104-06-11T16:04:51.002Z"
+        },
+        "chk": "1234"
+      }
+    ],
+    "datasetId": "PID.SAMPLE.PREFIX/ridcullys_darkest"
+  }
+]

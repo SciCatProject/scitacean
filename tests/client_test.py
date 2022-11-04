@@ -16,6 +16,8 @@ import requests_mock
 from scitacean.testing.client import FakeClient
 from scitacean import Client
 
+from . import data
+
 
 @dataclasses.dataclass
 class MockStorage:
@@ -56,9 +58,9 @@ class MockStorage:
         dset = deepcopy(request.json())
         pid = dset.get("pid")
         if pid is None:
-            pid = "12.345.67890/" + uuid4().hex
+            pid = "PID.SAMPLE.PREFIX/" + uuid4().hex
         elif "/" not in pid:
-            pid = "12.345.67890/" + pid
+            pid = "PID.SAMPLE.PREFIX/" + pid
         dset["pid"] = pid
         encoded_pid = quote_plus(pid).lower()
 
@@ -104,41 +106,14 @@ def ownable():
     return Ownable(ownerGroup="uu", accessGroups=["darkmagic", "faculty"])
 
 
-@pytest.fixture
-def derived_dataset(ownable):
-    return DerivedDataset(
-        pid="12.345.67890/dataset_id",
-        contactEmail="mustrum.ridcully@uu.am",
-        creationTime="2104-06-13T01:45:28",
-        owner="mridcully",
-        investigator="pstibbons",
-        sourceFolder="/hex/data/123",
-        type=DatasetType.derived,
-        inputDatasets=[],
-        usedSoftware=["hexos"],
-        **ownable.dict(),
-    )
+@pytest.fixture(scope="module")
+def derived_dataset():
+    return data.as_dataset_model(data.load_datasets()[0])
 
 
 @pytest.fixture
 def orig_datablock(ownable, derived_dataset):
-    return OrigDatablock(
-        id="12.345.67890/orig_datablock_id",
-        size=619,
-        dataFileList=[
-            DataFile(
-                path="file1.ant", size=341, time="2104-06-13T01:22:05", chk="abcd"
-            ),
-            DataFile(
-                path="folder/file2.bug",
-                size=278,
-                time="2104-06-11T16:04:51",
-                chk="1234",
-            ),
-        ],
-        datasetId=derived_dataset.pid,
-        **ownable.dict(),
-    )
+    return data.as_orig_datablock_model(data.load_orig_datablocks()[0])
 
 
 @pytest.fixture
@@ -210,7 +185,7 @@ def client(
     request,
     derived_dataset,
     orig_datablock,
-    scicat_url,
+    scicat_access,
     mock_scicat_url,
     user_token,
     mock_request,
@@ -228,10 +203,10 @@ def client(
                 "use --backend-tests to enable them"
             )
         mock_request.register_uri(
-            requests_mock.ANY, re.compile(scicat_url + ".*"), real_http=True
+            requests_mock.ANY, re.compile(scicat_access.url + ".*"), real_http=True
         )
         return Client.from_credentials(
-            url=scicat_url, username="ingestor", password="aman"
+            url=scicat_access.url, **scicat_access.functional_credentials
         )
 
 
@@ -264,10 +239,12 @@ def test_from_credentials_fake(mock_request):
     )
 
 
-def test_from_credentials_real(scicat_url, functional_credentials, scicat_backend):
+def test_from_credentials_real(scicat_access, scicat_backend):
     if not scicat_backend:
         pytest.skip("No backend")
-    Client.from_credentials(url=scicat_url, **functional_credentials)
+    Client.from_credentials(
+        url=scicat_access.url, **scicat_access.functional_credentials
+    )
 
 
 def test_get_dataset_model(client, derived_dataset):
@@ -282,7 +259,7 @@ def test_get_dataset_model_bad_id(client):
 
 def test_get_orig_datablock(client, orig_datablock):
     dblock = client.get_orig_datablock(orig_datablock.datasetId)
-    assert dblock == orig_datablock
+    assert orig_datablock == dblock
 
 
 def test_get_orig_datablock_bad_id(client):
@@ -307,12 +284,12 @@ def test_get_orig_datablock_multi_not_supported(
         client.get_orig_datablock("dataset-id")
 
 
-@pytest.mark.parametrize("pid", ("12.345.67890/jeck", "kamelle", None))
+@pytest.mark.parametrize("pid", ("PID.SAMPLE.PREFIX/jeck", "kamelle", None))
 def test_create_dataset_model(pid, client):
     dset = DerivedDataset(
         pid=pid,
         contactEmail="black.foess@dom.k",
-        creationTime="2106-11-11T11:11:11",
+        creationTime="1995-11-11T11:11:11.000Z",
         owner="bfoess",
         investigator="bfoess",
         sourceFolder="/dom/platt",
@@ -324,14 +301,19 @@ def test_create_dataset_model(pid, client):
     )
     full_pid = client.create_dataset_model(dset)
     dset.pid = full_pid
-    assert client.get_dataset_model(full_pid) == dset
+    downloaded = client.get_dataset_model(full_pid)
+    for key, expected in dset.dict(exclude_none=True).items():
+        # The database populates a number of fields that are None in dset.
+        # But we don't want to test those here as we don't want to test the database.
+        assert expected == downloaded.dict()[key], f"key = {key}"
 
 
 def test_create_dataset_model_id_clash(client, derived_dataset):
     dset = deepcopy(derived_dataset)
+    dset.pid = dset.pid.split("/")[1]
     dset.owner = "a new owner to trigger a failure"
     with pytest.raises(pyscicat.client.ScicatCommError):
-        client.create_dataset_model(derived_dataset)
+        client.create_dataset_model(dset)
 
 
 def test_create_first_orig_datablock(client, derived_dataset, ownable):
@@ -340,11 +322,23 @@ def test_create_first_orig_datablock(client, derived_dataset, ownable):
     dset.pid = client.create_dataset_model(dset)
 
     dblock = OrigDatablock(
-        id="12.345.67890/new-datablock-id",
+        id="PID.SAMPLE.PREFIX/new-datablock-id",
         size=9235,
-        dataFileList=[DataFile(path="data.nxs", size=9235, time="2023-08-18T13:52:33")],
+        dataFileList=[
+            DataFile(path="data.nxs", size=9235, time="2023-08-18T13:52:33.000Z")
+        ],
         datasetId=dset.pid,
         **ownable.dict(),
     )
     client.create_orig_datablock(dblock)
-    assert client.get_orig_datablock(dset.pid) == dblock
+    downloaded = client.get_orig_datablock(dset.pid)
+    for key, expected in dblock.dict(exclude_none=True).items():
+        # The database populates a number of fields that are None in dset.
+        # But we don't want to test those here as we don't want to test the database.
+        if key != "dataFileList":
+            assert expected == downloaded.dict()[key], f"key = {key}"
+    for i in range(len(dblock.dataFileList)):
+        for key, expected in dblock.dataFileList[i].dict(exclude_none=True).items():
+            assert (
+                expected == downloaded.dataFileList[i].dict()[key]
+            ), f"i = {i}, key = {key}"

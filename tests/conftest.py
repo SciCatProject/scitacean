@@ -1,4 +1,7 @@
+from dataclasses import dataclass
 import pytest
+import tempfile
+from typing import Dict
 
 from .common import backend
 
@@ -13,26 +16,36 @@ def pytest_addoption(parser):
 
 
 @pytest.fixture(scope="module")
-def scicat_backend(request):
+def scicat_backend(request, scicat_access):
     """Spin up a SciCat backend and API.
 
     Does nothing unless the --backend-tests command line option is set.
     """
 
     if request.config.getoption("--backend-tests"):
-        backend.start_backend_containers()
-        backend.wait_until_backend_is_live(max_time=20, n_tries=20)
-        yield True
-        backend.stop_backend_containers()
+        with tempfile.TemporaryDirectory() as temp_dir:
+            config_file = backend.configure(temp_dir)
+            try:
+                backend.start_backend_containers(config_file)
+                backend.wait_until_backend_is_live(
+                    scicat_access, max_time=20, n_tries=20
+                )
+                yield True
+            finally:
+                backend.stop_backend_containers(config_file)
     else:
         yield False
 
 
-@pytest.fixture
-def scicat_url():
-    return "http://localhost:80/api/v3"
+@dataclass
+class SciCatAccess:
+    url: str
+    functional_credentials: Dict[str, str]
 
 
-@pytest.fixture
-def functional_credentials():
-    return {"username": "ingestor", "password": "aman"}
+@pytest.fixture(scope="module")
+def scicat_access():
+    return SciCatAccess(
+        url="http://localhost/api/v3/",
+        functional_credentials={"username": "ingestor", "password": "aman"},
+    )

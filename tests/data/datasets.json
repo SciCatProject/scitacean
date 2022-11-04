@@ -1,0 +1,51 @@
+[
+  {
+    "_id": "PID.SAMPLE.PREFIX/ridcullys_darkest",
+    "createdBy": "mridcully",
+    "createdAt": {
+      "$date": "2104-06-13T01:45:28.123Z"
+    },
+    "ownerGroup": "uu",
+    "accessGroups": [
+      "darkmagic",
+      "faculty"
+    ],
+    "classification": "IN=medium,AV=low,CO=low",
+    "contactEmail": "ponder.stibbons@uu.am",
+    "creationTime": {"$date": "2104-06-13T01:45:28.100Z"},
+    "datasetName": "My darkest magic yet",
+    "description": "Doing some dark shit",
+    "history": [],
+    "isPublished": false,
+    "numberOfFiles": 2,
+    "numberOfFilesArchived": 0,
+    "owner": "mridcully",
+    "ownerEmail": "mustrum.ridcully@uu.am",
+    "size": 619,
+    "sourceFolder": "/hex/data/123",
+    "type": "derived",
+    "version": "3.1.0",
+    "investigator": "pstibbons",
+    "inputDatasets": [],
+    "techniques": [
+      {
+        "pid": "DM666",
+        "name": "dark_magic"
+      }
+    ],
+    "usedSoftware": [
+      "hexos"
+    ],
+    "scientificMetadata": {
+      "data_type": "event data",
+      "temperature": {
+        "value": "123",
+        "unit": "K"
+      },
+      "weight": {
+        "value": "42",
+        "unit": "mg"
+      }
+    }
+  }
+]

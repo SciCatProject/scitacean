@@ -64,9 +64,9 @@ class FakeClient:
 
     def create_dataset_model(self, dset: model.Dataset) -> str:
         if dset.pid is None:
-            pid = f"12.345.67890/{uuid.uuid4().hex}"
+            pid = f"PID.SAMPLE.PREFIX/{uuid.uuid4().hex}"
         else:
-            pid = f"12.345.67890/{dset.pid}" if "/" not in dset.pid else dset.pid
+            pid = f"PID.SAMPLE.PREFIX/{dset.pid}"
             if pid in self.datasets:
                 raise pyscicat.client.ScicatCommError(
                     f"Dataset id already exists: {pid}"
