@@ -205,13 +205,30 @@ def make_fake_client(dataset, datablock):
     return client
 
 
-@pytest.fixture(params=["mock", "fake"])
+@pytest.fixture(params=["real", "mock", "fake"])
 def client(
-    request, derived_dataset, orig_datablock, scicat_url, user_token, mock_request
+    request,
+    derived_dataset,
+    orig_datablock,
+    scicat_url,
+    user_token,
+    mock_request,
+    scicat_backend,
 ):
     if request.param == "mock":
         return make_mock_client(scicat_url, user_token)
-    return make_fake_client(derived_dataset, orig_datablock)
+    if request.param == "fake":
+        return make_fake_client(derived_dataset, orig_datablock)
+    if request.param == "real":
+        if not request.config.getoption("--backend-tests"):
+            # The backend only exists if this option is set.
+            pytest.skip(
+                "Tests against a real backend are disabled, "
+                "use --backend-tests to enable them"
+            )
+        return Client.from_credentials(
+            url="http://localhost/api/v3", username="ingestor", password="aman"
+        )
 
 
 def test_from_token_mock(mock_request):
