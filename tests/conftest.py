@@ -22,7 +22,17 @@ def scicat_backend(request):
     if request.config.getoption("--backend-tests"):
         backend.start_backend_containers()
         backend.wait_until_backend_is_live(max_time=20, n_tries=20)
-        yield
+        yield True
         backend.stop_backend_containers()
     else:
-        yield
+        yield False
+
+
+@pytest.fixture
+def scicat_url():
+    return "http://localhost:80/api/v3"
+
+
+@pytest.fixture
+def functional_credentials():
+    return {"username": "ingestor", "password": "aman"}

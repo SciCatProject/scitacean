@@ -158,7 +158,7 @@ def mock_storage(derived_dataset, orig_datablock):
 
 
 @pytest.fixture
-def scicat_url() -> str:
+def mock_scicat_url() -> str:
     return "http://localhost:3000/api/v3/"
 
 
@@ -168,27 +168,27 @@ def user_token() -> str:
 
 
 @pytest.fixture
-def mock_request(scicat_url, user_token, mock_storage):
+def mock_request(mock_scicat_url, user_token, mock_storage):
     with requests_mock.Mocker() as mock:
         mock.post(
-            urljoin(scicat_url, "Users/login"),
+            urljoin(mock_scicat_url, "Users/login"),
             json={"id": user_token},
         )
         # TODO client inserts 2 slashes before 'Dataset':
         #  http://localhost:3000/api/v3//Datasets/...
         mock.get(
-            re.compile(rf"{scicat_url}/Datasets/[^?/]+"),
+            re.compile(rf"{mock_scicat_url}/Datasets/[^?/]+"),
             json=mock_storage.handle_get_dataset,
         )
         mock.get(
-            re.compile(rf"{scicat_url}/Datasets/[^?/]+/origdatablocks"),
+            re.compile(rf"{mock_scicat_url}/Datasets/[^?/]+/origdatablocks"),
             json=mock_storage.handle_get_orig_datablock,
         )
         mock.post(
-            urljoin(scicat_url, "Datasets"), json=mock_storage.handle_post_dataset
+            urljoin(mock_scicat_url, "Datasets"), json=mock_storage.handle_post_dataset
         )
         mock.post(
-            re.compile(scicat_url + r"Datasets/[^?/]+/origdatablocks"),
+            re.compile(mock_scicat_url + r"Datasets/[^?/]+/origdatablocks"),
             json=mock_storage.handle_post_orig_datablock,
         )
         yield mock
@@ -211,12 +211,13 @@ def client(
     derived_dataset,
     orig_datablock,
     scicat_url,
+    mock_scicat_url,
     user_token,
     mock_request,
     scicat_backend,
 ):
     if request.param == "mock":
-        return make_mock_client(scicat_url, user_token)
+        return make_mock_client(mock_scicat_url, user_token)
     if request.param == "fake":
         return make_fake_client(derived_dataset, orig_datablock)
     if request.param == "real":
@@ -226,8 +227,11 @@ def client(
                 "Tests against a real backend are disabled, "
                 "use --backend-tests to enable them"
             )
+        mock_request.register_uri(
+            requests_mock.ANY, re.compile(scicat_url + ".*"), real_http=True
+        )
         return Client.from_credentials(
-            url="http://localhost/api/v3", username="ingestor", password="aman"
+            url=scicat_url, username="ingestor", password="aman"
         )
 
 
@@ -243,14 +247,14 @@ def test_from_token_fake(mock_request):
     )
 
 
-def test_from_credential_mock(mock_request, scicat_url, user_token):
+def test_from_credentials_mock(mock_request, mock_scicat_url, user_token):
     client = Client.from_credentials(
-        url=scicat_url, username="someone", password="the-mock-does-not-care"
+        url=mock_scicat_url, username="someone", password="the-mock-does-not-care"
     )
     assert client._client._token == user_token
 
 
-def test_from_credential_fake(mock_request):
+def test_from_credentials_fake(mock_request):
     # This should not call the API
     assert isinstance(
         FakeClient.from_credentials(
@@ -258,6 +262,12 @@ def test_from_credential_fake(mock_request):
         ),
         FakeClient,
     )
+
+
+def test_from_credentials_real(scicat_url, functional_credentials, scicat_backend):
+    if not scicat_backend:
+        pytest.skip("No backend")
+    Client.from_credentials(url=scicat_url, **functional_credentials)
 
 
 def test_get_dataset_model(client, derived_dataset):
@@ -281,11 +291,12 @@ def test_get_orig_datablock_bad_id(client):
 
 
 def test_get_orig_datablock_multi_not_supported(
-    mock_request, scicat_url, user_token, orig_datablock
+    mock_request, mock_scicat_url, user_token, orig_datablock
 ):
-    client = Client.from_token(url=scicat_url, token=user_token)
+    client = Client.from_token(url=mock_scicat_url, token=user_token)
     mock_request.get(
-        f"{scicat_url}/Datasets/dataset-id/origdatablocks?access_token={user_token}",
+        f"{mock_scicat_url}/Datasets/dataset-id/origdatablocks"
+        f"?access_token={user_token}",
         json=[
             orig_datablock.dict(exclude_none=True),
             orig_datablock.dict(exclude_none=True),
