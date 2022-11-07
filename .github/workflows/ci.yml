@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: true
       - uses: actions/setup-python@v3
         with:
           python-version: 3.8
@@ -36,7 +38,10 @@ jobs:
           - {python: '3.8', os: macos-11, tox: py38}
           - {python: '3.8', os: windows-2019, tox: py38}
     steps:
+      - run: sudo apt install --yes docker-compose
       - uses: actions/checkout@v3
+        with:
+          submodules: true
       - uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python }}
