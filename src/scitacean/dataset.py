@@ -6,8 +6,10 @@ from __future__ import annotations
 
 import dataclasses
 from collections import namedtuple
+import html
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
+import typing
 from uuid import uuid4
 
 from pyscicat.model import DerivedDataset, OrigDatablock, RawDataset
@@ -15,7 +17,6 @@ from pyscicat.model import DerivedDataset, OrigDatablock, RawDataset
 from .file import File
 from .pid import PID
 from ._dataset_fields import DatasetFields
-
 
 SciCatModels = namedtuple("SciCatModels", ["dataset", "datablock"])
 
@@ -156,3 +157,49 @@ class Dataset(DatasetFields):
             **dataclasses.asdict(self),
         )
         return dset
+
+    def _repr_html_(self):
+        rows = "\n".join(
+            _format_field(self, field) for field in dataclasses.fields(self)
+        )
+        return f"""<table>
+        <tr>
+            <th>Name</th><th>Required</th><th>Type</th><th>Value</th><th>Description</th>
+        </tr>
+        {rows}
+    </table>"""
+
+
+def _format_field(dset, field) -> str:
+    name = field.name
+    required = "*" if not _is_optional(field.type) else ""
+    value = html.escape(str(getattr(dset, field.name)))
+    typ = _format_type(field.type)
+    description = html.escape("N/A")
+    return (
+        "<tr><td>"
+        + "</td><td>".join((name, required, typ, value, description))
+        + "</tr></td>"
+    )
+
+
+def _format_type(typ) -> str:
+    if _is_optional(typ):
+        typ = next(iter(arg for arg in typing.get_args(typ) if not _is_none_type(arg)))
+
+    if typ == str:
+        return "str"
+    if typ == bool:
+        return "bool"
+    if typ == List[str]:
+        return "list[str]"
+    return html.escape(str(typ))
+
+
+def _is_none_type(x) -> bool:
+    # We want to actually compare types but flake8 doesn't like it.
+    return x == type(None)  # noqa: [E721]
+
+
+def _is_optional(typ):
+    return typing.get_origin(typ) == Union and type(None) in typing.get_args(typ)
