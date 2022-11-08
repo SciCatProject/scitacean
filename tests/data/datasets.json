@@ -1,0 +1,83 @@
+[
+  {
+    "_id": "PID.SAMPLE.PREFIX/ridcullys_darkest",
+    "createdBy": "mridcully",
+    "createdAt": {
+      "$date": "2104-06-13T01:45:28.123Z"
+    },
+    "ownerGroup": "uu",
+    "accessGroups": [
+      "darkmagic",
+      "faculty"
+    ],
+    "classification": "IN=medium,AV=low,CO=low",
+    "contactEmail": "ponder.stibbons@uu.am",
+    "creationTime": {"$date": "2104-06-13T01:45:28.100Z"},
+    "datasetName": "My darkest magic yet",
+    "description": "Doing some dark shit",
+    "history": [],
+    "isPublished": false,
+    "numberOfFiles": 2,
+    "numberOfFilesArchived": 0,
+    "owner": "mridcully",
+    "ownerEmail": "mustrum.ridcully@uu.am",
+    "size": 619,
+    "sourceFolder": "/hex/data/123",
+    "type": "derived",
+    "version": "3.1.0",
+    "investigator": "pstibbons",
+    "inputDatasets": [],
+    "techniques": [
+      {
+        "pid": "DM666",
+        "name": "dark_magic"
+      }
+    ],
+    "usedSoftware": [
+      "hexos"
+    ],
+    "scientificMetadata": {
+      "data_type": "event data",
+      "temperature": {
+        "value": "123",
+        "unit": "K"
+      },
+      "weight": {
+        "value": "42",
+        "unit": "mg"
+      }
+    }
+  },
+  {
+    "_id": "PID.SAMPLE.PREFIX/dataset-with-2-blocks",
+    "createdBy": "pstibbons",
+    "createdAt": {
+      "$date": "2062-12-31T23:51:22.613Z"
+    },
+    "ownerGroup": "faculty",
+    "accessGroups": [
+      "everyone"
+    ],
+    "contactEmail": "ponder.stibbons@uu.am",
+    "creationTime": {"$date": "2062-12-31T23:42:09.000Z"},
+    "datasetName": "Dataset-with-2-orig-datablocks",
+    "history": [],
+    "isPublished": false,
+    "numberOfFiles": 2,
+    "numberOfFilesArchived": 0,
+    "owner": "pstibbons",
+    "ownerEmail": "ponder.stibbons@uu.am",
+    "size": 20,
+    "sourceFolder": "/hex/two_blocks",
+    "type": "raw",
+    "version": "3.1.0",
+    "principalInvestigator": "pstibbons",
+    "techniques": [
+      {
+        "pid": "DM666",
+        "name": "dark_magic"
+      }
+    ],
+    "dataFormat": "NeXus"
+  }
+]

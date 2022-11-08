@@ -2,4 +2,4 @@
 hypothesis
 pyfakefs
 pytest
-requests_mock
+pyyaml

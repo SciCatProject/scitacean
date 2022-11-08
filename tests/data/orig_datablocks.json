@@ -1,0 +1,90 @@
+[
+  {
+    "_id": "darkest_magic_orig_block",
+    "createdBy": "mridcully",
+    "createdAt": {
+      "$date": "2104-06-13T01:45:28.123Z"
+    },
+    "ownerGroup": "uu",
+    "accessGroups": [
+      "darkmagic",
+      "faculty"
+    ],
+    "size": 619,
+    "dataFileList": [
+      {
+        "path": "file1.ant",
+        "size": 341,
+        "createdAt": {
+          "$date": "2104-06-13T01:45:28.123Z"
+        },
+        "time": {
+          "$date": "2104-06-13T01:22:05.000Z"
+        },
+        "chk": "abcd"
+      },
+      {
+        "path": "folder/file2.bug",
+        "size": 278,
+        "createdAt": {
+          "$date": "2104-06-13T01:45:28.123Z"
+        },
+        "time": {
+          "$date": "2104-06-11T16:04:51.002Z"
+        },
+        "chk": "1234"
+      }
+    ],
+    "datasetId": "PID.SAMPLE.PREFIX/ridcullys_darkest"
+  },
+  {
+    "_id": "block_no_1_of_2",
+    "createdBy": "pstibbons",
+    "createdAt": {
+      "$date": "2062-12-31T23:51:22.613Z"
+    },
+    "ownerGroup": "faculty",
+    "accessGroups": [
+      "everyone"
+    ],
+    "size": 100,
+    "dataFileList": [
+      {
+        "path": "file1",
+        "size": 100,
+        "createdAt": {
+          "$date": "2061-10-11T16:15:14.111Z"
+        },
+        "time": {
+          "$date": "2061-10-11T16:15:13.013Z"
+        }
+      }
+    ],
+    "datasetId": "PID.SAMPLE.PREFIX/dataset-with-2-blocks"
+  },
+  {
+    "_id": "block_no_2_of_2",
+    "createdBy": "pstibbons",
+    "createdAt": {
+      "$date": "2062-12-31T23:51:22.613Z"
+    },
+    "ownerGroup": "faculty",
+    "accessGroups": [
+      "everyone"
+    ],
+    "size": 100,
+    "dataFileList": [
+      {
+        "path": "file2",
+        "size": 100,
+        "createdAt": {
+          "$date": "2061-10-11T16:15:14.111Z"
+        },
+        "time": {
+          "$date": "2061-10-11T16:15:13.013Z"
+        }
+      }
+    ],
+    "datasetId": "PID.SAMPLE.PREFIX/dataset-with-2-blocks"
+  }
+]
