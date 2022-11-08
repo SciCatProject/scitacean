@@ -30,6 +30,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.mathjax",
     "sphinx.ext.napoleon",
+    "sphinx.ext.viewcode",
     "sphinx_autodoc_typehints",
     "sphinx_copybutton",
     "nbsphinx",
@@ -107,23 +108,20 @@ todo_include_todos = False
 # a list of builtin themes.
 #
 
-html_theme = "sphinx_book_theme"
-
-# Theme options are theme-specific and customize the look and feel of a theme
-# further.  For a list of options available for each theme, see the
-# documentation.
-#
+html_theme = "pydata_sphinx_theme"
 html_theme_options = {
-    "logo_only": True,
-    "repository_url": "https://github.com/SciCatProject/scitacean",
-    "repository_branch": "main",
-    "path_to_docs": "docs",
-    "use_repository_button": True,
-    "use_issues_button": True,
-    "use_edit_page_button": True,
-    "show_toc_level": 2,  # Show subheadings in secondary sidebar
+    "left_sidebar_end": [],
+    "show_nav_level": 1,
+    "github_url": "https://github.com/SciCatProject/scitacean",
+}
+html_context = {
+    "github_user": "SciCatProject",
+    "github_repo": "scitacean",
+    "github_version": "main",
+    "doc_path": "docs",
 }
 
+html_title = "Scitacean"
 html_logo = "_static/logo.svg"
 html_favicon = "_static/favicon.ico"
 
@@ -131,7 +129,7 @@ html_favicon = "_static/favicon.ico"
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
-html_css_files = ["custom.css"]
+# html_css_files = ["custom.css"]
 
 # -- Options for HTMLHelp output ------------------------------------------
 

@@ -49,7 +49,7 @@ jedi==0.18.1
     # via ipython
 json5==0.9.10
     # via jupyterlab-server
-jupyter-server==1.21.0
+jupyter-server==1.23.0
     # via
     #   jupyterlab
     #   jupyterlab-server
@@ -63,7 +63,7 @@ matplotlib-inline==0.1.6
     # via
     #   ipykernel
     #   ipython
-nbclassic==0.4.7
+nbclassic==0.4.8
     # via
     #   jupyterlab
     #   notebook
@@ -71,7 +71,7 @@ nodeenv==1.7.0
     # via pre-commit
 notebook==6.5.2
     # via jupyterlab
-notebook-shim==0.2.0
+notebook-shim==0.2.2
     # via nbclassic
 parso==0.8.3
     # via jedi
@@ -79,7 +79,7 @@ pexpect==4.8.0
     # via ipython
 pickleshare==0.7.5
     # via ipython
-pip-compile-multi==2.4.6
+pip-compile-multi==2.5.0
     # via -r requirements/dev.in
 pip-tools==6.9.0
     # via pip-compile-multi
@@ -90,9 +90,9 @@ prometheus-client==0.15.0
     #   jupyter-server
     #   nbclassic
     #   notebook
-prompt-toolkit==3.0.31
+prompt-toolkit==3.0.32
     # via ipython
-psutil==5.9.3
+psutil==5.9.4
     # via ipykernel
 ptyprocess==0.7.0
     # via
@@ -118,9 +118,9 @@ toposort==1.7
     # via pip-compile-multi
 wcwidth==0.2.5
     # via prompt-toolkit
-websocket-client==1.4.1
+websocket-client==1.4.2
     # via jupyter-server
-wheel==0.37.1
+wheel==0.38.2
     # via pip-tools
 
 # The following packages are considered to be unsafe in a requirements file:

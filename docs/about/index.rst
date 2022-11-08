@@ -1,7 +1,11 @@
-.. _about:
-
 About Scitacean
 ===============
+
+.. toctree::
+   :maxdepth: 2
+
+   contributing
+   release-notes
 
 Development
 -----------

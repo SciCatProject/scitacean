@@ -1,6 +1,6 @@
 -r base.in
 nbsphinx
+pydata-sphinx-theme>=0.11
 sphinx
 sphinx-autodoc-typehints==1.18.3  # later incompatible with with book-theme
-sphinx-book-theme>=0.3
 sphinx-copybutton
