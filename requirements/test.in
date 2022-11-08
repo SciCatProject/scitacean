@@ -3,4 +3,3 @@ hypothesis
 pyfakefs
 pytest
 pyyaml
-requests_mock
