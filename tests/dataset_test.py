@@ -11,7 +11,6 @@ from pyscicat import model
 
 from scitacean import Dataset
 from scitacean.testing import strategies as sst
-from scitacean.testing.client import FakeClient
 
 from .common.files import make_file
 
@@ -60,14 +59,6 @@ def orig_datablock_model(derived_dataset_model, ownable):
         ],
         **ownable.dict(),
     )
-
-
-@pytest.fixture
-def client(derived_dataset_model, orig_datablock_model):
-    client = FakeClient(file_transfer=None)
-    client.datasets[derived_dataset_model.pid] = derived_dataset_model
-    client.orig_datablocks[derived_dataset_model.pid] = [orig_datablock_model]
-    return client
 
 
 @settings(max_examples=10)
@@ -213,8 +204,11 @@ def test_add_multiple_local_files_to_new_dataset_with_base_path(
     assert dset.files[1].model.path == "song.mp3"
 
 
-def test_dataset_from_scicat(client, derived_dataset_model):
-    dset = Dataset.from_scicat(client, derived_dataset_model.pid)
+def test_dataset_from_models(derived_dataset_model, orig_datablock_model):
+    dset = Dataset.from_models(
+        dataset_model=derived_dataset_model,
+        orig_datablock_models=[orig_datablock_model],
+    )
 
     assert dset.source_folder == "/hex/source123"
     assert dset.creation_time == "2011-08-24T12:34:56Z"
@@ -228,6 +222,16 @@ def test_dataset_from_scicat(client, derived_dataset_model):
     assert dset.files[1].source_folder == "/hex/source123"
     assert dset.files[1].remote_access_path == "/hex/source123/sub/file2.nxs"
     assert dset.files[1].local_path is None
+
+
+def test_dataset_from_models_multi_block_not_supported(
+    derived_dataset_model, orig_datablock_model
+):
+    with pytest.raises(NotImplementedError):
+        Dataset.from_models(
+            dataset_model=derived_dataset_model,
+            orig_datablock_models=[orig_datablock_model, orig_datablock_model],
+        )
 
 
 @settings(max_examples=10)

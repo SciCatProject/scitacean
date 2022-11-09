@@ -3,15 +3,13 @@
 # @author Jan-Lukas Wynen
 from __future__ import annotations
 from pathlib import Path
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 import pyscicat.client
 from pyscicat import model
 
+from .dataset import Dataset
 from .typing import FileTransfer
-
-
-# TODO check that PID is handled as described in create_* methods
 
 
 class Client:
@@ -94,6 +92,12 @@ class Client:
             file_transfer=file_transfer,
         )
 
+    def get_dataset(self, pid: str) -> Dataset:
+        return Dataset.from_models(
+            dataset_model=self.scicat.get_dataset_model(pid),
+            orig_datablock_models=self.scicat.get_orig_datablocks(pid),
+        )
+
     @property
     def scicat(self) -> ScicatClient:
         return self._client
@@ -149,8 +153,8 @@ class ScicatClient:
             )
         raise pyscicat.client.ScicatCommError(f"Unable to retrieve dataset {pid}")
 
-    def get_orig_datablock(self, pid: str) -> model.OrigDatablock:
-        """Fetch an orig datablock from SciCat.
+    def get_orig_datablocks(self, pid: str) -> List[model.OrigDatablock]:
+        """Fetch all orig datablocks from SciCat for a given dataset.
 
         Parameters
         ----------
@@ -160,7 +164,7 @@ class ScicatClient:
         Returns
         -------
         :
-            A model of the datablock.
+            Models of the orig datablocks.
 
         Raises
         ------
@@ -169,12 +173,7 @@ class ScicatClient:
             fails for some other reason.
         """
         if dblock_json := self._client.datasets_origdatablocks_get_one(pid):
-            if len(dblock_json) != 1:
-                raise NotImplementedError(
-                    f"Got {len(dblock_json)} original datablocks for dataset {pid} "
-                    "but only support for one is implemented."
-                )
-            return _make_orig_datablock(dblock_json[0])
+            return [_make_orig_datablock(dblock) for dblock in dblock_json]
         raise pyscicat.client.ScicatCommError(
             f"Unable to retrieve orig datablock for dataset {pid}"
         )
@@ -189,6 +188,8 @@ class ScicatClient:
 
         If the ID already exists, creation will fail without
         modification to the database.
+        Unless the new dataset is identical to the existing one,
+        in which case nothing happens.
 
         Parameters
         ----------

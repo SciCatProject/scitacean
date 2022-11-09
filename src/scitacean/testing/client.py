@@ -12,6 +12,7 @@ import uuid
 from pyscicat import model
 import pyscicat.client
 
+from ..dataset import Dataset
 from ..typing import FileTransfer
 
 
@@ -57,6 +58,12 @@ class FakeClient:
     ) -> FakeClient:
         return FakeClient(file_transfer=file_transfer)
 
+    def get_dataset(self, pid: str) -> Dataset:
+        return Dataset.from_models(
+            dataset_model=self.scicat.get_dataset_model(pid),
+            orig_datablock_models=self.scicat.get_orig_datablocks(pid),
+        )
+
     @property
     def scicat(self) -> FakeScicatClient:
         return self._scicat_client
@@ -96,19 +103,13 @@ class FakeScicatClient:
             ) from None
 
     @_conditionally_disabled
-    def get_orig_datablock(self, pid: str) -> model.OrigDatablock:
+    def get_orig_datablocks(self, pid: str) -> List[model.OrigDatablock]:
         try:
-            dblocks = self.main.orig_datablocks[pid]
+            return self.main.orig_datablocks[pid]
         except KeyError:
             raise pyscicat.client.ScicatCommError(
                 f"Unable to retrieve orig datablock for dataset {pid}"
             ) from None
-        if len(dblocks) != 1:
-            raise NotImplementedError(
-                f"Got {len(dblocks)} original datablocks for dataset {pid} "
-                "but only support for one is implemented."
-            )
-        return dblocks[0]
 
     @_conditionally_disabled
     def create_dataset_model(self, dset: model.Dataset) -> str:

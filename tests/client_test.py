@@ -3,11 +3,12 @@
 # @author Jan-Lukas Wynen
 from copy import deepcopy
 
+import dateutil.parser
 import pyscicat.client
 from pyscicat.model import DataFile, DatasetType, DerivedDataset, OrigDatablock
 import pytest
 
-from scitacean.testing.client import FakeClient, FakeScicatClient
+from scitacean.testing.client import FakeClient
 from scitacean import Client
 
 from . import data
@@ -27,7 +28,7 @@ def make_fake_client(dataset, datablock):
     client = FakeClient(file_transfer=None)
     client.datasets[dataset.pid] = dataset
     client.orig_datablocks[dataset.pid] = [datablock]
-    return client.scicat
+    return client
 
 
 @pytest.fixture(params=["real", "fake"])
@@ -49,7 +50,12 @@ def client(
             )
         return Client.from_credentials(
             url=scicat_access.url, **scicat_access.functional_credentials
-        ).scicat
+        )
+
+
+@pytest.fixture
+def scicat_client(client):
+    return client.scicat
 
 
 def test_from_token_fake():
@@ -77,42 +83,28 @@ def test_from_credentials_real(scicat_access, scicat_backend):
     )
 
 
-def test_get_dataset_model(client, derived_dataset):
-    dset = client.get_dataset_model(derived_dataset.pid)
+def test_get_dataset_model(scicat_client, derived_dataset):
+    dset = scicat_client.get_dataset_model(derived_dataset.pid)
     assert dset == derived_dataset
 
 
-def test_get_dataset_model_bad_id(client):
+def test_get_dataset_model_bad_id(scicat_client):
     with pytest.raises(pyscicat.client.ScicatCommError):
-        client.get_dataset_model("bad-pid")
+        scicat_client.get_dataset_model("bad-pid")
 
 
-def test_get_orig_datablock(client, orig_datablock):
-    dblock = client.get_orig_datablock(orig_datablock.datasetId)
-    assert orig_datablock == dblock
+def test_get_orig_datablock(scicat_client, orig_datablock):
+    dblock = scicat_client.get_orig_datablocks(orig_datablock.datasetId)
+    assert [orig_datablock] == dblock
 
 
-def test_get_orig_datablock_bad_id(client):
+def test_get_orig_datablock_bad_id(scicat_client):
     with pytest.raises(pyscicat.client.ScicatCommError):
-        client.get_orig_datablock("bollocks")
-
-
-def test_get_orig_datablock_multi_not_supported(client):
-    if isinstance(client, FakeScicatClient):
-        dset = data.as_dataset_model(data.load_datasets()[1])
-        assert dset.pid == "PID.SAMPLE.PREFIX/dataset-with-2-blocks"
-        client.main.datasets[dset.pid] = dset
-        dblocks = [
-            data.as_orig_datablock_model(data.load_orig_datablocks()[i])
-            for i in range(1, 3)
-        ]
-        client.main.orig_datablocks[dset.pid] = dblocks
-    with pytest.raises(NotImplementedError):
-        client.get_orig_datablock("PID.SAMPLE.PREFIX/dataset-with-2-blocks")
+        scicat_client.get_orig_datablocks("bollocks")
 
 
 @pytest.mark.parametrize("pid", ("PID.SAMPLE.PREFIX/jeck", "kamelle", None))
-def test_create_dataset_model(pid, client):
+def test_create_dataset_model(pid, scicat_client):
     dset = DerivedDataset(
         pid=pid,
         contactEmail="black.foess@dom.k",
@@ -126,27 +118,27 @@ def test_create_dataset_model(pid, client):
         ownerGroup="bfoess",
         accessGroups=["koelle"],
     )
-    full_pid = client.create_dataset_model(dset)
+    full_pid = scicat_client.create_dataset_model(dset)
     dset.pid = full_pid
-    downloaded = client.get_dataset_model(full_pid)
+    downloaded = scicat_client.get_dataset_model(full_pid)
     for key, expected in dset.dict(exclude_none=True).items():
         # The database populates a number of fields that are None in dset.
         # But we don't want to test those here as we don't want to test the database.
         assert expected == downloaded.dict()[key], f"key = {key}"
 
 
-def test_create_dataset_model_id_clash(client, derived_dataset):
+def test_create_dataset_model_id_clash(scicat_client, derived_dataset):
     dset = deepcopy(derived_dataset)
     dset.pid = dset.pid.split("/")[1]
     dset.owner = "a new owner to trigger a failure"
     with pytest.raises(pyscicat.client.ScicatCommError):
-        client.create_dataset_model(dset)
+        scicat_client.create_dataset_model(dset)
 
 
-def test_create_first_orig_datablock(client, derived_dataset):
+def test_create_first_orig_datablock(scicat_client, derived_dataset):
     dset = deepcopy(derived_dataset)
     dset.pid = "new-dataset-id"
-    dset.pid = client.create_dataset_model(dset)
+    dset.pid = scicat_client.create_dataset_model(dset)
 
     dblock = OrigDatablock(
         id="PID.SAMPLE.PREFIX/new-datablock-id",
@@ -158,8 +150,10 @@ def test_create_first_orig_datablock(client, derived_dataset):
         ownerGroup="uu",
         accessGroups=["group1", "2nd_group"],
     )
-    client.create_orig_datablock(dblock)
-    downloaded = client.get_orig_datablock(dset.pid)
+    scicat_client.create_orig_datablock(dblock)
+    downloaded = scicat_client.get_orig_datablocks(dset.pid)
+    assert len(downloaded) == 1
+    downloaded = downloaded[0]
     for key, expected in dblock.dict(exclude_none=True).items():
         # The database populates a number of fields that are None in dset.
         # But we don't want to test those here as we don't want to test the database.
@@ -172,14 +166,33 @@ def test_create_first_orig_datablock(client, derived_dataset):
             ), f"i = {i}, key = {key}"
 
 
+def test_get_dataset(client, derived_dataset, orig_datablock):
+    print(orig_datablock)
+    dset = client.get_dataset(derived_dataset.pid)
+
+    assert dset.source_folder == derived_dataset.sourceFolder
+    assert dset.creation_time == derived_dataset.creationTime
+    assert dset.access_groups == derived_dataset.accessGroups
+    assert dset.meta["temperature"] == derived_dataset.scientificMetadata["temperature"]
+    assert dset.meta["data_type"] == derived_dataset.scientificMetadata["data_type"]
+
+    for i in range(len(orig_datablock.dataFileList)):
+        print(i, orig_datablock.dataFileList[i].time)
+        assert dset.files[i].local_path is None
+        assert dset.files[i].size == orig_datablock.dataFileList[i].size
+        assert dset.files[i].creation_time == dateutil.parser.parse(
+            orig_datablock.dataFileList[i].time
+        )
+
+
 def test_fake_can_disable_functions():
     client = FakeClient(
         disable={
             "get_dataset_model": RuntimeError("custom failure"),
-            "get_orig_datablock": IndexError("custom index error"),
+            "get_orig_datablocks": IndexError("custom index error"),
         }
     )
     with pytest.raises(RuntimeError, match="custom failure"):
         client.scicat.get_dataset_model("some-pid")
     with pytest.raises(IndexError, match="custom index error"):
-        client.scicat.get_orig_datablock("some-pid")
+        client.scicat.get_orig_datablocks("some-pid")

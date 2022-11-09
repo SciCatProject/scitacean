@@ -13,7 +13,6 @@ from uuid import uuid4
 from pyscicat.client import ScicatCommError
 from pyscicat.model import DerivedDataset, OrigDatablock, RawDataset
 
-from .client import Client
 from .file import File
 from .typing import Uploader
 from ._dataset_fields import DatasetFields
@@ -57,21 +56,34 @@ class Dataset(DatasetFields):
         return Dataset(files=[], datablock=None, meta=meta, **model_dict)
 
     @classmethod
-    def from_scicat(cls, client: Client, pid: str) -> Dataset:
-        model = client.scicat.get_dataset_model(pid)
-        dblock = client.scicat.get_orig_datablock(pid)
-        meta = model.scientificMetadata
+    def from_models(
+        cls,
+        *,
+        dataset_model: Union[DerivedDataset, RawDataset],
+        orig_datablock_models: List[OrigDatablock],
+    ):
+        if len(orig_datablock_models) != 1:
+            raise NotImplementedError(
+                f"Got {len(orig_datablock_models)} original datablocks for "
+                f"dataset {dataset_model.pid} but only support for one is implemented."
+            )
+        dblock = orig_datablock_models[0]
+
+        meta = dataset_model.scientificMetadata
         if meta is None:
             meta = {}
-        model.scientificMetadata = None
         return Dataset(
             files=[
-                File.from_scicat(file, source_folder=model.sourceFolder)
+                File.from_scicat(file, source_folder=dataset_model.sourceFolder)
                 for file in dblock.dataFileList
             ],
             datablock=dblock,
             meta=meta,
-            **cls._map_model_to_field_dict(model),
+            **{
+                k: v
+                for k, v in cls._map_model_to_field_dict(dataset_model).items()
+                if k != "scientificMetadata"
+            },
         )
 
     @property
@@ -136,7 +148,7 @@ class Dataset(DatasetFields):
         dset.assign_new_pid()
         return dset
 
-    def upload_new_dataset_now(self, client: Client, uploader: Uploader) -> Dataset:
+    def upload_new_dataset_now(self, client, uploader: Uploader) -> Dataset:
         dset = self.prepare_as_new()
         with uploader.connect_for_upload(dset.pid) as con:
             dset.source_folder = con.source_dir
