@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from hashlib import md5
 from typing import Dict
 
+import dateutil.parser
 from pyscicat.model import DataFile
 import pytest
 from scitacean import File
@@ -142,7 +143,7 @@ def test_file_from_local_select_checksum_algorithm(fake_file, alg):
 
 
 def test_file_from_scicat():
-    model = DataFile(path="dir/image.jpg", size=12345, time="2022-06-22T15:42:53+00:00")
+    model = DataFile(path="dir/image.jpg", size=12345, time="2022-06-22T15:42:53.123Z")
     file = File.from_scicat(model, source_folder="remote/source/folder")
 
     assert file.source_folder == "remote/source/folder"
@@ -150,10 +151,11 @@ def test_file_from_scicat():
     assert file.local_path is None
     assert file.checksum is None
     assert file.size == 12345
+    assert file.creation_time == dateutil.parser.parse("2022-06-22T15:42:53.123Z")
 
     assert file.model.path == "dir/image.jpg"
     assert file.model.size == 12345
-    assert file.model.time == "2022-06-22T15:42:53+00:00"
+    assert file.model.time == "2022-06-22T15:42:53.123Z"
     assert file.model.chk is None
     assert file.model.uid is None
     assert file.model.gid is None

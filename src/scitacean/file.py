@@ -9,6 +9,7 @@ import os
 from pathlib import Path, PurePosixPath
 from typing import Optional, Union
 
+import dateutil.parser
 from pyscicat.model import DataFile
 
 from .error import IntegrityError
@@ -113,7 +114,7 @@ class File:
 
     @property
     def creation_time(self) -> datetime:
-        return datetime.fromisoformat(self.model.time)
+        return dateutil.parser.parse(self.model.time)
 
     @property
     def model(self) -> Optional[DataFile]:
