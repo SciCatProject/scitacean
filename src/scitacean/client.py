@@ -134,6 +134,10 @@ class Client:
     def scicat(self) -> ScicatClient:
         return self._client
 
+    @property
+    def file_transfer(self) -> FileTransfer:
+        return self._file_transfer
+
     def download_file(self, *, remote: Union[str, Path], local: Union[str, Path]):
         if self._file_transfer is None:
             raise RuntimeError(

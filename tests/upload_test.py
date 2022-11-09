@@ -4,13 +4,13 @@
 
 from contextlib import contextmanager
 from copy import deepcopy
-from pathlib import Path
 
 from pyscicat.client import ScicatCommError
 from pyscicat import model
 import pytest
 from scitacean import Dataset
 from scitacean.testing.client import FakeClient
+from scitacean.testing.transfer import FakeFileTransfer
 
 from .common.files import make_file
 
@@ -46,56 +46,32 @@ def derived_dataset_model(ownable):
 
 
 @pytest.fixture
-def client():
-    return FakeClient(file_transfer=None)
+def client(fs):
+    return FakeClient(file_transfer=FakeFileTransfer(fs=fs, files={}, reverted={}))
 
 
 @pytest.fixture
 def dataset(derived_dataset_model, fs):
-    make_file(fs, path="file.nxs")
-    make_file(fs, path="the_log_file.log")
+    make_file(fs, path="file.nxs", contents=b"contents of file.nxs")
+    make_file(fs, path="the_log_file.log", contents=b"this is a log file")
     dset = Dataset.new(model=derived_dataset_model)
     dset.add_local_files("file.nxs", "the_log_file.log")
     return dset
 
 
-class FakeUpload:
-    def __init__(self, dataset_id=None):
-        self.uploaded = []
-        self.reverted = []
-        self.dataset_id = dataset_id
-
-    def __call__(self, dataset_id):
-        self.dataset_id = dataset_id
-        return self
-
-    @property
-    def source_dir(self):
-        return "/remote/upload"
-
-    def upload_file(self, local, remote):
-        self.uploaded.append({"local": local, "remote": remote})
-
-    def revert_upload(self, local, remote):
-        item = {"local": local, "remote": remote}
-        del self.uploaded[self.uploaded.index(item)]
-        self.reverted.append(item)
-
-    @contextmanager
-    def connect_for_upload(self, pid):
-        yield self
-
-
-def test_upload_assigns_fixes_fields(client, dataset):
-    finalized = dataset.upload_new_dataset_now(client, uploader=FakeUpload())
+def test_upload_assigns_fixed_fields(client, dataset):
     expected = deepcopy(dataset)
+    finalized = client.upload_new_dataset_now(dataset)
     expected.pid = finalized.pid
-    expected.source_folder = FakeUpload().source_dir
+
+    with client.file_transfer.connect_for_upload(finalized.pid) as con:
+        source_dir = con.source_dir
+    expected.source_folder = source_dir
     assert finalized == expected
 
 
 def test_upload_creates_dataset_and_datablock(client, dataset):
-    finalized = dataset.upload_new_dataset_now(client, uploader=FakeUpload())
+    finalized = client.upload_new_dataset_now(dataset)
     assert client.datasets[finalized.pid] == finalized.make_scicat_models().dataset
     assert client.orig_datablocks[finalized.pid] == [
         finalized.make_scicat_models().datablock
@@ -103,19 +79,23 @@ def test_upload_creates_dataset_and_datablock(client, dataset):
 
 
 def test_upload_uploads_files_to_source_folder(client, dataset):
-    uploader = FakeUpload()
-    dataset.upload_new_dataset_now(client, uploader=uploader)
-    assert sorted(uploader.uploaded, key=lambda d: d["local"]) == [
-        {"local": Path("file.nxs"), "remote": "/remote/upload/file.nxs"},
-        {
-            "local": Path("the_log_file.log"),
-            "remote": "/remote/upload/the_log_file.log",
-        },
-    ]
+    finalized = client.upload_new_dataset_now(dataset)
+
+    with client.file_transfer.connect_for_upload(finalized.pid) as con:
+        source_dir = con.source_dir
+    assert (
+        client.file_transfer.files[source_dir + "file.nxs"] == b"contents of file.nxs"
+    )
+    assert (
+        client.file_transfer.files[source_dir + "the_log_file.log"]
+        == b"this is a log file"
+    )
 
 
-def test_upload_does_not_create_dataset_if_file_upload_fails(client, dataset):
-    class RaisingUpload(FakeUpload):
+def test_upload_does_not_create_dataset_if_file_upload_fails(dataset, fs):
+    class RaisingUpload(FakeFileTransfer):
+        source_dir = "/"
+
         def upload_file(self, *, local, remote):
             raise RuntimeError("Fake upload failure")
 
@@ -123,35 +103,37 @@ def test_upload_does_not_create_dataset_if_file_upload_fails(client, dataset):
         def connect_for_upload(self, pid):
             yield self
 
-    with pytest.raises(RuntimeError):
-        dataset.upload_new_dataset_now(client, uploader=RaisingUpload())
+    client = FakeClient(file_transfer=RaisingUpload(fs=fs))
+
+    with pytest.raises(RuntimeError, match="Fake upload failure"):
+        client.upload_new_dataset_now(dataset)
 
     assert dataset.pid not in client.datasets
     assert dataset.pid not in client.orig_datablocks
 
 
-def test_upload_cleans_up_files_if_dataset_ingestion_fails(dataset):
+def test_upload_cleans_up_files_if_dataset_ingestion_fails(dataset, fs):
     client = FakeClient(
-        disable={"create_dataset_model": ScicatCommError("Ingestion failed")}
+        disable={"create_dataset_model": ScicatCommError("Ingestion failed")},
+        file_transfer=FakeFileTransfer(fs=fs),
     )
-    uploader = FakeUpload()
     with pytest.raises(ScicatCommError):
-        dataset.upload_new_dataset_now(client, uploader=uploader)
+        client.upload_new_dataset_now(dataset)
 
-    assert not uploader.uploaded
+    assert not client.file_transfer.files
 
 
-def test_failed_datablock_upload_does_not_revert(dataset):
+def test_failed_datablock_upload_does_not_revert(dataset, fs):
     client = FakeClient(
-        disable={"create_orig_datablock": ScicatCommError("Ingestion failed")}
+        disable={"create_orig_datablock": ScicatCommError("Ingestion failed")},
+        file_transfer=FakeFileTransfer(fs=fs),
     )
-    uploader = FakeUpload()
     with pytest.raises(RuntimeError):
-        dataset.upload_new_dataset_now(client, uploader=uploader)
+        client.upload_new_dataset_now(dataset)
 
     uploaded_dset = next(iter(client.datasets.values()))
     dataset.pid = uploaded_dset.pid
     dataset.source_folder = uploaded_dset.sourceFolder
     assert uploaded_dset == dataset.make_scicat_models().dataset
-    assert uploader.uploaded
-    assert not uploader.reverted
+    assert client.file_transfer.files
+    assert not client.file_transfer.reverted

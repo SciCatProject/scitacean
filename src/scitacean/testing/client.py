@@ -12,6 +12,7 @@ import uuid
 from pyscicat import model
 import pyscicat.client
 
+from ..client import Client, ScicatClient
 from ..dataset import Dataset
 from ..pid import PID
 from ..typing import FileTransfer
@@ -27,7 +28,8 @@ def _conditionally_disabled(func):
     return impl
 
 
-class FakeClient:
+# Inherits from Client to satisfy type hints.
+class FakeClient(Client):
     # TODO users should not rely on error messages
 
     def __init__(
@@ -36,11 +38,14 @@ class FakeClient:
         file_transfer: Optional[FileTransfer] = None,
         disable: Optional[Dict[str, Exception]] = None,
     ):
+        # Normally, client must not be None, but the fake must never
+        # call it, so setting it to None serves as an extra safeguard.
+        super().__init__(client=None, file_transfer=file_transfer)  # noqa
+
         self._scicat_client = FakeScicatClient(self)
         self.disabled = {} if disable is None else dict(disable)
         self.datasets: Dict[PID, Union[model.DerivedDataset, model.RawDataset]] = {}
         self.orig_datablocks: Dict[PID, List[model.OrigDatablock]] = {}
-        self.file_transfer = file_transfer
 
     @classmethod
     def from_token(
@@ -88,8 +93,9 @@ class FakeClient:
             return con.upload_file(remote=remote, local=local)
 
 
-class FakeScicatClient:
+class FakeScicatClient(ScicatClient):
     def __init__(self, main_client):
+        super().__init__(None)  # noqa
         self.main = main_client
 
     @_conditionally_disabled

@@ -10,7 +10,7 @@ from ..pid import PID
 
 
 class FakeDownloadConnection:
-    def __init__(self, files: Dict[str, bytes], fs):
+    def __init__(self, fs, files: Dict[str, bytes]):
         self.files = files
         self.fs = fs
 

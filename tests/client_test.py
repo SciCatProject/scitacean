@@ -167,7 +167,6 @@ def test_create_first_orig_datablock(scicat_client, derived_dataset):
 
 
 def test_get_dataset(client, derived_dataset, orig_datablock):
-    print(orig_datablock)
     dset = client.get_dataset(derived_dataset.pid)
 
     assert dset.source_folder == derived_dataset.sourceFolder
@@ -177,7 +176,6 @@ def test_get_dataset(client, derived_dataset, orig_datablock):
     assert dset.meta["data_type"] == derived_dataset.scientificMetadata["data_type"]
 
     for i in range(len(orig_datablock.dataFileList)):
-        print(i, orig_datablock.dataFileList[i].time)
         assert dset.files[i].local_path is None
         assert dset.files[i].size == orig_datablock.dataFileList[i].size
         assert dset.files[i].creation_time == dateutil.parser.parse(
