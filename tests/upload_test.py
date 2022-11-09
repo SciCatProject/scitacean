@@ -131,25 +131,20 @@ def test_upload_does_not_create_dataset_if_file_upload_fails(client, dataset):
 
 
 def test_upload_cleans_up_files_if_dataset_ingestion_fails(dataset):
-    class FailingClient(FakeClient):
-        def create_dataset_model(self, dset: model.Dataset) -> str:
-            raise ScicatCommError("Ingestion failed")
-
+    client = FakeClient(
+        disable={"create_dataset_model": ScicatCommError("Ingestion failed")}
+    )
     uploader = FakeUpload()
     with pytest.raises(ScicatCommError):
-        dataset.upload_new_dataset_now(
-            FailingClient(file_transfer=None), uploader=uploader
-        )
+        dataset.upload_new_dataset_now(client, uploader=uploader)
 
     assert not uploader.uploaded
 
 
 def test_failed_datablock_upload_does_not_revert(dataset):
-    class FailingClient(FakeClient):
-        def create_orig_datablock(self, dblock: model.OrigDatablock):
-            raise ScicatCommError("Ingestion failed")
-
-    client = FailingClient(file_transfer=None)
+    client = FakeClient(
+        disable={"create_orig_datablock": ScicatCommError("Ingestion failed")}
+    )
     uploader = FakeUpload()
     with pytest.raises(RuntimeError):
         dataset.upload_new_dataset_now(client, uploader=uploader)

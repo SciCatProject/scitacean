@@ -58,8 +58,8 @@ class Dataset(DatasetFields):
 
     @classmethod
     def from_scicat(cls, client: Client, pid: str) -> Dataset:
-        model = client.get_dataset_model(pid)
-        dblock = client.get_orig_datablock(pid)
+        model = client.scicat.get_dataset_model(pid)
+        dblock = client.scicat.get_orig_datablock(pid)
         meta = model.scientificMetadata
         if meta is None:
             meta = {}
@@ -146,7 +146,7 @@ class Dataset(DatasetFields):
 
             models = dset.make_scicat_models()
             try:
-                dataset_id = client.create_dataset_model(models.dataset)
+                dataset_id = client.scicat.create_dataset_model(models.dataset)
             except ScicatCommError:
                 for file in dset.files:
                     con.revert_upload(
@@ -157,7 +157,7 @@ class Dataset(DatasetFields):
         dset.pid = dataset_id
         models.datablock.datasetId = dataset_id
         try:
-            client.create_orig_datablock(models.datablock)
+            client.scicat.create_orig_datablock(models.datablock)
         except ScicatCommError as exc:
             raise RuntimeError(
                 f"Failed to upload original datablocks for SciCat dataset {dset.pid}:"

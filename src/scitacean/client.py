@@ -29,7 +29,7 @@ class Client:
     def __init__(
         self,
         *,
-        client: pyscicat.client.ScicatClient,
+        client: ScicatClient,
         file_transfer: Optional[FileTransfer],
     ):
         self._client = client
@@ -55,7 +55,7 @@ class Client:
             A new client.
         """
         return Client(
-            client=pyscicat.client.from_token(base_url=url, token=token),
+            client=ScicatClient(pyscicat.client.from_token(base_url=url, token=token)),
             file_transfer=file_transfer,
         )
 
@@ -86,11 +86,40 @@ class Client:
             A new client.
         """
         return Client(
-            client=pyscicat.client.from_credentials(
-                base_url=url, username=username, password=password
+            client=ScicatClient(
+                pyscicat.client.from_credentials(
+                    base_url=url, username=username, password=password
+                )
             ),
             file_transfer=file_transfer,
         )
+
+    @property
+    def scicat(self) -> ScicatClient:
+        return self._client
+
+    def download_file(self, *, remote: Union[str, Path], local: Union[str, Path]):
+        if self._file_transfer is None:
+            raise RuntimeError(
+                f"No file transfer handler specified, cannot download file {remote}"
+            )
+        with self._file_transfer.connect_for_download() as con:
+            con.download_file(remote=remote, local=local)
+
+    def upload_file(
+        self, *, dataset_id: str, remote: Union[str, Path], local: Union[str, Path]
+    ) -> str:
+        if self._file_transfer is None:
+            raise RuntimeError(
+                f"No file transfer handler specified, cannot upload file {local}"
+            )
+        with self._file_transfer.connect_for_upload(dataset_id) as con:
+            return con.upload_file(remote=remote, local=local)
+
+
+class ScicatClient:
+    def __init__(self, client: pyscicat.client.ScicatClient):
+        self._client = client
 
     def get_dataset_model(
         self, pid: str
@@ -202,24 +231,6 @@ class Client:
             fails for some other reason.
         """
         self._client.datasets_origdatablock_create(dblock)
-
-    def download_file(self, *, remote: Union[str, Path], local: Union[str, Path]):
-        if self._file_transfer is None:
-            raise RuntimeError(
-                f"No file transfer handler specified, cannot download file {remote}"
-            )
-        with self._file_transfer.connect_for_download() as con:
-            con.download_file(remote=remote, local=local)
-
-    def upload_file(
-        self, *, dataset_id: str, remote: Union[str, Path], local: Union[str, Path]
-    ) -> str:
-        if self._file_transfer is None:
-            raise RuntimeError(
-                f"No file transfer handler specified, cannot upload file {local}"
-            )
-        with self._file_transfer.connect_for_upload(dataset_id) as con:
-            return con.upload_file(remote=remote, local=local)
 
 
 def _make_orig_datablock(fields):

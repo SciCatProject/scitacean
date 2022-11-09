@@ -7,7 +7,7 @@ import pyscicat.client
 from pyscicat.model import DataFile, DatasetType, DerivedDataset, OrigDatablock
 import pytest
 
-from scitacean.testing.client import FakeClient
+from scitacean.testing.client import FakeClient, FakeScicatClient
 from scitacean import Client
 
 from . import data
@@ -27,7 +27,7 @@ def make_fake_client(dataset, datablock):
     client = FakeClient(file_transfer=None)
     client.datasets[dataset.pid] = dataset
     client.orig_datablocks[dataset.pid] = [datablock]
-    return client
+    return client.scicat
 
 
 @pytest.fixture(params=["real", "fake"])
@@ -49,7 +49,7 @@ def client(
             )
         return Client.from_credentials(
             url=scicat_access.url, **scicat_access.functional_credentials
-        )
+        ).scicat
 
 
 def test_from_token_fake():
@@ -98,15 +98,15 @@ def test_get_orig_datablock_bad_id(client):
 
 
 def test_get_orig_datablock_multi_not_supported(client):
-    if isinstance(client, FakeClient):
+    if isinstance(client, FakeScicatClient):
         dset = data.as_dataset_model(data.load_datasets()[1])
         assert dset.pid == "PID.SAMPLE.PREFIX/dataset-with-2-blocks"
-        client.datasets[dset.pid] = dset
+        client.main.datasets[dset.pid] = dset
         dblocks = [
             data.as_orig_datablock_model(data.load_orig_datablocks()[i])
             for i in range(1, 3)
         ]
-        client.orig_datablocks[dset.pid] = dblocks
+        client.main.orig_datablocks[dset.pid] = dblocks
     with pytest.raises(NotImplementedError):
         client.get_orig_datablock("PID.SAMPLE.PREFIX/dataset-with-2-blocks")
 
@@ -170,3 +170,16 @@ def test_create_first_orig_datablock(client, derived_dataset):
             assert (
                 expected == downloaded.dataFileList[i].dict()[key]
             ), f"i = {i}, key = {key}"
+
+
+def test_fake_can_disable_functions():
+    client = FakeClient(
+        disable={
+            "get_dataset_model": RuntimeError("custom failure"),
+            "get_orig_datablock": IndexError("custom index error"),
+        }
+    )
+    with pytest.raises(RuntimeError, match="custom failure"):
+        client.scicat.get_dataset_model("some-pid")
+    with pytest.raises(IndexError, match="custom index error"):
+        client.scicat.get_orig_datablock("some-pid")
