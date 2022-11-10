@@ -4,7 +4,6 @@
 
 from contextlib import contextmanager
 from getpass import getpass
-import logging
 import os
 from pathlib import Path
 from typing import Union, Tuple, Optional
@@ -16,6 +15,7 @@ from fabric import Connection
 from invoke.exceptions import UnexpectedExit
 from paramiko.ssh_exception import AuthenticationException, PasswordRequiredException
 
+from ..logging import get_logger
 from ..pid import PID
 
 
@@ -58,7 +58,7 @@ class _ESSDownloadConnection:
 
     def download_file(self, *, remote: Union[str, Path], local: Union[str, Path]):
         """Download a file from the given remote path."""
-        _get_logger().info(
+        get_logger().info(
             "Downloading file %s from host %s to %s",
             remote,
             self._connection.host,
@@ -85,51 +85,50 @@ class _ESSUploadConnection:
     def upload_file(self, *, remote: Union[str, Path], local: Union[str, Path]) -> str:
         """Upload a file to the remote staging folder."""
         remote_path = self.remote_path(remote)
-        _get_logger().info(
+        get_logger().info(
             "Uploading file %s to %s on host %s", local, remote, self._connection.host
         )
 
         self._connection.run(f"mkdir -p {self.source_dir}", hide=True)
-        self._connection.put(
-            remote=str(remote_path),
-            local=str(local),
-        )
+        try:
+            self._connection.put(
+                remote=str(remote_path),
+                local=str(local),
+            )
+        except Exception as exc:
+            if _folder_is_empty(self._connection, self.source_dir):
+                self._connection.run(f"rm -r {self.source_dir}", hide=True)
+            raise exc
         return remote_path
 
     def revert_upload(self, *, remote: Union[str, Path], local: Union[str, Path] = ""):
         """Remove an uploaded file from the remote staging folder."""
         remote_path = self.remote_path(remote)
-        _get_logger().info(
+        get_logger().info(
             "Reverting upload of file %s to %s on host %s",
             local,
             remote_path,
             self._connection.host,
         )
 
-        def _folder_is_empty(con, path) -> bool:
-            try:
-                return con.run(f"ls {path}", hide=True).stdout == ""
-            except UnexpectedExit:
-                return False  # no further processing is needed in this case
-
         try:
             self._connection.run(f"rm {remote_path}", hide=True)
         except UnexpectedExit as exc:
-            _get_logger().warning(
+            get_logger().warning(
                 "Error reverting file %s:\n%s", remote_path, exc.result
             )
             return
 
         if _folder_is_empty(self._connection, self.source_dir):
             try:
-                _get_logger().info(
+                get_logger().info(
                     "Removing empty remote directory %s on host %s",
                     self.source_dir,
                     self._connection.host,
                 )
                 self._connection.run(f"rm -r {self.source_dir}", hide=True)
             except UnexpectedExit as exc:
-                _get_logger().warning(
+                get_logger().warning(
                     "Failed to remove empty remote directory %s on host:\n%s",
                     self.source_dir,
                     self._connection.host,
@@ -199,9 +198,12 @@ def _connect(host, port):
         raise type(exc)(exc.args) from None
 
 
-def _get_logger():
-    return logging.getLogger("ESSTestFileTransfer")
-
-
 def _remote_path_exists(con: Connection, path: str) -> bool:
     return con.run(f"stat {path}", hide=True, warn=True).exited == 0
+
+
+def _folder_is_empty(con, path) -> bool:
+    try:
+        return con.run(f"ls {path}", hide=True).stdout == ""
+    except UnexpectedExit:
+        return False  # no further processing is needed in this case
