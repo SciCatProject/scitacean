@@ -5,6 +5,8 @@
 from pathlib import Path
 from typing import ContextManager, Protocol, Union
 
+from .pid import PID
+
 # TODO docs
 
 
@@ -38,7 +40,7 @@ class UploadConnection(Protocol):
 class Uploader(Protocol):
     """"""
 
-    def connect_for_upload(self, dataset_id) -> ContextManager[UploadConnection]:
+    def connect_for_upload(self, dataset_id: PID) -> ContextManager[UploadConnection]:
         ...
 
 

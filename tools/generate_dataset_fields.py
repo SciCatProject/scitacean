@@ -16,6 +16,7 @@ OMIT = (
     "number_of_files",
     "number_of_files_archived",
     "packed_size",
+    "pid",
     "size",
     "scientific_metadata",
 )

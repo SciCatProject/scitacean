@@ -11,6 +11,7 @@ Classes
    Client
    Dataset
    File
+   PID
 
 DataClasses
 ===========

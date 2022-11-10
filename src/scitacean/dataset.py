@@ -14,7 +14,7 @@ from pyscicat.client import ScicatCommError
 from pyscicat.model import DerivedDataset, OrigDatablock, RawDataset
 
 from .file import File
-from .typing import Uploader
+from .pid import PID
 from ._dataset_fields import DatasetFields
 
 
@@ -31,12 +31,14 @@ class Dataset(DatasetFields):
         files: List[File],
         datablock: Optional[OrigDatablock],
         meta: Dict[str, Any],
+        pid: Optional[Union[PID, str]],
         **kwargs,
     ):
         super().__init__(**kwargs)
         self._files = files
         self._datablock = datablock
         self._meta = dict(meta)
+        self.pid = pid
 
     @classmethod
     def new(
@@ -49,6 +51,7 @@ class Dataset(DatasetFields):
         # TODO some model fields are ignores, e.g. size
         model_dict = cls._map_model_to_field_dict(model) if model is not None else {}
         model_dict.update(kwargs)
+        model_dict["pid"] = model.pid
         meta = {} if meta is None else dict(meta)
         if model.scientificMetadata:
             meta.update(model.scientificMetadata)
@@ -79,6 +82,7 @@ class Dataset(DatasetFields):
             ],
             datablock=dblock,
             meta=meta,
+            pid=dataset_model.pid,
             **{
                 k: v
                 for k, v in cls._map_model_to_field_dict(dataset_model).items()
@@ -89,6 +93,14 @@ class Dataset(DatasetFields):
     @property
     def meta(self) -> Dict[str, Any]:
         return self._meta
+
+    @property
+    def pid(self) -> Optional[PID]:
+        return self._pid
+
+    @pid.setter
+    def pid(self, pid: Optional[Union[PID, str]]):
+        self._pid = pid if isinstance(pid, PID) or pid is None else PID.parse(pid)
 
     @property
     def size(self) -> int:
@@ -108,9 +120,6 @@ class Dataset(DatasetFields):
     ):
         self.add_files(*(File.from_local(path, base_path=base_path) for path in paths))
 
-    def assign_new_pid(self):
-        self.pid = str(uuid4())
-
     def make_scicat_models(self) -> SciCatModels:
         if self.pid is None:
             raise ValueError(
@@ -120,7 +129,7 @@ class Dataset(DatasetFields):
         datablock = OrigDatablock(
             size=total_size,
             dataFileList=[file.model for file in self.files],
-            datasetId=self.pid,
+            datasetId=str(self.pid),
             ownerGroup=self.owner_group,
             accessGroups=self.access_groups,
         )
@@ -129,6 +138,7 @@ class Dataset(DatasetFields):
                 number_of_files=len(self.files) or None,
                 number_of_files_archived=None,
                 packed_size=None,
+                pid=str(self.pid) if self.pid is not None else None,
                 size=total_size or None,
                 scientific_metadata=self.meta or None,
             )
@@ -143,9 +153,9 @@ class Dataset(DatasetFields):
             files=self._files,
             datablock=self._datablock,
             meta=self._meta,
+            pid=PID(pid=str(uuid4()), prefix=None),
             **dataclasses.asdict(self),
         )
-        dset.assign_new_pid()
         return dset
 
     def upload_new_dataset_now(self, client, uploader: Uploader) -> Dataset:

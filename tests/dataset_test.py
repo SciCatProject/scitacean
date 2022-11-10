@@ -254,7 +254,7 @@ def test_make_scicat_models_datablock_without_files(derived_dataset):
     assert mod.id is None
     assert mod.size == 0
     assert len(mod.dataFileList) == 0
-    assert mod.datasetId == dset.pid
+    assert mod.datasetId == "some-pid"
 
 
 def test_make_scicat_models_datablock_with_files(derived_dataset_model, fs):
@@ -271,7 +271,7 @@ def test_make_scicat_models_datablock_with_files(derived_dataset_model, fs):
     assert mod.id is None
     assert mod.size == f0["size"] + f1["size"]
     assert len(mod.dataFileList) == 2
-    assert mod.datasetId == dset.pid
+    assert mod.datasetId == str(dset.pid)
 
     assert mod.dataFileList[0].path == "events.nxs"
     assert mod.dataFileList[0].size == f0["size"]

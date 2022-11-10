@@ -98,6 +98,38 @@ class Client:
             orig_datablock_models=self.scicat.get_orig_datablocks(pid),
         )
 
+    def upload_new_dataset_now(self, dataset: Dataset) -> Dataset:
+        dset = dataset.prepare_as_new()
+        dset.pid = dset.pid.without_prefix
+        with self.file_transfer.connect_for_upload(dset.pid) as con:
+            dset.source_folder = con.source_dir
+            for file in dset.files:
+                file.source_folder = dset.source_folder
+                con.upload_file(local=file.local_path, remote=file.remote_access_path)
+
+            models = dset.make_scicat_models()
+            try:
+                dataset_id = self.scicat.create_dataset_model(models.dataset)
+            except pyscicat.client.ScicatCommError:
+                for file in dset.files:
+                    con.revert_upload(
+                        local=file.local_path, remote=file.remote_access_path
+                    )
+                raise
+
+        dset.pid = dataset_id
+        models.datablock.datasetId = dataset_id
+        try:
+            self.scicat.create_orig_datablock(models.datablock)
+        except pyscicat.client.ScicatCommError as exc:
+            raise RuntimeError(
+                f"Failed to upload original datablocks for SciCat dataset {dset.pid}:"
+                f"\n{exc.args}\nThe dataset and data files were successfully uploaded "
+                "but are not linked with each other. Please fix the dataset manually!"
+            ) from exc
+
+        return dset
+
     @property
     def scicat(self) -> ScicatClient:
         return self._client

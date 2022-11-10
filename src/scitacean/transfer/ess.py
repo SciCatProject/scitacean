@@ -16,6 +16,8 @@ from fabric import Connection
 from invoke.exceptions import UnexpectedExit
 from paramiko.ssh_exception import AuthenticationException, PasswordRequiredException
 
+from ..pid import PID
+
 
 # TODO process multiple files together
 # TODO pass pid in put/revert?
@@ -41,7 +43,7 @@ class ESSTestFileTransfer:
             yield _ESSDownloadConnection(connection=con)
 
     @contextmanager
-    def connect_for_upload(self, dataset_id):
+    def connect_for_upload(self, dataset_id: PID):
         with _connect(self._host, self._port) as con:
             yield _ESSUploadConnection(
                 connection=con,
@@ -67,7 +69,7 @@ class _ESSDownloadConnection:
 
 class _ESSUploadConnection:
     def __init__(
-        self, *, connection: Connection, dataset_id: str, remote_base_path: str
+        self, *, connection: Connection, dataset_id: PID, remote_base_path: str
     ):
         self._connection = connection
         self._dataset_id = dataset_id
@@ -75,7 +77,7 @@ class _ESSUploadConnection:
 
     @property
     def source_dir(self) -> str:
-        return os.path.join(self._remote_base_path, self._dataset_id)
+        return os.path.join(self._remote_base_path, self._dataset_id.pid)
 
     def remote_path(self, filename) -> str:
         return os.path.join(self.source_dir, filename)

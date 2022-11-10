@@ -88,6 +88,7 @@ _OMITTED_FIELDS = (
     "number_of_files",
     "number_of_files_archived",
     "packed_size",
+    "pid",
     "size",
     "scientific_metadata",
 )
@@ -121,7 +122,6 @@ class DatasetFields:
     license: Optional[str] = None
     orcid_of_owner: Optional[str] = None
     owner_email: Optional[str] = None
-    pid: Optional[str] = None
     proposal_id: Optional[str] = None
     sample_id: Optional[str] = None
     shared_with: Optional[typing.List[str]] = None
@@ -151,6 +151,7 @@ class DatasetFields:
         number_of_files: Optional[int],
         number_of_files_archived: Optional[int],
         packed_size: Optional[int],
+        pid: Optional[str],
         size: Optional[int],
         scientific_metadata: Optional[typing.Dict],
     ) -> Union[DerivedDataset, RawDataset]:
@@ -166,6 +167,7 @@ class DatasetFields:
         mapped[name_mapping["number_of_files"]] = number_of_files
         mapped[name_mapping["number_of_files_archived"]] = number_of_files_archived
         mapped[name_mapping["packed_size"]] = packed_size
+        mapped[name_mapping["pid"]] = pid
         mapped[name_mapping["size"]] = size
         mapped[name_mapping["scientific_metadata"]] = scientific_metadata
         return model(**mapped)
