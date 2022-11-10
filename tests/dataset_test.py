@@ -106,6 +106,32 @@ def test_cannot_access_some_dataset_properties(derived_dataset):
         dset.files = [model.DataFile(path="path", size=4)]  # noqa
 
 
+@settings(max_examples=10)
+@given(sst.derived_datasets(datasetName="Data A38", owner="Ponder Stibbons"))
+def test_new_kwargs_and_model(derived_dataset):
+    dset = Dataset.new(
+        model=derived_dataset, owner="The Librarian", license="NO-TOUCHY"
+    )
+    assert dset.dataset_name == "Data A38"
+    assert dset.owner == "The Librarian"
+    assert dset.license == "NO-TOUCHY"
+
+
+def test_new_only_kwargs():
+    dset = Dataset.new(
+        dataset_type="derived",
+        owner="The Librarian",
+        contact_email="p.stibbons@uu.am",
+        source_folder="/hex/source123",
+        creation_time="2011-08-24T12:34:56Z",
+        dataset_name="Data A38",
+        owner_group="uu",
+        access_groups=["group1", "2nd_group"],
+    )
+    assert dset.dataset_name == "Data A38"
+    assert dset.owner == "The Librarian"
+
+
 def test_can_access_scientific_metadata(derived_dataset_model):
     dset = Dataset.new(model=derived_dataset_model)
     assert dset.meta["temperature"] == {"value": "123", "unit": "K"}

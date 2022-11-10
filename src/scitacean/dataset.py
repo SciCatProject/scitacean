@@ -50,9 +50,9 @@ class Dataset(DatasetFields):
         # TODO some model fields are ignores, e.g. size
         model_dict = cls._map_model_to_field_dict(model) if model is not None else {}
         model_dict.update(kwargs)
-        model_dict["pid"] = model.pid
+        model_dict["pid"] = model.pid if model is not None else None
         meta = {} if meta is None else dict(meta)
-        if model.scientificMetadata:
+        if model is not None and model.scientificMetadata:
             meta.update(model.scientificMetadata)
             model.scientificMetadata = None
         return Dataset(files=[], datablock=None, meta=meta, **model_dict)
