@@ -15,7 +15,11 @@ class FakeDownloadConnection:
         self.fs = fs
 
     def download_file(self, *, remote, local):
-        self.fs.create_file(local, contents=self.files[remote])
+        if self.fs is not None:
+            self.fs.create_file(local, contents=self.files[remote])
+        else:
+            with open(local, "wb") as f:
+                f.write(self.files[remote])
 
 
 class FakeUploadConnection:
@@ -63,8 +67,10 @@ class FakeFileTransfer:
 
     @contextmanager
     def connect_for_download(self):
-        yield FakeDownloadConnection(self.files, self.fs)
+        yield FakeDownloadConnection(fs=self.fs, files=self.files)
 
     @contextmanager
     def connect_for_upload(self, dataset_id: PID):
-        yield FakeUploadConnection(self.fs, self.files, self.reverted, dataset_id)
+        yield FakeUploadConnection(
+            fs=self.fs, files=self.files, reverted=self.reverted, dataset_id=dataset_id
+        )
