@@ -228,7 +228,7 @@ class Dataset(DatasetFields):
             pid=PID(pid=str(uuid4()), prefix=None),
             **dataclasses.asdict(self),
         )
-        dset.history = []
+        dset.history = None
         dset.updated_at = None
         dset.updated_by = None
         return dset
