@@ -1,4 +1,0 @@
-.. currentmodule:: scitacean
-
-Free functions
-==============
