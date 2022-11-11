@@ -5,4 +5,4 @@ Reference
    :maxdepth: 2
 
    classes
-   developer-documentation
+   developer/index
