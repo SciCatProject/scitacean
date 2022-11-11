@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
 # @author Jan-Lukas Wynen
+"""Fake client for testing."""
+
 from __future__ import annotations
 
 import functools
@@ -30,7 +32,75 @@ def _conditionally_disabled(func):
 
 # Inherits from Client to satisfy type hints.
 class FakeClient(Client):
-    # TODO users should not rely on error messages
+    """Mimics a client without accessing the internet.
+
+    This class is a stand in for :class:`scitacean.Client` to emulate downloading and
+    uploading of datasets without actually accessing a SciCat server.
+
+    Since this client fakes communication with SciCat, it stores raw
+    `pydantic <https://pydantic-docs.helpmanual.io/>`_ models, namely
+
+    - ``FakeClient.datasets``:
+            :class:`dict` of :class:`pydantic.model.DerivedDataset` and
+            :class:`pydantic.model.RawDataset`,
+            indexed by dataset ID.
+    - ``FakeClient.orig_datablocks``:
+            :class:`dict` of lists of :class:`pydantic.model.OrigDatablock`,
+            indexed by the *dataset* ID.
+
+    Individual functions can be disabled (that is made to raise an exception)
+    using the ``disabled`` argument of the initializer.
+
+    Important
+    ---------
+    ``FakeClient`` does not behave exactly like a ``Client`` connected to a real
+    server as that would require reimplementing a large part of the SciCat backend.
+    You should thus always test your code against a (potentially locally deployed)
+    real server.
+
+    In particular, do not rely on specific error messages or the detailed settings
+    in the datasets returned by ``FakeClient.upload_new_dataset_now``!
+
+    Examples
+    --------
+    Set up a fake client for download:
+
+    .. code-block:: python
+
+        client = FakeClient()
+        pid = PID(prefix="sample.prefix", pid="1234-5678-abcd")
+        client.datasets[pid] = pyscicat.model.DerivedDataset(...)
+        client.orig_datablocks[pid] = [pyscicat.model.OrigDatablock(
+            datasetID=str(pid),
+            ...
+        )]
+        client.get_dataset(pid)
+
+    Use to upload a dataset:
+
+    .. code-block:: python
+
+        client = FakeClient(file_transfer=FakeFileTransfer())
+        finalized = client.upload_new_dataset_now(dset)
+
+        # contains new dataset and datablock:
+        client.datasets[finalized.pid]
+        client.orig_datablocks[finalized.pid]
+
+    Disable a method:
+
+    .. code-block:: python
+
+        client = FakeClient(
+            disable={"create_dataset_model": RuntimeError("Upload failed")})
+        # raises RuntimeError("Upload failed"):
+        client.upload_new_dataset_now(dset)
+
+    See Also
+    --------
+    scitacean.testing.transfer.FakeFileTransfer: Fake file up-/downloads
+        without a real server.
+    """
 
     def __init__(
         self,
@@ -38,6 +108,17 @@ class FakeClient(Client):
         file_transfer: Optional[FileTransfer] = None,
         disable: Optional[Dict[str, Exception]] = None,
     ):
+        """Initialize a fake client with empty dataset storage.
+
+        Parameters
+        ----------
+        file_transfer:
+            Typically :class:`scitacean.testing.transfer.FakeFileTransfer`
+            but may be a real file transfer.
+        disable:
+            dict function names to exceptions. Functions listed here raise
+            the given exception when called and do nothing else.
+        """
         # Normally, client must not be None, but the fake must never
         # call it, so setting it to None serves as an extra safeguard.
         super().__init__(client=None, file_transfer=file_transfer)  # noqa
@@ -51,6 +132,10 @@ class FakeClient(Client):
     def from_token(
         cls, *, url: str, token: str, file_transfer: Optional[FileTransfer] = None
     ) -> FakeClient:
+        """Create a new fake client.
+
+        All arguments except ``file_Transfer`` are ignored.
+        """
         return FakeClient(file_transfer=file_transfer)
 
     @classmethod
@@ -62,9 +147,14 @@ class FakeClient(Client):
         password: str,
         file_transfer: Optional[FileTransfer] = None,
     ) -> FakeClient:
+        """Create a new fake client.
+
+        All arguments except ``file_Transfer`` are ignored.
+        """
         return FakeClient(file_transfer=file_transfer)
 
     def get_dataset(self, pid: Union[PID, str]) -> Dataset:
+        """Return a dataset from the client's internal storage."""
         return Dataset.from_models(
             dataset_model=self.scicat.get_dataset_model(str(pid)),
             orig_datablock_models=self.scicat.get_orig_datablocks(str(pid)),
@@ -72,9 +162,11 @@ class FakeClient(Client):
 
     @property
     def scicat(self) -> FakeScicatClient:
+        """Client for lower level SciCat communication."""
         return self._scicat_client
 
     def download_file(self, *, remote: Union[str, Path], local: Union[str, Path]):
+        """Download a file using the client's file_transfer."""
         if self.file_transfer is None:
             raise RuntimeError(
                 f"No file transfer handler specified, cannot download file {remote}"
@@ -83,8 +175,9 @@ class FakeClient(Client):
             con.download_file(remote=remote, local=local)
 
     def upload_file(
-        self, *, dataset_id: str, remote: Union[str, Path], local: Union[str, Path]
+        self, *, dataset_id: PID, remote: Union[str, Path], local: Union[str, Path]
     ) -> str:
+        """Upload a file using the client's file_transfer."""
         if self.file_transfer is None:
             raise RuntimeError(
                 f"No file transfer handler specified, cannot upload file {local}"
@@ -94,6 +187,8 @@ class FakeClient(Client):
 
 
 class FakeScicatClient(ScicatClient):
+    """Mimics a ScicatClient, to be used by FakeClient."""
+
     def __init__(self, main_client):
         super().__init__(None)  # noqa
         self.main = main_client

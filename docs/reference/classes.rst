@@ -3,6 +3,9 @@
 Classes
 =======
 
+Main Classes
+------------
+
 .. autosummary::
    :toctree: ../generated/classes
    :template: scitacean-class-template.rst
@@ -11,10 +14,20 @@ Classes
    Client
    Dataset
    File
-   PID
+   pid.PID
 
-DataClasses
-===========
+File Transfer
+-------------
+
+.. autosummary::
+   :toctree: ../generated/classes
+   :template: scitacean-class-template.rst
+   :recursive:
+
+   transfer.ess.ESSTestFileTransfer
+
+Dataclasses
+-----------
 
 .. currentmodule:: scitacean._dataset_fields
 
@@ -24,3 +37,32 @@ DataClasses
    :recursive:
 
    DatasetFields
+
+Typing
+------
+
+.. currentmodule:: scitacean
+
+.. autosummary::
+   :toctree: ../generated/classes
+   :template: scitacean-class-template.rst
+   :recursive:
+
+   typing.Downloader
+   typing.DownloadConnection
+   typing.FileTransfer
+   typing.UploadConnection
+   typing.Uploader
+
+Testing
+-------
+
+.. currentmodule:: scitacean
+
+.. autosummary::
+   :toctree: ../generated/classes
+   :template: scitacean-class-template.rst
+   :recursive:
+
+   testing.client.FakeClient
+   testing.transfer.FakeFileTransfer

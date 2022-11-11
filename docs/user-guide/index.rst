@@ -6,3 +6,4 @@ User Guide
 
    getting-started
    downloading
+   uploading

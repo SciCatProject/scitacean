@@ -37,6 +37,10 @@ def _create_raw_dataset(client: FakeClient):
         numberOfFiles=2,
         size=len(content1) + len(content2),
         sourceFolder="/hex/ps/thaum",
+        scientificMetadata={
+            "data_type": "histogram",
+            "temperature": {"value": "123", "unit": "K"},
+        },
     )
     client.orig_datablocks[dataset_id] = [
         OrigDatablock(
