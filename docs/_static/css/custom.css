@@ -1,0 +1,68 @@
+html[data-theme="light"] {
+    --pst-color-primary: #ee9040;
+    --pst-color-secondary: #459db9;
+
+    --cean-color-header-background-0: #e28e45;
+    --cean-color-header-background-1: #e9842b;
+    --cean-color-header-text: #2c2c2c;
+    --cean-color-header-text-highlight: black;
+    --cean-color-table-odd: #f4f4f4;
+}
+
+html[data-theme="dark"] {
+    --pst-color-primary: #ee9040;
+    --pst-color-secondary: #459db9;
+    --pst-color-border: #aaa;
+
+    --cean-color-header-background-0: #775130;
+    --cean-color-header-background-1: #7a4415;
+    --cean-color-header-text: #d4d4d4;
+    --cean-color-header-text-highlight: #e5e5e5;
+    --cean-color-table-odd: var(--pst-color-on-background);
+}
+
+/* Code cells from nbsphinx */
+div.nbinput.container div.input_area{
+    border: none !important;
+    padding: 0.5rem !important;
+}
+
+/* Code blocks in sphinx (ReST/Markdown) */
+.highlight > pre {
+    border: none !important;
+    padding: 0.5rem;
+}
+
+.bd-header {
+    background: var(--cean-color-header-background-0) !important;
+    background: linear-gradient(90deg, var(--cean-color-header-background-0) 0%, var(--cean-color-header-background-1) 100%) !important;
+}
+
+.bd-header .navbar-nav li a.nav-link {
+    color: var(--cean-color-header-text);
+}
+
+.bd-header .navbar-nav li a.nav-link:focus, .bd-header .navbar-nav li a.nav-link:hover {
+    color: var(--cean-color-header-text-highlight);
+    text-decoration: underline;
+}
+
+.bd-header .navbar-nav > .active > .nav-link {
+    color: var(--cean-color-header-text-highlight);
+}
+
+.search-button, .theme-switch-button a, label.sidebar-toggle {
+    color: var(--cean-color-header-text) !important;
+}
+
+.theme-switch-button {
+    border: none;
+}
+
+.table td {
+    border-top: none;
+}
+
+.table .row-odd {
+    background-color: var(--cean-color-table-odd);
+}
