@@ -7,7 +7,7 @@ Setting Up
 Dependencies
 ~~~~~~~~~~~~
 
-Development dependencies are specified in ``requirements/dev.txt`` and can be installed using
+Development dependencies are specified in ``requirements/dev.txt`` and can be installed using (see `Dependency Management <./dependency-management.rst>`_ for more information)
 
 .. code-block:: sh
 

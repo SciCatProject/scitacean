@@ -14,4 +14,5 @@ TODO
 
    getting-started
    coding-conventions
+   dependency-management
    testing
