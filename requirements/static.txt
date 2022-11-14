@@ -39,11 +39,11 @@ nbformat==5.7.0
     # via nbstripout
 nbstripout==0.6.1
     # via -r requirements/static.in
-pathspec==0.10.1
+pathspec==0.10.2
     # via black
 pbr==5.11.0
     # via stevedore
-platformdirs==2.5.3
+platformdirs==2.5.4
     # via
     #   black
     #   jupyter-core

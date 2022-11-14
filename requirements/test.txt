@@ -10,11 +10,11 @@ attrs==22.1.0
     # via
     #   hypothesis
     #   pytest
-exceptiongroup==1.0.1
+exceptiongroup==1.0.2
     # via
     #   hypothesis
     #   pytest
-hypothesis==6.56.4
+hypothesis==6.57.1
     # via -r requirements/test.in
 iniconfig==1.1.1
     # via pytest
