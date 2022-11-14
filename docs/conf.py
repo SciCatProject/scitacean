@@ -99,14 +99,18 @@ todo_include_todos = False
 
 # -- Options for HTML output ----------------------------------------------
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-#
-
 html_theme = "pydata_sphinx_theme"
 html_theme_options = {
     "left_sidebar_end": [],
     "show_nav_level": 1,
+    "header_links_before_dropdown": 4,
+    "external_links": [
+        {"name": "SciCat", "url": "https://scicatproject.github.io/"},
+        {
+            "name": "SciCat Backend",
+            "url": "https://scicatproject.github.io/documentation/",
+        },
+    ],
     "icon_links": [
         {
             "name": "GitHub",
