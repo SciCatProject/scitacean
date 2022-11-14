@@ -36,11 +36,6 @@ extensions = [
     "nbsphinx",
 ]
 
-rst_epilog = f"""
-.. |SCITACEAN_RELEASE_MONTH| replace:: {os.popen("git show -s --format=%cd --date=format:'%B %Y'").read()}
-.. |SCITACEAN_VERSION| replace:: {scitacean.__version__}
-"""  # noqa: E501
-
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "pyscicat": ("https://scicatproject.github.io/pyscicat/", None),
@@ -78,9 +73,9 @@ master_doc = "index"
 # built documents.
 #
 # The short X.Y version.
-version = ""
+version = scitacean.__version__
 # The full version, including alpha/beta/rc tags.
-release = ""
+release = scitacean.__version__
 
 warning_is_error = True
 
@@ -112,12 +107,22 @@ html_theme = "pydata_sphinx_theme"
 html_theme_options = {
     "left_sidebar_end": [],
     "show_nav_level": 1,
-    "github_url": "https://github.com/SciCatProject/scitacean",
+    "icon_links": [
+        {
+            "name": "GitHub",
+            "url": "https://github.com/SciCatProject/scitacean",
+            "icon": "fa-brands fa-github",
+            "type": "fontawesome",
+        },
+        {
+            "name": "PyPI",
+            "url": "https://pypi.org/project/scitacean/",
+            "icon": "fa-brands fa-python",
+            "type": "fontawesome",
+        },
+    ],
 }
 html_context = {
-    "github_user": "SciCatProject",
-    "github_repo": "scitacean",
-    "github_version": "main",
     "doc_path": "docs",
 }
 
