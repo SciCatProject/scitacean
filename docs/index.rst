@@ -6,4 +6,5 @@ Scitacean
 
    user-guide/index
    reference/index
-   about/index
+   developer/index
+   release-notes

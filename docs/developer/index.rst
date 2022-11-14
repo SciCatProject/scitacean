@@ -1,6 +1,14 @@
 Developer Documentation
 =======================
 
+Contributing to Scitacean
+-------------------------
+
+Contributions, bug reports, and ideas are always welcome.
+
+TODO
+
+
 .. toctree::
    :maxdepth: 2
 
