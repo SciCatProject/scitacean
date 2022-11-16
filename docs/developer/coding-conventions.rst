@@ -80,7 +80,7 @@ The order of sections is fixed as shown in the example.
   But a colon is required as in the example above in order to produce proper formatting.
 
   For multiple return values, to produce proper formatting,
-  both name and type must by given even though the latter repeats the type annotation:
+  both name and type must be given even though the latter repeats the type annotation:
 
   .. code-block:: python
 
