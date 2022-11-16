@@ -5,6 +5,40 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "scitacean"
+description = "High-level interface for SciCat"
+license = { "file" = "LICENSE" }
+readme = "README.md"
+keywords = ["scicat"]
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: BSD License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Scientific/Engineering",
+    "Typing :: Typed",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "python-dateutil",
+    "pyscicat",
+]
+dynamic = ["version"]
+
+[project.urls]
+    "Documentation" = "https://scicatproject.github.io/scitacean"
+    "Bug Tracker" = "https://github.com/SciCatProject/scitacean/issues"
+    "Source" = "https://github.com/SciCatProject/scitacean"
+
+[project.optional-dependencies]
+ssh = ["fabric"]
+
 [tool.setuptools_scm]
 
 [tool.pytest.ini_options]

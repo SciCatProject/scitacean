@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
 # @author Jan-Lukas Wynen
+"""Client to handle communication with SciCat servers."""
+
 from __future__ import annotations
 from pathlib import Path
 from typing import List, Optional, Union
@@ -13,15 +15,17 @@ from .typing import FileTransfer
 
 
 class Client:
-    """SciCat client to communicate with a backend.
+    """SciCat client to communicate with a server.
 
     Clients hold all information needed to communicate with a SciCat instance
-    and a filesystem that holds data files. Users of Scitacean should instantiate
-    this class but not use it directly. Instead, the corresponding methods of
-    ``Dataset`` should be called to download and upload data.
+    and a filesystem that holds data files (via ``file_transfer``).
 
     Use :func:`Client.from_token` or :func:`Client.from_credentials` to initialize
     a client instead of the constructor directly.
+
+    See the user guide for typical usage patterns.
+    In particular `Downloading Datasets <../../user-guide/downloading.ipynb>`_
+    and `Uploading Datasets <../../user-guide/uploading.ipynb>`_.
     """
 
     def __init__(
@@ -30,6 +34,11 @@ class Client:
         client: ScicatClient,
         file_transfer: Optional[FileTransfer],
     ):
+        """Initialize a client.
+
+        Do not use directly, instead use :func:`Client.from_token`
+        or :func:`Client.from_credentials`!
+        """
         self._client = client
         self._file_transfer = file_transfer
 
@@ -43,9 +52,10 @@ class Client:
         ----------
         url:
             URL of the SciCat api.
-            It should include the suffix `api/vn` where `n` is a number.
         token:
             User token to authenticate with SciCat.
+        file_transfer:
+            Handler for down-/uploads of files.
 
         Returns
         -------
@@ -77,6 +87,8 @@ class Client:
             Name of the user.
         password:
             Password of the user.
+        file_transfer:
+            Handler for down-/uploads of files.
 
         Returns
         -------
@@ -93,12 +105,54 @@ class Client:
         )
 
     def get_dataset(self, pid: str) -> Dataset:
+        """Download a dataset from SciCat.
+
+        Does not download any files.
+
+        Parameters
+        ----------
+        pid:
+            ID of the dataset. Must include the prefix, i.e. have the form
+            ``prefix/dataset-id``.
+
+        Returns
+        -------
+        :
+            A new dataset.
+        """
         return Dataset.from_models(
             dataset_model=self.scicat.get_dataset_model(pid),
             orig_datablock_models=self.scicat.get_orig_datablocks(pid),
         )
 
     def upload_new_dataset_now(self, dataset: Dataset) -> Dataset:
+        """Upload a dataset as a new entry to SciCat immediately.
+
+        The dataset is inserted as a new entry in the database and will
+        never overwrite existing data.
+        To this end, the input dataset's ID is ignored and a new one is
+        assigned automatically.
+
+        Parameters
+        ----------
+        dataset:
+            The dataset to upload.
+
+        Returns
+        -------
+        :
+            A copy of the input dataset with fields adjusted
+            according to the response of the server.
+
+        Raises
+        ------
+        pyscicat.client.ScicatCommError
+            If the upload to SciCat fails.
+        RuntimeError
+            If the file upload fails or if a critical error is encountered
+            and some files or a partial dataset are left on the servers.
+            Note the error message if that happens.
+        """
         dset = dataset.prepare_as_new()
         dset.pid = dset.pid.without_prefix
         with self.file_transfer.connect_for_upload(dset.pid) as con:
@@ -132,10 +186,15 @@ class Client:
 
     @property
     def scicat(self) -> ScicatClient:
+        """Low level client for SciCat.
+
+        Should typically not be used by users of Scitacean!
+        """
         return self._client
 
     @property
     def file_transfer(self) -> FileTransfer:
+        """Stored handler for file down-/uploads."""
         return self._file_transfer
 
     def download_file(self, *, remote: Union[str, Path], local: Union[str, Path]):

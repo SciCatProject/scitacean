@@ -14,3 +14,10 @@ repos:
   rev: 22.10.0
   hooks:
     - id: black
+- repo: https://github.com/kynan/nbstripout
+  rev: 0.6.0
+  hooks:
+    - id: nbstripout
+      types: ["jupyter"]
+      args: ["--drop-empty-cells",
+             "--extra-keys 'metadata.language_info.version cell.metadata.jp-MarkdownHeadingCollapsed cell.metadata.pycharm'"]

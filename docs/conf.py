@@ -30,14 +30,11 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.mathjax",
     "sphinx.ext.napoleon",
+    "sphinx.ext.viewcode",
     "sphinx_autodoc_typehints",
     "sphinx_copybutton",
+    "nbsphinx",
 ]
-
-rst_epilog = f"""
-.. |SCITACEAN_RELEASE_MONTH| replace:: {os.popen("git show -s --format=%cd --date=format:'%B %Y'").read()}
-.. |SCITACEAN_VERSION| replace:: {scitacean.__version__}
-"""  # noqa: E501
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
@@ -76,9 +73,9 @@ master_doc = "index"
 # built documents.
 #
 # The short X.Y version.
-version = ""
+version = scitacean.__version__
 # The full version, including alpha/beta/rc tags.
-release = ""
+release = scitacean.__version__
 
 warning_is_error = True
 
@@ -102,27 +99,42 @@ todo_include_todos = False
 
 # -- Options for HTML output ----------------------------------------------
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-#
-
-html_theme = "sphinx_book_theme"
-
-# Theme options are theme-specific and customize the look and feel of a theme
-# further.  For a list of options available for each theme, see the
-# documentation.
-#
+html_theme = "pydata_sphinx_theme"
 html_theme_options = {
-    "logo_only": True,
-    "repository_url": "https://github.com/SciCatProject/scitacean",
-    "repository_branch": "main",
-    "path_to_docs": "docs",
-    "use_repository_button": True,
-    "use_issues_button": True,
-    "use_edit_page_button": True,
-    "show_toc_level": 2,  # Show subheadings in secondary sidebar
+    "left_sidebar_end": ["edit-this-page", "sourcelink"],
+    "page_sidebar_items": [],
+    "show_nav_level": 1,
+    "header_links_before_dropdown": 4,
+    "external_links": [
+        {"name": "SciCat", "url": "https://scicatproject.github.io/"},
+        {
+            "name": "SciCat Backend",
+            "url": "https://scicatproject.github.io/documentation/",
+        },
+    ],
+    "icon_links": [
+        {
+            "name": "GitHub",
+            "url": "https://github.com/SciCatProject/scitacean",
+            "icon": "fa-brands fa-github",
+            "type": "fontawesome",
+        },
+        {
+            "name": "PyPI",
+            "url": "https://pypi.org/project/scitacean/",
+            "icon": "fa-brands fa-python",
+            "type": "fontawesome",
+        },
+    ],
+}
+html_context = {
+    "doc_path": "docs",
+}
+html_sidebars = {
+    "**": ["sidebar-nav-bs", "page-toc"],
 }
 
+html_title = "Scitacean"
 html_logo = "_static/logo.svg"
 html_favicon = "_static/favicon.ico"
 
@@ -130,7 +142,7 @@ html_favicon = "_static/favicon.ico"
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
-html_css_files = ["custom.css"]
+html_css_files = ["css/custom.css"]
 
 # -- Options for HTMLHelp output ------------------------------------------
 

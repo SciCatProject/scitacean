@@ -19,18 +19,20 @@ class PID:
     .. code-block:: python
 
         full_id = str(PID)
-
-    Parameters
-    ----------
-    pid:
-        Main part of the ID which uniquely identifies a dataset.
-    prefix:
-        Identifies the instance of SciCat.
     """
 
     __slots__ = ("_pid", "_prefix")
 
     def __init__(self, *, pid: str, prefix: Optional[str] = None):
+        """
+
+        Parameters
+        ----------
+        pid:
+            Main part of the ID which uniquely identifies a dataset.
+        prefix:
+            Identifies the instance of SciCat.
+        """
         self._pid = pid
         self._prefix = prefix
 
@@ -70,6 +72,7 @@ class PID:
 
     @property
     def without_prefix(self) -> PID:
+        """Return a new PID with the prefix set to None."""
         return PID(pid=self.pid, prefix=None)
 
     def __str__(self):

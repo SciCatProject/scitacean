@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
 # @author Jan-Lukas Wynen
+"""Class to represent files."""
 
 from __future__ import annotations
 from datetime import datetime, timezone
@@ -18,6 +19,16 @@ from .typing import Downloader
 
 
 class File:
+    """Store local and remote paths and metadata for a file.
+
+    There are two central properties:
+
+    - ``remote_access_path``: Full path to the remote file if the file exists
+      on the file server. Is ``None`` if the file does not exist on the remote.
+    - ``local_path``: Path to the file on the local filesystem if it exists.
+      Is ``None`` if the file does not exist locally.
+    """
+
     def __init__(
         self,
         *,
@@ -43,15 +54,41 @@ class File:
         remote_gid: Optional[str] = None,
         remote_perm: Optional[str] = None,
     ) -> File:
-        """
-        path:                      somewhere/on/local/folder/file.nxs
-        base_bath:                 somewhere/on/local
-        source_dir:                remote/storage
-        -> remote_path:            folder/file.nxs  (deduced now but can be overridden)
-        -> actual remote location: remote/storage/folder/file.nxs  (always deduced)
+        """Link a file on the local filesystem.
 
-        source_dir is only populated when file exists on remote
-        but dataset may have a source dir regardless
+        Given following ``path``, ``base_path``, and ``source_folder`` ::
+
+            path:                      somewhere/on/local/folder/file.nxs
+            base_bath:                 somewhere/on/local
+            source_folder:             remote/storage
+
+        the file will be located on the remote at ::
+
+            -> remote_path:            folder/file.nxs
+            -> actual remote location: remote/storage/folder/file.nxs
+
+        ``remote_path`` can also be overriden, in which case ``path`` and
+        ``base_path`` are not used to deduce the "actual remote location".
+
+        Parameters
+        ----------
+        path:
+            Full path the local file.
+        base_path:
+            Only use ``path.relative_to(base_path)`` to determine the remote location.
+        remote_path:
+            Path on the remote, relative to ``source_folder``.
+        source_folder:
+            Base path on the remote.
+            Must be ``None`` if the file does not exist on the remote.
+        checksum_algorithm:
+            Algorithm used to compute the file's checksum. See :mod:`hashlib`.
+        remote_uid:
+            User ID on the remote. Will be determined automatically on upload.
+        remote_gid:
+            Group ID on the remote. Will be determined automatically on upload.
+        remote_perm:
+            File permissions on the remote. Will be determined automatically on upload.
         """
         path = Path(path)
         if not remote_path:
@@ -85,15 +122,23 @@ class File:
 
     @property
     def source_folder(self) -> Optional[str]:
+        """Base path on the remote.
+
+        Is ``None`` if the files is not on the remote.
+        """
         return self._source_folder
 
     @source_folder.setter
     def source_folder(self, value: Optional[str]):
-        """Must be consistent with dataset!"""
+        """Set the base path on the remote.
+
+        Must be consistent with the path in the dataset!
+        """
         self._source_folder = value
 
     @property
     def remote_access_path(self) -> Optional[str]:
+        """Full path to the file on the remote if it exists."""
         return (
             None
             if self.source_folder is None
@@ -102,18 +147,22 @@ class File:
 
     @property
     def local_path(self) -> Optional[Path]:
+        """Path to the local file if it exists."""
         return self._local_path
 
     @property
     def checksum(self) -> Optional[str]:
+        """Checksum of the file."""
         return self._model.chk
 
     @property
     def size(self) -> int:
+        """Size in bytes."""
         return self._model.size
 
     @property
     def creation_time(self) -> datetime:
+        """Data and time when the file was created."""
         return dateutil.parser.parse(self.model.time)
 
     @property
@@ -127,8 +176,9 @@ class File:
         downloader: Downloader,
         checksum_algorithm: Optional[str],
     ) -> Path:
+        """Download the file to the local filesystem."""
         directory = Path(directory)
-        directory.mkdir(exist_ok=True)  # TODO undo if later fails
+        directory.mkdir(parents=True, exist_ok=True)  # TODO undo if later fails
         local_path = directory / self.model.path
         with downloader.connect_for_download() as con:
             con.download_file(local=local_path, remote=self.remote_access_path)

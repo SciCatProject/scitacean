@@ -5,3 +5,4 @@
 -r wheels.in
 pip-compile-multi
 pre-commit
+jupyterlab

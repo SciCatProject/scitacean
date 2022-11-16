@@ -1,28 +1,14 @@
 Scitacean
 =========
 
-.. toctree::
-   :hidden:
-   :caption: User Guide
-   :maxdepth: 3
+Scitacean is a high level Python package for downloading and uploading datasets from and to `SciCat <https://scicatproject.github.io/>`_.
 
-   user-guide/getting-started
+To get started, read the `User Guide <./user-guide/index.rst>`_.
 
 .. toctree::
    :hidden:
-   :caption: Reference
-   :maxdepth: 3
 
-   reference/classes
-   reference/free-functions
-   reference/modules
-   reference/developer-documentation
-
-.. toctree::
-   :hidden:
-   :caption: About
-   :maxdepth: 3
-
-   about/about
-   about/contributing
-   about/release-notes
+   user-guide/index
+   reference/index
+   developer/index
+   release-notes

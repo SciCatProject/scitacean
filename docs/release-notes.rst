@@ -6,8 +6,8 @@ Release Notes
 
 .. Template, copy this to create a new section after a release:
 
-   v0.xy.0 (Unreleased)
-   --------------------
+   vYY.0M.MICRO (Unreleased)
+   -------------------------
 
    Features
    ~~~~~~~~
@@ -28,23 +28,7 @@ Release Notes
    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-v0.0.1 (Unreleased)
--------------------
+v22.11.0 (2022-11-16)
+---------------------
 
-Features
-~~~~~~~~
-
-Breaking changes
-~~~~~~~~~~~~~~~~
-
-Bugfixes
-~~~~~~~~
-
-Documentation
-~~~~~~~~~~~~~
-
-Deprecations
-~~~~~~~~~~~~
-
-Stability, Maintainability, and Testing
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Initial release
