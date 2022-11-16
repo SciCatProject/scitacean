@@ -15,7 +15,7 @@ def pytest_addoption(parser):
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def scicat_backend(request, scicat_access):
     """Spin up a SciCat backend and API.
 
@@ -43,7 +43,7 @@ class SciCatAccess:
     functional_credentials: Dict[str, str]
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def scicat_access():
     return SciCatAccess(
         url="http://localhost/api/v3/",

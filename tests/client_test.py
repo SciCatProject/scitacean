@@ -12,6 +12,7 @@ from scitacean.testing.client import FakeClient
 from scitacean import Client
 
 from . import data
+from .common.backend import skip_if_not_backend
 
 
 @pytest.fixture(scope="module")
@@ -42,12 +43,7 @@ def client(
     if request.param == "fake":
         return make_fake_client(derived_dataset, orig_datablock)
     if request.param == "real":
-        if not request.config.getoption("--backend-tests"):
-            # The backend only exists if this option is set.
-            pytest.skip(
-                "Tests against a real backend are disabled, "
-                "use --backend-tests to enable them"
-            )
+        skip_if_not_backend(request)
         return Client.from_credentials(
             url=scicat_access.url, **scicat_access.functional_credentials
         )
