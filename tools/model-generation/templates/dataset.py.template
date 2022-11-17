@@ -1,0 +1,38 @@
+# flake8: noqa
+
+"""Base dataclass for Dataset."""
+
+import dataclasses
+from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+from .pid import PID
+from .model import DatasetType
+
+
+def _get_value_or_default(d: dict, key: str, default: Any, default_factory: Any) -> Any:
+    try:
+        return d[key]
+    except KeyError:
+        if default_factory is not None:
+            return default_factory()
+        return default
+
+
+class DatasetFields:
+    @dataclasses.dataclass(frozen=True)
+    class Field:
+        name: str
+        description: str
+        read_only: bool
+        required_by_derived: bool
+        required_by_raw: bool
+        typ: type
+        used_by_derived: bool
+        used_by_raw: bool
+        value: Any
+
+    def __init__(self, _read_only: Dict[str, Any], **kwargs: Any):
+        self._fields = $field_dict_construction
+
+$properties

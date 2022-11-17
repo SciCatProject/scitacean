@@ -1,0 +1,201 @@
+name: Dataset
+inherits: Ownable
+fields:
+  - name: classification
+    description: ACIA information about AUthenticity,COnfidentiality,INtegrity and AVailability requirements of dataset. E.g. AV(ailabilty)=medium could trigger the creation of a two tape copies. Format 'AV=medium,CO=low'
+    type: str
+  - name: contact_email
+    description: Email of contact person for this dataset. May contain a list of emails, which should then be seperated by semicolons.
+    model_name: contactEmail
+    required: true
+    type: str
+    validation: emails
+  - name: creation_location
+    description: Unique location identifier where data was taken, usually in the form /Site-name/facility-name/instrumentOrBeamline-name
+    model_name: creationLocation
+    type: str
+    used: [ raw ]
+  - name: creation_time
+    default_factory: datetime.now
+    description: Time when dataset became fully available on disk, i.e. all containing files have been written.
+    model_name: creationTime
+    required: true
+    type: datetime
+  - name: data_format
+    description: Defines format of subsequent scientific meta data, e.g Nexus Version x.y
+    model_name: dataFormat
+    required: true
+    type: str
+    used: [ raw ]
+  - name: description
+    description: Free text explanation of the contents of the dataset.
+    type: str
+  - name: end_time
+    description: Time of end of data taking for this dataset.
+    model_name: endTime
+    type: datetime
+    used: [ raw ]
+  - name: history
+    default_factory: list
+    description: List of previous versions of the dataset. Populated automatically by SciCat.
+    manual: true
+    read_only: true
+    type: List[dict]
+  - name: instrument_id
+    description: SciCat ID of the instrument used to measure the data.
+    model_name: instrumentId
+    type: str
+  - name: input_datasets
+    default_factory: list
+    description: Array of input dataset identifiers used in producing the derived dataset. Ideally these are the global identifier to existing datasets inside this or federated data catalogs.
+    model_name: inputDatasets
+    required: true
+    type: List[str]
+    used: [ derived ]
+  - name: investigator
+    description: Email of the (principal) investigator. The string may contain a list of emails, which should then be separated by semicolons.
+    model_name: { derived: investigator, raw: principalInvestigator }
+    required: true
+    type: str
+    validation: emails
+  - name: is_published
+    default: false
+    description: Indicate whether the dataset is publicly available.
+    model_name: isPublished
+    type: bool
+  - name: job_log_data
+    description: The output job logfile. Keep the size of this log data well below 15 MB.
+    model_name: jobLogData
+    used: [derived]
+    type: str
+  - name: job_parameters
+    description: Input parameters to the job that produced the derived data.
+    model_name: jobParameters
+    type: dict
+    used: [derived]
+  - name: keywords
+    description: Array of tags associated with the meaning or contents of this dataset. Values should ideally come from defined vocabularies, taxonomies, ontologies or knowledge graphs.
+    type: List[str]
+  - name: license
+    description: Name of license under which data can be used.
+    type: str
+  - name: name
+    description: A name for the dataset.
+    model_name: datasetName
+    type: str
+  - name: number_of_files
+    description: Total number of files in directly accessible storage associated with the dataset. (Corresponds to OrigDatablocks.)
+    manual: true
+    model_name: numberOfFiles
+    read_only: true
+    type: int
+    validation: size
+  - name: number_of_files_archived
+    description: Total number of archived files associated with the dataset. (Corresponds to Datablocks.)
+    manual: true
+    model_name: numberOfFilesArchived
+    read_only: true
+    type: int
+    validation: size
+  - name: orcid_of_owner
+    description: ORCID of owner/custodian. The string may contain a list of ORCID, which should then be separated by semicolons. ORCIDs must include the prefix https://orcid.org/
+    model_name: orcidOfOwner
+    type: str
+    validation: orcid
+  - name: owner
+    description: Owner or custodian of the dataset, usually first name + lastname. The string may contain a list of persons, which should then be seperated by semicolons.
+    required: true
+    type: str
+  - name: owner_email
+    description: Email of owner or of custodian of the dataset. The string may contain a list of emails, which should then be seperated by semicolons.
+    model_name: ownerEmail
+    type: str
+    validation: emails
+  - name: packed_size
+    description: Total size of all datablock package files created for this dataset.
+    manual: true
+    model_name: packedSize
+    read_only: true
+    type: int
+    validation: size
+  - name: pid
+    description: Persistent identifier for datasets.
+    read_only: true
+    type: PID
+  - name: proposal_id
+    description: Identifier for the proposal that the dataset was produced for.
+    model_name: proposalID
+    type: str
+    used: [raw]
+  - name: sample_id
+    description: Identifier for the sample that the dataset contains a measurement of.
+    model_name: sampleID
+    type: str
+    used: [raw]
+  - name: meta
+    default_factory: dict
+    description: Free form meta data.
+    manual: true
+    model_name: scientificMetadata
+    type: Dict
+  - name: shared_with
+    description: List of users that the dataset has been shared with.
+    model_name: sharedWith
+    type: List[str]
+  - name: size
+    description: Total size of all files contained in source folder on disk when unpacked.
+    manual: true
+    read_only: true
+    type: int
+    validation: size
+  - name: source_folder
+    description: Absolute file path on file server containing the files of this dataset, e.g. /some/path/to/sourcefolder. In case of a single file dataset, e.g. HDF5 data, it contains the path up to, but excluding the filename.
+    model_name: sourceFolder
+    required: true
+    type: str
+  - name: source_folder_host
+    description: DNS host name of file server hosting source_folder, optionally including protocol e.g. [protocol://]fileserver1.example.com
+    model_name: sourceFolderHost
+    type: str
+  - name: techniques
+    description: List of dicts with keys 'pid' and 'name' referring to techniques used to produce the data.
+    type: List[dict]
+    validation: technique
+  - name: type
+    description: "Dataset type. 'Derived' or 'Raw'"
+    required: true
+    type: DatasetType
+  - name: used_software
+    description: A list of links to software repositories which uniquely identifies the software used and the version for producing the derived data.
+    model_name: usedSoftware
+    required: true
+    type: List[str]
+    used: [derived]
+  - name: validation_status
+    description: Defines a level of trust, e.g. a measure of how much data was verified or used by other persons.
+    model_name: validationStatus
+    type: str
+  - name: version
+    description: Version of SciCat API used in creation of dataset.
+    read_only: true
+    type: str
+
+# TODO
+#    datasetLifecycle ??
+#    "dataQualityMetrics": {
+#      "type": "number",
+#      "description": "Rate the quality of a dataset. The field is only relevant for user working on a given proposal and know what type of data quality this rating refer to. A number between 1-3 that the user could use to rate a dataset. 1 means bad, 2 means good, 3 means very good"
+#    },
+#    "comments": {
+#      "type": "string",
+#      "description": "Comment the user has about a given dataset."
+
+default_values:
+  default: null
+  default_factory: null
+  manual: false
+  model_name: null  # equals field name
+  read_only: false
+  required: false
+  used: [ derived, raw ]
+  validation: null

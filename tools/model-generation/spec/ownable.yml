@@ -1,0 +1,16 @@
+name: Ownable
+inherits: MongoQueryable
+fields:
+  - name: access_groups
+    description: Groups which have read access to the data. The special group 'public' makes data available to all users.
+    model_name: accessGroups
+    type: List[str]
+  - name: instrument_group
+    description: Groups which have read and write access to the data.
+    model_name: instrumentGroup
+    type: str
+  - name: owner_group
+    description: Defines the group which owns the data, and therefore has unrestricted access to this data. Usually a pgroup like p12151.
+    model_name: ownerGroup
+    required: true
+    type: str
