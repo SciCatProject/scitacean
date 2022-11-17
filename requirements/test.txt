@@ -10,7 +10,7 @@ attrs==22.1.0
     # via
     #   hypothesis
     #   pytest
-exceptiongroup==1.0.2
+exceptiongroup==1.0.4
     # via
     #   hypothesis
     #   pytest
