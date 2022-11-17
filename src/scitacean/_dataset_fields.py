@@ -36,7 +36,7 @@ class DatasetFields:
         used_by_raw: bool
         value: Any
 
-    def __init__(self, _read_only: Dict[str, Any], **kwargs):
+    def __init__(self, _read_only: Dict[str, Any], **kwargs: Any):
         self._fields = {
             "access_groups": DatasetFields.Field(
                 name="access_groups",
@@ -150,17 +150,6 @@ class DatasetFields:
                 used_by_raw=True,
                 value=_get_value_or_default(kwargs, "end_time", None, None),
             ),
-            "history": DatasetFields.Field(
-                name="history",
-                description="List of previous versions of the dataset. Populated automatically by SciCat.",
-                read_only=True,
-                required_by_derived=False,
-                required_by_raw=False,
-                typ=List[dict],
-                used_by_derived=True,
-                used_by_raw=True,
-                value=_get_value_or_default(_read_only, "history", None, list),
-            ),
             "input_datasets": DatasetFields.Field(
                 name="input_datasets",
                 description="Array of input dataset identifiers used in producing the derived dataset. Ideally these are the global identifier to existing datasets inside this or federated data catalogs.",
@@ -260,17 +249,6 @@ class DatasetFields:
                 used_by_raw=True,
                 value=_get_value_or_default(kwargs, "license", None, None),
             ),
-            "meta": DatasetFields.Field(
-                name="meta",
-                description="Free form meta data.",
-                read_only=False,
-                required_by_derived=False,
-                required_by_raw=False,
-                typ=Dict,
-                used_by_derived=True,
-                used_by_raw=True,
-                value=_get_value_or_default(kwargs, "meta", None, dict),
-            ),
             "name": DatasetFields.Field(
                 name="name",
                 description="A name for the dataset.",
@@ -281,30 +259,6 @@ class DatasetFields:
                 used_by_derived=True,
                 used_by_raw=True,
                 value=_get_value_or_default(kwargs, "name", None, None),
-            ),
-            "number_of_files": DatasetFields.Field(
-                name="number_of_files",
-                description="Total number of files in directly accessible storage associated with the dataset. (Corresponds to OrigDatablocks.)",
-                read_only=True,
-                required_by_derived=False,
-                required_by_raw=False,
-                typ=int,
-                used_by_derived=True,
-                used_by_raw=True,
-                value=_get_value_or_default(_read_only, "number_of_files", None, None),
-            ),
-            "number_of_files_archived": DatasetFields.Field(
-                name="number_of_files_archived",
-                description="Total number of archived files associated with the dataset. (Corresponds to Datablocks.)",
-                read_only=True,
-                required_by_derived=False,
-                required_by_raw=False,
-                typ=int,
-                used_by_derived=True,
-                used_by_raw=True,
-                value=_get_value_or_default(
-                    _read_only, "number_of_files_archived", None, None
-                ),
             ),
             "orcid_of_owner": DatasetFields.Field(
                 name="orcid_of_owner",
@@ -350,28 +304,6 @@ class DatasetFields:
                 used_by_raw=True,
                 value=_get_value_or_default(kwargs, "owner_group", None, None),
             ),
-            "packed_size": DatasetFields.Field(
-                name="packed_size",
-                description="Total size of all datablock package files created for this dataset.",
-                read_only=True,
-                required_by_derived=False,
-                required_by_raw=False,
-                typ=int,
-                used_by_derived=True,
-                used_by_raw=True,
-                value=_get_value_or_default(_read_only, "packed_size", None, None),
-            ),
-            "pid": DatasetFields.Field(
-                name="pid",
-                description="Persistent identifier for datasets.",
-                read_only=True,
-                required_by_derived=False,
-                required_by_raw=False,
-                typ=PID,
-                used_by_derived=True,
-                used_by_raw=True,
-                value=_get_value_or_default(_read_only, "pid", None, None),
-            ),
             "proposal_id": DatasetFields.Field(
                 name="proposal_id",
                 description="Identifier for the proposal that the dataset was produced for.",
@@ -404,17 +336,6 @@ class DatasetFields:
                 used_by_derived=True,
                 used_by_raw=True,
                 value=_get_value_or_default(kwargs, "shared_with", None, None),
-            ),
-            "size": DatasetFields.Field(
-                name="size",
-                description="Total size of all files contained in source folder on disk when unpacked.",
-                read_only=True,
-                required_by_derived=False,
-                required_by_raw=False,
-                typ=int,
-                used_by_derived=True,
-                used_by_raw=True,
-                value=_get_value_or_default(_read_only, "size", None, None),
             ),
             "source_folder": DatasetFields.Field(
                 name="source_folder",
@@ -726,7 +647,7 @@ class DatasetFields:
         return self._fields["packed_size"]
 
     @property
-    def pid(self) -> Optional[PID]:
+    def pid(self) -> Optional[str]:
         return self._fields["pid"]
 
     @property

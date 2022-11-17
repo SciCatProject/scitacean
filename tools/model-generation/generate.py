@@ -102,9 +102,10 @@ def generate_dataset_dataclass(spec: dict) -> str:
     fields = sorted(spec["fields"], key=lambda field: field["name"])
     field_dict_construction = (
         "{\n"
-        + ",\n".join(
+        + "\n".join(
             format_dataset_field_construction(field_construction_template, field)
             for field in fields
+            if not field["manual"]
         )
         + "\n        }"
     )

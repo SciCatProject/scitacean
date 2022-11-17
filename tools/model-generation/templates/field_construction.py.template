@@ -7,5 +7,5 @@ $name: DatasetFields.Field(
     typ=$typ,
     used_by_derived=$used_by_derived,
     used_by_raw=$used_by_raw,
-    value=$value
-)
+    value=$value,
+),
