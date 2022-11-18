@@ -12,7 +12,7 @@ from typing import Any, Callable, Dict, Generator, Literal, List, Optional, Unio
 import dateutil.parser
 
 from .pid import PID
-from .model import DatasetType
+from .model import DatasetType, DerivedDataset, RawDataset
 
 
 def _apply_default(value: Any, default: Any, default_factory: Optional[Callable]) -> Any:
@@ -81,10 +81,26 @@ $field_dict_construction
 $properties
 
     @classmethod
-    def fields(cls) -> Generator[Field, None, None]:
+    def fields(cls, type: Optional[Union[DatasetType, Literal["derived", "raw"]]]=None,
+               read_only: Optional[bool]=None) -> Generator[Field, None, None]:
         """Iterator over dataset fields."""
-        yield from DatasetFields._FIELD_SPEC
+        it = DatasetFields._FIELD_SPEC
+        if type is not None:
+            attr = "used_by_derived" if type == DatasetType.DERIVED else "used_by_raw"
+            it = filter(lambda field: getattr(field, attr), it)
+        if read_only is not None:
+            it = filter(lambda field: field.read_only == read_only, it)
+        yield from it
 
     def __str__(self) -> str:
         args = ", ".join(f"{name}={value}" for name, value in ((field.name, getattr(self, field.name)) for field in self.fields()) if value is not None)
         return f"Dataset({args})"
+
+    def make_dataset_model(self) -> Union[DerivedDataset, RawDataset]:
+        if self.type == DatasetType.DERIVED:
+            return self._make_derived_model()
+        return self._make_raw_model()
+
+$make_derived_model
+
+$make_raw_model

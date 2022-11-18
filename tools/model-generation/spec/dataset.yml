@@ -24,7 +24,6 @@ fields:
   - name: data_format
     description: Defines format of subsequent scientific meta data, e.g Nexus Version x.y
     model_name: dataFormat
-    required: true
     type: str
     used: [ raw ]
   - name: description
@@ -45,7 +44,6 @@ fields:
     model_name: instrumentId
     type: str
   - name: input_datasets
-    default_factory: list
     description: Array of input dataset identifiers used in producing the derived dataset. Ideally these are the global identifier to existing datasets inside this or federated data catalogs.
     model_name: inputDatasets
     required: true

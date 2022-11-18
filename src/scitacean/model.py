@@ -35,12 +35,9 @@ class DerivedDataset(BaseModel):
     contactEmail: str
     createdAt: Optional[datetime]
     createdBy: Optional[str]
-    creationLocation: Optional[str]
     creationTime: datetime
-    dataFormat: str
     datasetName: Optional[str]
     description: Optional[str]
-    endTime: Optional[datetime]
     history: Optional[List[dict]]
     inputDatasets: List[str]
     instrumentGroup: Optional[str]
@@ -59,8 +56,6 @@ class DerivedDataset(BaseModel):
     ownerGroup: str
     packedSize: Optional[int]
     pid: Optional[str]
-    proposalID: Optional[str]
-    sampleID: Optional[str]
     scientificMetadata: Optional[Dict]
     sharedWith: Optional[List[str]]
     size: Optional[int]
@@ -83,17 +78,14 @@ class RawDataset(BaseModel):
     createdBy: Optional[str]
     creationLocation: Optional[str]
     creationTime: datetime
-    dataFormat: str
+    dataFormat: Optional[str]
     datasetName: Optional[str]
     description: Optional[str]
     endTime: Optional[datetime]
     history: Optional[List[dict]]
-    inputDatasets: List[str]
     instrumentGroup: Optional[str]
     instrumentId: Optional[str]
     isPublished: Optional[bool]
-    jobLogData: Optional[str]
-    jobParameters: Optional[dict]
     keywords: Optional[List[str]]
     license: Optional[str]
     numberOfFiles: Optional[int]
@@ -116,6 +108,5 @@ class RawDataset(BaseModel):
     type: DatasetType
     updatedAt: Optional[datetime]
     updatedBy: Optional[str]
-    usedSoftware: List[str]
     validationStatus: Optional[str]
     version: Optional[str]

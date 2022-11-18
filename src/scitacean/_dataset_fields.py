@@ -16,7 +16,7 @@ from typing import Any, Callable, Dict, Generator, Literal, List, Optional, Unio
 import dateutil.parser
 
 from .pid import PID
-from .model import DatasetType
+from .model import DatasetType, DerivedDataset, RawDataset
 
 
 def _apply_default(
@@ -125,8 +125,8 @@ class DatasetFields:
             name="data_format",
             description="Defines format of subsequent scientific meta data, e.g Nexus Version x.y",
             read_only=False,
-            required_by_derived=True,
-            required_by_raw=True,
+            required_by_derived=False,
+            required_by_raw=False,
             type=str,
             used_by_derived=False,
             used_by_raw=True,
@@ -536,7 +536,7 @@ class DatasetFields:
             "data_format": _apply_default(data_format, None, None),
             "description": _apply_default(description, None, None),
             "end_time": _apply_default(end_time, None, None),
-            "input_datasets": _apply_default(input_datasets, None, list),
+            "input_datasets": _apply_default(input_datasets, None, None),
             "instrument_group": _apply_default(instrument_group, None, None),
             "instrument_id": _apply_default(instrument_id, None, None),
             "investigator": _apply_default(investigator, None, None),
@@ -892,9 +892,19 @@ class DatasetFields:
         return self._fields["version"]
 
     @classmethod
-    def fields(cls) -> Generator[Field, None, None]:
+    def fields(
+        cls,
+        type: Optional[Union[DatasetType, Literal["derived", "raw"]]] = None,
+        read_only: Optional[bool] = None,
+    ) -> Generator[Field, None, None]:
         """Iterator over dataset fields."""
-        yield from DatasetFields._FIELD_SPEC
+        it = DatasetFields._FIELD_SPEC
+        if type is not None:
+            attr = "used_by_derived" if type == DatasetType.DERIVED else "used_by_raw"
+            it = filter(lambda field: getattr(field, attr), it)
+        if read_only is not None:
+            it = filter(lambda field: field.read_only == read_only, it)
+        yield from it
 
     def __str__(self) -> str:
         args = ", ".join(
@@ -905,3 +915,111 @@ class DatasetFields:
             if value is not None
         )
         return f"Dataset({args})"
+
+    def make_dataset_model(self) -> Union[DerivedDataset, RawDataset]:
+        if self.type == DatasetType.DERIVED:
+            return self._make_derived_model()
+        return self._make_raw_model()
+
+    def _make_derived_model(self):
+        if self.creation_location is not None:
+            raise ValueError("'creation_location' must not be set in derived datasets")
+        if self.data_format is not None:
+            raise ValueError("'data_format' must not be set in derived datasets")
+        if self.end_time is not None:
+            raise ValueError("'end_time' must not be set in derived datasets")
+        if self.proposal_id is not None:
+            raise ValueError("'proposal_id' must not be set in derived datasets")
+        if self.sample_id is not None:
+            raise ValueError("'sample_id' must not be set in derived datasets")
+        return DerivedDataset(
+            accessGroups=self.access_groups,
+            classification=self.classification,
+            contactEmail=self.contact_email,
+            createdAt=self.created_at,
+            createdBy=self.created_by,
+            creationTime=self.creation_time,
+            description=self.description,
+            history=self.history,
+            inputDatasets=self.input_datasets,
+            instrumentGroup=self.instrument_group,
+            instrumentId=self.instrument_id,
+            investigator=self.investigator,
+            isPublished=self.is_published,
+            jobLogData=self.job_log_data,
+            jobParameters=self.job_parameters,
+            keywords=self.keywords,
+            license=self.license,
+            scientificMetadata=self.meta,
+            datasetName=self.name,
+            numberOfFiles=self.number_of_files,
+            numberOfFilesArchived=self.number_of_files_archived,
+            orcidOfOwner=self.orcid_of_owner,
+            owner=self.owner,
+            ownerEmail=self.owner_email,
+            ownerGroup=self.owner_group,
+            packedSize=self.packed_size,
+            pid=self.pid,
+            sharedWith=self.shared_with,
+            size=self.size,
+            sourceFolder=self.source_folder,
+            sourceFolderHost=self.source_folder_host,
+            techniques=self.techniques,
+            type=self.type,
+            updatedAt=self.updated_at,
+            updatedBy=self.updated_by,
+            usedSoftware=self.used_software,
+            validationStatus=self.validation_status,
+            version=self.version,
+        )
+
+    def _make_raw_model(self):
+        if self.input_datasets is not None:
+            raise ValueError("'input_datasets' must not be set in raw datasets")
+        if self.job_log_data is not None:
+            raise ValueError("'job_log_data' must not be set in raw datasets")
+        if self.job_parameters is not None:
+            raise ValueError("'job_parameters' must not be set in raw datasets")
+        if self.used_software is not None:
+            raise ValueError("'used_software' must not be set in raw datasets")
+        return RawDataset(
+            accessGroups=self.access_groups,
+            classification=self.classification,
+            contactEmail=self.contact_email,
+            createdAt=self.created_at,
+            createdBy=self.created_by,
+            creationLocation=self.creation_location,
+            creationTime=self.creation_time,
+            dataFormat=self.data_format,
+            description=self.description,
+            endTime=self.end_time,
+            history=self.history,
+            instrumentGroup=self.instrument_group,
+            instrumentId=self.instrument_id,
+            principalInvestigator=self.investigator,
+            isPublished=self.is_published,
+            keywords=self.keywords,
+            license=self.license,
+            scientificMetadata=self.meta,
+            datasetName=self.name,
+            numberOfFiles=self.number_of_files,
+            numberOfFilesArchived=self.number_of_files_archived,
+            orcidOfOwner=self.orcid_of_owner,
+            owner=self.owner,
+            ownerEmail=self.owner_email,
+            ownerGroup=self.owner_group,
+            packedSize=self.packed_size,
+            pid=self.pid,
+            proposalID=self.proposal_id,
+            sampleID=self.sample_id,
+            sharedWith=self.shared_with,
+            size=self.size,
+            sourceFolder=self.source_folder,
+            sourceFolderHost=self.source_folder_host,
+            techniques=self.techniques,
+            type=self.type,
+            updatedAt=self.updated_at,
+            updatedBy=self.updated_by,
+            validationStatus=self.validation_status,
+            version=self.version,
+        )

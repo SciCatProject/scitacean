@@ -18,6 +18,10 @@ GENERATED_BANNER = """##########################################
 """
 
 
+# TODO validation
+# TODO model validation shows model names (aliases?)
+
+
 def load_template(name: str) -> Template:
     with open(TEMPLATE_DIR / f"{name}.py.template", "r") as f:
         return Template(f.read())
@@ -44,7 +48,9 @@ def format_model_field(dataset_type: str, field: dict) -> str:
 def generate_dataset_model(spec: dict, typ: str) -> str:
     name = ("Derived" if typ == "derived" else "Raw") + "Dataset"
     head = f"""class {name}(BaseModel):\n"""
-    body = "\n".join(sorted(format_model_field(typ, f) for f in spec["fields"]))
+    body = "\n".join(
+        sorted(format_model_field(typ, f) for f in spec["fields"] if typ in f["used"])
+    )
     return head + body
 
 
@@ -121,6 +127,32 @@ def format_properties(field: dict) -> str:
     return getter + "\n\n" + setter
 
 
+def format_make_model(typ: str, fields: list) -> str:
+    def get_model_name(field: dict):
+        name = field["model_name"]
+        if isinstance(name, dict):
+            return name[typ]
+        return name
+
+    checks = "\n".join(
+        f"""    if self.{field["name"]} is not None:
+        raise ValueError("'{field["name"]}' must not be set in {typ} datasets")"""
+        for field in fields
+        if typ not in field["used"]
+    )
+    construction = "\n        ".join(
+        f"{get_model_name(field)}=self.{field['name']},"
+        for field in fields
+        if typ in field["used"]
+    )
+    formatted = f"""def _make_{typ}_model(self):
+{checks}
+    return {("Derived" if typ == "derived" else "Raw")}Dataset(
+        {construction}
+    )"""
+    return "    " + formatted.replace("\n", "\n    ")
+
+
 def generate_dataset_dataclass(spec: dict) -> str:
     template = load_template("dataset")
     fields = sorted(spec["fields"], key=lambda field: field["name"])
@@ -132,6 +164,8 @@ def generate_dataset_dataclass(spec: dict) -> str:
         field_init_args=format_dataset_field_init_args(fields),
         field_dict_construction=format_dataset_field_dict_construction(fields),
         properties=properties,
+        make_derived_model=format_make_model("derived", fields),
+        make_raw_model=format_make_model("raw", fields),
     )
 
 
