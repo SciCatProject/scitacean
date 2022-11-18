@@ -15,6 +15,8 @@ from typing import Dict, List, Optional
 
 import pydantic
 
+from ._internal.orcid import is_valid_orcid
+
 
 # This can be replaced by StrEnum in Python 3.11+
 class DatasetType(str, enum.Enum):
@@ -69,6 +71,18 @@ class DerivedDataset(BaseModel):
     validationStatus: Optional[str]
     version: Optional[str]
 
+    @pydantic.validator("contactEmail", "investigator", "ownerEmail")
+    def _validate_emails(cls, value):
+        return _validate_emails(value)
+
+    @pydantic.validator("numberOfFiles", "numberOfFilesArchived", "packedSize", "size")
+    def _validate_size(cls, value):
+        return _validate_size(value)
+
+    @pydantic.validator("orcidOfOwner")
+    def _validate_orcid(cls, value):
+        return _validate_orcid(value)
+
 
 class RawDataset(BaseModel):
     accessGroups: Optional[List[str]]
@@ -110,3 +124,43 @@ class RawDataset(BaseModel):
     updatedBy: Optional[str]
     validationStatus: Optional[str]
     version: Optional[str]
+
+    @pydantic.validator("contactEmail", "principalInvestigator", "ownerEmail")
+    def _validate_emails(cls, value):
+        return _validate_emails(value)
+
+    @pydantic.validator("numberOfFiles", "numberOfFilesArchived", "packedSize", "size")
+    def _validate_size(cls, value):
+        return _validate_size(value)
+
+    @pydantic.validator("orcidOfOwner")
+    def _validate_orcid(cls, value):
+        return _validate_orcid(value)
+
+
+def _validate_emails(value: Optional[str]) -> Optional[str]:
+    if value is None:
+        return value
+    return ";".join(pydantic.EmailStr.validate(item) for item in value.split(";"))
+
+
+def _validate_size(value: Optional[int]) -> Optional[int]:
+    if value is None:
+        return value
+    if value < 0:
+        raise ValueError("Must be > 0")
+    return value
+
+
+def _validate_orcid(value: Optional[str]) -> Optional[str]:
+    if value is None:
+        return value
+    try:
+        if is_valid_orcid(value):
+            return value
+    except (RuntimeError, ValueError, TypeError):
+        pass
+    raise ValueError(
+        "value is not a valid ORCID, "
+        "note that ORCIDs must be prefixed with 'https://orcid.org'."
+    )

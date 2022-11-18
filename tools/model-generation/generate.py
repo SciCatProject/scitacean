@@ -18,7 +18,6 @@ GENERATED_BANNER = """##########################################
 """
 
 
-# TODO validation
 # TODO model validation shows model names (aliases?)
 
 
@@ -37,21 +36,48 @@ def write_dataset(target: Path, dataset: str):
         f.write(GENERATED_BANNER + dataset)
 
 
-def format_model_field(dataset_type: str, field: dict) -> str:
+def get_model_name(field: dict, typ: str) -> str:
     name = field["model_name"]
     if isinstance(name, dict):
-        name = name[dataset_type]
+        return name[typ]
+    return name
+
+
+def format_model_field(dataset_type: str, field: dict) -> str:
+    name = get_model_name(field, dataset_type)
     typ = field["type"] if field["required"] else f"Optional[{field['type']}]"
     return f"    {name}: {typ}"
 
 
-def generate_dataset_model(spec: dict, typ: str) -> str:
+def format_validator(validator: str, fields: list, typ: str) -> str:
+    to_validate = [
+        get_model_name(field, typ)
+        for field in fields
+        if field["validation"] == validator
+    ]
+    if not to_validate:
+        return ""
+    return f"""
+    @pydantic.validator({", ".join(map(quote, to_validate))})
+    def _validate_{validator}(cls, value):
+        return _validate_{validator}(value)"""
+
+
+def format_dataset_model(spec: dict, typ: str) -> str:
     name = ("Derived" if typ == "derived" else "Raw") + "Dataset"
     head = f"""class {name}(BaseModel):\n"""
-    body = "\n".join(
-        sorted(format_model_field(typ, f) for f in spec["fields"] if typ in f["used"])
+    fields = spec["fields"]
+    attributes = "\n".join(
+        sorted(format_model_field(typ, f) for f in fields if typ in f["used"])
     )
-    return head + body
+    validations = "\n".join(
+        (
+            format_validator("emails", fields, typ),
+            format_validator("size", fields, typ),
+            format_validator("orcid", fields, typ),
+        )
+    )
+    return head + attributes + ("\n" + validations if validations.strip() else "")
 
 
 def field_is_required(field: dict, typ: str) -> bool:
@@ -128,12 +154,6 @@ def format_properties(field: dict) -> str:
 
 
 def format_make_model(typ: str, fields: list) -> str:
-    def get_model_name(field: dict):
-        name = field["model_name"]
-        if isinstance(name, dict):
-            return name[typ]
-        return name
-
     checks = "\n".join(
         f"""    if self.{field["name"]} is not None:
         raise ValueError("'{field["name"]}' must not be set in {typ} datasets")"""
@@ -141,7 +161,7 @@ def format_make_model(typ: str, fields: list) -> str:
         if typ not in field["used"]
     )
     construction = "\n        ".join(
-        f"{get_model_name(field)}=self.{field['name']},"
+        f"{get_model_name(field, typ)}=self.{field['name']},"
         for field in fields
         if typ in field["used"]
     )
@@ -179,7 +199,7 @@ def main():
     args = parse_args()
     specs = load_specs()
     models = [
-        generate_dataset_model(specs["Dataset"], typ=typ) for typ in ("derived", "raw")
+        format_dataset_model(specs["Dataset"], typ=typ) for typ in ("derived", "raw")
     ]
     write_model(args.src_dir / "model.py", load_template("model"), models)
     write_dataset(

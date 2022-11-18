@@ -11,6 +11,7 @@ from datetime import datetime, timedelta, timezone
 
 import dateutil.parser
 from hypothesis import given, settings, strategies as st
+import pydantic
 import pytest
 from scitacean.model import DerivedDataset, RawDataset
 from scitacean import Dataset, DatasetType
@@ -148,7 +149,7 @@ def test_make_raw_model():
         creation_time="2142-04-02T16:44:56",
         owner="Ponder Stibbons;Mustrum Ridcully",
         owner_group="faculty",
-        investigator="Ponder Stibbons",
+        investigator="p.stibbons@uu.am",
         source_folder="/hex/source62",
         creation_location="ANK/UU",
         shared_with=["librarian", "hicks"],
@@ -158,7 +159,7 @@ def test_make_raw_model():
         creationTime=dateutil.parser.parse("2142-04-02T16:44:56"),
         owner="Ponder Stibbons;Mustrum Ridcully",
         ownerGroup="faculty",
-        principalInvestigator="Ponder Stibbons",
+        principalInvestigator="p.stibbons@uu.am",
         sourceFolder="/hex/source62",
         type=DatasetType.RAW,
         history=[],
@@ -173,22 +174,22 @@ def test_make_raw_model():
 def test_make_derived_model():
     dset = Dataset(
         type="derived",
-        contact_email="p.stibbons@uu.am",
+        contact_email="p.stibbons@uu.am;m.ridcully@uu.am",
         creation_time="2142-04-02T16:44:56",
         owner="Ponder Stibbons;Mustrum Ridcully",
         owner_group="faculty",
-        investigator="Ponder Stibbons",
+        investigator="p.stibbons@uu.am",
         source_folder="/hex/source62",
         meta={"weight": {"value": 5.23, "unit": "kg"}},
         input_datasets=["623-122"],
         used_software=["scitacean", "magick"],
     )
     expected = DerivedDataset(
-        contactEmail="p.stibbons@uu.am",
+        contactEmail="p.stibbons@uu.am;m.ridcully@uu.am",
         creationTime=dateutil.parser.parse("2142-04-02T16:44:56"),
         owner="Ponder Stibbons;Mustrum Ridcully",
         ownerGroup="faculty",
-        investigator="Ponder Stibbons",
+        investigator="p.stibbons@uu.am",
         sourceFolder="/hex/source62",
         type=DatasetType.DERIVED,
         history=[],
@@ -216,7 +217,7 @@ def test_make_raw_model_raises_if_derived_field_set(field, data):
         creation_time="2142-04-02T16:44:56",
         owner="Mustrum Ridcully",
         owner_group="faculty",
-        investigator="Ponder Stibbons",
+        investigator="p.stibbons@uu.am",
         source_folder="/hex/source62",
     )
     setattr(dset, field.name, data.draw(st.from_type(field.type)))
@@ -240,7 +241,7 @@ def test_make_derived_model_raises_if_raw_field_set(field, data):
         creation_time="2142-04-02T16:44:56",
         owner="Ponder Stibbons",
         owner_group="faculty",
-        investigator="Ponder Stibbons",
+        investigator="p.stibbons@uu.am",
         source_folder="/hex/source62",
         input_datasets=["623-122"],
         used_software=["scitacean", "magick"],
@@ -248,3 +249,68 @@ def test_make_derived_model_raises_if_raw_field_set(field, data):
     setattr(dset, field.name, data.draw(st.from_type(field.type)))
     with pytest.raises(ValueError):
         dset.make_dataset_model()
+
+
+@pytest.mark.parametrize("field", ("contact_email", "investigator", "owner_email"))
+def test_email_validation(field):
+    dset = Dataset(
+        type="raw",
+        contact_email="p.stibbons@uu.am",
+        creation_time="2142-04-02T16:44:56",
+        owner="Mustrum Ridcully",
+        owner_group="faculty",
+        investigator="p.stibbons@uu.am",
+        source_folder="/hex/source62",
+    )
+    setattr(dset, field, "not-an-email")
+    with pytest.raises(pydantic.ValidationError):
+        dset.make_dataset_model()
+
+
+@pytest.mark.parametrize(
+    "good_orcid",
+    (
+        "https://orcid.org/0000-0002-3761-3201",
+        "https://orcid.org/0000-0001-2345-6789",
+        "https://orcid.org/0000-0003-2818-0368",
+    ),
+)
+def test_orcid_validation_valid(good_orcid):
+    dset = Dataset(
+        type="raw",
+        contact_email="jan-lukas.wynen@ess.eu",
+        creation_time="2142-04-02T16:44:56",
+        owner="Jan-Lukas Wynen",
+        owner_group="ess",
+        investigator="jan-lukas.wynen@ess.eu",
+        source_folder="/hex/source62",
+        orcid_of_owner=good_orcid,
+    )
+    assert dset.make_dataset_model().orcidOfOwner == good_orcid
+
+
+@pytest.mark.parametrize(
+    "bad_orcid",
+    (
+        "0000-0002-3761-3201",
+        "https://not-orcid.eu/0000-0002-3761-3201",
+        "https://orcid.org/0010-0002-3765-3201",
+        "https://orcid.org/0000-0002-3761-320X",
+    ),
+)
+def test_orcid_validation_missing_url(bad_orcid):
+    dset = Dataset(
+        type="raw",
+        contact_email="jan-lukas.wynen@ess.eu",
+        creation_time="2142-04-02T16:44:56",
+        owner="Jan-Lukas Wynen",
+        owner_group="ess",
+        investigator="jan-lukas.wynen@ess.eu",
+        source_folder="/hex/source62",
+        orcid_of_owner=bad_orcid,
+    )
+    with pytest.raises(pydantic.ValidationError):
+        dset.make_dataset_model()
+
+
+# TODO technique
