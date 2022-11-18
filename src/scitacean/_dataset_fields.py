@@ -2,25 +2,40 @@
 # This file was automatically generated. #
 # Do not modify it directly!             #
 ##########################################
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
+# @author Jan-Lukas Wynen
 # flake8: noqa
 
 """Base dataclass for Dataset."""
 
 import dataclasses
-from datetime import datetime
-from typing import Any, Dict, List, Optional
+from datetime import datetime, timezone
+from typing import Any, Callable, Dict, Generator, Literal, List, Optional, Union
+
+import dateutil.parser
 
 from .pid import PID
 from .model import DatasetType
 
 
-def _get_value_or_default(d: dict, key: str, default: Any, default_factory: Any) -> Any:
-    try:
-        return d[key]
-    except KeyError:
-        if default_factory is not None:
-            return default_factory()
-        return default
+def _apply_default(
+    value: Any, default: Any, default_factory: Optional[Callable]
+) -> Any:
+    if value is not None:
+        return value
+    if default_factory is not None:
+        return default_factory()
+    return default
+
+
+def _parse_datetime(x: Optional[Union[datetime, str]]) -> datetime:
+    if isinstance(x, datetime):
+        return x
+    if isinstance(x, str):
+        if x != "now":
+            return dateutil.parser.parse(x)
+    return datetime.now(tz=timezone.utc)
 
 
 class DatasetFields:
@@ -31,415 +46,545 @@ class DatasetFields:
         read_only: bool
         required_by_derived: bool
         required_by_raw: bool
-        typ: type
+        type: type
         used_by_derived: bool
         used_by_raw: bool
-        value: Any
 
-    def __init__(self, _read_only: Dict[str, Any], **kwargs: Any):
+    _FIELD_SPEC = [
+        Field(
+            name="access_groups",
+            description="Groups which have read access to the data. The special group 'public' makes data available to all users.",
+            read_only=False,
+            required_by_derived=False,
+            required_by_raw=False,
+            type=List[str],
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="classification",
+            description="ACIA information about AUthenticity,COnfidentiality,INtegrity and AVailability requirements of dataset. E.g. AV(ailabilty)=medium could trigger the creation of a two tape copies. Format 'AV=medium,CO=low'",
+            read_only=False,
+            required_by_derived=False,
+            required_by_raw=False,
+            type=str,
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="contact_email",
+            description="Email of contact person for this dataset. May contain a list of emails, which should then be seperated by semicolons.",
+            read_only=False,
+            required_by_derived=True,
+            required_by_raw=True,
+            type=str,
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="created_at",
+            description="Time when the object was created in the database.",
+            read_only=True,
+            required_by_derived=False,
+            required_by_raw=False,
+            type=datetime,
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="created_by",
+            description="Account name who created the object in the database.",
+            read_only=True,
+            required_by_derived=False,
+            required_by_raw=False,
+            type=str,
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="creation_location",
+            description="Unique location identifier where data was taken, usually in the form /Site-name/facility-name/instrumentOrBeamline-name",
+            read_only=False,
+            required_by_derived=False,
+            required_by_raw=False,
+            type=str,
+            used_by_derived=False,
+            used_by_raw=True,
+        ),
+        Field(
+            name="creation_time",
+            description="Time when dataset became fully available on disk, i.e. all containing files have been written.",
+            read_only=False,
+            required_by_derived=True,
+            required_by_raw=True,
+            type=datetime,
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="data_format",
+            description="Defines format of subsequent scientific meta data, e.g Nexus Version x.y",
+            read_only=False,
+            required_by_derived=True,
+            required_by_raw=True,
+            type=str,
+            used_by_derived=False,
+            used_by_raw=True,
+        ),
+        Field(
+            name="description",
+            description="Free text explanation of the contents of the dataset.",
+            read_only=False,
+            required_by_derived=False,
+            required_by_raw=False,
+            type=str,
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="end_time",
+            description="Time of end of data taking for this dataset.",
+            read_only=False,
+            required_by_derived=False,
+            required_by_raw=False,
+            type=datetime,
+            used_by_derived=False,
+            used_by_raw=True,
+        ),
+        Field(
+            name="history",
+            description="List of previous versions of the dataset. Populated automatically by SciCat.",
+            read_only=True,
+            required_by_derived=False,
+            required_by_raw=False,
+            type=List[dict],
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="input_datasets",
+            description="Array of input dataset identifiers used in producing the derived dataset. Ideally these are the global identifier to existing datasets inside this or federated data catalogs.",
+            read_only=False,
+            required_by_derived=True,
+            required_by_raw=True,
+            type=List[str],
+            used_by_derived=True,
+            used_by_raw=False,
+        ),
+        Field(
+            name="instrument_group",
+            description="Groups which have read and write access to the data.",
+            read_only=False,
+            required_by_derived=False,
+            required_by_raw=False,
+            type=str,
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="instrument_id",
+            description="SciCat ID of the instrument used to measure the data.",
+            read_only=False,
+            required_by_derived=False,
+            required_by_raw=False,
+            type=str,
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="investigator",
+            description="Email of the (principal) investigator. The string may contain a list of emails, which should then be separated by semicolons.",
+            read_only=False,
+            required_by_derived=True,
+            required_by_raw=True,
+            type=str,
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="is_published",
+            description="Indicate whether the dataset is publicly available.",
+            read_only=False,
+            required_by_derived=False,
+            required_by_raw=False,
+            type=bool,
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="job_log_data",
+            description="The output job logfile. Keep the size of this log data well below 15 MB.",
+            read_only=False,
+            required_by_derived=False,
+            required_by_raw=False,
+            type=str,
+            used_by_derived=True,
+            used_by_raw=False,
+        ),
+        Field(
+            name="job_parameters",
+            description="Input parameters to the job that produced the derived data.",
+            read_only=False,
+            required_by_derived=False,
+            required_by_raw=False,
+            type=dict,
+            used_by_derived=True,
+            used_by_raw=False,
+        ),
+        Field(
+            name="keywords",
+            description="Array of tags associated with the meaning or contents of this dataset. Values should ideally come from defined vocabularies, taxonomies, ontologies or knowledge graphs.",
+            read_only=False,
+            required_by_derived=False,
+            required_by_raw=False,
+            type=List[str],
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="license",
+            description="Name of license under which data can be used.",
+            read_only=False,
+            required_by_derived=False,
+            required_by_raw=False,
+            type=str,
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="meta",
+            description="Free form meta data.",
+            read_only=False,
+            required_by_derived=False,
+            required_by_raw=False,
+            type=Dict,
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="name",
+            description="A name for the dataset.",
+            read_only=False,
+            required_by_derived=False,
+            required_by_raw=False,
+            type=str,
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="number_of_files",
+            description="Total number of files in directly accessible storage associated with the dataset. (Corresponds to OrigDatablocks.)",
+            read_only=True,
+            required_by_derived=False,
+            required_by_raw=False,
+            type=int,
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="number_of_files_archived",
+            description="Total number of archived files associated with the dataset. (Corresponds to Datablocks.)",
+            read_only=True,
+            required_by_derived=False,
+            required_by_raw=False,
+            type=int,
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="orcid_of_owner",
+            description="ORCID of owner/custodian. The string may contain a list of ORCID, which should then be separated by semicolons. ORCIDs must include the prefix https://orcid.org/",
+            read_only=False,
+            required_by_derived=False,
+            required_by_raw=False,
+            type=str,
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="owner",
+            description="Owner or custodian of the dataset, usually first name + lastname. The string may contain a list of persons, which should then be seperated by semicolons.",
+            read_only=False,
+            required_by_derived=True,
+            required_by_raw=True,
+            type=str,
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="owner_email",
+            description="Email of owner or of custodian of the dataset. The string may contain a list of emails, which should then be seperated by semicolons.",
+            read_only=False,
+            required_by_derived=False,
+            required_by_raw=False,
+            type=str,
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="owner_group",
+            description="Defines the group which owns the data, and therefore has unrestricted access to this data. Usually a pgroup like p12151.",
+            read_only=False,
+            required_by_derived=True,
+            required_by_raw=True,
+            type=str,
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="packed_size",
+            description="Total size of all datablock package files created for this dataset.",
+            read_only=True,
+            required_by_derived=False,
+            required_by_raw=False,
+            type=int,
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="pid",
+            description="Persistent identifier for datasets.",
+            read_only=True,
+            required_by_derived=False,
+            required_by_raw=False,
+            type=str,
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="proposal_id",
+            description="Identifier for the proposal that the dataset was produced for.",
+            read_only=False,
+            required_by_derived=False,
+            required_by_raw=False,
+            type=str,
+            used_by_derived=False,
+            used_by_raw=True,
+        ),
+        Field(
+            name="sample_id",
+            description="Identifier for the sample that the dataset contains a measurement of.",
+            read_only=False,
+            required_by_derived=False,
+            required_by_raw=False,
+            type=str,
+            used_by_derived=False,
+            used_by_raw=True,
+        ),
+        Field(
+            name="shared_with",
+            description="List of users that the dataset has been shared with.",
+            read_only=False,
+            required_by_derived=False,
+            required_by_raw=False,
+            type=List[str],
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="size",
+            description="Total size of all files contained in source folder on disk when unpacked.",
+            read_only=True,
+            required_by_derived=False,
+            required_by_raw=False,
+            type=int,
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="source_folder",
+            description="Absolute file path on file server containing the files of this dataset, e.g. /some/path/to/sourcefolder. In case of a single file dataset, e.g. HDF5 data, it contains the path up to, but excluding the filename.",
+            read_only=False,
+            required_by_derived=True,
+            required_by_raw=True,
+            type=str,
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="source_folder_host",
+            description="DNS host name of file server hosting source_folder, optionally including protocol e.g. [protocol://]fileserver1.example.com",
+            read_only=False,
+            required_by_derived=False,
+            required_by_raw=False,
+            type=str,
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="techniques",
+            description="List of dicts with keys 'pid' and 'name' referring to techniques used to produce the data.",
+            read_only=False,
+            required_by_derived=False,
+            required_by_raw=False,
+            type=List[dict],
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="type",
+            description="Dataset type. 'Derived' or 'Raw'",
+            read_only=False,
+            required_by_derived=True,
+            required_by_raw=True,
+            type=DatasetType,
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="updated_at",
+            description="Time when the object was last updated in the database.",
+            read_only=True,
+            required_by_derived=False,
+            required_by_raw=False,
+            type=datetime,
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="updated_by",
+            description="Account name who last updated the object in the database.",
+            read_only=True,
+            required_by_derived=False,
+            required_by_raw=False,
+            type=str,
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="used_software",
+            description="A list of links to software repositories which uniquely identifies the software used and the version for producing the derived data.",
+            read_only=False,
+            required_by_derived=True,
+            required_by_raw=True,
+            type=List[str],
+            used_by_derived=True,
+            used_by_raw=False,
+        ),
+        Field(
+            name="validation_status",
+            description="Defines a level of trust, e.g. a measure of how much data was verified or used by other persons.",
+            read_only=False,
+            required_by_derived=False,
+            required_by_raw=False,
+            type=str,
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="version",
+            description="Version of SciCat API used in creation of dataset.",
+            read_only=True,
+            required_by_derived=False,
+            required_by_raw=False,
+            type=str,
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+    ]
+
+    def __init__(
+        self,
+        *,
+        type: Union[DatasetType, Literal["derived", "raw"]],
+        creation_time: Optional[Union[datetime, str]] = None,
+        access_groups: Optional[List[str]] = None,
+        classification: Optional[str] = None,
+        contact_email: Optional[str] = None,
+        creation_location: Optional[str] = None,
+        data_format: Optional[str] = None,
+        description: Optional[str] = None,
+        end_time: Optional[datetime] = None,
+        input_datasets: Optional[List[str]] = None,
+        instrument_group: Optional[str] = None,
+        instrument_id: Optional[str] = None,
+        investigator: Optional[str] = None,
+        is_published: Optional[bool] = None,
+        job_log_data: Optional[str] = None,
+        job_parameters: Optional[dict] = None,
+        keywords: Optional[List[str]] = None,
+        license: Optional[str] = None,
+        meta: Optional[Dict] = None,
+        name: Optional[str] = None,
+        orcid_of_owner: Optional[str] = None,
+        owner: Optional[str] = None,
+        owner_email: Optional[str] = None,
+        owner_group: Optional[str] = None,
+        proposal_id: Optional[str] = None,
+        sample_id: Optional[str] = None,
+        shared_with: Optional[List[str]] = None,
+        source_folder: Optional[str] = None,
+        source_folder_host: Optional[str] = None,
+        techniques: Optional[List[dict]] = None,
+        used_software: Optional[List[str]] = None,
+        validation_status: Optional[str] = None,
+        _read_only: Optional[Dict[str, Any]] = None,
+        _pid: Optional[Union[str, PID]] = None,
+    ):
+        _read_only = _read_only or {}
         self._fields = {
-            "access_groups": DatasetFields.Field(
-                name="access_groups",
-                description="Groups which have read access to the data. The special group 'public' makes data available to all users.",
-                read_only=False,
-                required_by_derived=False,
-                required_by_raw=False,
-                typ=List[str],
-                used_by_derived=True,
-                used_by_raw=True,
-                value=_get_value_or_default(kwargs, "access_groups", None, None),
+            "creation_time": _parse_datetime(creation_time),
+            "history": _apply_default(_read_only.get("history"), None, list),
+            "pid": PID.parse(_pid) if isinstance(_pid, str) else _pid,
+            "type": DatasetType(type),
+            "access_groups": _apply_default(access_groups, None, None),
+            "classification": _apply_default(classification, None, None),
+            "contact_email": _apply_default(contact_email, None, None),
+            "created_at": _apply_default(_read_only.get("created_at"), None, None),
+            "created_by": _apply_default(_read_only.get("created_by"), None, None),
+            "creation_location": _apply_default(creation_location, None, None),
+            "data_format": _apply_default(data_format, None, None),
+            "description": _apply_default(description, None, None),
+            "end_time": _apply_default(end_time, None, None),
+            "input_datasets": _apply_default(input_datasets, None, list),
+            "instrument_group": _apply_default(instrument_group, None, None),
+            "instrument_id": _apply_default(instrument_id, None, None),
+            "investigator": _apply_default(investigator, None, None),
+            "is_published": _apply_default(is_published, False, None),
+            "job_log_data": _apply_default(job_log_data, None, None),
+            "job_parameters": _apply_default(job_parameters, None, None),
+            "keywords": _apply_default(keywords, None, None),
+            "license": _apply_default(license, None, None),
+            "meta": _apply_default(meta, None, dict),
+            "name": _apply_default(name, None, None),
+            "number_of_files_archived": _apply_default(
+                _read_only.get("number_of_files_archived"), None, None
             ),
-            "classification": DatasetFields.Field(
-                name="classification",
-                description="ACIA information about AUthenticity,COnfidentiality,INtegrity and AVailability requirements of dataset. E.g. AV(ailabilty)=medium could trigger the creation of a two tape copies. Format 'AV=medium,CO=low'",
-                read_only=False,
-                required_by_derived=False,
-                required_by_raw=False,
-                typ=str,
-                used_by_derived=True,
-                used_by_raw=True,
-                value=_get_value_or_default(kwargs, "classification", None, None),
-            ),
-            "contact_email": DatasetFields.Field(
-                name="contact_email",
-                description="Email of contact person for this dataset. May contain a list of emails, which should then be seperated by semicolons.",
-                read_only=False,
-                required_by_derived=True,
-                required_by_raw=True,
-                typ=str,
-                used_by_derived=True,
-                used_by_raw=True,
-                value=_get_value_or_default(kwargs, "contact_email", None, None),
-            ),
-            "created_at": DatasetFields.Field(
-                name="created_at",
-                description="Time when the object was created in the database.",
-                read_only=True,
-                required_by_derived=False,
-                required_by_raw=False,
-                typ=str,
-                used_by_derived=True,
-                used_by_raw=True,
-                value=_get_value_or_default(_read_only, "created_at", None, None),
-            ),
-            "created_by": DatasetFields.Field(
-                name="created_by",
-                description="Account name who created the object in the database.",
-                read_only=True,
-                required_by_derived=False,
-                required_by_raw=False,
-                typ=str,
-                used_by_derived=True,
-                used_by_raw=True,
-                value=_get_value_or_default(_read_only, "created_by", None, None),
-            ),
-            "creation_location": DatasetFields.Field(
-                name="creation_location",
-                description="Unique location identifier where data was taken, usually in the form /Site-name/facility-name/instrumentOrBeamline-name",
-                read_only=False,
-                required_by_derived=False,
-                required_by_raw=False,
-                typ=str,
-                used_by_derived=False,
-                used_by_raw=True,
-                value=_get_value_or_default(kwargs, "creation_location", None, None),
-            ),
-            "creation_time": DatasetFields.Field(
-                name="creation_time",
-                description="Time when dataset became fully available on disk, i.e. all containing files have been written.",
-                read_only=False,
-                required_by_derived=True,
-                required_by_raw=True,
-                typ=datetime,
-                used_by_derived=True,
-                used_by_raw=True,
-                value=_get_value_or_default(
-                    kwargs, "creation_time", None, datetime.now
-                ),
-            ),
-            "data_format": DatasetFields.Field(
-                name="data_format",
-                description="Defines format of subsequent scientific meta data, e.g Nexus Version x.y",
-                read_only=False,
-                required_by_derived=True,
-                required_by_raw=True,
-                typ=str,
-                used_by_derived=False,
-                used_by_raw=True,
-                value=_get_value_or_default(kwargs, "data_format", None, None),
-            ),
-            "description": DatasetFields.Field(
-                name="description",
-                description="Free text explanation of the contents of the dataset.",
-                read_only=False,
-                required_by_derived=False,
-                required_by_raw=False,
-                typ=str,
-                used_by_derived=True,
-                used_by_raw=True,
-                value=_get_value_or_default(kwargs, "description", None, None),
-            ),
-            "end_time": DatasetFields.Field(
-                name="end_time",
-                description="Time of end of data taking for this dataset.",
-                read_only=False,
-                required_by_derived=False,
-                required_by_raw=False,
-                typ=datetime,
-                used_by_derived=False,
-                used_by_raw=True,
-                value=_get_value_or_default(kwargs, "end_time", None, None),
-            ),
-            "input_datasets": DatasetFields.Field(
-                name="input_datasets",
-                description="Array of input dataset identifiers used in producing the derived dataset. Ideally these are the global identifier to existing datasets inside this or federated data catalogs.",
-                read_only=False,
-                required_by_derived=True,
-                required_by_raw=True,
-                typ=List[str],
-                used_by_derived=True,
-                used_by_raw=False,
-                value=_get_value_or_default(kwargs, "input_datasets", None, list),
-            ),
-            "instrument_group": DatasetFields.Field(
-                name="instrument_group",
-                description="Groups which have read and write access to the data.",
-                read_only=False,
-                required_by_derived=False,
-                required_by_raw=False,
-                typ=str,
-                used_by_derived=True,
-                used_by_raw=True,
-                value=_get_value_or_default(kwargs, "instrument_group", None, None),
-            ),
-            "instrument_id": DatasetFields.Field(
-                name="instrument_id",
-                description="SciCat ID of the instrument used to measure the data.",
-                read_only=False,
-                required_by_derived=False,
-                required_by_raw=False,
-                typ=str,
-                used_by_derived=True,
-                used_by_raw=True,
-                value=_get_value_or_default(kwargs, "instrument_id", None, None),
-            ),
-            "investigator": DatasetFields.Field(
-                name="investigator",
-                description="Email of the (principal) investigator. The string may contain a list of emails, which should then be separated by semicolons.",
-                read_only=False,
-                required_by_derived=True,
-                required_by_raw=True,
-                typ=str,
-                used_by_derived=True,
-                used_by_raw=True,
-                value=_get_value_or_default(kwargs, "investigator", None, None),
-            ),
-            "is_published": DatasetFields.Field(
-                name="is_published",
-                description="Indicate whether the dataset is publicly available.",
-                read_only=False,
-                required_by_derived=False,
-                required_by_raw=False,
-                typ=bool,
-                used_by_derived=True,
-                used_by_raw=True,
-                value=_get_value_or_default(kwargs, "is_published", False, None),
-            ),
-            "job_log_data": DatasetFields.Field(
-                name="job_log_data",
-                description="The output job logfile. Keep the size of this log data well below 15 MB.",
-                read_only=False,
-                required_by_derived=False,
-                required_by_raw=False,
-                typ=str,
-                used_by_derived=True,
-                used_by_raw=False,
-                value=_get_value_or_default(kwargs, "job_log_data", None, None),
-            ),
-            "job_parameters": DatasetFields.Field(
-                name="job_parameters",
-                description="Input parameters to the job that produced the derived data.",
-                read_only=False,
-                required_by_derived=False,
-                required_by_raw=False,
-                typ=dict,
-                used_by_derived=True,
-                used_by_raw=False,
-                value=_get_value_or_default(kwargs, "job_parameters", None, None),
-            ),
-            "keywords": DatasetFields.Field(
-                name="keywords",
-                description="Array of tags associated with the meaning or contents of this dataset. Values should ideally come from defined vocabularies, taxonomies, ontologies or knowledge graphs.",
-                read_only=False,
-                required_by_derived=False,
-                required_by_raw=False,
-                typ=List[str],
-                used_by_derived=True,
-                used_by_raw=True,
-                value=_get_value_or_default(kwargs, "keywords", None, None),
-            ),
-            "license": DatasetFields.Field(
-                name="license",
-                description="Name of license under which data can be used.",
-                read_only=False,
-                required_by_derived=False,
-                required_by_raw=False,
-                typ=str,
-                used_by_derived=True,
-                used_by_raw=True,
-                value=_get_value_or_default(kwargs, "license", None, None),
-            ),
-            "name": DatasetFields.Field(
-                name="name",
-                description="A name for the dataset.",
-                read_only=False,
-                required_by_derived=False,
-                required_by_raw=False,
-                typ=str,
-                used_by_derived=True,
-                used_by_raw=True,
-                value=_get_value_or_default(kwargs, "name", None, None),
-            ),
-            "orcid_of_owner": DatasetFields.Field(
-                name="orcid_of_owner",
-                description="ORCID of owner/custodian. The string may contain a list of ORCID, which should then be separated by semicolons. ORCIDs must include the prefix https://orcid.org/",
-                read_only=False,
-                required_by_derived=False,
-                required_by_raw=False,
-                typ=str,
-                used_by_derived=True,
-                used_by_raw=True,
-                value=_get_value_or_default(kwargs, "orcid_of_owner", None, None),
-            ),
-            "owner": DatasetFields.Field(
-                name="owner",
-                description="Owner or custodian of the dataset, usually first name + lastname. The string may contain a list of persons, which should then be seperated by semicolons.",
-                read_only=False,
-                required_by_derived=True,
-                required_by_raw=True,
-                typ=str,
-                used_by_derived=True,
-                used_by_raw=True,
-                value=_get_value_or_default(kwargs, "owner", None, None),
-            ),
-            "owner_email": DatasetFields.Field(
-                name="owner_email",
-                description="Email of owner or of custodian of the dataset. The string may contain a list of emails, which should then be seperated by semicolons.",
-                read_only=False,
-                required_by_derived=False,
-                required_by_raw=False,
-                typ=str,
-                used_by_derived=True,
-                used_by_raw=True,
-                value=_get_value_or_default(kwargs, "owner_email", None, None),
-            ),
-            "owner_group": DatasetFields.Field(
-                name="owner_group",
-                description="Defines the group which owns the data, and therefore has unrestricted access to this data. Usually a pgroup like p12151.",
-                read_only=False,
-                required_by_derived=True,
-                required_by_raw=True,
-                typ=str,
-                used_by_derived=True,
-                used_by_raw=True,
-                value=_get_value_or_default(kwargs, "owner_group", None, None),
-            ),
-            "proposal_id": DatasetFields.Field(
-                name="proposal_id",
-                description="Identifier for the proposal that the dataset was produced for.",
-                read_only=False,
-                required_by_derived=False,
-                required_by_raw=False,
-                typ=str,
-                used_by_derived=False,
-                used_by_raw=True,
-                value=_get_value_or_default(kwargs, "proposal_id", None, None),
-            ),
-            "sample_id": DatasetFields.Field(
-                name="sample_id",
-                description="Identifier for the sample that the dataset contains a measurement of.",
-                read_only=False,
-                required_by_derived=False,
-                required_by_raw=False,
-                typ=str,
-                used_by_derived=False,
-                used_by_raw=True,
-                value=_get_value_or_default(kwargs, "sample_id", None, None),
-            ),
-            "shared_with": DatasetFields.Field(
-                name="shared_with",
-                description="List of users that the dataset has been shared with.",
-                read_only=False,
-                required_by_derived=False,
-                required_by_raw=False,
-                typ=List[str],
-                used_by_derived=True,
-                used_by_raw=True,
-                value=_get_value_or_default(kwargs, "shared_with", None, None),
-            ),
-            "source_folder": DatasetFields.Field(
-                name="source_folder",
-                description="Absolute file path on file server containing the files of this dataset, e.g. /some/path/to/sourcefolder. In case of a single file dataset, e.g. HDF5 data, it contains the path up to, but excluding the filename.",
-                read_only=False,
-                required_by_derived=True,
-                required_by_raw=True,
-                typ=str,
-                used_by_derived=True,
-                used_by_raw=True,
-                value=_get_value_or_default(kwargs, "source_folder", None, None),
-            ),
-            "source_folder_host": DatasetFields.Field(
-                name="source_folder_host",
-                description="DNS host name of file server hosting source_folder, optionally including protocol e.g. [protocol://]fileserver1.example.com",
-                read_only=False,
-                required_by_derived=False,
-                required_by_raw=False,
-                typ=str,
-                used_by_derived=True,
-                used_by_raw=True,
-                value=_get_value_or_default(kwargs, "source_folder_host", None, None),
-            ),
-            "techniques": DatasetFields.Field(
-                name="techniques",
-                description="List of dicts with keys 'pid' and 'name' referring to techniques used to produce the data.",
-                read_only=False,
-                required_by_derived=False,
-                required_by_raw=False,
-                typ=List[dict],
-                used_by_derived=True,
-                used_by_raw=True,
-                value=_get_value_or_default(kwargs, "techniques", None, None),
-            ),
-            "type": DatasetFields.Field(
-                name="type",
-                description="Dataset type. 'Derived' or 'Raw'",
-                read_only=False,
-                required_by_derived=True,
-                required_by_raw=True,
-                typ=DatasetType,
-                used_by_derived=True,
-                used_by_raw=True,
-                value=_get_value_or_default(kwargs, "type", None, None),
-            ),
-            "updated_at": DatasetFields.Field(
-                name="updated_at",
-                description="Time when the object was last updated in the database.",
-                read_only=True,
-                required_by_derived=False,
-                required_by_raw=False,
-                typ=str,
-                used_by_derived=True,
-                used_by_raw=True,
-                value=_get_value_or_default(_read_only, "updated_at", None, None),
-            ),
-            "updated_by": DatasetFields.Field(
-                name="updated_by",
-                description="Account name who last updated the object in the database.",
-                read_only=True,
-                required_by_derived=False,
-                required_by_raw=False,
-                typ=str,
-                used_by_derived=True,
-                used_by_raw=True,
-                value=_get_value_or_default(_read_only, "updated_by", None, None),
-            ),
-            "used_software": DatasetFields.Field(
-                name="used_software",
-                description="A list of links to software repositories which uniquely identifies the software used and the version for producing the derived data.",
-                read_only=False,
-                required_by_derived=True,
-                required_by_raw=True,
-                typ=List[str],
-                used_by_derived=True,
-                used_by_raw=False,
-                value=_get_value_or_default(kwargs, "used_software", None, None),
-            ),
-            "validation_status": DatasetFields.Field(
-                name="validation_status",
-                description="Defines a level of trust, e.g. a measure of how much data was verified or used by other persons.",
-                read_only=False,
-                required_by_derived=False,
-                required_by_raw=False,
-                typ=str,
-                used_by_derived=True,
-                used_by_raw=True,
-                value=_get_value_or_default(kwargs, "validation_status", None, None),
-            ),
-            "version": DatasetFields.Field(
-                name="version",
-                description="Version of SciCat API used in creation of dataset.",
-                read_only=True,
-                required_by_derived=False,
-                required_by_raw=False,
-                typ=str,
-                used_by_derived=True,
-                used_by_raw=True,
-                value=_get_value_or_default(_read_only, "version", None, None),
-            ),
+            "orcid_of_owner": _apply_default(orcid_of_owner, None, None),
+            "owner": _apply_default(owner, None, None),
+            "owner_email": _apply_default(owner_email, None, None),
+            "owner_group": _apply_default(owner_group, None, None),
+            "proposal_id": _apply_default(proposal_id, None, None),
+            "sample_id": _apply_default(sample_id, None, None),
+            "shared_with": _apply_default(shared_with, None, None),
+            "source_folder": _apply_default(source_folder, None, None),
+            "source_folder_host": _apply_default(source_folder_host, None, None),
+            "techniques": _apply_default(techniques, None, None),
+            "updated_at": _apply_default(_read_only.get("updated_at"), None, None),
+            "updated_by": _apply_default(_read_only.get("updated_by"), None, None),
+            "used_software": _apply_default(used_software, None, None),
+            "validation_status": _apply_default(validation_status, None, None),
+            "version": _apply_default(_read_only.get("version"), None, None),
         }
 
     @property
+    def pid(self) -> Optional[PID]:
+        """Persistent identifier for datasets."""
+        return self._fields["pid"]
+
+    @property
+    def creation_time(self) -> datetime:
+        return self._fields["creation_time"]
+
+    @creation_time.setter
+    def creation_time(self, value: Union[datetime, str]):
+        if value is None:
+            raise TypeError("Cannot set creation_time to None")
+        self._fields["creation_time"] = _parse_datetime(value)
+
+    @property
     def access_groups(self) -> Optional[List[str]]:
+        """Groups which have read access to the data. The special group 'public' makes data available to all users."""
         return self._fields["access_groups"]
 
     @access_groups.setter
@@ -448,6 +593,7 @@ class DatasetFields:
 
     @property
     def classification(self) -> Optional[str]:
+        """ACIA information about AUthenticity,COnfidentiality,INtegrity and AVailability requirements of dataset. E.g. AV(ailabilty)=medium could trigger the creation of a two tape copies. Format 'AV=medium,CO=low'"""
         return self._fields["classification"]
 
     @classification.setter
@@ -456,6 +602,7 @@ class DatasetFields:
 
     @property
     def contact_email(self) -> Optional[str]:
+        """Email of contact person for this dataset. May contain a list of emails, which should then be seperated by semicolons."""
         return self._fields["contact_email"]
 
     @contact_email.setter
@@ -463,15 +610,18 @@ class DatasetFields:
         self._fields["contact_email"] = val
 
     @property
-    def created_at(self) -> Optional[str]:
+    def created_at(self) -> Optional[datetime]:
+        """Time when the object was created in the database."""
         return self._fields["created_at"]
 
     @property
     def created_by(self) -> Optional[str]:
+        """Account name who created the object in the database."""
         return self._fields["created_by"]
 
     @property
     def creation_location(self) -> Optional[str]:
+        """Unique location identifier where data was taken, usually in the form /Site-name/facility-name/instrumentOrBeamline-name"""
         return self._fields["creation_location"]
 
     @creation_location.setter
@@ -479,15 +629,8 @@ class DatasetFields:
         self._fields["creation_location"] = val
 
     @property
-    def creation_time(self) -> Optional[datetime]:
-        return self._fields["creation_time"]
-
-    @creation_time.setter
-    def creation_time(self, val: Optional[datetime]):
-        self._fields["creation_time"] = val
-
-    @property
     def data_format(self) -> Optional[str]:
+        """Defines format of subsequent scientific meta data, e.g Nexus Version x.y"""
         return self._fields["data_format"]
 
     @data_format.setter
@@ -496,6 +639,7 @@ class DatasetFields:
 
     @property
     def description(self) -> Optional[str]:
+        """Free text explanation of the contents of the dataset."""
         return self._fields["description"]
 
     @description.setter
@@ -504,6 +648,7 @@ class DatasetFields:
 
     @property
     def end_time(self) -> Optional[datetime]:
+        """Time of end of data taking for this dataset."""
         return self._fields["end_time"]
 
     @end_time.setter
@@ -511,11 +656,8 @@ class DatasetFields:
         self._fields["end_time"] = val
 
     @property
-    def history(self) -> Optional[List[dict]]:
-        return self._fields["history"]
-
-    @property
     def input_datasets(self) -> Optional[List[str]]:
+        """Array of input dataset identifiers used in producing the derived dataset. Ideally these are the global identifier to existing datasets inside this or federated data catalogs."""
         return self._fields["input_datasets"]
 
     @input_datasets.setter
@@ -524,6 +666,7 @@ class DatasetFields:
 
     @property
     def instrument_group(self) -> Optional[str]:
+        """Groups which have read and write access to the data."""
         return self._fields["instrument_group"]
 
     @instrument_group.setter
@@ -532,6 +675,7 @@ class DatasetFields:
 
     @property
     def instrument_id(self) -> Optional[str]:
+        """SciCat ID of the instrument used to measure the data."""
         return self._fields["instrument_id"]
 
     @instrument_id.setter
@@ -540,6 +684,7 @@ class DatasetFields:
 
     @property
     def investigator(self) -> Optional[str]:
+        """Email of the (principal) investigator. The string may contain a list of emails, which should then be separated by semicolons."""
         return self._fields["investigator"]
 
     @investigator.setter
@@ -548,6 +693,7 @@ class DatasetFields:
 
     @property
     def is_published(self) -> Optional[bool]:
+        """Indicate whether the dataset is publicly available."""
         return self._fields["is_published"]
 
     @is_published.setter
@@ -556,6 +702,7 @@ class DatasetFields:
 
     @property
     def job_log_data(self) -> Optional[str]:
+        """The output job logfile. Keep the size of this log data well below 15 MB."""
         return self._fields["job_log_data"]
 
     @job_log_data.setter
@@ -564,6 +711,7 @@ class DatasetFields:
 
     @property
     def job_parameters(self) -> Optional[dict]:
+        """Input parameters to the job that produced the derived data."""
         return self._fields["job_parameters"]
 
     @job_parameters.setter
@@ -572,6 +720,7 @@ class DatasetFields:
 
     @property
     def keywords(self) -> Optional[List[str]]:
+        """Array of tags associated with the meaning or contents of this dataset. Values should ideally come from defined vocabularies, taxonomies, ontologies or knowledge graphs."""
         return self._fields["keywords"]
 
     @keywords.setter
@@ -580,6 +729,7 @@ class DatasetFields:
 
     @property
     def license(self) -> Optional[str]:
+        """Name of license under which data can be used."""
         return self._fields["license"]
 
     @license.setter
@@ -588,6 +738,7 @@ class DatasetFields:
 
     @property
     def meta(self) -> Optional[Dict]:
+        """Free form meta data."""
         return self._fields["meta"]
 
     @meta.setter
@@ -596,6 +747,7 @@ class DatasetFields:
 
     @property
     def name(self) -> Optional[str]:
+        """A name for the dataset."""
         return self._fields["name"]
 
     @name.setter
@@ -603,15 +755,13 @@ class DatasetFields:
         self._fields["name"] = val
 
     @property
-    def number_of_files(self) -> Optional[int]:
-        return self._fields["number_of_files"]
-
-    @property
     def number_of_files_archived(self) -> Optional[int]:
+        """Total number of archived files associated with the dataset. (Corresponds to Datablocks.)"""
         return self._fields["number_of_files_archived"]
 
     @property
     def orcid_of_owner(self) -> Optional[str]:
+        """ORCID of owner/custodian. The string may contain a list of ORCID, which should then be separated by semicolons. ORCIDs must include the prefix https://orcid.org/"""
         return self._fields["orcid_of_owner"]
 
     @orcid_of_owner.setter
@@ -620,6 +770,7 @@ class DatasetFields:
 
     @property
     def owner(self) -> Optional[str]:
+        """Owner or custodian of the dataset, usually first name + lastname. The string may contain a list of persons, which should then be seperated by semicolons."""
         return self._fields["owner"]
 
     @owner.setter
@@ -628,6 +779,7 @@ class DatasetFields:
 
     @property
     def owner_email(self) -> Optional[str]:
+        """Email of owner or of custodian of the dataset. The string may contain a list of emails, which should then be seperated by semicolons."""
         return self._fields["owner_email"]
 
     @owner_email.setter
@@ -636,6 +788,7 @@ class DatasetFields:
 
     @property
     def owner_group(self) -> Optional[str]:
+        """Defines the group which owns the data, and therefore has unrestricted access to this data. Usually a pgroup like p12151."""
         return self._fields["owner_group"]
 
     @owner_group.setter
@@ -643,15 +796,8 @@ class DatasetFields:
         self._fields["owner_group"] = val
 
     @property
-    def packed_size(self) -> Optional[int]:
-        return self._fields["packed_size"]
-
-    @property
-    def pid(self) -> Optional[str]:
-        return self._fields["pid"]
-
-    @property
     def proposal_id(self) -> Optional[str]:
+        """Identifier for the proposal that the dataset was produced for."""
         return self._fields["proposal_id"]
 
     @proposal_id.setter
@@ -660,6 +806,7 @@ class DatasetFields:
 
     @property
     def sample_id(self) -> Optional[str]:
+        """Identifier for the sample that the dataset contains a measurement of."""
         return self._fields["sample_id"]
 
     @sample_id.setter
@@ -668,6 +815,7 @@ class DatasetFields:
 
     @property
     def shared_with(self) -> Optional[List[str]]:
+        """List of users that the dataset has been shared with."""
         return self._fields["shared_with"]
 
     @shared_with.setter
@@ -675,11 +823,8 @@ class DatasetFields:
         self._fields["shared_with"] = val
 
     @property
-    def size(self) -> Optional[int]:
-        return self._fields["size"]
-
-    @property
     def source_folder(self) -> Optional[str]:
+        """Absolute file path on file server containing the files of this dataset, e.g. /some/path/to/sourcefolder. In case of a single file dataset, e.g. HDF5 data, it contains the path up to, but excluding the filename."""
         return self._fields["source_folder"]
 
     @source_folder.setter
@@ -688,6 +833,7 @@ class DatasetFields:
 
     @property
     def source_folder_host(self) -> Optional[str]:
+        """DNS host name of file server hosting source_folder, optionally including protocol e.g. [protocol://]fileserver1.example.com"""
         return self._fields["source_folder_host"]
 
     @source_folder_host.setter
@@ -696,6 +842,7 @@ class DatasetFields:
 
     @property
     def techniques(self) -> Optional[List[dict]]:
+        """List of dicts with keys 'pid' and 'name' referring to techniques used to produce the data."""
         return self._fields["techniques"]
 
     @techniques.setter
@@ -704,6 +851,7 @@ class DatasetFields:
 
     @property
     def type(self) -> Optional[DatasetType]:
+        """Dataset type. 'Derived' or 'Raw'"""
         return self._fields["type"]
 
     @type.setter
@@ -711,15 +859,18 @@ class DatasetFields:
         self._fields["type"] = val
 
     @property
-    def updated_at(self) -> Optional[str]:
+    def updated_at(self) -> Optional[datetime]:
+        """Time when the object was last updated in the database."""
         return self._fields["updated_at"]
 
     @property
     def updated_by(self) -> Optional[str]:
+        """Account name who last updated the object in the database."""
         return self._fields["updated_by"]
 
     @property
     def used_software(self) -> Optional[List[str]]:
+        """A list of links to software repositories which uniquely identifies the software used and the version for producing the derived data."""
         return self._fields["used_software"]
 
     @used_software.setter
@@ -728,6 +879,7 @@ class DatasetFields:
 
     @property
     def validation_status(self) -> Optional[str]:
+        """Defines a level of trust, e.g. a measure of how much data was verified or used by other persons."""
         return self._fields["validation_status"]
 
     @validation_status.setter
@@ -736,4 +888,20 @@ class DatasetFields:
 
     @property
     def version(self) -> Optional[str]:
+        """Version of SciCat API used in creation of dataset."""
         return self._fields["version"]
+
+    @classmethod
+    def fields(cls) -> Generator[Field, None, None]:
+        """Iterator over dataset fields."""
+        yield from DatasetFields._FIELD_SPEC
+
+    def __str__(self) -> str:
+        args = ", ".join(
+            f"{name}={value}"
+            for name, value in (
+                (field.name, getattr(self, field.name)) for field in self.fields()
+            )
+            if value is not None
+        )
+        return f"Dataset({args})"

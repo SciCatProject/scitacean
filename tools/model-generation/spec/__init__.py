@@ -1,3 +1,8 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
+# @author Jan-Lukas Wynen
+"""Load model specification files."""
+
 from pathlib import Path
 
 import yaml
@@ -36,7 +41,10 @@ def _apply_defaults_field(field: dict, defaults: dict) -> dict:
     new_field = dict(field)
     for key, default_value in defaults.items():
         if key not in new_field:
-            new_field[key] = default_value
+            if key == "model_name":
+                new_field[key] = new_field["name"]
+            else:
+                new_field[key] = default_value
     return new_field
 
 

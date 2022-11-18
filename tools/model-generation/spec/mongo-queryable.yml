@@ -14,9 +14,9 @@ fields:
     description: Time when the object was last updated in the database.
     model_name: updatedAt
     read_only: true
-    type: str
+    type: datetime
   - name: created_at
     description: Time when the object was created in the database.
     model_name: createdAt
     read_only: true
-    type: str
+    type: datetime

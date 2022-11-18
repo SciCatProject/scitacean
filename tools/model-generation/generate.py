@@ -1,3 +1,8 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
+# @author Jan-Lukas Wynen
+"""Generate pydantic models and DatasetFields."""
+
 import argparse
 from pathlib import Path
 from string import Template
@@ -14,12 +19,7 @@ GENERATED_BANNER = """##########################################
 
 
 def load_template(name: str) -> Template:
-    filename = {
-        "model": "model.py.template",
-        "dataset": "dataset.py.template",
-        "field_construction": "field_construction.py.template",
-    }[name]
-    with open(TEMPLATE_DIR / filename, "r") as f:
+    with open(TEMPLATE_DIR / f"{name}.py.template", "r") as f:
         return Template(f.read())
 
 
@@ -33,19 +33,18 @@ def write_dataset(target: Path, dataset: str):
         f.write(GENERATED_BANNER + dataset)
 
 
-def format_model_field(field: dict) -> str:
-    return "    {name}: {typ}".format(
-        name=field["name"],
-        typ=field["type"] if field["required"] else f"Optional[{field['type']}]",
-    )
+def format_model_field(dataset_type: str, field: dict) -> str:
+    name = field["model_name"]
+    if isinstance(name, dict):
+        name = name[dataset_type]
+    typ = field["type"] if field["required"] else f"Optional[{field['type']}]"
+    return f"    {name}: {typ}"
 
 
 def generate_dataset_model(spec: dict, typ: str) -> str:
     name = ("Derived" if typ == "derived" else "Raw") + "Dataset"
-    head = f"""class {name}(pydantic.BaseModel):\n"""
-    body = "\n".join(
-        map(format_model_field, sorted(spec["fields"], key=lambda field: field["name"]))
-    )
+    head = f"""class {name}(BaseModel):\n"""
+    body = "\n".join(sorted(format_model_field(typ, f) for f in spec["fields"]))
     return head + body
 
 
@@ -61,33 +60,59 @@ def quote(s: str) -> str:
     return f'"{s}"'
 
 
-def format_dataset_field_construction(template: Template, field: dict) -> str:
-    name = quote(field["name"])
-    source = "_read_only" if field["read_only"] else "kwargs"
-    formatted = template.substitute(
-        name=name,
-        description=quote(field["description"]),
-        read_only=field["read_only"],
-        required_by_derived=field_is_required(field, "derived"),
-        required_by_raw=field_is_required(field, "raw"),
-        typ=field["type"],
-        used_by_derived="derived" in field["used"],
-        used_by_raw="raw" in field["used"],
-        value="_get_value_or_default({s}, {k}, {d}, {df})".format(
-            s=source,
-            k=name,
-            d=field["default"],
-            df=field["default_factory"],
-        ),
+def format_dataset_field_spec(fields: list) -> str:
+    def format_single(template: Template, field: dict) -> str:
+        name = quote(field["name"])
+        return template.substitute(
+            name=name,
+            description=quote(field["description"]),
+            read_only=field["read_only"],
+            required_by_derived=field_is_required(field, "derived"),
+            required_by_raw=field_is_required(field, "raw"),
+            type=field["type"],
+            used_by_derived="derived" in field["used"],
+            used_by_raw="raw" in field["used"],
+        )
+
+    tmpl = load_template("field_spec")
+    return "[\n" + "\n".join(format_single(tmpl, f) for f in fields) + "\n]"
+
+
+def format_dataset_field_init_args(fields: list) -> str:
+    def format_single(field: dict) -> str:
+        return f"{field['name']}: Optional[{field['type']}] = None"
+
+    return ",\n                 ".join(
+        format_single(f)
+        for f in fields
+        if not f["read_only"] and not f["manual"] and f["name"] != "type"
     )
-    indent = "            "
-    return indent + formatted.replace("\n", "\n" + indent)
+
+
+def format_dataset_field_construction(field: dict) -> str:
+    n = quote(field["name"])
+    d = field["default"]
+    df = field["default_factory"]
+    if field["read_only"]:
+        formatted = f"{n}: _apply_default(_read_only.get({n}), {d}, {df})"
+    else:
+        formatted = f"{n}: _apply_default({field['name']}, {d}, {df})"
+    return "            " + formatted + ","
+
+
+def format_dataset_field_dict_construction(fields: list) -> str:
+    return "\n".join(
+        format_dataset_field_construction(field)
+        for field in fields
+        if not field["manual"] and field["name"] != "type"
+    )
 
 
 def format_properties(field: dict) -> str:
-    getter = f"""    @property
+    getter = f'''    @property
     def {field["name"]}(self) -> Optional[{field["type"]}]:
-        return self._fields[{quote(field["name"])}]"""
+        """{field["description"]}"""
+        return self._fields[{quote(field["name"])}]'''
     if field["read_only"]:
         return getter
     setter = f"""    @{field["name"]}.setter
@@ -98,20 +123,15 @@ def format_properties(field: dict) -> str:
 
 def generate_dataset_dataclass(spec: dict) -> str:
     template = load_template("dataset")
-    field_construction_template = load_template("field_construction")
     fields = sorted(spec["fields"], key=lambda field: field["name"])
-    field_dict_construction = (
-        "{\n"
-        + "\n".join(
-            format_dataset_field_construction(field_construction_template, field)
-            for field in fields
-            if not field["manual"]
-        )
-        + "\n        }"
+    properties = "\n\n".join(
+        format_properties(field) for field in fields if not field["manual"]
     )
-    properties = "\n\n".join(format_properties(field) for field in fields)
     return template.substitute(
-        field_dict_construction=field_dict_construction, properties=properties
+        field_spec=format_dataset_field_spec(fields),
+        field_init_args=format_dataset_field_init_args(fields),
+        field_dict_construction=format_dataset_field_dict_construction(fields),
+        properties=properties,
     )
 
 

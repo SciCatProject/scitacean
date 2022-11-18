@@ -2,6 +2,9 @@
 # This file was automatically generated. #
 # Do not modify it directly!             #
 ##########################################
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
+# @author Jan-Lukas Wynen
 # flake8: noqa
 
 """Pydantic models to encode data for communication with SciCat."""
@@ -12,8 +15,6 @@ from typing import Dict, List, Optional
 
 import pydantic
 
-from .pid import PID
-
 
 # This can be replaced by StrEnum in Python 3.11+
 class DatasetType(str, enum.Enum):
@@ -23,93 +24,98 @@ class DatasetType(str, enum.Enum):
     DERIVED = "derived"
 
 
-class DerivedDataset(pydantic.BaseModel):
-    access_groups: Optional[List[str]]
+class BaseModel(pydantic.BaseModel):
+    class Config:
+        extra = pydantic.Extra.forbid
+
+
+class DerivedDataset(BaseModel):
+    accessGroups: Optional[List[str]]
     classification: Optional[str]
-    contact_email: str
-    created_at: Optional[str]
-    created_by: Optional[str]
-    creation_location: Optional[str]
-    creation_time: datetime
-    data_format: str
+    contactEmail: str
+    createdAt: Optional[datetime]
+    createdBy: Optional[str]
+    creationLocation: Optional[str]
+    creationTime: datetime
+    dataFormat: str
+    datasetName: Optional[str]
     description: Optional[str]
-    end_time: Optional[datetime]
+    endTime: Optional[datetime]
     history: Optional[List[dict]]
-    input_datasets: List[str]
-    instrument_group: Optional[str]
-    instrument_id: Optional[str]
+    inputDatasets: List[str]
+    instrumentGroup: Optional[str]
+    instrumentId: Optional[str]
     investigator: str
-    is_published: Optional[bool]
-    job_log_data: Optional[str]
-    job_parameters: Optional[dict]
+    isPublished: Optional[bool]
+    jobLogData: Optional[str]
+    jobParameters: Optional[dict]
     keywords: Optional[List[str]]
     license: Optional[str]
-    meta: Optional[Dict]
-    name: Optional[str]
-    number_of_files: Optional[int]
-    number_of_files_archived: Optional[int]
-    orcid_of_owner: Optional[str]
+    numberOfFiles: Optional[int]
+    numberOfFilesArchived: Optional[int]
+    orcidOfOwner: Optional[str]
     owner: str
-    owner_email: Optional[str]
-    owner_group: str
-    packed_size: Optional[int]
+    ownerEmail: Optional[str]
+    ownerGroup: str
+    packedSize: Optional[int]
     pid: Optional[str]
-    proposal_id: Optional[str]
-    sample_id: Optional[str]
-    shared_with: Optional[List[str]]
+    proposalID: Optional[str]
+    sampleID: Optional[str]
+    scientificMetadata: Optional[Dict]
+    sharedWith: Optional[List[str]]
     size: Optional[int]
-    source_folder: str
-    source_folder_host: Optional[str]
+    sourceFolder: str
+    sourceFolderHost: Optional[str]
     techniques: Optional[List[dict]]
     type: DatasetType
-    updated_at: Optional[str]
-    updated_by: Optional[str]
-    used_software: List[str]
-    validation_status: Optional[str]
+    updatedAt: Optional[datetime]
+    updatedBy: Optional[str]
+    usedSoftware: List[str]
+    validationStatus: Optional[str]
     version: Optional[str]
 
 
-class RawDataset(pydantic.BaseModel):
-    access_groups: Optional[List[str]]
+class RawDataset(BaseModel):
+    accessGroups: Optional[List[str]]
     classification: Optional[str]
-    contact_email: str
-    created_at: Optional[str]
-    created_by: Optional[str]
-    creation_location: Optional[str]
-    creation_time: datetime
-    data_format: str
+    contactEmail: str
+    createdAt: Optional[datetime]
+    createdBy: Optional[str]
+    creationLocation: Optional[str]
+    creationTime: datetime
+    dataFormat: str
+    datasetName: Optional[str]
     description: Optional[str]
-    end_time: Optional[datetime]
+    endTime: Optional[datetime]
     history: Optional[List[dict]]
-    input_datasets: List[str]
-    instrument_group: Optional[str]
-    instrument_id: Optional[str]
-    investigator: str
-    is_published: Optional[bool]
-    job_log_data: Optional[str]
-    job_parameters: Optional[dict]
+    inputDatasets: List[str]
+    instrumentGroup: Optional[str]
+    instrumentId: Optional[str]
+    isPublished: Optional[bool]
+    jobLogData: Optional[str]
+    jobParameters: Optional[dict]
     keywords: Optional[List[str]]
     license: Optional[str]
-    meta: Optional[Dict]
-    name: Optional[str]
-    number_of_files: Optional[int]
-    number_of_files_archived: Optional[int]
-    orcid_of_owner: Optional[str]
+    numberOfFiles: Optional[int]
+    numberOfFilesArchived: Optional[int]
+    orcidOfOwner: Optional[str]
     owner: str
-    owner_email: Optional[str]
-    owner_group: str
-    packed_size: Optional[int]
+    ownerEmail: Optional[str]
+    ownerGroup: str
+    packedSize: Optional[int]
     pid: Optional[str]
-    proposal_id: Optional[str]
-    sample_id: Optional[str]
-    shared_with: Optional[List[str]]
+    principalInvestigator: str
+    proposalID: Optional[str]
+    sampleID: Optional[str]
+    scientificMetadata: Optional[Dict]
+    sharedWith: Optional[List[str]]
     size: Optional[int]
-    source_folder: str
-    source_folder_host: Optional[str]
+    sourceFolder: str
+    sourceFolderHost: Optional[str]
     techniques: Optional[List[dict]]
     type: DatasetType
-    updated_at: Optional[str]
-    updated_by: Optional[str]
-    used_software: List[str]
-    validation_status: Optional[str]
+    updatedAt: Optional[datetime]
+    updatedBy: Optional[str]
+    usedSoftware: List[str]
+    validationStatus: Optional[str]
     version: Optional[str]

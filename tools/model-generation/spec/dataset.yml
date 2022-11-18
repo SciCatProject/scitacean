@@ -16,8 +16,8 @@ fields:
     type: str
     used: [ raw ]
   - name: creation_time
-    default_factory: datetime.now
     description: Time when dataset became fully available on disk, i.e. all containing files have been written.
+    manual: true
     model_name: creationTime
     required: true
     type: datetime
@@ -36,7 +36,6 @@ fields:
     type: datetime
     used: [ raw ]
   - name: history
-    default_factory: list
     description: List of previous versions of the dataset. Populated automatically by SciCat.
     manual: true
     read_only: true
@@ -79,6 +78,11 @@ fields:
   - name: license
     description: Name of license under which data can be used.
     type: str
+  - name: meta
+    default_factory: dict
+    description: Free form meta data.
+    model_name: scientificMetadata
+    type: Dict
   - name: name
     description: A name for the dataset.
     model_name: datasetName
@@ -92,7 +96,6 @@ fields:
     validation: size
   - name: number_of_files_archived
     description: Total number of archived files associated with the dataset. (Corresponds to Datablocks.)
-    manual: true
     model_name: numberOfFilesArchived
     read_only: true
     type: int
@@ -133,12 +136,6 @@ fields:
     model_name: sampleID
     type: str
     used: [raw]
-  - name: meta
-    default_factory: dict
-    description: Free form meta data.
-    manual: true
-    model_name: scientificMetadata
-    type: Dict
   - name: shared_with
     description: List of users that the dataset has been shared with.
     model_name: sharedWith
