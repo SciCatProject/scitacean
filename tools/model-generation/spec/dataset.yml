@@ -73,6 +73,10 @@ fields:
   - name: keywords
     description: Array of tags associated with the meaning or contents of this dataset. Values should ideally come from defined vocabularies, taxonomies, ontologies or knowledge graphs.
     type: List[str]
+  - name: lifecycle
+    description: Parameters for storage and publishing of dataset.
+    model_name: datasetlifecycle
+    type: DatasetLifecycle
   - name: license
     description: Name of license under which data can be used.
     type: str

@@ -16,7 +16,7 @@ from typing import Any, Callable, Dict, Generator, Literal, List, Optional, Unio
 import dateutil.parser
 
 from .pid import PID
-from .model import DatasetType, DerivedDataset, RawDataset, Technique
+from .model import DatasetLifecycle, DatasetType, DerivedDataset, RawDataset, Technique
 
 
 def _apply_default(
@@ -248,6 +248,16 @@ class DatasetFields:
             required_by_derived=False,
             required_by_raw=False,
             type=str,
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="lifecycle",
+            description="Parameters for storage and publishing of dataset.",
+            read_only=False,
+            required_by_derived=False,
+            required_by_raw=False,
+            type=DatasetLifecycle,
             used_by_derived=True,
             used_by_raw=True,
         ),
@@ -504,6 +514,7 @@ class DatasetFields:
         job_parameters: Optional[dict] = None,
         keywords: Optional[List[str]] = None,
         license: Optional[str] = None,
+        lifecycle: Optional[DatasetLifecycle] = None,
         meta: Optional[Dict] = None,
         name: Optional[str] = None,
         orcid_of_owner: Optional[str] = None,
@@ -545,6 +556,7 @@ class DatasetFields:
             "job_parameters": _apply_default(job_parameters, None, None),
             "keywords": _apply_default(keywords, None, None),
             "license": _apply_default(license, None, None),
+            "lifecycle": _apply_default(lifecycle, None, None),
             "meta": _apply_default(meta, None, dict),
             "name": _apply_default(name, None, None),
             "number_of_files_archived": _apply_default(
@@ -735,6 +747,15 @@ class DatasetFields:
     @license.setter
     def license(self, val: Optional[str]):
         self._fields["license"] = val
+
+    @property
+    def lifecycle(self) -> Optional[DatasetLifecycle]:
+        """Parameters for storage and publishing of dataset."""
+        return self._fields["lifecycle"]
+
+    @lifecycle.setter
+    def lifecycle(self, val: Optional[DatasetLifecycle]):
+        self._fields["lifecycle"] = val
 
     @property
     def meta(self) -> Optional[Dict]:
@@ -950,6 +971,7 @@ class DatasetFields:
             jobParameters=self.job_parameters,
             keywords=self.keywords,
             license=self.license,
+            datasetlifecycle=self.lifecycle,
             scientificMetadata=self.meta,
             datasetName=self.name,
             numberOfFiles=self.number_of_files,
@@ -1000,6 +1022,7 @@ class DatasetFields:
             isPublished=self.is_published,
             keywords=self.keywords,
             license=self.license,
+            datasetlifecycle=self.lifecycle,
             scientificMetadata=self.meta,
             datasetName=self.name,
             numberOfFiles=self.number_of_files,

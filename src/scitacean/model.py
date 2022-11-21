@@ -38,6 +38,23 @@ class MongoQueryable(BaseModel):
     updatedBy: Optional[str]
 
 
+class DatasetLifecycle(BaseModel):
+    archivable: Optional[bool]
+    archiveRetentionTime: Optional[datetime]
+    archiveReturnMessage: Optional[str]
+    archiveStatusMessage: Optional[str]
+    dateOfDiskPurging: Optional[datetime]
+    dateOfPublishing: Optional[datetime]
+    exportedTo: Optional[str]
+    isOnCentralDisk: Optional[bool]
+    publishable: Optional[bool]
+    publishedOn: Optional[datetime]
+    retrievable: Optional[bool]
+    retrieveIntegrityCheck: Optional[bool]
+    retrieveReturnMessage: Optional[str]
+    retrieveStatusMessage: Optional[str]
+
+
 class Technique(BaseModel):
     name: str
     pid: str
@@ -67,6 +84,7 @@ class DerivedDataset(Ownable):
     jobParameters: Optional[dict]
     keywords: Optional[List[str]]
     license: Optional[str]
+    datasetlifecycle: Optional[DatasetLifecycle]
     scientificMetadata: Optional[Dict]
     datasetName: Optional[str]
     numberOfFiles: Optional[int]
@@ -112,6 +130,7 @@ class RawDataset(Ownable):
     isPublished: Optional[bool]
     keywords: Optional[List[str]]
     license: Optional[str]
+    datasetlifecycle: Optional[DatasetLifecycle]
     scientificMetadata: Optional[Dict]
     datasetName: Optional[str]
     numberOfFiles: Optional[int]
