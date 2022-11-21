@@ -3,8 +3,8 @@
 # @author Jan-Lukas Wynen
 import uuid
 
-from pyscicat.model import DerivedDataset, RawDataset
 import pytest
+from scitacean.model import DerivedDataset, RawDataset
 from scitacean import Client
 
 from .common.backend import skip_if_not_backend

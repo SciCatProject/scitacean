@@ -4,9 +4,9 @@
 from copy import deepcopy
 
 import dateutil.parser
-import pyscicat.client
-from pyscicat.model import DataFile, DatasetType, DerivedDataset, OrigDatablock
 import pytest
+from scitacean.model import DataFile, DatasetType, DerivedDataset, OrigDatablock
+from scitacean import ScicatCommError
 
 from scitacean.testing.client import FakeClient
 from scitacean import Client
@@ -85,7 +85,7 @@ def test_get_dataset_model(scicat_client, derived_dataset):
 
 
 def test_get_dataset_model_bad_id(scicat_client):
-    with pytest.raises(pyscicat.client.ScicatCommError):
+    with pytest.raises(ScicatCommError):
         scicat_client.get_dataset_model("bad-pid")
 
 
@@ -95,7 +95,7 @@ def test_get_orig_datablock(scicat_client, orig_datablock):
 
 
 def test_get_orig_datablock_bad_id(scicat_client):
-    with pytest.raises(pyscicat.client.ScicatCommError):
+    with pytest.raises(ScicatCommError):
         scicat_client.get_orig_datablocks("bollocks")
 
 
@@ -127,7 +127,7 @@ def test_create_dataset_model_id_clash(scicat_client, derived_dataset):
     dset = deepcopy(derived_dataset)
     dset.pid = dset.pid.split("/")[1]
     dset.owner = "a new owner to trigger a failure"
-    with pytest.raises(pyscicat.client.ScicatCommError):
+    with pytest.raises(ScicatCommError):
         scicat_client.create_dataset_model(dset)
 
 

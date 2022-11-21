@@ -8,11 +8,11 @@ from hashlib import md5
 from typing import Dict
 
 import dateutil.parser
-from pyscicat.model import DataFile
 import pytest
 from scitacean import File
 from scitacean.error import IntegrityError
 from scitacean.file import checksum_of_file
+from scitacean.model import DataFile
 
 from .common.files import make_file
 

@@ -5,10 +5,9 @@
 from contextlib import contextmanager
 from copy import deepcopy
 
-from pyscicat.client import ScicatCommError
-from pyscicat import model
 import pytest
-from scitacean import Dataset
+from scitacean import Dataset, ScicatCommError
+from scitacean import model
 from scitacean.testing.client import FakeClient
 from scitacean.testing.transfer import FakeFileTransfer
 

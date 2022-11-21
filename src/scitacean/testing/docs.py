@@ -4,10 +4,9 @@ Utilities for the documentation.
 Should probably not be used externally.
 """
 
-from pyscicat.model import DataFile, OrigDatablock, RawDataset
-
 from ..pid import PID
 from .client import FakeClient
+from ..model import DataFile, OrigDatablock, RawDataset
 from .transfer import FakeFileTransfer
 
 

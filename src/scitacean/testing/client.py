@@ -11,13 +11,12 @@ from pathlib import Path
 from typing import Dict, List, Optional, Union
 import uuid
 
-from pyscicat import model
-import pyscicat.client
-
 from ..client import Client, ScicatClient
 from ..dataset import Dataset
+from ..error import ScicatCommError
 from ..pid import PID
 from ..typing import FileTransfer
+from .. import model
 
 
 def _conditionally_disabled(func):
@@ -69,8 +68,8 @@ class FakeClient(Client):
 
         client = FakeClient()
         pid = PID(prefix="sample.prefix", pid="1234-5678-abcd")
-        client.datasets[pid] = pyscicat.model.DerivedDataset(...)
-        client.orig_datablocks[pid] = [pyscicat.model.OrigDatablock(
+        client.datasets[pid] = model.DerivedDataset(...)
+        client.orig_datablocks[pid] = [model.OrigDatablock(
             datasetID=str(pid),
             ...
         )]
@@ -200,16 +199,14 @@ class FakeScicatClient(ScicatClient):
         try:
             return self.main.datasets[pid]
         except KeyError:
-            raise pyscicat.client.ScicatCommError(
-                f"Unable to retrieve dataset {pid}"
-            ) from None
+            raise ScicatCommError(f"Unable to retrieve dataset {pid}") from None
 
     @_conditionally_disabled
     def get_orig_datablocks(self, pid: str) -> List[model.OrigDatablock]:
         try:
             return self.main.orig_datablocks[pid]
         except KeyError:
-            raise pyscicat.client.ScicatCommError(
+            raise ScicatCommError(
                 f"Unable to retrieve orig datablock for dataset {pid}"
             ) from None
 
@@ -220,7 +217,7 @@ class FakeScicatClient(ScicatClient):
             prefix="PID.SAMPLE.PREFIX",
         )
         if pid in self.main.datasets:
-            raise pyscicat.client.ScicatCommError(f"Dataset id already exists: {pid}")
+            raise ScicatCommError(f"Dataset id already exists: {pid}")
         self.main.datasets[pid] = deepcopy(dset)
         self.main.datasets[pid].pid = str(pid)
         return str(pid)
@@ -229,5 +226,5 @@ class FakeScicatClient(ScicatClient):
     def create_orig_datablock(self, dblock: model.OrigDatablock):
         dataset_id = PID.parse(dblock.datasetId)
         if dataset_id not in self.main.datasets:
-            raise pyscicat.client.ScicatCommError(f"No dataset with id {dataset_id}")
+            raise ScicatCommError(f"No dataset with id {dataset_id}")
         self.main.orig_datablocks.setdefault(dataset_id, []).append(dblock)

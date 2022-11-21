@@ -29,7 +29,6 @@ dependencies = [
     "email-validator",
     "pydantic",
     "python-dateutil",
-    "pyscicat",
 ]
 dynamic = ["version"]
 

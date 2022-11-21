@@ -5,7 +5,7 @@
 from typing import Any, Dict, Tuple
 
 from hypothesis import infer, strategies as st
-from pyscicat import model as m
+from scitacean import model as m
 
 
 def builds_model(

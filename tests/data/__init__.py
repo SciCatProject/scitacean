@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from pyscicat.model import DerivedDataset, OrigDatablock, RawDataset
+from scitacean.model import DerivedDataset, OrigDatablock, RawDataset
 
 
 _BASE_PATH = Path(__file__).resolve().parent

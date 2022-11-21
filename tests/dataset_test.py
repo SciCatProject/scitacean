@@ -7,9 +7,7 @@ from pathlib import Path
 
 from hypothesis import given, settings
 import pytest
-from pyscicat import model
-
-from scitacean import Dataset
+from scitacean import Dataset, model
 from scitacean.testing import strategies as sst
 
 from .common.files import make_file

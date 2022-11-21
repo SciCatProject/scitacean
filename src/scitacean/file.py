@@ -11,10 +11,10 @@ from pathlib import Path, PurePosixPath
 from typing import Optional, Union
 
 import dateutil.parser
-from pyscicat.model import DataFile
 
 from .error import IntegrityError
 from .logging import get_logger
+from .model import DataFile
 from .typing import Downloader
 
 
