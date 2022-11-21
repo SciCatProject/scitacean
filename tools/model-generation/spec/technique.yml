@@ -1,0 +1,10 @@
+name: Technique
+fields:
+  - name: pid
+    description: Persistent identifier for the technique.
+    required: true
+    type: str
+  - name: name
+    description: Name of the technique.
+    required: true
+    type: str

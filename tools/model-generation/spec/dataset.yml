@@ -155,8 +155,7 @@ fields:
     type: str
   - name: techniques
     description: List of dicts with keys 'pid' and 'name' referring to techniques used to produce the data.
-    type: List[dict]
-    validation: technique
+    type: List[Technique]
   - name: type
     description: "Dataset type. 'Derived' or 'Raw'"
     required: true

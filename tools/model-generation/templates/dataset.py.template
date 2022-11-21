@@ -12,7 +12,7 @@ from typing import Any, Callable, Dict, Generator, Literal, List, Optional, Unio
 import dateutil.parser
 
 from .pid import PID
-from .model import DatasetType, DerivedDataset, RawDataset
+from .model import DatasetType, DerivedDataset, RawDataset, Technique
 
 
 def _apply_default(value: Any, default: Any, default_factory: Optional[Callable]) -> Any:

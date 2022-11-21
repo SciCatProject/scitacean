@@ -36,12 +36,14 @@ def _validate_emails(value: Optional[str]) -> Optional[str]:
     return ";".join(pydantic.EmailStr.validate(item)
                     for item in value.split(";"))
 
+
 def _validate_size(value: Optional[int]) -> Optional[int]:
     if value is None:
         return value
     if value < 0:
         raise ValueError("Must be > 0")
     return value
+
 
 def _validate_orcid(value: Optional[str]) -> Optional[str]:
     if value is None:

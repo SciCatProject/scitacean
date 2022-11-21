@@ -3,11 +3,45 @@
 # @author Jan-Lukas Wynen
 """Load model specification files."""
 
+import dataclasses
 from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 import yaml
 
 SPEC_DIR = Path(__file__).resolve().parent
+
+DEFAULTS = {
+    "default": None,
+    "default_factory": None,
+    "manual": False,
+    "model_name": None,  # equals field name
+    "read_only": False,
+    "required": False,
+    "validation": None,
+}
+
+
+@dataclasses.dataclass
+class Field:
+    name: str
+    default: Optional[Any]
+    default_factory: Optional[str]
+    description: str
+    extra: Optional[dict]
+    manual: bool
+    model_name: str
+    read_only: bool
+    required: bool
+    type: str
+    validation: Optional[str]
+
+
+@dataclasses.dataclass
+class Spec:
+    name: str
+    inherits: str
+    fields: List[Field]
 
 
 def _load_raw(path: Path):
@@ -24,17 +58,8 @@ def _load_raw_specs() -> dict:
     }
 
 
-def _inline_base(spec: dict, specs: dict) -> dict:
-    if "inherits" not in spec:
-        return spec
-
-    base = specs[spec["inherits"]]
-    new_spec = {**spec, "fields": spec["fields"] + base["fields"]}
-    del new_spec["inherits"]
-    if "inherits" in base:
-        new_spec["inherits"] = base["inherits"]
-        return _inline_base(new_spec, specs)
-    return new_spec
+def _get_defaults(spec: dict) -> dict:
+    return {**DEFAULTS, **spec.get("default_values", {})}
 
 
 def _apply_defaults_field(field: dict, defaults: dict) -> dict:
@@ -49,10 +74,8 @@ def _apply_defaults_field(field: dict, defaults: dict) -> dict:
 
 
 def _apply_defaults(spec: dict) -> dict:
-    if "default_values" not in spec:
-        return spec
+    defaults = _get_defaults(spec)
     new_spec = dict(spec)
-    defaults = new_spec.pop("default_values")
     new_spec["fields"] = [
         _apply_defaults_field(field, defaults) for field in spec["fields"]
     ]
@@ -66,9 +89,30 @@ def _validate(spec: dict):
                 raise ValueError("Cannot use both default and default_factory")
 
 
-def load_specs() -> dict:
+def _to_field_dataclass(field: dict) -> Field:
+    field = dict(field)
+    args = {
+        f.name: field.pop(f.name)
+        for f in dataclasses.fields(Field)
+        if f.name != "extra"
+    }
+    extra = field
+    return Field(**args, extra=extra)
+
+
+def _to_spec_dataclasses(specs: dict) -> Dict[str, Spec]:
+    return {
+        name: Spec(
+            name=name,
+            inherits=spec.get("inherits", "BaseModel"),
+            fields=[_to_field_dataclass(f) for f in spec["fields"]],
+        )
+        for name, spec in specs.items()
+    }
+
+
+def load_specs() -> Dict[str, Spec]:
     raw_specs = _load_raw_specs()
-    inlined = {name: _inline_base(spec, raw_specs) for name, spec in raw_specs.items()}
-    processed = {name: _apply_defaults(spec) for name, spec in inlined.items()}
-    _validate(processed)
-    return processed
+    defaults_applied = {name: _apply_defaults(spec) for name, spec in raw_specs.items()}
+    _validate(defaults_applied)
+    return _to_spec_dataclasses(defaults_applied)

@@ -16,7 +16,7 @@ from typing import Any, Callable, Dict, Generator, Literal, List, Optional, Unio
 import dateutil.parser
 
 from .pid import PID
-from .model import DatasetType, DerivedDataset, RawDataset
+from .model import DatasetType, DerivedDataset, RawDataset, Technique
 
 
 def _apply_default(
@@ -417,7 +417,7 @@ class DatasetFields:
             read_only=False,
             required_by_derived=False,
             required_by_raw=False,
-            type=List[dict],
+            type=List[Technique],
             used_by_derived=True,
             used_by_raw=True,
         ),
@@ -515,7 +515,7 @@ class DatasetFields:
         shared_with: Optional[List[str]] = None,
         source_folder: Optional[str] = None,
         source_folder_host: Optional[str] = None,
-        techniques: Optional[List[dict]] = None,
+        techniques: Optional[List[Technique]] = None,
         used_software: Optional[List[str]] = None,
         validation_status: Optional[str] = None,
         _read_only: Optional[Dict[str, Any]] = None,
@@ -841,12 +841,12 @@ class DatasetFields:
         self._fields["source_folder_host"] = val
 
     @property
-    def techniques(self) -> Optional[List[dict]]:
+    def techniques(self) -> Optional[List[Technique]]:
         """List of dicts with keys 'pid' and 'name' referring to techniques used to produce the data."""
         return self._fields["techniques"]
 
     @techniques.setter
-    def techniques(self, val: Optional[List[dict]]):
+    def techniques(self, val: Optional[List[Technique]]):
         self._fields["techniques"] = val
 
     @property

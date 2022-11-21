@@ -31,43 +31,54 @@ class BaseModel(pydantic.BaseModel):
         extra = pydantic.Extra.forbid
 
 
-class DerivedDataset(BaseModel):
-    accessGroups: Optional[List[str]]
-    classification: Optional[str]
-    contactEmail: str
+class MongoQueryable(BaseModel):
     createdAt: Optional[datetime]
     createdBy: Optional[str]
+    updatedAt: Optional[datetime]
+    updatedBy: Optional[str]
+
+
+class Technique(BaseModel):
+    name: str
+    pid: str
+
+
+class Ownable(MongoQueryable):
+    ownerGroup: str
+    accessGroups: Optional[List[str]]
+    instrumentGroup: Optional[str]
+
+
+class DerivedDataset(Ownable):
+    contactEmail: str
     creationTime: datetime
-    datasetName: Optional[str]
+    inputDatasets: List[str]
+    investigator: str
+    owner: str
+    sourceFolder: str
+    type: DatasetType
+    usedSoftware: List[str]
+    classification: Optional[str]
     description: Optional[str]
     history: Optional[List[dict]]
-    inputDatasets: List[str]
-    instrumentGroup: Optional[str]
     instrumentId: Optional[str]
-    investigator: str
     isPublished: Optional[bool]
     jobLogData: Optional[str]
     jobParameters: Optional[dict]
     keywords: Optional[List[str]]
     license: Optional[str]
+    scientificMetadata: Optional[Dict]
+    datasetName: Optional[str]
     numberOfFiles: Optional[int]
     numberOfFilesArchived: Optional[int]
     orcidOfOwner: Optional[str]
-    owner: str
     ownerEmail: Optional[str]
-    ownerGroup: str
     packedSize: Optional[int]
     pid: Optional[str]
-    scientificMetadata: Optional[Dict]
     sharedWith: Optional[List[str]]
     size: Optional[int]
-    sourceFolder: str
     sourceFolderHost: Optional[str]
-    techniques: Optional[List[dict]]
-    type: DatasetType
-    updatedAt: Optional[datetime]
-    updatedBy: Optional[str]
-    usedSoftware: List[str]
+    techniques: Optional[List[Technique]]
     validationStatus: Optional[str]
     version: Optional[str]
 
@@ -84,44 +95,37 @@ class DerivedDataset(BaseModel):
         return _validate_orcid(value)
 
 
-class RawDataset(BaseModel):
-    accessGroups: Optional[List[str]]
-    classification: Optional[str]
+class RawDataset(Ownable):
     contactEmail: str
-    createdAt: Optional[datetime]
-    createdBy: Optional[str]
-    creationLocation: Optional[str]
     creationTime: datetime
+    principalInvestigator: str
+    owner: str
+    sourceFolder: str
+    type: DatasetType
+    classification: Optional[str]
+    creationLocation: Optional[str]
     dataFormat: Optional[str]
-    datasetName: Optional[str]
     description: Optional[str]
     endTime: Optional[datetime]
     history: Optional[List[dict]]
-    instrumentGroup: Optional[str]
     instrumentId: Optional[str]
     isPublished: Optional[bool]
     keywords: Optional[List[str]]
     license: Optional[str]
+    scientificMetadata: Optional[Dict]
+    datasetName: Optional[str]
     numberOfFiles: Optional[int]
     numberOfFilesArchived: Optional[int]
     orcidOfOwner: Optional[str]
-    owner: str
     ownerEmail: Optional[str]
-    ownerGroup: str
     packedSize: Optional[int]
     pid: Optional[str]
-    principalInvestigator: str
     proposalID: Optional[str]
     sampleID: Optional[str]
-    scientificMetadata: Optional[Dict]
     sharedWith: Optional[List[str]]
     size: Optional[int]
-    sourceFolder: str
     sourceFolderHost: Optional[str]
-    techniques: Optional[List[dict]]
-    type: DatasetType
-    updatedAt: Optional[datetime]
-    updatedBy: Optional[str]
+    techniques: Optional[List[Technique]]
     validationStatus: Optional[str]
     version: Optional[str]
 
