@@ -11,8 +11,17 @@ except importlib.metadata.PackageNotFoundError:
 
 from .client import Client
 from .dataset import Dataset
+from .error import ScicatCommError, ScicatLoginError
 from .file import File
 from .pid import PID
 from ._dataset_fields import DatasetType
 
-__all__ = ("Client", "Dataset", "DatasetType", "File", "PID")
+__all__ = (
+    "Client",
+    "Dataset",
+    "DatasetType",
+    "File",
+    "PID",
+    "ScicatCommError",
+    "ScicatLoginError",
+)

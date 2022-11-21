@@ -190,7 +190,7 @@ class FakeScicatClient(ScicatClient):
     """Mimics a ScicatClient, to be used by FakeClient."""
 
     def __init__(self, main_client):
-        super().__init__(None)  # noqa
+        super().__init__(url="", token="")  # noqa # nosec
         self.main = main_client
 
     @_conditionally_disabled
