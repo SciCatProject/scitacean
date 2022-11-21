@@ -12,5 +12,7 @@ except importlib.metadata.PackageNotFoundError:
 from .client import Client
 from .dataset import Dataset
 from .file import File
+from .pid import PID
+from ._dataset_fields import DatasetType
 
-__all__ = ("Client", "Dataset", "File")
+__all__ = ("Client", "Dataset", "DatasetType", "File", "PID")
