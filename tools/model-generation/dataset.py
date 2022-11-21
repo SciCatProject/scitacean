@@ -32,11 +32,11 @@ def _format_dataset_field_spec(fields: List[Field]) -> str:
         )
 
     tmpl = load_template("field_spec")
-    return "[\n" + "\n".join(format_single(tmpl, f) for f in fields) + "\n]"
+    return "[\n" + "\n".join(format_single(tmpl, f) for f in fields) + "\n    ]"
 
 
 def _format_dataset_field_init_args(fields: List[Field]) -> str:
-    return ",\n                 ".join(
+    return ",\n        ".join(
         f"{f.name}: Optional[{f.type}] = None"
         for f in fields
         if not f.read_only and not f.manual and f.name != "type"

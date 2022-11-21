@@ -32,20 +32,20 @@ def _format_validator(validator: str, fields: List[Field]) -> str:
     ]
     if not to_validate:
         return ""
-    return f"""
-    @pydantic.validator({", ".join(map(quote, to_validate))})
+    return f"""    @pydantic.validator({", ".join(map(quote, to_validate))})
     def _validate_{validator}(cls, value):
         return _validate_{validator}(value)"""
 
 
 def _format_validators(fields: List[Field]) -> str:
-    return "\n".join(
+    res = "\n\n".join(
         (
             _format_validator("emails", fields),
             _format_validator("size", fields),
             _format_validator("orcid", fields),
         )
     )
+    return "\n    " + res.strip()
 
 
 def _format_model(spec: Spec) -> str:

@@ -66,6 +66,46 @@ class Ownable(MongoQueryable):
     instrumentGroup: Optional[str]
 
 
+class DataFile(MongoQueryable):
+    path: str
+    size: int
+    chk: Optional[str]
+    gid: Optional[str]
+    perm: Optional[str]
+    time: Optional[datetime]
+    uid: Optional[str]
+
+    @pydantic.validator("size")
+    def _validate_size(cls, value):
+        return _validate_size(value)
+
+
+class OrigDatablock(Ownable):
+    dataFileList: List[DataFile]
+    size: int
+    datasetID: Optional[str]
+    id: Optional[str]
+
+    @pydantic.validator("size")
+    def _validate_size(cls, value):
+        return _validate_size(value)
+
+
+class Datablock(Ownable):
+    archiveID: str
+    dataFileList: List[DataFile]
+    size: int
+    version: str
+    chkAlg: Optional[str]
+    datasetID: Optional[str]
+    packedSize: Optional[int]
+    id: Optional[str]
+
+    @pydantic.validator("size", "packedSize")
+    def _validate_size(cls, value):
+        return _validate_size(value)
+
+
 class DerivedDataset(Ownable):
     contactEmail: str
     creationTime: datetime

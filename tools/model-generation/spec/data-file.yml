@@ -1,0 +1,28 @@
+name: DataFile
+inherits: MongoQueryable
+fields:
+  - name: path
+    description: Relative path of the file within the dataset folder.
+    required: true
+    type: str
+  - name: size
+    description: Uncompressed file size in bytes.
+    required: true
+    type: int
+    validation: size
+  - name: time
+    description: Time of file creation on disk.
+    type: datetime
+  - name: checksum
+    description: Checksum for the file.
+    model_name: chk
+    type: str
+  - name: uid
+    description: User ID name as seen on filesystem.
+    type: str
+  - name: gid
+    description: Group ID name as seen on filesystem.
+    type: str
+  - name: perm
+    description: Posix permission bits.
+    type: str
