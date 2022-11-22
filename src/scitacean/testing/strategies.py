@@ -1,42 +1,47 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
 # @author Jan-Lukas Wynen
+from functools import partial
+from typing import Optional
 
-from typing import Any, Dict, Tuple
-
-from hypothesis import infer, strategies as st
-from scitacean import model as m
+from scitacean import Dataset, DatasetType, PID
+from hypothesis import strategies as st
 
 
-def builds_model(
-    model, to_infer: Tuple[str, ...], user_kwargs: Dict[str, Any]
+def _field_strategy(
+    field: Dataset.Field, dataset_type: DatasetType
 ) -> st.SearchStrategy:
-    """Return a SearchStrategy for a given Pydantic model.
-
-    ``hypothesis.strategies.builds`` cannot be used here because it always sets
-    ``Optional`` fields to ``None``,
-    see https://github.com/pydantic/pydantic/issues/3126
-    As a workaround, ``st.from_type`` does work with ``Optional`` but does
-    allow specifying individual fields.
-    """
-    inferred = {name: infer for name in to_infer}
-    customized = {
-        name: arg if isinstance(arg, st.SearchStrategy) else st.just(arg)
-        for name, arg in user_kwargs.items()
-    }
-    return st.builds(model, **{**inferred, **customized})
+    return st.from_type(
+        field.type if field.required(dataset_type) else Optional[field.type]
+    )
 
 
-# TODO implement both for model and Dataset class
-def datasets(**kwargs) -> st.SearchStrategy[m.Dataset]:
-    """Returns a SearchStrategy for a dataset model."""
-    # TODO add all other optional fields
-    return builds_model(m.Dataset, ("classification", "isPublished"), kwargs)
+def datasets(dataset_type: Optional[DatasetType] = None, **fixed) -> st.SearchStrategy:
+    if dataset_type is None:
+        return st.sampled_from(DatasetType).flatmap(partial(datasets, **fixed))
 
+    def make_fixed_arg(key):
+        val = fixed[key]
+        return val if isinstance(val, st.SearchStrategy) else st.just(val)
 
-def derived_datasets(**kwargs) -> st.SearchStrategy[m.DerivedDataset]:
-    return builds_model(m.DerivedDataset, ("classification", "isPublished"), kwargs)
+    def make_arg(field):
+        if field.name in fixed:
+            return make_fixed_arg(field.name)
+        return _field_strategy(field, dataset_type=dataset_type)
 
+    def make_args(read_only):
+        return {
+            field.name: make_arg(field)
+            for field in Dataset.fields(read_only=read_only, dataset_type=dataset_type)
+            if field.name != "type"
+        }
 
-def raw_datasets(**kwargs) -> st.SearchStrategy[m.RawDataset]:
-    return builds_model(m.RawDataset, ("classification", "isPublished"), kwargs)
+    kwargs = make_args(read_only=False)
+    read_only_arg = st.fixed_dictionaries(make_args(read_only=True))
+    return st.builds(
+        Dataset,
+        type=st.just(dataset_type),
+        _read_only=read_only_arg,
+        _pid=st.from_type(PID),
+        **kwargs
+    )

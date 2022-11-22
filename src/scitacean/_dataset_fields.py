@@ -15,8 +15,16 @@ from typing import Any, Callable, Dict, Generator, Literal, List, Optional, Unio
 
 import dateutil.parser
 
+from .file import File
+from .model import (
+    DatasetLifecycle,
+    DatasetType,
+    DerivedDataset,
+    OrigDatablock,
+    RawDataset,
+    Technique,
+)
 from .pid import PID
-from .model import DatasetLifecycle, DatasetType, DerivedDataset, RawDataset, Technique
 
 
 def _apply_default(
@@ -50,6 +58,13 @@ class DatasetFields:
         used_by_derived: bool
         used_by_raw: bool
 
+        def required(self, dataset_type: DatasetType) -> bool:
+            return (
+                self.required_by_raw
+                if dataset_type == DatasetType.RAW
+                else self.required_by_derived
+            )
+
     _FIELD_SPEC = [
         Field(
             name="access_groups",
@@ -63,7 +78,7 @@ class DatasetFields:
         ),
         Field(
             name="classification",
-            description="ACIA information about AUthenticity,COnfidentiality,INtegrity and AVailability requirements of dataset. E.g. AV(ailabilty)=medium could trigger the creation of a two tape copies. Format 'AV=medium,CO=low'",
+            description="ACIA information about AUthenticity,COnfidentiality,INtegrity and AVailability requirements of dataset. E.g. AV(ailabilty)=medium could trigger the creation of two tape copies. Format 'AV=medium,CO=low'",
             read_only=False,
             required_by_derived=False,
             required_by_raw=False,
@@ -529,8 +544,9 @@ class DatasetFields:
         techniques: Optional[List[Technique]] = None,
         used_software: Optional[List[str]] = None,
         validation_status: Optional[str] = None,
-        _read_only: Optional[Dict[str, Any]] = None,
+        _files: Optional[List[File]] = None,
         _pid: Optional[Union[str, PID]] = None,
+        _read_only: Optional[Dict[str, Any]] = None,
     ):
         _read_only = _read_only or {}
         self._fields = {
@@ -559,9 +575,6 @@ class DatasetFields:
             "lifecycle": _apply_default(lifecycle, None, None),
             "meta": _apply_default(meta, None, dict),
             "name": _apply_default(name, None, None),
-            "number_of_files_archived": _apply_default(
-                _read_only.get("number_of_files_archived"), None, None
-            ),
             "orcid_of_owner": _apply_default(orcid_of_owner, None, None),
             "owner": _apply_default(owner, None, None),
             "owner_email": _apply_default(owner_email, None, None),
@@ -578,6 +591,7 @@ class DatasetFields:
             "validation_status": _apply_default(validation_status, None, None),
             "version": _apply_default(_read_only.get("version"), None, None),
         }
+        self._files = [] if _files is None else list(_files)
 
     @property
     def pid(self) -> Optional[PID]:
@@ -605,7 +619,7 @@ class DatasetFields:
 
     @property
     def classification(self) -> Optional[str]:
-        """ACIA information about AUthenticity,COnfidentiality,INtegrity and AVailability requirements of dataset. E.g. AV(ailabilty)=medium could trigger the creation of a two tape copies. Format 'AV=medium,CO=low'"""
+        """ACIA information about AUthenticity,COnfidentiality,INtegrity and AVailability requirements of dataset. E.g. AV(ailabilty)=medium could trigger the creation of two tape copies. Format 'AV=medium,CO=low'"""
         return self._fields["classification"]
 
     @classification.setter
@@ -776,11 +790,6 @@ class DatasetFields:
         self._fields["name"] = val
 
     @property
-    def number_of_files_archived(self) -> Optional[int]:
-        """Total number of archived files associated with the dataset. (Corresponds to Datablocks.)"""
-        return self._fields["number_of_files_archived"]
-
-    @property
     def orcid_of_owner(self) -> Optional[str]:
         """ORCID of owner/custodian. The string may contain a list of ORCID, which should then be separated by semicolons. ORCIDs must include the prefix https://orcid.org/"""
         return self._fields["orcid_of_owner"]
@@ -915,13 +924,17 @@ class DatasetFields:
     @classmethod
     def fields(
         cls,
-        type: Optional[Union[DatasetType, Literal["derived", "raw"]]] = None,
+        dataset_type: Optional[Union[DatasetType, Literal["derived", "raw"]]] = None,
         read_only: Optional[bool] = None,
     ) -> Generator[Field, None, None]:
         """Iterator over dataset fields."""
         it = DatasetFields._FIELD_SPEC
-        if type is not None:
-            attr = "used_by_derived" if type == DatasetType.DERIVED else "used_by_raw"
+        if dataset_type is not None:
+            attr = (
+                "used_by_derived"
+                if dataset_type == DatasetType.DERIVED
+                else "used_by_raw"
+            )
             it = filter(lambda field: getattr(field, attr), it)
         if read_only is not None:
             it = filter(lambda field: field.read_only == read_only, it)
@@ -1046,3 +1059,128 @@ class DatasetFields:
             validationStatus=self.validation_status,
             version=self.version,
         )
+
+    @classmethod
+    def from_models(
+        cls,
+        *,
+        dataset_model: Union[DerivedDataset, RawDataset],
+        orig_datablock_models: List[OrigDatablock],
+    ):
+        """Create a new dataset from fully filled in models.
+
+        Parameters
+        ----------
+        dataset_model:
+            Fields, including scientific metadata are filled from this model.
+        orig_datablock_models:
+            File links are populated from this model.
+
+        Returns
+        -------
+        :
+            A new dataset.
+        """
+        if len(orig_datablock_models) != 1:
+            raise NotImplementedError(
+                f"Got {len(orig_datablock_models)} original datablocks for "
+                f"dataset {dataset_model.pid} but only support for one is implemented."
+            )
+        dblock = orig_datablock_models[0]
+        files = [
+            File.from_scicat(file, source_folder=dataset_model.sourceFolder)
+            for file in dblock.dataFileList
+        ]
+        return cls(
+            creation_time=dataset_model.creationTime,
+            _pid=dataset_model.pid,
+            _files=files,
+            **_fields_from_model(dataset_model),
+        )
+
+
+def _fields_from_model(model: Union[DerivedDataset, RawDataset]) -> dict:
+    return (
+        _fields_from_derived_model(model)
+        if isinstance(model, DerivedDataset)
+        else _fields_from_raw_model(model)
+    )
+
+
+def _fields_from_derived_model(model) -> dict:
+    return dict(
+        _read_only=dict(
+            created_at=model.createdAt,
+            created_by=model.createdBy,
+            updated_at=model.updatedAt,
+            updated_by=model.updatedBy,
+            version=model.version,
+        ),
+        access_groups=model.accessGroups,
+        classification=model.classification,
+        contact_email=model.contactEmail,
+        description=model.description,
+        input_datasets=model.inputDatasets,
+        instrument_group=model.instrumentGroup,
+        instrument_id=model.instrumentId,
+        investigator=model.investigator,
+        is_published=model.isPublished,
+        job_log_data=model.jobLogData,
+        job_parameters=model.jobParameters,
+        keywords=model.keywords,
+        license=model.license,
+        lifecycle=model.datasetlifecycle,
+        meta=model.scientificMetadata,
+        name=model.datasetName,
+        orcid_of_owner=model.orcidOfOwner,
+        owner=model.owner,
+        owner_email=model.ownerEmail,
+        owner_group=model.ownerGroup,
+        shared_with=model.sharedWith,
+        source_folder=model.sourceFolder,
+        source_folder_host=model.sourceFolderHost,
+        techniques=model.techniques,
+        type=model.type,
+        used_software=model.usedSoftware,
+        validation_status=model.validationStatus,
+    )
+
+
+def _fields_from_raw_model(model) -> dict:
+    return dict(
+        _read_only=dict(
+            created_at=model.createdAt,
+            created_by=model.createdBy,
+            updated_at=model.updatedAt,
+            updated_by=model.updatedBy,
+            version=model.version,
+        ),
+        access_groups=model.accessGroups,
+        classification=model.classification,
+        contact_email=model.contactEmail,
+        creation_location=model.creationLocation,
+        data_format=model.dataFormat,
+        description=model.description,
+        end_time=model.endTime,
+        instrument_group=model.instrumentGroup,
+        instrument_id=model.instrumentId,
+        investigator=model.principalInvestigator,
+        is_published=model.isPublished,
+        keywords=model.keywords,
+        license=model.license,
+        lifecycle=model.datasetlifecycle,
+        meta=model.scientificMetadata,
+        name=model.datasetName,
+        orcid_of_owner=model.orcidOfOwner,
+        owner=model.owner,
+        owner_email=model.ownerEmail,
+        owner_group=model.ownerGroup,
+        proposal_id=model.proposalID,
+        sample_id=model.sampleID,
+        shared_with=model.sharedWith,
+        source_folder=model.sourceFolder,
+        source_folder_host=model.sourceFolderHost,
+        techniques=model.techniques,
+        type=model.type,
+        validation_status=model.validationStatus,
+    )

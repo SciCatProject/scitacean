@@ -10,7 +10,6 @@ import os
 from pathlib import Path, PurePosixPath
 from typing import Optional, Union
 
-import dateutil.parser
 
 from .error import IntegrityError
 from .logging import get_logger
@@ -161,9 +160,9 @@ class File:
         return self._model.size
 
     @property
-    def creation_time(self) -> datetime:
-        """Data and time when the file was created."""
-        return dateutil.parser.parse(self.model.time)
+    def creation_time(self) -> Optional[datetime]:
+        """Date and time when the file was created."""
+        return self.model.time
 
     @property
     def model(self) -> Optional[DataFile]:

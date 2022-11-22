@@ -13,7 +13,7 @@ import dateutil.parser
 from hypothesis import given, settings, strategies as st
 import pydantic
 import pytest
-from scitacean.model import DerivedDataset, RawDataset
+from scitacean.model import DataFile, DerivedDataset, OrigDatablock, RawDataset
 from scitacean import Dataset, DatasetType
 
 
@@ -119,12 +119,147 @@ def test_cannot_set_creation_time_to_none():
         dset.creation_time = None
 
 
+def test_init_from_models_sets_metadata():
+    dset = Dataset.from_models(
+        dataset_model=RawDataset(
+            contactEmail="p.stibbons@uu.am",
+            creationTime=dateutil.parser.parse("2022-01-10T11:14:52+02:00"),
+            principalInvestigator="librarian@uu.am",
+            owner="PonderStibbons",
+            sourceFolder="/hex/source91",
+            type=DatasetType.RAW,
+            ownerGroup="faculty",
+            createdBy="pstibbons",
+            createdAt=dateutil.parser.parse("2022-01-10T12:41:22+02:00"),
+        ),
+        orig_datablock_models=[
+            OrigDatablock(
+                dataFileList=[],
+                size=0,
+                ownerGroup="faculty",
+            )
+        ],
+    )
+
+    assert dset.contact_email == "p.stibbons@uu.am"
+    assert dset.creation_time == dateutil.parser.parse("2022-01-10T11:14:52+02:00")
+    assert dset.investigator == "librarian@uu.am"
+    assert dset.owner == "PonderStibbons"
+    assert dset.source_folder == "/hex/source91"
+    assert dset.type == DatasetType.RAW
+    assert dset.owner_group == "faculty"
+    assert dset.created_by == "pstibbons"
+    assert dset.created_at == dateutil.parser.parse("2022-01-10T12:41:22+02:00")
+
+    assert dset.is_published is False
+    assert dset.owner_email is None
+
+    assert len(list(dset.files)) == 0
+    assert dset.number_of_files == 0
+    assert dset.number_of_files_archived == 0
+    assert dset.packed_size == 0
+    assert dset.size == 0
+
+
+def test_init_from_models_sets_files():
+    dset = Dataset.from_models(
+        dataset_model=RawDataset(
+            contactEmail="p.stibbons@uu.am",
+            creationTime=dateutil.parser.parse("2022-01-10T11:14:52-01:00"),
+            principalInvestigator="librarian@uu.am",
+            owner="PonderStibbons",
+            sourceFolder="/hex/source91",
+            type=DatasetType.RAW,
+            ownerGroup="faculty",
+        ),
+        orig_datablock_models=[
+            OrigDatablock(
+                dataFileList=[
+                    DataFile(
+                        path="file1.dat",
+                        size=6123,
+                        time=dateutil.parser.parse("2022-01-09T18:32:01-01:00"),
+                    ),
+                    DataFile(
+                        path="sub/file2.png",
+                        size=551,
+                        time=dateutil.parser.parse("2022-01-09T18:32:42-01:00"),
+                    ),
+                ],
+                size=6123 + 551,
+                ownerGroup="faculty",
+            )
+        ],
+    )
+
+    assert len(list(dset.files)) == 2
+    assert dset.number_of_files == 2
+    assert dset.number_of_files_archived == 0
+    assert dset.packed_size == 0
+    assert dset.size == 6123 + 551
+
+    f0 = [f for f in dset.files if f.remote_access_path.endswith(".dat")][0]
+    assert f0.source_folder == "/hex/source91"
+    assert f0.remote_access_path == "/hex/source91/file1.dat"
+    assert f0.local_path is None
+    assert f0.size == 6123
+    assert f0.model.path == "file1.dat"
+
+    f1 = [f for f in dset.files if f.remote_access_path.endswith(".png")][0]
+    assert f1.source_folder == "/hex/source91"
+    assert f1.remote_access_path == "/hex/source91/sub/file2.png"
+    assert f1.local_path is None
+    assert f1.size == 551
+    assert f1.model.path == "sub/file2.png"
+
+
+def test_init_from_models_sets_files_doesn_not_support_multi_datablocks():
+    dataset_model = RawDataset(
+        contactEmail="p.stibbons@uu.am",
+        creationTime=dateutil.parser.parse("2022-01-10T11:14:52-01:00"),
+        principalInvestigator="librarian@uu.am",
+        owner="PonderStibbons",
+        sourceFolder="/hex/source91",
+        type=DatasetType.RAW,
+        ownerGroup="faculty",
+    )
+    orig_datablock_models = [
+        OrigDatablock(
+            dataFileList=[
+                DataFile(
+                    path="file1.dat",
+                    size=6123,
+                )
+            ],
+            size=6123 + 551,
+            ownerGroup="faculty",
+        ),
+        OrigDatablock(
+            dataFileList=[
+                DataFile(
+                    path="file1.dat",
+                    size=6123,
+                )
+            ],
+            size=6123 + 551,
+            ownerGroup="faculty",
+        ),
+    ]
+    with pytest.raises(NotImplementedError):
+        Dataset.from_models(
+            dataset_model=dataset_model,
+            orig_datablock_models=orig_datablock_models,
+        )
+
+
 def test_fields_type_filter_derived():
-    assert all(field.used_by_derived for field in Dataset.fields(type="derived"))
+    assert all(
+        field.used_by_derived for field in Dataset.fields(dataset_type="derived")
+    )
 
 
 def test_fields_type_filter_raw():
-    assert all(field.used_by_raw for field in Dataset.fields(type="raw"))
+    assert all(field.used_by_raw for field in Dataset.fields(dataset_type="raw"))
 
 
 def test_fields_read_only_filter_true():
@@ -138,7 +273,7 @@ def test_fields_read_only_filter_false():
 def test_fields_read_only__and_type_filter():
     assert all(
         not field.read_only and field.used_by_raw
-        for field in Dataset.fields(read_only=False, type="raw")
+        for field in Dataset.fields(read_only=False, dataset_type="raw")
     )
 
 
@@ -167,6 +302,10 @@ def test_make_raw_model():
         scientificMetadata={},
         creationLocation="ANK/UU",
         sharedWith=["librarian", "hicks"],
+        numberOfFiles=0,
+        numberOfFilesArchived=0,
+        packedSize=0,
+        size=0,
     )
     assert dset.make_dataset_model() == expected
 
@@ -197,6 +336,10 @@ def test_make_derived_model():
         scientificMetadata={"weight": {"value": 5.23, "unit": "kg"}},
         inputDatasets=["623-122"],
         usedSoftware=["scitacean", "magick"],
+        numberOfFiles=0,
+        numberOfFilesArchived=0,
+        packedSize=0,
+        size=0,
     )
     assert dset.make_dataset_model() == expected
 
@@ -204,7 +347,8 @@ def test_make_derived_model():
 @pytest.mark.parametrize(
     "field",
     filter(
-        lambda f: not f.used_by_raw, Dataset.fields(type="derived", read_only=False)
+        lambda f: not f.used_by_raw,
+        Dataset.fields(dataset_type="derived", read_only=False),
     ),
     ids=lambda f: f.name,
 )
@@ -228,7 +372,8 @@ def test_make_raw_model_raises_if_derived_field_set(field, data):
 @pytest.mark.parametrize(
     "field",
     filter(
-        lambda f: not f.used_by_derived, Dataset.fields(type="raw", read_only=False)
+        lambda f: not f.used_by_derived,
+        Dataset.fields(dataset_type="raw", read_only=False),
     ),
     ids=lambda f: f.name,
 )

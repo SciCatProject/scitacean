@@ -95,6 +95,26 @@ def _format_make_model(typ: str, fields: List[Field]) -> str:
     return "    " + formatted.replace("\n", "\n    ")
 
 
+def _format_fields_from_model(typ: str, fields: List[Field]) -> str:
+    def format_assignments(read_only, indent):
+        return ("\n" + " " * indent).join(
+            f"{field.name}=model.{get_model_name(field, typ)},"
+            for field in fields
+            if typ in field.extra.get("used", ())
+            and field.read_only == read_only
+            and not field.manual
+        )
+
+    return f"""def _fields_from_{typ}_model(model) -> dict:
+    return dict(
+        _read_only=dict(
+            {format_assignments(True, 12)}
+        ),
+        {format_assignments(False, 8)}
+    )
+"""
+
+
 def _format_dataset_dataclass(spec: Spec) -> str:
     template = load_template("dataset")
     fields = sorted(spec.fields, key=lambda field: field.name)
@@ -108,6 +128,8 @@ def _format_dataset_dataclass(spec: Spec) -> str:
         properties=properties,
         make_derived_model=_format_make_model("derived", fields),
         make_raw_model=_format_make_model("raw", fields),
+        fields_from_derived_model=_format_fields_from_model("derived", fields),
+        fields_from_raw_model=_format_fields_from_model("raw", fields),
     )
 
 

@@ -4,9 +4,11 @@
 """Main dataset structure."""
 
 from __future__ import annotations
-from typing import List
+from pathlib import Path
+from typing import Iterable, List, Union
 
 from ._dataset_fields import DatasetFields
+from .file import File
 
 
 class Dataset(DatasetFields):
@@ -16,19 +18,63 @@ class Dataset(DatasetFields):
         return self._fields["history"]
 
     @property
-    def number_of_files(self):
-        # TODO
-        return None
+    def number_of_files(self) -> int:
+        """Number of files in directly accessible storage in the dataset.
+
+        This includes files on both the local and remote filesystems.
+
+        Corresponds to OrigDatablocks.
+        """
+        return len(self._files)
 
     @property
-    def packed_size(self):
-        # TODO
-        return None
+    def number_of_files_archived(self) -> int:
+        """Total number of archived files in the dataset.
+
+        Corresponds to Datablocks.
+        """
+        return 0
 
     @property
-    def size(self):
-        # TODO
-        return None
+    def packed_size(self) -> int:
+        """Total size of all datablock package files created for this dataset."""
+        return 0
+
+    @property
+    def size(self) -> int:
+        """Total size of files in directly accessible storage in the dataset.
+
+        This includes files on both the local and remote filesystems.
+
+        Corresponds to OrigDatablocks.
+        """
+        return sum(file.size for file in self.files)
+
+    @property
+    def files(self) -> Iterable[File]:
+        """Files linked with the dataset."""
+        yield from self._files
+
+    def add_files(self, *files: File):
+        """Add files to the dataset."""
+        self._files.extend(files)
+
+    def add_local_files(
+        self,
+        *paths: Union[str, Path],
+        base_path: Union[str, Path] = "",
+    ):
+        """Add files on the local file system to the dataset.
+
+        Parameters
+        ----------
+        paths:
+            Local paths to the files.
+        base_path:
+            The remote paths will be set up according to
+            ``remote = [path.relative_to(base_path) for path in paths]``.
+        """
+        self.add_files(*(File.from_local(path, base_path=base_path) for path in paths))
 
 
 #
@@ -36,7 +82,6 @@ class Dataset(DatasetFields):
 # from collections import namedtuple
 # import html
 # from pathlib import Path
-# from typing import Any, Dict, List, Optional, Tuple, Union
 # import typing
 # from uuid import uuid4
 #
@@ -141,7 +186,7 @@ class Dataset(DatasetFields):
 #         if len(orig_datablock_models) != 1:
 #             raise NotImplementedError(
 #                 f"Got {len(orig_datablock_models)} original datablocks for "
-#                 f"dataset {dataset_model.pid} but only support for one is implemented."
+#        f"dataset {dataset_model.pid} but only support for one is implemented."
 #             )
 #         dblock = orig_datablock_models[0]
 #
@@ -178,36 +223,9 @@ class Dataset(DatasetFields):
 #         """Set the ID of the dataset."""
 #         self._pid = pid if isinstance(pid, PID) or pid is None else PID.parse(pid)
 #
-#     @property
-#     def size(self) -> int:
-#         """Combined size of all files."""
-#         return sum(file.size for file in self.files)
 #
-#     @property
-#     def files(self) -> Tuple[File, ...]:
-#         """Currently linked files."""
-#         return tuple(self._files)
-#
-#     def add_files(self, *files: File):
-#         """Add files to the dataset."""
-#         self._files.extend(files)
-#
-#     def add_local_files(
-#         self,
-#         *paths: Union[str, Path],
-#         base_path: Union[str, Path] = "",
-#     ):
-#         """Add files on the local file system to the dataset.
-#
-#         Parameters
-#         ----------
-#         paths:
-#             Local paths to the files.
-#         base_path:
-#             The remote paths will be set up according to
-#             ``remote = [path.relative_to(base_path) for path in paths]``.
-#         """
-#         self.add_files(*(File.from_local(path, base_path=base_path) for path in paths))
+
+
 #
 #     def make_scicat_models(self) -> SciCatModels:
 #         """Build models to send to SciCat.
@@ -287,7 +305,7 @@ class Dataset(DatasetFields):
 #
 # def _format_type(typ) -> str:
 #     if _is_optional(typ):
-#         typ = next(iter(arg for arg in typing.get_args(typ) if not _is_none_type(arg)))
+# typ = next(iter(arg for arg in typing.get_args(typ) if not _is_none_type(arg)))
 #
 #     if typ == str:
 #         return "str"

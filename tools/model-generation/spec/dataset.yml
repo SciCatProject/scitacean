@@ -2,7 +2,7 @@ name: Dataset
 inherits: Ownable
 fields:
   - name: classification
-    description: ACIA information about AUthenticity,COnfidentiality,INtegrity and AVailability requirements of dataset. E.g. AV(ailabilty)=medium could trigger the creation of a two tape copies. Format 'AV=medium,CO=low'
+    description: ACIA information about AUthenticity,COnfidentiality,INtegrity and AVailability requirements of dataset. E.g. AV(ailabilty)=medium could trigger the creation of two tape copies. Format 'AV=medium,CO=low'
     type: str
   - name: contact_email
     description: Email of contact person for this dataset. May contain a list of emails, which should then be seperated by semicolons.
@@ -98,6 +98,7 @@ fields:
     validation: size
   - name: number_of_files_archived
     description: Total number of archived files associated with the dataset. (Corresponds to Datablocks.)
+    manual: true
     model_name: numberOfFilesArchived
     read_only: true
     type: int
@@ -178,16 +179,6 @@ fields:
     description: Version of SciCat API used in creation of dataset.
     read_only: true
     type: str
-
-# TODO
-#    datasetLifecycle ??
-#    "dataQualityMetrics": {
-#      "type": "number",
-#      "description": "Rate the quality of a dataset. The field is only relevant for user working on a given proposal and know what type of data quality this rating refer to. A number between 1-3 that the user could use to rate a dataset. 1 means bad, 2 means good, 3 means very good"
-#    },
-#    "comments": {
-#      "type": "string",
-#      "description": "Comment the user has about a given dataset."
 
 default_values:
   default: null

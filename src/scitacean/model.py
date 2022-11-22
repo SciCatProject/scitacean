@@ -31,6 +31,11 @@ class BaseModel(pydantic.BaseModel):
         extra = pydantic.Extra.forbid
 
 
+class Technique(BaseModel):
+    name: str
+    pid: str
+
+
 class MongoQueryable(BaseModel):
     createdAt: Optional[datetime]
     createdBy: Optional[str]
@@ -55,17 +60,6 @@ class DatasetLifecycle(BaseModel):
     retrieveStatusMessage: Optional[str]
 
 
-class Technique(BaseModel):
-    name: str
-    pid: str
-
-
-class Ownable(MongoQueryable):
-    ownerGroup: str
-    accessGroups: Optional[List[str]]
-    instrumentGroup: Optional[str]
-
-
 class DataFile(MongoQueryable):
     path: str
     size: int
@@ -80,15 +74,10 @@ class DataFile(MongoQueryable):
         return _validate_size(value)
 
 
-class OrigDatablock(Ownable):
-    dataFileList: List[DataFile]
-    size: int
-    datasetID: Optional[str]
-    id: Optional[str]
-
-    @pydantic.validator("size")
-    def _validate_size(cls, value):
-        return _validate_size(value)
+class Ownable(MongoQueryable):
+    ownerGroup: str
+    accessGroups: Optional[List[str]]
+    instrumentGroup: Optional[str]
 
 
 class Datablock(Ownable):
@@ -102,6 +91,17 @@ class Datablock(Ownable):
     id: Optional[str]
 
     @pydantic.validator("size", "packedSize")
+    def _validate_size(cls, value):
+        return _validate_size(value)
+
+
+class OrigDatablock(Ownable):
+    dataFileList: List[DataFile]
+    size: int
+    datasetID: Optional[str]
+    id: Optional[str]
+
+    @pydantic.validator("size")
     def _validate_size(cls, value):
         return _validate_size(value)
 

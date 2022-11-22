@@ -11,8 +11,9 @@ from typing import Any, Callable, Dict, Generator, Literal, List, Optional, Unio
 
 import dateutil.parser
 
+from .file import File
+from .model import DatasetLifecycle, DatasetType, DerivedDataset, OrigDatablock, RawDataset, Technique
 from .pid import PID
-from .model import DatasetLifecycle, DatasetType, DerivedDataset, RawDataset, Technique
 
 
 def _apply_default(
@@ -46,6 +47,9 @@ class DatasetFields:
         used_by_derived: bool
         used_by_raw: bool
 
+        def required(self, dataset_type: DatasetType) -> bool:
+            return self.required_by_raw if dataset_type == DatasetType.RAW else self.required_by_derived
+
     _FIELD_SPEC = $field_spec
 
     def __init__(
@@ -54,8 +58,9 @@ class DatasetFields:
         type: Union[DatasetType, Literal["derived", "raw"]],
         creation_time: Optional[Union[datetime, str]] = None,
         $field_init_args,
-        _read_only: Optional[Dict[str, Any]] = None,
+        _files: Optional[List[File]] = None,
         _pid: Optional[Union[str, PID]] = None,
+        _read_only: Optional[Dict[str, Any]] = None,
     ):
         _read_only = _read_only or {}
         self._fields = {
@@ -65,6 +70,7 @@ class DatasetFields:
             "type": DatasetType(type),
 $field_dict_construction
         }
+        self._files = [] if _files is None else list(_files)
 
     @property
     def pid(self) -> Optional[PID]:
@@ -86,13 +92,13 @@ $properties
     @classmethod
     def fields(
         cls,
-        type: Optional[Union[DatasetType, Literal["derived", "raw"]]] = None,
+        dataset_type: Optional[Union[DatasetType, Literal["derived", "raw"]]] = None,
         read_only: Optional[bool] = None,
     ) -> Generator[Field, None, None]:
         """Iterator over dataset fields."""
         it = DatasetFields._FIELD_SPEC
-        if type is not None:
-            attr = "used_by_derived" if type == DatasetType.DERIVED else "used_by_raw"
+        if dataset_type is not None:
+            attr = "used_by_derived" if dataset_type == DatasetType.DERIVED else "used_by_raw"
             it = filter(lambda field: getattr(field, attr), it)
         if read_only is not None:
             it = filter(lambda field: field.read_only == read_only, it)
@@ -116,3 +122,51 @@ $properties
 $make_derived_model
 
 $make_raw_model
+
+
+    @classmethod
+    def from_models(
+            cls,
+            *,
+            dataset_model: Union[DerivedDataset, RawDataset],
+            orig_datablock_models: List[OrigDatablock],
+    ):
+        """Create a new dataset from fully filled in models.
+
+        Parameters
+        ----------
+        dataset_model:
+            Fields, including scientific metadata are filled from this model.
+        orig_datablock_models:
+            File links are populated from this model.
+
+        Returns
+        -------
+        :
+            A new dataset.
+        """
+        if len(orig_datablock_models) != 1:
+            raise NotImplementedError(
+                f"Got {len(orig_datablock_models)} original datablocks for "
+                f"dataset {dataset_model.pid} but only support for one is implemented."
+            )
+        dblock = orig_datablock_models[0]
+        files = [
+                File.from_scicat(file, source_folder=dataset_model.sourceFolder)
+                for file in dblock.dataFileList
+        ]
+        return cls(
+            creation_time=dataset_model.creationTime,
+            _pid=dataset_model.pid,
+            _files=files,
+            **_fields_from_model(dataset_model)
+        )
+
+
+def _fields_from_model(model: Union[DerivedDataset, RawDataset]) -> dict:
+    return _fields_from_derived_model(model) if isinstance(model, DerivedDataset) else _fields_from_raw_model(model)
+
+
+$fields_from_derived_model
+
+$fields_from_raw_model
