@@ -31,15 +31,17 @@ def test_file_from_local(fake_file):
     assert file.checksum == fake_file["checksum"]
     assert file.size == fake_file["size"]
 
-    assert file.model.path == str(fake_file["path"])
-    assert file.model.size == fake_file["size"]
-    assert file.model.chk == fake_file["checksum"]
-    assert file.model.uid is None
-    assert file.model.gid is None
-    assert file.model.perm is None
+    assert file.make_model().path == str(fake_file["path"])
+    assert file.make_model().size == fake_file["size"]
+    assert file.make_model().chk == fake_file["checksum"]
+    assert file.make_model().uid is None
+    assert file.make_model().gid is None
+    assert file.make_model().perm is None
 
     assert abs(fake_file["creation_time"] - file.creation_time) < timedelta(seconds=1)
-    assert abs(fake_file["creation_time"] - file.model.time) < timedelta(seconds=1)
+    assert abs(fake_file["creation_time"] - file.make_model().time) < timedelta(
+        seconds=1
+    )
 
 
 def test_file_from_local_with_base_path(fake_file):
@@ -51,15 +53,17 @@ def test_file_from_local_with_base_path(fake_file):
     assert file.checksum == fake_file["checksum"]
     assert file.size == fake_file["size"]
 
-    assert file.model.path == "dir/events.nxs"
-    assert file.model.size == fake_file["size"]
-    assert file.model.chk == fake_file["checksum"]
-    assert file.model.uid is None
-    assert file.model.gid is None
-    assert file.model.perm is None
+    assert file.make_model().path == "dir/events.nxs"
+    assert file.make_model().size == fake_file["size"]
+    assert file.make_model().chk == fake_file["checksum"]
+    assert file.make_model().uid is None
+    assert file.make_model().gid is None
+    assert file.make_model().perm is None
 
     assert abs(fake_file["creation_time"] - file.creation_time) < timedelta(seconds=1)
-    assert abs(fake_file["creation_time"] - file.model.time) < timedelta(seconds=1)
+    assert abs(fake_file["creation_time"] - file.make_model().time) < timedelta(
+        seconds=1
+    )
 
 
 def test_file_from_local_set_remote_path(fake_file):
@@ -71,15 +75,17 @@ def test_file_from_local_set_remote_path(fake_file):
     assert file.checksum == fake_file["checksum"]
     assert file.size == fake_file["size"]
 
-    assert file.model.path == "remote/location/file.nxs"
-    assert file.model.size == fake_file["size"]
-    assert file.model.chk == fake_file["checksum"]
-    assert file.model.uid is None
-    assert file.model.gid is None
-    assert file.model.perm is None
+    assert file.make_model().path == "remote/location/file.nxs"
+    assert file.make_model().size == fake_file["size"]
+    assert file.make_model().chk == fake_file["checksum"]
+    assert file.make_model().uid is None
+    assert file.make_model().gid is None
+    assert file.make_model().perm is None
 
     assert abs(fake_file["creation_time"] - file.creation_time) < timedelta(seconds=1)
-    assert abs(fake_file["creation_time"] - file.model.time) < timedelta(seconds=1)
+    assert abs(fake_file["creation_time"] - file.make_model().time) < timedelta(
+        seconds=1
+    )
 
 
 def test_file_from_local_set_source_folder(fake_file):
@@ -91,15 +97,17 @@ def test_file_from_local_set_source_folder(fake_file):
     assert file.checksum == fake_file["checksum"]
     assert file.size == fake_file["size"]
 
-    assert file.model.path == "local/dir/events.nxs"
-    assert file.model.size == fake_file["size"]
-    assert file.model.chk == fake_file["checksum"]
-    assert file.model.uid is None
-    assert file.model.gid is None
-    assert file.model.perm is None
+    assert file.make_model().path == "local/dir/events.nxs"
+    assert file.make_model().size == fake_file["size"]
+    assert file.make_model().chk == fake_file["checksum"]
+    assert file.make_model().uid is None
+    assert file.make_model().gid is None
+    assert file.make_model().perm is None
 
     assert abs(fake_file["creation_time"] - file.creation_time) < timedelta(seconds=1)
-    assert abs(fake_file["creation_time"] - file.model.time) < timedelta(seconds=1)
+    assert abs(fake_file["creation_time"] - file.make_model().time) < timedelta(
+        seconds=1
+    )
 
 
 def test_file_from_local_set_many_args(fake_file):
@@ -118,15 +126,17 @@ def test_file_from_local_set_many_args(fake_file):
     assert file.checksum == fake_file["checksum"]
     assert file.size == fake_file["size"]
 
-    assert file.model.path == "dir/events.nxs"
-    assert file.model.size == fake_file["size"]
-    assert file.model.chk == fake_file["checksum"]
-    assert file.model.uid == "user-usy"
-    assert file.model.gid == "groupy-group"
-    assert file.model.perm == "wrx"
+    assert file.make_model().path == "dir/events.nxs"
+    assert file.make_model().size == fake_file["size"]
+    assert file.make_model().chk == fake_file["checksum"]
+    assert file.make_model().uid == "user-usy"
+    assert file.make_model().gid == "groupy-group"
+    assert file.make_model().perm == "wrx"
 
     assert abs(fake_file["creation_time"] - file.creation_time) < timedelta(seconds=1)
-    assert abs(fake_file["creation_time"] - file.model.time) < timedelta(seconds=1)
+    assert abs(fake_file["creation_time"] - file.make_model().time) < timedelta(
+        seconds=1
+    )
 
 
 @pytest.mark.parametrize("alg", ("md5", "sha256", "blake2s"))
@@ -134,7 +144,7 @@ def test_file_from_local_select_checksum_algorithm(fake_file, alg):
     file = File.from_local(fake_file["path"], checksum_algorithm=alg)
     expected = checksum_of_file(fake_file["path"], algorithm=alg)
     assert file.checksum == expected
-    assert file.model.chk == expected
+    assert file.make_model().chk == expected
 
 
 def test_file_from_scicat():
@@ -150,13 +160,13 @@ def test_file_from_scicat():
     assert file.size == 12345
     assert file.creation_time == parse_time("2022-06-22T15:42:53.123Z")
 
-    assert file.model.path == "dir/image.jpg"
-    assert file.model.size == 12345
-    assert file.model.time == parse_time("2022-06-22T15:42:53.123Z")
-    assert file.model.chk is None
-    assert file.model.uid is None
-    assert file.model.gid is None
-    assert file.model.perm is None
+    assert file.make_model().path == "dir/image.jpg"
+    assert file.make_model().size == 12345
+    assert file.make_model().time == parse_time("2022-06-22T15:42:53.123Z")
+    assert file.make_model().chk is None
+    assert file.make_model().uid is None
+    assert file.make_model().gid is None
+    assert file.make_model().perm is None
 
 
 class FakeDownloader:

@@ -4,11 +4,13 @@
 """Main dataset structure."""
 
 from __future__ import annotations
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, List, Union
 
 from ._dataset_fields import DatasetFields
 from .file import File
+from .model import DerivedDataset, OrigDatablock, RawDataset
 
 
 class Dataset(DatasetFields):
@@ -75,6 +77,34 @@ class Dataset(DatasetFields):
             ``remote = [path.relative_to(base_path) for path in paths]``.
         """
         self.add_files(*(File.from_local(path, base_path=base_path) for path in paths))
+
+    def make_models(self) -> SciCatModels:
+        """Build models to send to SciCat.
+
+        Creates model for both the dataset and datablocks.
+
+        Returns
+        -------
+        :
+            Created models.
+        """
+        datablock = OrigDatablock(
+            size=self.size,
+            dataFileList=[file.make_model() for file in self.files],
+            datasetId=str(self.pid),
+            ownerGroup=self.owner_group,
+            accessGroups=self.access_groups,
+            instrumentGroup=self.instrument_group,
+        )
+        return SciCatModels(
+            dataset=self.make_dataset_model(), orig_datablocks=[datablock]
+        )
+
+
+@dataclass
+class SciCatModels:
+    dataset: Union[DerivedDataset, RawDataset]
+    orig_datablocks: List[OrigDatablock]
 
 
 #
@@ -226,44 +256,6 @@ class Dataset(DatasetFields):
 #
 
 
-#
-#     def make_scicat_models(self) -> SciCatModels:
-#         """Build models to send to SciCat.
-#
-#         Creates both a model for that dataset and orig datablocks.
-#
-#         Returns
-#         -------
-#         :
-#             Created models.
-#         """
-#         if self.pid is None:
-#             raise ValueError(
-#                 "The dataset PID must be set before creating SciCat models."
-#             )
-#         total_size = sum(file.model.size for file in self.files)
-#         datablock = OrigDatablock(
-#             size=total_size,
-#             dataFileList=[file.model for file in self.files],
-#             datasetId=str(self.pid),
-#             ownerGroup=self.owner_group,
-#             accessGroups=self.access_groups,
-#         )
-#         try:
-#             model = self._map_to_model(
-#                 number_of_files=len(self.files) or None,
-#                 number_of_files_archived=None,
-#                 packed_size=None,
-#                 pid=str(self.pid) if self.pid is not None else None,
-#                 size=total_size or None,
-#                 scientific_metadata=self.meta or None,
-#             )
-#         except KeyError as err:
-#             raise TypeError(
-#                 f"Field {err} is not allowed in {self.dataset_type} datasets"
-#             ) from None
-#         return SciCatModels(dataset=model, datablock=datablock)
-#
 #     def prepare_as_new(self):
 #         """Return a copy of this dataset that looks like a new dataset."""
 #         dset = Dataset(

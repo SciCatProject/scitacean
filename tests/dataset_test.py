@@ -6,12 +6,15 @@ from datetime import timedelta
 from pathlib import Path
 
 from dateutil.parser import parse as parse_time
+from hypothesis import given, settings
 import pytest
 from scitacean import Dataset, DatasetType, model
+from scitacean.testing import strategies as sst
 
 from .common.files import make_file
 
 
+# TODO remove fixtures?
 @pytest.fixture
 def ownable():
     return model.Ownable(ownerGroup="uu", accessGroups=["group1", "2nd_group"])
@@ -90,7 +93,7 @@ def test_add_local_file_to_new_dataset(typ, fs):
     assert f.size == file_data["size"]
 
     assert abs(file_data["creation_time"] - f.creation_time) < timedelta(seconds=1)
-    assert abs(file_data["creation_time"] - f.model.time) < timedelta(seconds=1)
+    assert abs(file_data["creation_time"] - f.make_model().time) < timedelta(seconds=1)
 
 
 @pytest.mark.parametrize("typ", (DatasetType.RAW, DatasetType.DERIVED))
@@ -112,14 +115,14 @@ def test_add_multiple_local_files_to_new_dataset(typ, fs):
     assert f0.remote_access_path is None
     assert f0.local_path == Path("common/location1/data.dat")
     assert f0.size == file_data0["size"]
-    assert f0.model.path == "common/location1/data.dat"
+    assert f0.make_model().path == "common/location1/data.dat"
 
     f1 = [f for f in dset.files if f.local_path.suffix == ".mp3"][0]
     assert f1.source_folder is None
     assert f1.remote_access_path is None
     assert f1.local_path == Path("common/song.mp3")
     assert f1.size == file_data1["size"]
-    assert f1.model.path == "common/song.mp3"
+    assert f1.make_model().path == "common/song.mp3"
 
 
 @pytest.mark.parametrize("typ", (DatasetType.RAW, DatasetType.DERIVED))
@@ -143,14 +146,24 @@ def test_add_multiple_local_files_to_new_dataset_with_base_path(typ, fs):
     assert f0.remote_access_path is None
     assert f0.local_path == Path("common/location1/data.dat")
     assert f0.size == file_data0["size"]
-    assert f0.model.path == "location1/data.dat"
+    assert f0.make_model().path == "location1/data.dat"
 
     f1 = [f for f in dset.files if f.local_path.suffix == ".mp3"][0]
     assert f1.source_folder is None
     assert f1.remote_access_path is None
     assert f1.local_path == Path("common/song.mp3")
     assert f1.size == file_data1["size"]
-    assert f1.model.path == "song.mp3"
+    assert f1.make_model().path == "song.mp3"
+
+
+@settings(max_examples=100)
+@given(sst.datasets())
+def test_dataset_models_roundtrip(initial):
+    models = initial.make_models()
+    rebuilt = Dataset.from_models(
+        dataset_model=models.dataset, orig_datablock_models=models.orig_datablock_models
+    )
+    assert initial == rebuilt
 
 
 # TODO do roundtrip

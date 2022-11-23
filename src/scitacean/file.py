@@ -141,7 +141,7 @@ class File:
         return (
             None
             if self.source_folder is None
-            else os.path.join(self.source_folder, self.model.path)
+            else os.path.join(self.source_folder, self._model.path)
         )
 
     @property
@@ -162,11 +162,7 @@ class File:
     @property
     def creation_time(self) -> Optional[datetime]:
         """Date and time when the file was created."""
-        return self.model.time
-
-    @property
-    def model(self) -> Optional[DataFile]:
-        return self._model
+        return self._model.time
 
     def provide_locally(
         self,
@@ -178,7 +174,7 @@ class File:
         """Download the file to the local filesystem."""
         directory = Path(directory)
         directory.mkdir(parents=True, exist_ok=True)  # TODO undo if later fails
-        local_path = directory / self.model.path
+        local_path = directory / self._model.path
         with downloader.connect_for_download() as con:
             con.download_file(local=local_path, remote=self.remote_access_path)
         self._local_path = local_path
@@ -220,10 +216,13 @@ class File:
                 f"match size stored in dataset ({self._model.size}B)",
             )
 
+    def make_model(self) -> Optional[DataFile]:
+        return self._model
+
     def __repr__(self):
         return (
             f"File(source_folder={self.source_folder}, local_path={self.local_path}, "
-            f"model={self.model!r})"
+            f"model={self.make_model()!r})"
         )
 
 
@@ -232,7 +231,7 @@ def _log_and_raise(typ, msg):
     raise typ(msg)
 
 
-def _creation_time_str(st: os.stat_result) -> str:
+def _creation_time(st: os.stat_result) -> datetime:
     """Return the time in UTC when a file was created.
 
     Uses modification time as SciCat only cares about the latest version of the file
@@ -240,11 +239,7 @@ def _creation_time_str(st: os.stat_result) -> str:
     """
     # TODO is this correct on non-linux?
     # TODO is this correct if the file was created in a different timezone (DST)?
-    return (
-        datetime.fromtimestamp(st.st_mtime)
-        .astimezone(timezone.utc)
-        .isoformat(timespec="seconds")
-    )
+    return datetime.fromtimestamp(st.st_mtime).astimezone(timezone.utc)
 
 
 def _new_hash(algorithm: str):
@@ -279,7 +274,7 @@ def file_model_from_local_file(
     return DataFile(
         path=str(remote_path),
         size=st.st_size,
-        time=_creation_time_str(st),
+        time=_creation_time(st),
         chk=chk,
         uid=uid,
         gid=gid,
