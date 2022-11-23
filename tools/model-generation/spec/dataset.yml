@@ -128,7 +128,7 @@ fields:
     description: Persistent identifier for datasets.
     manual: true
     read_only: true
-    type: str
+    type: PID
   - name: proposal_id
     description: Identifier for the proposal that the dataset was produced for.
     model_name: proposalID

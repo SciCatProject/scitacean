@@ -372,7 +372,7 @@ class DatasetFields:
             read_only=True,
             required_by_derived=False,
             required_by_raw=False,
-            type=str,
+            type=PID,
             used_by_derived=True,
             used_by_raw=True,
         ),

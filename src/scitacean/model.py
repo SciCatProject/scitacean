@@ -16,6 +16,7 @@ from typing import Dict, List, Optional
 import pydantic
 
 from ._internal.orcid import is_valid_orcid
+from .pid import PID
 
 
 # This can be replaced by StrEnum in Python 3.11+
@@ -29,6 +30,7 @@ class DatasetType(str, enum.Enum):
 class BaseModel(pydantic.BaseModel):
     class Config:
         extra = pydantic.Extra.forbid
+        json_encoders = {PID: lambda v: str(v)}
 
 
 class Technique(BaseModel):
@@ -98,8 +100,8 @@ class Datablock(Ownable):
 class OrigDatablock(Ownable):
     dataFileList: List[DataFile]
     size: int
-    datasetID: Optional[str]
-    id: Optional[str]
+    datasetId: Optional[PID]
+    id: Optional[PID]
 
     @pydantic.validator("size")
     def _validate_size(cls, value):
@@ -132,7 +134,7 @@ class DerivedDataset(Ownable):
     orcidOfOwner: Optional[str]
     ownerEmail: Optional[str]
     packedSize: Optional[int]
-    pid: Optional[str]
+    pid: Optional[PID]
     sharedWith: Optional[List[str]]
     size: Optional[int]
     sourceFolderHost: Optional[str]
@@ -178,7 +180,7 @@ class RawDataset(Ownable):
     orcidOfOwner: Optional[str]
     ownerEmail: Optional[str]
     packedSize: Optional[int]
-    pid: Optional[str]
+    pid: Optional[PID]
     proposalID: Optional[str]
     sampleID: Optional[str]
     sharedWith: Optional[List[str]]

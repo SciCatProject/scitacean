@@ -87,4 +87,14 @@ class PID:
         return hash(str(self))
 
     def __eq__(self, other):
-        return str(self) == str(other)
+        return self.prefix == other.prefix and self.pid == other.pid
+
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, value) -> PID:
+        if isinstance(value, str):
+            return PID.parse(value)
+        return value

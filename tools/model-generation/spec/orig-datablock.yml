@@ -4,7 +4,7 @@ fields:
   - name: pid
     description: Persistent identifier for the datablock.
     model_name: id
-    type: str
+    type: PID
   - name: size
     description: Total size in bytes of all files associated with the datablock.
     required: true
@@ -17,5 +17,5 @@ fields:
     type: List[DataFile]
   - name: dataset_id
     description: PID of the dataset that this datablock belongs to.
-    model_name: datasetID
-    type: str
+    model_name: datasetId
+    type: PID

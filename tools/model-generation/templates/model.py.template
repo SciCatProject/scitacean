@@ -12,6 +12,7 @@ from typing import Dict, List, Optional
 import pydantic
 
 from ._internal.orcid import is_valid_orcid
+from .pid import PID
 
 
 # This can be replaced by StrEnum in Python 3.11+
@@ -25,6 +26,9 @@ class DatasetType(str, enum.Enum):
 class BaseModel(pydantic.BaseModel):
     class Config:
         extra = pydantic.Extra.forbid
+        json_encoders = {
+            PID: lambda v: str(v)
+        }
 
 
 $models
