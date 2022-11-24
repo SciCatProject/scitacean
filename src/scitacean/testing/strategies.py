@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
 # @author Jan-Lukas Wynen
 from functools import partial
-from typing import Optional
+from typing import Dict, Optional
 
 from email_validator import validate_email, EmailNotValidError
 from scitacean import Dataset, DatasetType, PID
@@ -20,30 +20,47 @@ def _is_valid_email(email: str) -> bool:
         return False
 
 
+def multi_emails():
+    # Convert to lowercase because that is what pydantic does.
+    return st.lists(
+        st.emails().filter(_is_valid_email).map(lambda s: s.lower()), min_size=1
+    ).map(lambda l: ";".join(l))
+
+
 def _email_field_strategy(
     field: Dataset.Field, dataset_type: DatasetType
 ) -> st.SearchStrategy:
     if field.required(dataset_type):
-        return st.emails().filter(_is_valid_email)
-    return st.none() | st.emails().filter(_is_valid_email)
+        return multi_emails()
+    return st.none() | multi_emails()
 
 
-def _orcid_field_strategy(
-    field: Dataset.Field, dataset_type: DatasetType
-) -> st.SearchStrategy:
+def orcids():
     def make_orcid(digits: str):
         digits = digits[:-1] + orcid_checksum(digits)
         return "https://orcid.org/" + "-".join(
             digits[i : i + 4] for i in range(0, 16, 4)
         )
 
-    orcid_strategy = st.text(alphabet="0123456789", min_size=16, max_size=16).map(
-        make_orcid
-    )
+    return st.text(alphabet="0123456789", min_size=16, max_size=16).map(make_orcid)
 
+
+def _orcid_field_strategy(
+    field: Dataset.Field, dataset_type: DatasetType
+) -> st.SearchStrategy:
     if field.required(dataset_type):
-        return orcid_strategy
-    return st.none() | orcid_strategy
+        return orcids()
+    return st.none() | orcids()
+
+
+def _scientific_metadata_strategy(
+    field: Dataset.Field, dataset_type: DatasetType
+) -> st.SearchStrategy:
+    assert field.type == Dict  # nosec (testing code -> assert is safe)
+    return st.dictionaries(
+        keys=st.text(),
+        values=st.text() | st.dictionaries(keys=st.text(), values=st.text()),
+    )
 
 
 _SPECIAL_FIELDS = {
@@ -51,6 +68,7 @@ _SPECIAL_FIELDS = {
     "contact_email": _email_field_strategy,
     "owner_email": _email_field_strategy,
     "orcid_of_owner": _orcid_field_strategy,
+    "meta": _scientific_metadata_strategy,
 }
 
 

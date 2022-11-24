@@ -47,7 +47,7 @@ fields:
     description: Array of input dataset identifiers used in producing the derived dataset. Ideally these are the global identifier to existing datasets inside this or federated data catalogs.
     model_name: inputDatasets
     required: true
-    type: List[str]
+    type: List[PID]
     used: [ derived ]
   - name: investigator
     description: Email of the (principal) investigator. The string may contain a list of emails, which should then be separated by semicolons.
@@ -159,7 +159,7 @@ fields:
     model_name: sourceFolderHost
     type: str
   - name: techniques
-    description: List of dicts with keys 'pid' and 'name' referring to techniques used to produce the data.
+    description: List of techniques used to produce the data.
     type: List[Technique]
   - name: type
     description: "Dataset type. 'Derived' or 'Raw'"

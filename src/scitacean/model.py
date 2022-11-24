@@ -111,7 +111,7 @@ class OrigDatablock(Ownable):
 class DerivedDataset(Ownable):
     contactEmail: str
     creationTime: datetime
-    inputDatasets: List[str]
+    inputDatasets: List[PID]
     investigator: str
     owner: str
     sourceFolder: str

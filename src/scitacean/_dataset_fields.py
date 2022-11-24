@@ -182,7 +182,7 @@ class DatasetFields:
             read_only=False,
             required_by_derived=True,
             required_by_raw=True,
-            type=List[str],
+            type=List[PID],
             used_by_derived=True,
             used_by_raw=False,
         ),
@@ -438,7 +438,7 @@ class DatasetFields:
         ),
         Field(
             name="techniques",
-            description="List of dicts with keys 'pid' and 'name' referring to techniques used to produce the data.",
+            description="List of techniques used to produce the data.",
             read_only=False,
             required_by_derived=False,
             required_by_raw=False,
@@ -520,7 +520,7 @@ class DatasetFields:
         data_format: Optional[str] = None,
         description: Optional[str] = None,
         end_time: Optional[datetime] = None,
-        input_datasets: Optional[List[str]] = None,
+        input_datasets: Optional[List[PID]] = None,
         instrument_group: Optional[str] = None,
         instrument_id: Optional[str] = None,
         investigator: Optional[str] = None,
@@ -682,12 +682,12 @@ class DatasetFields:
         self._fields["end_time"] = val
 
     @property
-    def input_datasets(self) -> Optional[List[str]]:
+    def input_datasets(self) -> Optional[List[PID]]:
         """Array of input dataset identifiers used in producing the derived dataset. Ideally these are the global identifier to existing datasets inside this or federated data catalogs."""
         return self._fields["input_datasets"]
 
     @input_datasets.setter
-    def input_datasets(self, val: Optional[List[str]]):
+    def input_datasets(self, val: Optional[List[PID]]):
         self._fields["input_datasets"] = val
 
     @property
@@ -872,7 +872,7 @@ class DatasetFields:
 
     @property
     def techniques(self) -> Optional[List[Technique]]:
-        """List of dicts with keys 'pid' and 'name' referring to techniques used to produce the data."""
+        """List of techniques used to produce the data."""
         return self._fields["techniques"]
 
     @techniques.setter
@@ -1065,7 +1065,7 @@ class DatasetFields:
         cls,
         *,
         dataset_model: Union[DerivedDataset, RawDataset],
-        orig_datablock_models: List[OrigDatablock],
+        orig_datablock_models: Optional[List[OrigDatablock]],
     ):
         """Create a new dataset from fully filled in models.
 
@@ -1081,21 +1081,15 @@ class DatasetFields:
         :
             A new dataset.
         """
-        if len(orig_datablock_models) != 1:
-            raise NotImplementedError(
-                f"Got {len(orig_datablock_models)} original datablocks for "
-                f"dataset {dataset_model.pid} but only support for one is implemented."
-            )
-        dblock = orig_datablock_models[0]
-        files = [
-            File.from_scicat(file, source_folder=dataset_model.sourceFolder)
-            for file in dblock.dataFileList
-        ]
+        args = _fields_from_model(dataset_model)
+        read_only_args = args.pop("_read_only")
+        read_only_args["history"] = dataset_model.history
         return cls(
             creation_time=dataset_model.creationTime,
             _pid=dataset_model.pid,
-            _files=files,
-            **_fields_from_model(dataset_model),
+            _files=_files_from_datablocks(dataset_model, orig_datablock_models),
+            _read_only=read_only_args,
+            **args,
         )
 
 
@@ -1105,6 +1099,25 @@ def _fields_from_model(model: Union[DerivedDataset, RawDataset]) -> dict:
         if isinstance(model, DerivedDataset)
         else _fields_from_raw_model(model)
     )
+
+
+def _files_from_datablocks(
+    dataset_model: Union[DerivedDataset, RawDataset],
+    orig_datablock_models: Optional[List[OrigDatablock]],
+) -> List[File]:
+    if orig_datablock_models is None:
+        return []
+
+    if len(orig_datablock_models) != 1:
+        raise NotImplementedError(
+            f"Got {len(orig_datablock_models)} original datablocks for "
+            f"dataset {dataset_model.pid} but only support for one is implemented."
+        )
+    dblock = orig_datablock_models[0]
+    return [
+        File.from_scicat(file, source_folder=dataset_model.sourceFolder)
+        for file in dblock.dataFileList
+    ]
 
 
 def _fields_from_derived_model(model) -> dict:

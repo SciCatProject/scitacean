@@ -6,7 +6,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, List, Union
+from typing import Any, Dict, Iterable, List, Optional, Union
 
 from ._dataset_fields import DatasetFields
 from .file import File
@@ -78,6 +78,40 @@ class Dataset(DatasetFields):
         """
         self.add_files(*(File.from_local(path, base_path=base_path) for path in paths))
 
+    def replace(self, *, _read_only: Dict[str, Any] = None, **replacements) -> Dataset:
+        """Return a new dataset with replaced fields.
+
+        Returns
+        -------
+        :
+            The new dataset has the same fields as the input but all fields given
+            as keyword arguments are replaced by the given values.
+        """
+        _read_only = _read_only or {}
+
+        def get_val(source, name):
+            try:
+                return source.pop(name)
+            except KeyError:
+                return getattr(self, name)
+
+        read_only = {
+            field.name: get_val(_read_only, field.name)
+            for field in Dataset.fields(read_only=True)
+        }
+        kwargs = {
+            **{
+                field.name: get_val(replacements, field.name)
+                for field in Dataset.fields(read_only=False)
+            },
+            "_pid": read_only.pop("pid"),
+        }
+        if replacements or _read_only:
+            raise TypeError(
+                f"Invalid arguments: {', '.join((*replacements, *_read_only))}"
+            )
+        return Dataset(_files=self._files, _read_only=read_only, **kwargs)
+
     def make_models(self) -> SciCatModels:
         """Build models to send to SciCat.
 
@@ -88,10 +122,12 @@ class Dataset(DatasetFields):
         :
             Created models.
         """
+        if self.number_of_files == 0:
+            return SciCatModels(dataset=self.make_dataset_model(), orig_datablocks=None)
         datablock = OrigDatablock(
             size=self.size,
             dataFileList=[file.make_model() for file in self.files],
-            datasetId=str(self.pid),
+            datasetId=self.pid,
             ownerGroup=self.owner_group,
             accessGroups=self.access_groups,
             instrumentGroup=self.instrument_group,
@@ -100,11 +136,29 @@ class Dataset(DatasetFields):
             dataset=self.make_dataset_model(), orig_datablocks=[datablock]
         )
 
+    def __eq__(self, other: Dataset) -> bool:
+        if not isinstance(other, Dataset):
+            return False
+        for field in Dataset.fields():
+            if getattr(self, field.name) != getattr(other, field.name):
+                print(
+                    field.name,
+                    ":",
+                    getattr(self, field.name),
+                    getattr(other, field.name),
+                )
+        eq = all(
+            getattr(self, field.name) == getattr(other, field.name)
+            for field in Dataset.fields()
+        )
+        print("equal?", eq)
+        return eq
+
 
 @dataclass
 class SciCatModels:
     dataset: Union[DerivedDataset, RawDataset]
-    orig_datablocks: List[OrigDatablock]
+    orig_datablocks: Optional[List[OrigDatablock]]
 
 
 #

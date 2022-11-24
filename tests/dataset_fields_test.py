@@ -203,14 +203,14 @@ def test_init_from_models_sets_files():
     assert f0.remote_access_path == "/hex/source91/file1.dat"
     assert f0.local_path is None
     assert f0.size == 6123
-    assert f0.model.path == "file1.dat"
+    assert f0.make_model().path == "file1.dat"
 
     f1 = [f for f in dset.files if f.remote_access_path.endswith(".png")][0]
     assert f1.source_folder == "/hex/source91"
     assert f1.remote_access_path == "/hex/source91/sub/file2.png"
     assert f1.local_path is None
     assert f1.size == 551
-    assert f1.model.path == "sub/file2.png"
+    assert f1.make_model().path == "sub/file2.png"
 
 
 def test_init_from_models_sets_files_doesn_not_support_multi_datablocks():

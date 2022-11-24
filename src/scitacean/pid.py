@@ -87,6 +87,8 @@ class PID:
         return hash(str(self))
 
     def __eq__(self, other):
+        if not isinstance(other, PID):
+            return False
         return self.prefix == other.prefix and self.pid == other.pid
 
     @classmethod
