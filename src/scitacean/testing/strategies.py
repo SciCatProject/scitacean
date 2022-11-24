@@ -24,7 +24,7 @@ def multi_emails():
     # Convert to lowercase because that is what pydantic does.
     return st.lists(
         st.emails().filter(_is_valid_email).map(lambda s: s.lower()), min_size=1
-    ).map(lambda l: ";".join(l))
+    ).map(lambda email: ";".join(email))
 
 
 def _email_field_strategy(
