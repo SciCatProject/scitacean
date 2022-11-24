@@ -8,13 +8,14 @@ from __future__ import annotations
 import datetime
 from pathlib import Path
 from typing import List, Optional, Union
-from urllib.parse import quote_plus, urljoin
+from urllib.parse import quote_plus
 
 import requests
 
 from .dataset import Dataset
 from .error import ScicatCommError, ScicatLoginError
 from .logging import get_logger
+from .pid import PID
 from .typing import FileTransfer
 from . import model
 
@@ -108,7 +109,7 @@ class Client:
             file_transfer=file_transfer,
         )
 
-    def get_dataset(self, pid: str) -> Dataset:
+    def get_dataset(self, pid: Union[str, PID]) -> Dataset:
         """Download a dataset from SciCat.
 
         Does not download any files.
@@ -124,6 +125,8 @@ class Client:
         :
             A new dataset.
         """
+        if isinstance(pid, str):
+            pid = PID.parse(pid)
         return Dataset.from_models(
             dataset_model=self.scicat.get_dataset_model(pid),
             orig_datablock_models=self.scicat.get_orig_datablocks(pid),
@@ -224,7 +227,8 @@ class ScicatClient:
     def __init__(
         self, url: str, token: str, timeout: Optional[datetime.timedelta] = None
     ):
-        self._base_url = url
+        # Need to add a final /
+        self._base_url = url[:-1] if url.endswith("/") else url
         self._timeout = timeout
         self._token = token
 
@@ -249,7 +253,7 @@ class ScicatClient:
         )
 
     def get_dataset_model(
-        self, pid: str
+        self, pid: PID
     ) -> Union[model.DerivedDataset, model.RawDataset]:
         """Fetch a dataset from SciCat.
 
@@ -270,7 +274,7 @@ class ScicatClient:
         """
         dset_json = self._call_endpoint(
             cmd="get",
-            url=f"Datasets/{quote_plus(pid)}",
+            url=f"Datasets/{quote_plus(str(pid))}",
             operation="get_dataset_model",
         )
         return (
@@ -279,7 +283,7 @@ class ScicatClient:
             else model.RawDataset(**dset_json)
         )
 
-    def get_orig_datablocks(self, pid: str) -> List[model.OrigDatablock]:
+    def get_orig_datablocks(self, pid: PID) -> List[model.OrigDatablock]:
         """Fetch all orig datablocks from SciCat for a given dataset.
 
         Parameters
@@ -300,7 +304,7 @@ class ScicatClient:
         """
         dblock_json = self._call_endpoint(
             cmd="get",
-            url=f"/Datasets/{quote_plus(pid)}/origdatablocks",
+            url=f"Datasets/{quote_plus(str(pid))}/origdatablocks",
             operation="get_orig_datablocks",
         )
         return [_make_orig_datablock(dblock) for dblock in dblock_json]
@@ -308,7 +312,7 @@ class ScicatClient:
     # TODO return full dataset
     def create_dataset_model(
         self, dset: Union[model.DerivedDataset, model.RawDataset]
-    ) -> str:
+    ) -> PID:
         """Create a new dataset in SciCat.
 
         The dataset PID must be either
@@ -365,7 +369,7 @@ class ScicatClient:
         """
         return self._call_endpoint(
             cmd="post",
-            url=f"Datasets/{quote_plus(dblock.datasetId)}/origdatablocks",
+            url=f"Datasets/{quote_plus(str(dblock.datasetId))}/origdatablocks",
             data=dblock,
             operation="create_orig_datablock",
         )
@@ -399,7 +403,7 @@ class ScicatClient:
         data: Optional[model.BaseModel] = None,
         operation: str,
     ) -> Optional[dict]:
-        full_url = urljoin(self._base_url, url)
+        full_url = _url_concat(self._base_url, url)
         logger = get_logger()
         logger.info("Calling SciCat API at %s for operation '%s'", full_url, operation)
 
@@ -412,6 +416,14 @@ class ScicatClient:
         return response.json()
 
 
+def _url_concat(a: str, b: str) -> str:
+    # Combine two pieces or a URL without handling absolute
+    # paths as in urljoin.
+    a = a if a.endswith("/") else (a + "/")
+    b = b[1:] if b.endswith("/") else b
+    return a + b
+
+
 def _make_orig_datablock(fields):
     files = [model.DataFile(**file_fields) for file_fields in fields["dataFileList"]]
     return model.OrigDatablock(**{**fields, "dataFileList": files})
@@ -422,7 +434,7 @@ def _log_in_via_users_login(
 ) -> requests.Response:
     """Currently only used for functional accounts."""
     response = requests.post(
-        urljoin(url, "Users/login"),
+        _url_concat(url, "Users/login"),
         json={"username": username, "password": password},
         stream=False,
         verify=True,
@@ -441,7 +453,7 @@ def _log_in_via_auth_msad(url: str, username: str, password: str) -> requests.Re
     # Strip the api/vn suffix
     base_url = re.sub(r"/api/v\d+/?", "", url)
     response = requests.post(
-        urljoin(base_url, "auth/msad"),
+        _url_concat(base_url, "auth/msad"),
         json={"username": username, "password": password},
         stream=False,
         verify=True,
