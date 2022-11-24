@@ -154,6 +154,8 @@ class FakeClient(Client):
 
     def get_dataset(self, pid: Union[PID, str]) -> Dataset:
         """Return a dataset from the client's internal storage."""
+        if not isinstance(pid, PID):
+            pid = PID.parse(pid)
         return Dataset.from_models(
             dataset_model=self.scicat.get_dataset_model(pid),
             orig_datablock_models=self.scicat.get_orig_datablocks(pid),
