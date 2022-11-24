@@ -30,7 +30,7 @@ ipython-genutils==0.2.0
     #   notebook
 json5==0.9.10
     # via jupyterlab-server
-jupyter-server==1.23.2
+jupyter-server==1.23.3
     # via
     #   jupyterlab
     #   jupyterlab-server
@@ -50,7 +50,7 @@ notebook==6.5.2
     # via jupyterlab
 notebook-shim==0.2.2
     # via nbclassic
-pip-compile-multi==2.5.0
+pip-compile-multi==2.6.1
     # via -r requirements/dev.in
 pip-tools==6.10.0
     # via pip-compile-multi
