@@ -17,17 +17,17 @@ click==8.1.3
     # via black
 fastjsonschema==2.16.2
     # via nbformat
-flake8==5.0.4
+flake8==6.0.0
     # via
     #   -r requirements/static.in
     #   flake8-bugbear
 flake8-bugbear==22.10.27
     # via -r requirements/static.in
-gitdb==4.0.9
+gitdb==4.0.10
     # via gitpython
 gitpython==3.1.29
     # via bandit
-jsonschema==4.17.0
+jsonschema==4.17.1
     # via nbformat
 jupyter-core==5.0.0
     # via nbformat
@@ -47,9 +47,9 @@ platformdirs==2.5.4
     # via
     #   black
     #   jupyter-core
-pycodestyle==2.9.1
+pycodestyle==2.10.0
     # via flake8
-pyflakes==2.5.0
+pyflakes==3.0.0
     # via flake8
 pyrsistent==0.19.2
     # via jsonschema
