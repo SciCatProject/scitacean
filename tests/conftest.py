@@ -1,9 +1,18 @@
 from dataclasses import dataclass
-import pytest
 import tempfile
 from typing import Dict
 
+import hypothesis
+import pytest
+
 from .common import backend
+
+
+# The datasets strategy requires a large amount of memory.
+# This is not good but hard to avoid.
+hypothesis.settings.register_profile(
+    "scitacean", suppress_health_check=[hypothesis.HealthCheck.data_too_large]
+)
 
 
 def pytest_addoption(parser):
