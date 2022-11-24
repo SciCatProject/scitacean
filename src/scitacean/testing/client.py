@@ -155,8 +155,8 @@ class FakeClient(Client):
     def get_dataset(self, pid: Union[PID, str]) -> Dataset:
         """Return a dataset from the client's internal storage."""
         return Dataset.from_models(
-            dataset_model=self.scicat.get_dataset_model(str(pid)),
-            orig_datablock_models=self.scicat.get_orig_datablocks(str(pid)),
+            dataset_model=self.scicat.get_dataset_model(pid),
+            orig_datablock_models=self.scicat.get_orig_datablocks(pid),
         )
 
     @property
@@ -194,7 +194,7 @@ class FakeScicatClient(ScicatClient):
 
     @_conditionally_disabled
     def get_dataset_model(
-        self, pid: str
+        self, pid: PID
     ) -> Union[model.DerivedDataset, model.RawDataset]:
         try:
             return self.main.datasets[pid]
@@ -202,7 +202,7 @@ class FakeScicatClient(ScicatClient):
             raise ScicatCommError(f"Unable to retrieve dataset {pid}") from None
 
     @_conditionally_disabled
-    def get_orig_datablocks(self, pid: str) -> List[model.OrigDatablock]:
+    def get_orig_datablocks(self, pid: PID) -> List[model.OrigDatablock]:
         try:
             return self.main.orig_datablocks[pid]
         except KeyError:
@@ -211,20 +211,22 @@ class FakeScicatClient(ScicatClient):
             ) from None
 
     @_conditionally_disabled
-    def create_dataset_model(self, dset: model.Dataset) -> str:
+    def create_dataset_model(
+        self, dset: Union[model.DerivedDataset, model.RawDataset]
+    ) -> PID:
         pid = PID(
-            pid=dset.pid if dset.pid is not None else str(uuid.uuid4()),
+            pid=str(dset.pid) if dset.pid is not None else str(uuid.uuid4()),
             prefix="PID.SAMPLE.PREFIX",
         )
         if pid in self.main.datasets:
             raise ScicatCommError(f"Dataset id already exists: {pid}")
         self.main.datasets[pid] = deepcopy(dset)
-        self.main.datasets[pid].pid = str(pid)
-        return str(pid)
+        self.main.datasets[pid].pid = pid
+        return pid
 
     @_conditionally_disabled
     def create_orig_datablock(self, dblock: model.OrigDatablock):
-        dataset_id = PID.parse(dblock.datasetId)
+        dataset_id = dblock.datasetId
         if dataset_id not in self.main.datasets:
             raise ScicatCommError(f"No dataset with id {dataset_id}")
         self.main.orig_datablocks.setdefault(dataset_id, []).append(dblock)

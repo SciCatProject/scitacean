@@ -139,19 +139,10 @@ class Dataset(DatasetFields):
     def __eq__(self, other: Dataset) -> bool:
         if not isinstance(other, Dataset):
             return False
-        for field in Dataset.fields():
-            if getattr(self, field.name) != getattr(other, field.name):
-                print(
-                    field.name,
-                    ":",
-                    getattr(self, field.name),
-                    getattr(other, field.name),
-                )
         eq = all(
             getattr(self, field.name) == getattr(other, field.name)
             for field in Dataset.fields()
         )
-        print("equal?", eq)
         return eq
 
 
@@ -310,19 +301,6 @@ class SciCatModels:
 #
 
 
-#     def prepare_as_new(self):
-#         """Return a copy of this dataset that looks like a new dataset."""
-#         dset = Dataset(
-#             files=self._files,
-#             datablock=self._datablock,
-#             meta=self._meta,
-#             pid=PID(pid=str(uuid4()), prefix=None),
-#             **dataclasses.asdict(self),
-#         )
-#         dset.history = None
-#         dset.updated_at = None
-#         dset.updated_by = None
-#         return dset
 #
 #     def _repr_html_(self):
 #         rows = "\n".join(

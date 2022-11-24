@@ -3,9 +3,10 @@
 # @author Jan-Lukas Wynen
 import uuid
 
+from dateutil.parser import parse as parse_date
 import pytest
-from scitacean.model import DerivedDataset, RawDataset
-from scitacean import Client
+from scitacean.model import DerivedDataset, RawDataset, Technique
+from scitacean import Client, DatasetType, PID
 
 from .common.backend import skip_if_not_backend
 
@@ -26,14 +27,14 @@ def test_derived_dataset_default_values(client):
     dset = DerivedDataset(
         accessGroups=["access1"],
         contactEmail="contact@email.com",
-        creationTime="2000-01-01T01:01:01.000Z",
-        inputDatasets=["input1"],
-        investigator="investigator",
-        isPublished=None,  # override default value in model
+        creationTime=parse_date("2000-01-01T01:01:01.000Z"),
+        inputDatasets=[PID(prefix="PID.SAMPLE.PREFIX", pid="abcd")],
+        investigator="inv@esti.gator",
         owner="owner",
         ownerGroup="ownerGroup",
         sourceFolder="/source/folder",
         usedSoftware=["software1"],
+        type=DatasetType.DERIVED,
     )
     pid = client.scicat.create_dataset_model(dset)
     finalized = client.scicat.get_dataset_model(pid)
@@ -41,9 +42,9 @@ def test_derived_dataset_default_values(client):
     # Inputs
     assert finalized.accessGroups == ["access1"]
     assert finalized.contactEmail == "contact@email.com"
-    assert finalized.creationTime == "2000-01-01T01:01:01.000Z"
-    assert finalized.inputDatasets == ["input1"]
-    assert finalized.investigator == "investigator"
+    assert finalized.creationTime == parse_date("2000-01-01T01:01:01.000Z")
+    assert finalized.inputDatasets == [PID(prefix="PID.SAMPLE.PREFIX", pid="abcd")]
+    assert finalized.investigator == "inv@esti.gator"
     assert finalized.owner == "owner"
     assert finalized.ownerGroup == "ownerGroup"
     assert finalized.sourceFolder == "/source/folder"
@@ -55,7 +56,7 @@ def test_derived_dataset_default_values(client):
     assert finalized.classification  # some non-empty str
     assert finalized.datasetName  # some non-empty str
     assert finalized.history == []
-    assert finalized.isPublished is False
+    assert finalized.isPublished is None
     assert finalized.pid  # some non-empty str
     assert finalized.techniques == []
     assert finalized.updatedAt  # some non-empty str
@@ -84,12 +85,12 @@ def test_raw_dataset_default_values(client):
     dset = RawDataset(
         accessGroups=["access1"],
         contactEmail="contact@email.com",
-        creationTime="2000-01-01T01:01:01.000Z",
-        isPublished=None,  # override default value in model
+        creationTime=parse_date("2000-01-01T01:01:01.000Z"),
         owner="owner",
         ownerGroup="ownerGroup",
-        principalInvestigator="investigator",
+        principalInvestigator="inv@esti.gator",
         sourceFolder="/source/folder",
+        type=DatasetType.RAW,
     )
     pid = client.scicat.create_dataset_model(dset)
     finalized = client.scicat.get_dataset_model(pid)
@@ -97,10 +98,10 @@ def test_raw_dataset_default_values(client):
     # Inputs
     assert finalized.accessGroups == ["access1"]
     assert finalized.contactEmail == "contact@email.com"
-    assert finalized.creationTime == "2000-01-01T01:01:01.000Z"
+    assert finalized.creationTime == parse_date("2000-01-01T01:01:01.000Z")
     assert finalized.owner == "owner"
     assert finalized.ownerGroup == "ownerGroup"
-    assert finalized.principalInvestigator == "investigator"
+    assert finalized.principalInvestigator == "inv@esti.gator"
     assert finalized.sourceFolder == "/source/folder"
 
     # Default values
@@ -109,7 +110,7 @@ def test_raw_dataset_default_values(client):
     assert finalized.classification  # some non-empty str
     assert finalized.datasetName  # some non-empty str
     assert finalized.history == []
-    assert finalized.isPublished is False
+    assert finalized.isPublished is None
     assert finalized.pid  # some non-empty str
     assert finalized.techniques == []
     assert finalized.updatedAt  # some non-empty str
@@ -142,27 +143,28 @@ def test_derived_dataset_overwritten_values(client):
         accessGroups=["access1"],
         classification="classes",
         contactEmail="contact@email.com",
-        createdAt="2001-01-01T01:01:01.000Z",
+        createdAt=parse_date("2001-01-01T01:01:01.000Z"),
         createdBy="creator",
-        creationTime="2000-01-01T01:01:01.000Z",
+        creationTime=parse_date("2000-01-01T01:01:01.000Z"),
         datasetName="datasetName",
         description="description",
         history=[
             DerivedDataset(
                 accessGroups=["access1"],
                 contactEmail="contact@email.com",
-                creationTime="2000-01-01T01:01:01.000Z",
-                inputDatasets=["input1"],
-                investigator="investigator",
+                creationTime=parse_date("2000-01-01T01:01:01.000Z"),
+                inputDatasets=[PID(prefix="PID.SAMPLE.PREFIX", pid="abcd")],
+                investigator="inv@esti.gator",
                 owner="owner",
                 ownerGroup="ownerGroup",
                 sourceFolder="/source/folder",
                 usedSoftware=["software1"],
+                type=DatasetType.DERIVED,
             ).dict()
         ],
-        inputDatasets=["input1"],
+        inputDatasets=[PID(prefix="PID.SAMPLE.PREFIX", pid="abcd")],
         instrumentId="instrument-id",
-        investigator="investigator",
+        investigator="inv@esti.gator",
         isPublished=True,
         jobParameters={"tiredness": "great"},
         jobLogData="all-good",
@@ -170,19 +172,20 @@ def test_derived_dataset_overwritten_values(client):
         license="the-license",
         numberOfFiles=123,
         numberOfFilesArchived=42,
-        orcidOfOwner="owners'-orcid",
+        orcidOfOwner="https://orcid.org/0000-0002-3761-3201",
         owner="owner",
         ownerEmail="owner@email.eu",
         ownerGroup="ownerGroup",
         packedSize=551,
-        pid=f"derived-id-{uuid.uuid4()}",
+        pid=PID(pid=f"derived-id-{uuid.uuid4()}"),
         scientificMetadata={"sci1": ["data1"]},
         sharedWith=["shared1"],
         size=6123,
         sourceFolder="/source/folder",
         sourceFolderHost="/host/source/folder",
-        techniques=[{"name": "technique1", "pid": "technique1-id"}],
-        updatedAt="2001-01-01T01:01:01.000Z",
+        techniques=[Technique(name="technique1", pid="technique1-id")],
+        type=DatasetType.DERIVED,
+        updatedAt=parse_date("2001-01-01T01:01:01.000Z"),
         usedSoftware=["software1"],
         validationStatus="not-validated",
         version="9999.00.888",
@@ -236,23 +239,24 @@ def test_raw_dataset_overwritten_values(client):
         accessGroups=["access1"],
         classification="classes",
         contactEmail="contact@email.com",
-        createdAt="2001-01-01T01:01:01.000Z",
+        createdAt=parse_date("2001-01-01T01:01:01.000Z"),
         createdBy="creator",
         creationLocation="the-realverse",
-        creationTime="2000-01-01T01:01:01.000Z",
+        creationTime=parse_date("2000-01-01T01:01:01.000Z"),
         dataFormat="data-format",
         datasetName="datasetName",
         description="description",
-        endTime="2010-01-01T01:01:01.000Z",
+        endTime=parse_date("2010-01-01T01:01:01.000Z"),
         history=[
             RawDataset(
                 accessGroups=["access1"],
                 contactEmail="contact@email.com",
-                creationTime="2000-01-01T01:01:01.000Z",
+                creationTime=parse_date("2000-01-01T01:01:01.000Z"),
                 owner="owner",
                 ownerGroup="ownerGroup",
-                principalInvestigator="investigator",
+                principalInvestigator="inv@esti.gator",
                 sourceFolder="/source/folder",
+                type=DatasetType.RAW,
             ).dict()
         ],
         instrumentId="instrument-id",
@@ -261,13 +265,13 @@ def test_raw_dataset_overwritten_values(client):
         license="the-license",
         numberOfFiles=123,
         numberOfFilesArchived=42,
-        orcidOfOwner="owners'-orcid",
+        orcidOfOwner="https://orcid.org/0000-0002-3761-3201",
         owner="owner",
         ownerEmail="owner@email.eu",
         ownerGroup="ownerGroup",
         packedSize=551,
-        pid=f"derived-id-{uuid.uuid4()}",
-        principalInvestigator="investigator",
+        pid=PID(pid=f"derived-id-{uuid.uuid4()}"),
+        principalInvestigator="inv@esti.gator",
         proposalId="proposal-id",
         sampleId="sample-id",
         scientificMetadata={"sci1": ["data1"]},
@@ -275,8 +279,9 @@ def test_raw_dataset_overwritten_values(client):
         size=6123,
         sourceFolder="/source/folder",
         sourceFolderHost="/host/source/folder",
-        techniques=[{"name": "technique1", "pid": "technique1-id"}],
-        updatedAt="2001-01-01T01:01:01.000Z",
+        techniques=[Technique(name="technique1", pid="technique1-id")],
+        type=DatasetType.RAW,
+        updatedAt=parse_date("2001-01-01T01:01:01.000Z"),
         validationStatus="not-validated",
         version="9999.00.888",
     )

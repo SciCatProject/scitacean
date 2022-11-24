@@ -160,15 +160,14 @@ class Client:
             and some files or a partial dataset are left on the servers.
             Note the error message if that happens.
         """
-        dset = dataset.prepare_as_new()
-        dset.pid = dset.pid.without_prefix
+        dset = dataset.replace(_read_only={"pid": PID.generate()})
         with self.file_transfer.connect_for_upload(dset.pid) as con:
             dset.source_folder = con.source_dir
             for file in dset.files:
                 file.source_folder = dset.source_folder
                 con.upload_file(local=file.local_path, remote=file.remote_access_path)
 
-            models = dset.make_scicat_models()
+            models = dset.make_models()
             try:
                 dataset_id = self.scicat.create_dataset_model(models.dataset)
             except ScicatCommError:
@@ -178,10 +177,10 @@ class Client:
                     )
                 raise
 
-        dset.pid = dataset_id
-        models.datablock.datasetId = dataset_id
+        finalized = dset.replace(_read_only={"pid": dataset_id})
+        models.orig_datablocks[0].datasetId = dataset_id
         try:
-            self.scicat.create_orig_datablock(models.datablock)
+            self.scicat.create_orig_datablock(models.orig_datablocks[0])
         except ScicatCommError as exc:
             raise RuntimeError(
                 f"Failed to upload original datablocks for SciCat dataset {dset.pid}:"
@@ -189,7 +188,7 @@ class Client:
                 "but are not linked with each other. Please fix the dataset manually!"
             ) from exc
 
-        return dset
+        return finalized
 
     @property
     def scicat(self) -> ScicatClient:
@@ -341,9 +340,11 @@ class ScicatClient:
             If SciCat refuses the dataset or communication
             fails for some other reason.
         """
-        return self._call_endpoint(
-            cmd="post", url="Datasets", data=dset, operation="create_dataset_model"
-        ).get("pid")
+        return PID.parse(
+            self._call_endpoint(
+                cmd="post", url="Datasets", data=dset, operation="create_dataset_model"
+            ).get("pid")
+        )
 
     def create_orig_datablock(self, dblock: model.OrigDatablock):
         """Create a new orig datablock in SciCat.

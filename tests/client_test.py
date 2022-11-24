@@ -3,10 +3,10 @@
 # @author Jan-Lukas Wynen
 from copy import deepcopy
 
-import dateutil.parser
+from dateutil.parser import parse as parse_date
 import pytest
 from scitacean.model import DataFile, DatasetType, DerivedDataset, OrigDatablock
-from scitacean import ScicatCommError
+from scitacean import PID, ScicatCommError
 
 from scitacean.testing.client import FakeClient
 from scitacean import Client
@@ -103,12 +103,12 @@ def test_get_orig_datablock_bad_id(scicat_client):
 def test_create_dataset_model(pid, scicat_client):
     dset = DerivedDataset(
         pid=pid,
-        contactEmail="black.foess@dom.k",
-        creationTime="1995-11-11T11:11:11.000Z",
+        contactEmail="black.foess@dom.koelle",
+        creationTime=parse_date("1995-11-11T11:11:11.000Z"),
         owner="bfoess",
-        investigator="bfoess",
+        investigator="b.foess@dom.koelle",
         sourceFolder="/dom/platt",
-        type=DatasetType.derived,
+        type=DatasetType.DERIVED,
         inputDatasets=[],
         usedSoftware=[],
         ownerGroup="bfoess",
@@ -125,7 +125,7 @@ def test_create_dataset_model(pid, scicat_client):
 
 def test_create_dataset_model_id_clash(scicat_client, derived_dataset):
     dset = deepcopy(derived_dataset)
-    dset.pid = dset.pid.split("/")[1]
+    dset.pid = PID(prefix=None, pid=dset.pid.pid)
     dset.owner = "a new owner to trigger a failure"
     with pytest.raises(ScicatCommError):
         scicat_client.create_dataset_model(dset)
@@ -171,12 +171,10 @@ def test_get_dataset(client, derived_dataset, orig_datablock):
     assert dset.meta["temperature"] == derived_dataset.scientificMetadata["temperature"]
     assert dset.meta["data_type"] == derived_dataset.scientificMetadata["data_type"]
 
-    for i in range(len(orig_datablock.dataFileList)):
-        assert dset.files[i].local_path is None
-        assert dset.files[i].size == orig_datablock.dataFileList[i].size
-        assert dset.files[i].creation_time == dateutil.parser.parse(
-            orig_datablock.dataFileList[i].time
-        )
+    for dset_file, expected_file in zip(dset.files, orig_datablock.dataFileList):
+        assert dset_file.local_path is None
+        assert dset_file.size == expected_file.size
+        assert dset_file.creation_time == expected_file.time
 
 
 def test_fake_can_disable_functions():

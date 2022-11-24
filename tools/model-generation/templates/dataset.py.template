@@ -123,13 +123,12 @@ $make_derived_model
 
 $make_raw_model
 
-
     @classmethod
     def from_models(
-            cls,
-            *,
-            dataset_model: Union[DerivedDataset, RawDataset],
-            orig_datablock_models: Optional[List[OrigDatablock]],
+        cls,
+        *,
+        dataset_model: Union[DerivedDataset, RawDataset],
+        orig_datablock_models: Optional[List[OrigDatablock]],
     ):
         """Create a new dataset from fully filled in models.
 

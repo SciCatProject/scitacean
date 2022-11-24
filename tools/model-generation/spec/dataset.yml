@@ -131,12 +131,12 @@ fields:
     type: PID
   - name: proposal_id
     description: Identifier for the proposal that the dataset was produced for.
-    model_name: proposalID
+    model_name: proposalId
     type: str
     used: [raw]
   - name: sample_id
     description: Identifier for the sample that the dataset contains a measurement of.
-    model_name: sampleID
+    model_name: sampleId
     type: str
     used: [raw]
   - name: shared_with
