@@ -134,8 +134,9 @@ def test_failed_datablock_upload_does_not_revert(dataset, fs):
         client.upload_new_dataset_now(dataset)
 
     uploaded_dset = next(iter(client.datasets.values()))
-    dataset.pid = uploaded_dset.pid
-    dataset.source_folder = uploaded_dset.sourceFolder
-    assert uploaded_dset == dataset.make_scicat_models().dataset
+    assert uploaded_dset.owner == "PonderStibbons"
+    assert uploaded_dset.datasetName == "Data A38"
+    assert uploaded_dset.usedSoftware == ["EasyScience"]
+
     assert client.file_transfer.files
     assert not client.file_transfer.reverted
