@@ -8,10 +8,15 @@ import pytest
 from .common import backend
 
 
-# The datasets strategy requires a large amount of memory.
+# The datasets strategy requires a large amount of memory and time.
 # This is not good but hard to avoid.
+# So simply disable health checks and accept that tests are slow.
 hypothesis.settings.register_profile(
-    "scitacean", suppress_health_check=[hypothesis.HealthCheck.data_too_large]
+    "scitacean",
+    suppress_health_check=[
+        hypothesis.HealthCheck.data_too_large,
+        hypothesis.HealthCheck.too_slow,
+    ],
 )
 
 
