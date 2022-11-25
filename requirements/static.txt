@@ -49,7 +49,7 @@ platformdirs==2.5.4
     #   jupyter-core
 pycodestyle==2.10.0
     # via flake8
-pyflakes==3.0.0
+pyflakes==3.0.1
     # via flake8
 pyrsistent==0.19.2
     # via jsonschema

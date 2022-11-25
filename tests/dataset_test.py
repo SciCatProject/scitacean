@@ -218,7 +218,7 @@ def test_replace_replaces_single_writable_field(field, initial, data):
     "field",
     filter(
         lambda f: f.name
-        != ("number_of_files", "number_of_files_archived", "size", "packed_size"),
+        not in ("number_of_files", "number_of_files_archived", "size", "packed_size"),
         Dataset.fields(read_only=True),
     ),
     ids=lambda f: f.name,
