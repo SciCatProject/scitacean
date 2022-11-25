@@ -35,6 +35,7 @@ Features
 ~~~~~~~~
 
 * Added :meth:`Dataset.fields` to inspect dataset fields.
+* Added :meth:`Client.without_login` to create a client without login credentials which can only download public datasets.
 
 Breaking changes
 ~~~~~~~~~~~~~~~~

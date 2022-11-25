@@ -109,6 +109,31 @@ class Client:
             file_transfer=file_transfer,
         )
 
+    @classmethod
+    def without_login(
+        cls, *, url: str, file_transfer: Optional[FileTransfer] = None
+    ) -> Client:
+        """Create a new client without authentication.
+
+        The client can only download public datasets and not upload at all.
+
+        Parameters
+        ----------
+        url:
+            URL of the SciCat api.
+            It should include the suffix `api/vn` where `n` is a number.
+        file_transfer:
+            Handler for down-/uploads of files.
+
+        Returns
+        -------
+        :
+            A new client.
+        """
+        return Client(
+            client=ScicatClient.without_login(url=url), file_transfer=file_transfer
+        )
+
     def get_dataset(self, pid: Union[str, PID]) -> Dataset:
         """Download a dataset from SciCat.
 
@@ -224,7 +249,10 @@ class Client:
 
 class ScicatClient:
     def __init__(
-        self, url: str, token: str, timeout: Optional[datetime.timedelta] = None
+        self,
+        url: str,
+        token: Optional[str],
+        timeout: Optional[datetime.timedelta] = None,
     ):
         # Need to add a final /
         self._base_url = url[:-1] if url.endswith("/") else url
@@ -250,6 +278,12 @@ class ScicatClient:
             token=_get_token(url=url, username=username, password=password),
             timeout=timeout,
         )
+
+    @classmethod
+    def without_login(
+        cls, url: str, timeout: Optional[datetime.timedelta] = None
+    ) -> ScicatClient:
+        return ScicatClient(url=url, token=None, timeout=timeout)
 
     def get_dataset_model(
         self, pid: PID
@@ -378,16 +412,23 @@ class ScicatClient:
     def _send_to_scicat(
         self, *, cmd: str, url: str, data: Optional[model.BaseModel] = None
     ) -> requests.Response:
+        if self._token is not None:
+            params = {"access_token": self._token}
+            headers = {"Authorization": "Bearer {}".format(self._token)}
+        else:
+            params = {}
+            headers = {}
+
+        if data is not None:
+            headers["Content-Type"] = "application/json"
+
         try:
             return requests.request(
                 method=cmd,
                 url=url,
                 data=data.json(exclude_none=True) if data is not None else None,
-                params={"access_token": self._token},
-                headers={
-                    "Authorization": "Bearer {}".format(self._token),
-                    "Content-Type": "application/json",
-                },
+                params=params,
+                headers=headers,
                 timeout=self._timeout.seconds if self._timeout is not None else None,
                 stream=False,
                 verify=True,

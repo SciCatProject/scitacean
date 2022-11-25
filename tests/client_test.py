@@ -188,3 +188,23 @@ def test_fake_can_disable_functions():
         client.scicat.get_dataset_model("some-pid")
     with pytest.raises(IndexError, match="custom index error"):
         client.scicat.get_orig_datablocks("some-pid")
+
+
+def test_can_get_public_dataset_without_login(request, scicat_access, scicat_backend):
+    skip_if_not_backend(request)
+    client = Client.without_login(url=scicat_access.url)
+    dset = client.get_dataset("PID.SAMPLE.PREFIX/public-dataset")
+    assert dset.type == DatasetType.RAW
+    assert dset.owner == "librarian"
+    assert dset.creation_time == parse_date("2022-11-25T22:12:04.512Z")
+    assert dset.number_of_files == 0
+
+
+def test_cannot_upload_without_login(
+    request, derived_dataset, scicat_access, scicat_backend
+):
+    skip_if_not_backend(request)
+    client = Client.without_login(url=scicat_access.url)
+    derived_dataset.pid = None
+    with pytest.raises(ScicatCommError):
+        client.scicat.create_dataset_model(derived_dataset)

@@ -12,7 +12,9 @@
     ],
     "classification": "IN=medium,AV=low,CO=low",
     "contactEmail": "ponder.stibbons@uu.am",
-    "creationTime": {"$date": "2104-06-13T01:45:28.100Z"},
+    "creationTime": {
+      "$date": "2104-06-13T01:45:28.100Z"
+    },
     "datasetName": "My darkest magic yet",
     "description": "Doing some dark shit",
     "history": [],
@@ -59,7 +61,9 @@
       "everyone"
     ],
     "contactEmail": "ponder.stibbons@uu.am",
-    "creationTime": {"$date": "2062-12-31T23:42:09.000Z"},
+    "creationTime": {
+      "$date": "2062-12-31T23:42:09.000Z"
+    },
     "datasetName": "Dataset-with-2-orig-datablocks",
     "history": [],
     "isPublished": false,
@@ -79,5 +83,42 @@
       }
     ],
     "dataFormat": "NeXus"
+  },
+  {
+    "_id": "PID.SAMPLE.PREFIX/public-dataset",
+    "createdBy": "librarian",
+    "createdAt": {
+      "$date": "2022-11-25T22:41:20.629Z"
+    },
+    "ownerGroup": "uu",
+    "accessGroups": [
+      "darkmagic",
+      "faculty"
+    ],
+    "classification": "IN=medium,AV=low,CO=low",
+    "contactEmail": "ook@uu.am",
+    "creationTime": {
+      "$date": "2022-11-25T22:12:04.512Z"
+    },
+    "datasetName": "A public dataset",
+    "description": "This dataset is public",
+    "history": [],
+    "isPublished": true,
+    "numberOfFiles": 0,
+    "numberOfFilesArchived": 0,
+    "owner": "librarian",
+    "ownerEmail": "ook@uu.am",
+    "size": 0,
+    "sourceFolder": "/",
+    "type": "raw",
+    "version": "3.1.0",
+    "principalInvestigator": "ook@am.uu",
+    "techniques": [
+      {
+        "pid": "L1",
+        "name": "librarianism"
+      }
+    ],
+    "dataFormat": "Index cards"
   }
 ]

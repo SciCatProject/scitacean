@@ -152,6 +152,16 @@ class FakeClient(Client):
         """
         return FakeClient(file_transfer=file_transfer)
 
+    @classmethod
+    def without_login(
+        cls, *, url: str, file_transfer: Optional[FileTransfer] = None
+    ) -> FakeClient:
+        """Create a new fake client.
+
+        All arguments except ``file_Transfer`` are ignored.
+        """
+        return FakeClient(file_transfer=file_transfer)
+
     def get_dataset(self, pid: Union[PID, str]) -> Dataset:
         """Return a dataset from the client's internal storage."""
         if not isinstance(pid, PID):

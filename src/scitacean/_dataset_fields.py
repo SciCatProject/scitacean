@@ -1105,7 +1105,7 @@ def _files_from_datablocks(
     dataset_model: Union[DerivedDataset, RawDataset],
     orig_datablock_models: Optional[List[OrigDatablock]],
 ) -> List[File]:
-    if orig_datablock_models is None:
+    if not orig_datablock_models:
         return []
 
     if len(orig_datablock_models) != 1:
