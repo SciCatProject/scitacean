@@ -4,10 +4,11 @@ Utilities for the documentation.
 Should probably not be used externally.
 """
 
-from pyscicat.model import DataFile, OrigDatablock, RawDataset
+from dateutil.parser import parse as parse_date
 
 from ..pid import PID
 from .client import FakeClient
+from ..model import DataFile, DatasetType, OrigDatablock, RawDataset
 from .transfer import FakeFileTransfer
 
 
@@ -21,19 +22,19 @@ def _create_raw_dataset(client: FakeClient):
 
     dataset_id = PID(prefix="20.500.12269", pid="72fe3ff6-105b-4c7f-b9d0-073b67c90ec3")
     client.datasets[dataset_id] = RawDataset(
-        pid=str(dataset_id),
+        pid=dataset_id,
         datasetName="Thaum flux",
         description="Measured the thaum flux",
         createdBy="Ponder Stibbons",
         updatedBy="anonymous",
-        updatedAt="2022-11-01T13:22:08.927Z",
-        createdAt="2022-08-17T14:20:23.675Z",
+        updatedAt=parse_date("2022-11-01T13:22:08.927Z"),
+        createdAt=parse_date("2022-08-17T14:20:23.675Z"),
         owner="Ponder Stibbons",
         ownerGroup="uu",
         accessGroups=["faculty"],
-        principalInvestigator="Ponder Stibbons",
+        principalInvestigator="p.stibbons@uu.am",
         contactEmail="p.stibbons@uu.am",
-        creationTime="2022-06-29T14:01:05.000Z",
+        creationTime=parse_date("2022-06-29T14:01:05.000Z"),
         numberOfFiles=2,
         size=len(content1) + len(content2),
         sourceFolder="/hex/ps/thaum",
@@ -41,22 +42,25 @@ def _create_raw_dataset(client: FakeClient):
             "data_type": "histogram",
             "temperature": {"value": "123", "unit": "K"},
         },
+        type=DatasetType.RAW,
     )
     client.orig_datablocks[dataset_id] = [
         OrigDatablock(
-            id="20.500.12269/02dc390c-811c-4d6a-93bf-9f85a4214ca0",
-            datasetId=str(dataset_id),
+            id=PID(prefix="20.500.12269", pid="02dc390c-811c-4d6a-93bf-9f85a4214ca0"),
+            datasetId=dataset_id,
             size=len(content1) + len(content2),
             ownerGroup="uu",
             accessGroups=["faculty"],
             dataFileList=[
                 DataFile(
-                    path="flux.dat", size=len(content1), time="2022-08-17T13:54:12Z"
+                    path="flux.dat",
+                    size=len(content1),
+                    time=parse_date("2022-08-17T13:54:12Z"),
                 ),
                 DataFile(
                     path="logs/measurement.log",
                     size=len(content2),
-                    time="2022-08-17T13:55:21Z",
+                    time=parse_date("2022-08-17T13:55:21Z"),
                 ),
             ],
         )

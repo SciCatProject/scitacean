@@ -45,16 +45,16 @@ ipykernel==6.17.1
     # via -r requirements/docs.in
 ipython==8.6.0
     # via ipykernel
-jedi==0.18.1
+jedi==0.18.2
     # via ipython
 jinja2==3.1.2
     # via
     #   nbconvert
     #   nbsphinx
     #   sphinx
-jsonschema==4.17.0
+jsonschema==4.17.1
     # via nbformat
-jupyter-client==7.4.5
+jupyter-client==7.4.7
     # via
     #   ipykernel
     #   nbclient
@@ -77,7 +77,7 @@ mistune==2.0.4
     # via nbconvert
 nbclient==0.7.0
     # via nbconvert
-nbconvert==7.2.4
+nbconvert==7.2.5
     # via nbsphinx
 nbformat==5.7.0
     # via
@@ -107,7 +107,7 @@ pickleshare==0.7.5
     # via ipython
 platformdirs==2.5.4
     # via jupyter-core
-prompt-toolkit==3.0.32
+prompt-toolkit==3.0.33
     # via ipython
 psutil==5.9.4
     # via ipykernel
@@ -115,7 +115,7 @@ ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.2
     # via stack-data
-pydata-sphinx-theme==0.11.0
+pydata-sphinx-theme==0.12.0
     # via -r requirements/docs.in
 pygments==2.13.0
     # via
@@ -146,7 +146,7 @@ sphinx==5.3.0
     #   sphinx-copybutton
 sphinx-autodoc-typehints==1.18.3
     # via -r requirements/docs.in
-sphinx-copybutton==0.5.0
+sphinx-copybutton==0.5.1
     # via -r requirements/docs.in
 sphinxcontrib-applehelp==1.0.2
     # via sphinx

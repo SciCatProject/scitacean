@@ -1,0 +1,10 @@
+        Field(
+            name=$name,
+            description=$description,
+            read_only=$read_only,
+            required_by_derived=$required_by_derived,
+            required_by_raw=$required_by_raw,
+            type=$type,
+            used_by_derived=$used_by_derived,
+            used_by_raw=$used_by_raw,
+        ),

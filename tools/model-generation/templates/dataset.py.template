@@ -1,0 +1,182 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
+# @author Jan-Lukas Wynen
+# flake8: noqa
+
+"""Base dataclass for Dataset."""
+
+import dataclasses
+from datetime import datetime, timezone
+from typing import Any, Callable, Dict, Generator, Literal, List, Optional, Union
+
+import dateutil.parser
+
+from .file import File
+from .model import DatasetLifecycle, DatasetType, DerivedDataset, OrigDatablock, RawDataset, Technique
+from .pid import PID
+
+
+def _apply_default(
+    value: Any, default: Any, default_factory: Optional[Callable]
+) -> Any:
+    if value is not None:
+        return value
+    if default_factory is not None:
+        return default_factory()
+    return default
+
+
+def _parse_datetime(x: Optional[Union[datetime, str]]) -> datetime:
+    if isinstance(x, datetime):
+        return x
+    if isinstance(x, str):
+        if x != "now":
+            return dateutil.parser.parse(x)
+    return datetime.now(tz=timezone.utc)
+
+
+class DatasetFields:
+    @dataclasses.dataclass(frozen=True)
+    class Field:
+        name: str
+        description: str
+        read_only: bool
+        required_by_derived: bool
+        required_by_raw: bool
+        type: type
+        used_by_derived: bool
+        used_by_raw: bool
+
+        def required(self, dataset_type: DatasetType) -> bool:
+            return self.required_by_raw if dataset_type == DatasetType.RAW else self.required_by_derived
+
+    _FIELD_SPEC = $field_spec
+
+    def __init__(
+        self,
+        *,
+        type: Union[DatasetType, Literal["derived", "raw"]],
+        creation_time: Optional[Union[datetime, str]] = None,
+        $field_init_args,
+        _files: Optional[List[File]] = None,
+        _pid: Optional[Union[str, PID]] = None,
+        _read_only: Optional[Dict[str, Any]] = None,
+    ):
+        _read_only = _read_only or {}
+        self._fields = {
+            "creation_time": _parse_datetime(creation_time),
+            "history": _apply_default(_read_only.get("history"), None, list),
+            "pid": PID.parse(_pid) if isinstance(_pid, str) else _pid,
+            "type": DatasetType(type),
+$field_dict_construction
+        }
+        self._files = [] if _files is None else list(_files)
+
+    @property
+    def pid(self) -> Optional[PID]:
+        """Persistent identifier for datasets."""
+        return self._fields["pid"]
+
+    @property
+    def creation_time(self) -> datetime:
+        return self._fields["creation_time"]
+
+    @creation_time.setter
+    def creation_time(self, value: Union[datetime, str]):
+        if value is None:
+            raise TypeError("Cannot set creation_time to None")
+        self._fields["creation_time"] = _parse_datetime(value)
+
+$properties
+
+    @classmethod
+    def fields(
+        cls,
+        dataset_type: Optional[Union[DatasetType, Literal["derived", "raw"]]] = None,
+        read_only: Optional[bool] = None,
+    ) -> Generator[Field, None, None]:
+        """Iterator over dataset fields."""
+        it = DatasetFields._FIELD_SPEC
+        if dataset_type is not None:
+            attr = "used_by_derived" if dataset_type == DatasetType.DERIVED else "used_by_raw"
+            it = filter(lambda field: getattr(field, attr), it)
+        if read_only is not None:
+            it = filter(lambda field: field.read_only == read_only, it)
+        yield from it
+
+    def __str__(self) -> str:
+        args = ", ".join(
+            f"{name}={value}"
+            for name, value in (
+                (field.name, getattr(self, field.name)) for field in self.fields()
+            )
+            if value is not None
+        )
+        return f"Dataset({args})"
+
+    def make_dataset_model(self) -> Union[DerivedDataset, RawDataset]:
+        if self.type == DatasetType.DERIVED:
+            return self._make_derived_model()
+        return self._make_raw_model()
+
+$make_derived_model
+
+$make_raw_model
+
+    @classmethod
+    def from_models(
+        cls,
+        *,
+        dataset_model: Union[DerivedDataset, RawDataset],
+        orig_datablock_models: Optional[List[OrigDatablock]],
+    ):
+        """Create a new dataset from fully filled in models.
+
+        Parameters
+        ----------
+        dataset_model:
+            Fields, including scientific metadata are filled from this model.
+        orig_datablock_models:
+            File links are populated from this model.
+
+        Returns
+        -------
+        :
+            A new dataset.
+        """
+        args = _fields_from_model(dataset_model)
+        read_only_args = args.pop('_read_only')
+        read_only_args['history'] = dataset_model.history
+        return cls(
+            creation_time=dataset_model.creationTime,
+            _pid=dataset_model.pid,
+            _files=_files_from_datablocks(dataset_model, orig_datablock_models),
+            _read_only=read_only_args,
+            **args,
+        )
+
+
+def _fields_from_model(model: Union[DerivedDataset, RawDataset]) -> dict:
+    return _fields_from_derived_model(model) if isinstance(model, DerivedDataset) else _fields_from_raw_model(model)
+
+
+def _files_from_datablocks(dataset_model: Union[DerivedDataset, RawDataset],
+                           orig_datablock_models: Optional[List[OrigDatablock]]) -> List[File]:
+    if orig_datablock_models is None:
+        return []
+
+    if len(orig_datablock_models) != 1:
+        raise NotImplementedError(
+            f"Got {len(orig_datablock_models)} original datablocks for "
+            f"dataset {dataset_model.pid} but only support for one is implemented."
+        )
+    dblock = orig_datablock_models[0]
+    return [
+        File.from_scicat(file, source_folder=dataset_model.sourceFolder)
+        for file in dblock.dataFileList
+    ]
+
+
+$fields_from_derived_model
+
+$fields_from_raw_model

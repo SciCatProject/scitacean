@@ -1,3 +1,5 @@
+email-validator
 fabric
+pydantic
 python-dateutil
-pyscicat >= 0.2.3
+requests

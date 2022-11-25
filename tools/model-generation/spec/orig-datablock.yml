@@ -1,0 +1,21 @@
+name: OrigDatablock
+inherits: Ownable
+fields:
+  - name: pid
+    description: Persistent identifier for the datablock.
+    model_name: id
+    type: PID
+  - name: size
+    description: Total size in bytes of all files associated with the datablock.
+    required: true
+    type: int
+    validation: size
+  - name: data_file_list
+    description: List of DataFile models associated with the datablock.
+    model_name: dataFileList
+    required: true
+    type: List[DataFile]
+  - name: dataset_id
+    description: PID of the dataset that this datablock belongs to.
+    model_name: datasetId
+    type: PID

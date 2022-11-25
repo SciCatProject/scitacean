@@ -1,9 +1,23 @@
 from dataclasses import dataclass
-import pytest
 import tempfile
 from typing import Dict
 
+import hypothesis
+import pytest
+
 from .common import backend
+
+
+# The datasets strategy requires a large amount of memory and time.
+# This is not good but hard to avoid.
+# So simply disable health checks and accept that tests are slow.
+hypothesis.settings.register_profile(
+    "scitacean",
+    suppress_health_check=[
+        hypothesis.HealthCheck.data_too_large,
+        hypothesis.HealthCheck.too_slow,
+    ],
+)
 
 
 def pytest_addoption(parser):
@@ -15,7 +29,7 @@ def pytest_addoption(parser):
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def scicat_backend(request, scicat_access):
     """Spin up a SciCat backend and API.
 
@@ -43,7 +57,7 @@ class SciCatAccess:
     functional_credentials: Dict[str, str]
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def scicat_access():
     return SciCatAccess(
         url="http://localhost/api/v3/",

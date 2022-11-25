@@ -3,16 +3,16 @@
 # @author Jan-Lukas Wynen
 
 from contextlib import contextmanager
-from datetime import datetime, timedelta
+from datetime import timedelta
 from hashlib import md5
 from typing import Dict
 
-import dateutil.parser
-from pyscicat.model import DataFile
+from dateutil.parser import parse as parse_time
 import pytest
 from scitacean import File
 from scitacean.error import IntegrityError
 from scitacean.file import checksum_of_file
+from scitacean.model import DataFile
 
 from .common.files import make_file
 
@@ -31,16 +31,17 @@ def test_file_from_local(fake_file):
     assert file.checksum == fake_file["checksum"]
     assert file.size == fake_file["size"]
 
-    assert file.model.path == str(fake_file["path"])
-    assert file.model.size == fake_file["size"]
-    assert file.model.chk == fake_file["checksum"]
-    assert file.model.uid is None
-    assert file.model.gid is None
-    assert file.model.perm is None
+    assert file.make_model().path == str(fake_file["path"])
+    assert file.make_model().size == fake_file["size"]
+    assert file.make_model().chk == fake_file["checksum"]
+    assert file.make_model().uid is None
+    assert file.make_model().gid is None
+    assert file.make_model().perm is None
 
     assert abs(fake_file["creation_time"] - file.creation_time) < timedelta(seconds=1)
-    t = datetime.fromisoformat(file.model.time)
-    assert abs(fake_file["creation_time"] - t) < timedelta(seconds=1)
+    assert abs(fake_file["creation_time"] - file.make_model().time) < timedelta(
+        seconds=1
+    )
 
 
 def test_file_from_local_with_base_path(fake_file):
@@ -52,16 +53,17 @@ def test_file_from_local_with_base_path(fake_file):
     assert file.checksum == fake_file["checksum"]
     assert file.size == fake_file["size"]
 
-    assert file.model.path == "dir/events.nxs"
-    assert file.model.size == fake_file["size"]
-    assert file.model.chk == fake_file["checksum"]
-    assert file.model.uid is None
-    assert file.model.gid is None
-    assert file.model.perm is None
+    assert file.make_model().path == "dir/events.nxs"
+    assert file.make_model().size == fake_file["size"]
+    assert file.make_model().chk == fake_file["checksum"]
+    assert file.make_model().uid is None
+    assert file.make_model().gid is None
+    assert file.make_model().perm is None
 
     assert abs(fake_file["creation_time"] - file.creation_time) < timedelta(seconds=1)
-    t = datetime.fromisoformat(file.model.time)
-    assert abs(fake_file["creation_time"] - t) < timedelta(seconds=1)
+    assert abs(fake_file["creation_time"] - file.make_model().time) < timedelta(
+        seconds=1
+    )
 
 
 def test_file_from_local_set_remote_path(fake_file):
@@ -73,16 +75,17 @@ def test_file_from_local_set_remote_path(fake_file):
     assert file.checksum == fake_file["checksum"]
     assert file.size == fake_file["size"]
 
-    assert file.model.path == "remote/location/file.nxs"
-    assert file.model.size == fake_file["size"]
-    assert file.model.chk == fake_file["checksum"]
-    assert file.model.uid is None
-    assert file.model.gid is None
-    assert file.model.perm is None
+    assert file.make_model().path == "remote/location/file.nxs"
+    assert file.make_model().size == fake_file["size"]
+    assert file.make_model().chk == fake_file["checksum"]
+    assert file.make_model().uid is None
+    assert file.make_model().gid is None
+    assert file.make_model().perm is None
 
     assert abs(fake_file["creation_time"] - file.creation_time) < timedelta(seconds=1)
-    t = datetime.fromisoformat(file.model.time)
-    assert abs(fake_file["creation_time"] - t) < timedelta(seconds=1)
+    assert abs(fake_file["creation_time"] - file.make_model().time) < timedelta(
+        seconds=1
+    )
 
 
 def test_file_from_local_set_source_folder(fake_file):
@@ -94,16 +97,17 @@ def test_file_from_local_set_source_folder(fake_file):
     assert file.checksum == fake_file["checksum"]
     assert file.size == fake_file["size"]
 
-    assert file.model.path == "local/dir/events.nxs"
-    assert file.model.size == fake_file["size"]
-    assert file.model.chk == fake_file["checksum"]
-    assert file.model.uid is None
-    assert file.model.gid is None
-    assert file.model.perm is None
+    assert file.make_model().path == "local/dir/events.nxs"
+    assert file.make_model().size == fake_file["size"]
+    assert file.make_model().chk == fake_file["checksum"]
+    assert file.make_model().uid is None
+    assert file.make_model().gid is None
+    assert file.make_model().perm is None
 
     assert abs(fake_file["creation_time"] - file.creation_time) < timedelta(seconds=1)
-    t = datetime.fromisoformat(file.model.time)
-    assert abs(fake_file["creation_time"] - t) < timedelta(seconds=1)
+    assert abs(fake_file["creation_time"] - file.make_model().time) < timedelta(
+        seconds=1
+    )
 
 
 def test_file_from_local_set_many_args(fake_file):
@@ -122,16 +126,17 @@ def test_file_from_local_set_many_args(fake_file):
     assert file.checksum == fake_file["checksum"]
     assert file.size == fake_file["size"]
 
-    assert file.model.path == "dir/events.nxs"
-    assert file.model.size == fake_file["size"]
-    assert file.model.chk == fake_file["checksum"]
-    assert file.model.uid == "user-usy"
-    assert file.model.gid == "groupy-group"
-    assert file.model.perm == "wrx"
+    assert file.make_model().path == "dir/events.nxs"
+    assert file.make_model().size == fake_file["size"]
+    assert file.make_model().chk == fake_file["checksum"]
+    assert file.make_model().uid == "user-usy"
+    assert file.make_model().gid == "groupy-group"
+    assert file.make_model().perm == "wrx"
 
     assert abs(fake_file["creation_time"] - file.creation_time) < timedelta(seconds=1)
-    t = datetime.fromisoformat(file.model.time)
-    assert abs(fake_file["creation_time"] - t) < timedelta(seconds=1)
+    assert abs(fake_file["creation_time"] - file.make_model().time) < timedelta(
+        seconds=1
+    )
 
 
 @pytest.mark.parametrize("alg", ("md5", "sha256", "blake2s"))
@@ -139,11 +144,13 @@ def test_file_from_local_select_checksum_algorithm(fake_file, alg):
     file = File.from_local(fake_file["path"], checksum_algorithm=alg)
     expected = checksum_of_file(fake_file["path"], algorithm=alg)
     assert file.checksum == expected
-    assert file.model.chk == expected
+    assert file.make_model().chk == expected
 
 
 def test_file_from_scicat():
-    model = DataFile(path="dir/image.jpg", size=12345, time="2022-06-22T15:42:53.123Z")
+    model = DataFile(
+        path="dir/image.jpg", size=12345, time=parse_time("2022-06-22T15:42:53.123Z")
+    )
     file = File.from_scicat(model, source_folder="remote/source/folder")
 
     assert file.source_folder == "remote/source/folder"
@@ -151,15 +158,15 @@ def test_file_from_scicat():
     assert file.local_path is None
     assert file.checksum is None
     assert file.size == 12345
-    assert file.creation_time == dateutil.parser.parse("2022-06-22T15:42:53.123Z")
+    assert file.creation_time == parse_time("2022-06-22T15:42:53.123Z")
 
-    assert file.model.path == "dir/image.jpg"
-    assert file.model.size == 12345
-    assert file.model.time == "2022-06-22T15:42:53.123Z"
-    assert file.model.chk is None
-    assert file.model.uid is None
-    assert file.model.gid is None
-    assert file.model.perm is None
+    assert file.make_model().path == "dir/image.jpg"
+    assert file.make_model().size == 12345
+    assert file.make_model().time == parse_time("2022-06-22T15:42:53.123Z")
+    assert file.make_model().chk is None
+    assert file.make_model().uid is None
+    assert file.make_model().gid is None
+    assert file.make_model().perm is None
 
 
 class FakeDownloader:
@@ -180,7 +187,7 @@ def test_provide_locally_creates_local_file(fs):
     model = DataFile(
         path="folder/file.txt",
         size=len(content),
-        time="2022-06-22T15:42:53+00:00",
+        time=parse_time("2022-06-22T15:42:53+00:00"),
         chk=md5(content).hexdigest(),
     )
     file = File.from_scicat(model, source_folder="remote/source/")
@@ -198,7 +205,7 @@ def test_provide_locally_ignores_checksum_if_alg_is_none(fs):
     model = DataFile(
         path="folder/file.txt",
         size=len(content),
-        time="2022-06-22T15:42:53+00:00",
+        time=parse_time("2022-06-22T15:42:53+00:00"),
         chk=bad_checksum,
     )
     file = File.from_scicat(model, source_folder="remote/source/")
@@ -214,7 +221,7 @@ def test_provide_locally_detects_bad_checksum(fs):
     model = DataFile(
         path="folder/file.txt",
         size=len(content),
-        time="2022-06-22T15:42:53+00:00",
+        time=parse_time("2022-06-22T15:42:53+00:00"),
         chk=bad_checksum,
     )
     file = File.from_scicat(model, source_folder="remote/source/")
@@ -226,7 +233,7 @@ def test_provide_locally_detects_bad_checksum(fs):
 def test_provide_locally_detects_bad_size_if_checksum_not_available(fs):
     content = b"random-stuff"
     model = DataFile(
-        path="folder/file.txt", size=9999, time="2022-06-22T15:42:53+00:00"
+        path="folder/file.txt", size=9999, time=parse_time("2022-06-22T15:42:53+00:00")
     )
     file = File.from_scicat(model, source_folder="remote/source/")
     downloader = FakeDownloader(files={"remote/source/folder/file.txt": content}, fs=fs)
@@ -241,7 +248,7 @@ def test_provide_locally_detects_bad_size_if_checksum_alg_is_none(fs):
     model = DataFile(
         path="folder/file.txt",
         size=9999,
-        time="2022-06-22T15:42:53+00:00",
+        time=parse_time("2022-06-22T15:42:53+00:00"),
         chk=bad_checksum,
     )
     file = File.from_scicat(model, source_folder="remote/source/")

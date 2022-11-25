@@ -3,12 +3,11 @@
 # @author Jan-Lukas Wynen
 
 from contextlib import contextmanager
-from copy import deepcopy
 
-from pyscicat.client import ScicatCommError
-from pyscicat import model
+from dateutil.parser import parse as parse_date
 import pytest
-from scitacean import Dataset
+from scitacean import Dataset, DatasetType, ScicatCommError
+from scitacean import model
 from scitacean.testing.client import FakeClient
 from scitacean.testing.transfer import FakeFileTransfer
 
@@ -25,14 +24,13 @@ def ownable():
 @pytest.fixture
 def derived_dataset_model(ownable):
     return model.DerivedDataset(
-        pid="01.432.56789/12345678-abcd-0987-0123456789ab",
         owner="PonderStibbons",
-        investigator="Ridcully",
+        investigator="ridcully@uu.am",
         contactEmail="p.stibbons@uu.am",
         sourceFolder="/hex/source123",
         size=0,
         numberOfFiles=0,
-        creationTime="2011-08-24T12:34:56Z",
+        creationTime=parse_date("2011-08-24T12:34:56Z"),
         datasetName="Data A38",
         inputDatasets=[],
         usedSoftware=["EasyScience"],
@@ -41,28 +39,32 @@ def derived_dataset_model(ownable):
             "temperature": {"value": "123", "unit": "K"},
             "weight": {"value": "42", "unit": "mg"},
         },
+        type=DatasetType.DERIVED,
         **ownable.dict(),
     )
 
 
 @pytest.fixture
 def client(fs):
-    return FakeClient(file_transfer=FakeFileTransfer(fs=fs, files={}, reverted={}))
+    return FakeClient.from_token(
+        url="", token="", file_transfer=FakeFileTransfer(fs=fs, files={}, reverted={})
+    )
 
 
 @pytest.fixture
 def dataset(derived_dataset_model, fs):
     make_file(fs, path="file.nxs", contents=b"contents of file.nxs")
     make_file(fs, path="the_log_file.log", contents=b"this is a log file")
-    dset = Dataset.new(model=derived_dataset_model)
+    dset = Dataset.from_models(
+        dataset_model=derived_dataset_model, orig_datablock_models=None
+    )
     dset.add_local_files("file.nxs", "the_log_file.log")
     return dset
 
 
 def test_upload_assigns_fixed_fields(client, dataset):
-    expected = deepcopy(dataset)
     finalized = client.upload_new_dataset_now(dataset)
-    expected.pid = finalized.pid
+    expected = dataset.replace(_read_only={"pid": finalized.pid})
 
     with client.file_transfer.connect_for_upload(finalized.pid) as con:
         source_dir = con.source_dir
@@ -72,10 +74,10 @@ def test_upload_assigns_fixed_fields(client, dataset):
 
 def test_upload_creates_dataset_and_datablock(client, dataset):
     finalized = client.upload_new_dataset_now(dataset)
-    assert client.datasets[finalized.pid] == finalized.make_scicat_models().dataset
-    assert client.orig_datablocks[finalized.pid] == [
-        finalized.make_scicat_models().datablock
-    ]
+    assert client.datasets[finalized.pid] == finalized.make_models().dataset
+    assert (
+        client.orig_datablocks[finalized.pid] == finalized.make_models().orig_datablocks
+    )
 
 
 def test_upload_uploads_files_to_source_folder(client, dataset):
@@ -132,8 +134,9 @@ def test_failed_datablock_upload_does_not_revert(dataset, fs):
         client.upload_new_dataset_now(dataset)
 
     uploaded_dset = next(iter(client.datasets.values()))
-    dataset.pid = uploaded_dset.pid
-    dataset.source_folder = uploaded_dset.sourceFolder
-    assert uploaded_dset == dataset.make_scicat_models().dataset
+    assert uploaded_dset.owner == "PonderStibbons"
+    assert uploaded_dset.datasetName == "Data A38"
+    assert uploaded_dset.usedSoftware == ["EasyScience"]
+
     assert client.file_transfer.files
     assert not client.file_transfer.reverted

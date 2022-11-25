@@ -25,7 +25,7 @@
     "sourceFolder": "/hex/data/123",
     "type": "derived",
     "version": "3.1.0",
-    "investigator": "pstibbons",
+    "investigator": "p.stibbons@uu.am",
     "inputDatasets": [],
     "techniques": [
       {
@@ -71,7 +71,7 @@
     "sourceFolder": "/hex/two_blocks",
     "type": "raw",
     "version": "3.1.0",
-    "principalInvestigator": "pstibbons",
+    "principalInvestigator": "p.stibbons@uu.am",
     "techniques": [
       {
         "pid": "DM666",

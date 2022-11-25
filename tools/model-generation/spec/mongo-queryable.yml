@@ -1,0 +1,22 @@
+name: MongoQueryable
+fields:
+  - name: created_by
+    description: Account name who created the object in the database.
+    model_name: createdBy
+    read_only: true
+    type: str
+  - name: updated_by
+    description: Account name who last updated the object in the database.
+    model_name: updatedBy
+    read_only: true
+    type: str
+  - name: updated_at
+    description: Time when the object was last updated in the database.
+    model_name: updatedAt
+    read_only: true
+    type: datetime
+  - name: created_at
+    description: Time when the object was created in the database.
+    model_name: createdAt
+    read_only: true
+    type: datetime

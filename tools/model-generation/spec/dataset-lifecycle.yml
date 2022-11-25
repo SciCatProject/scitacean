@@ -1,0 +1,55 @@
+name: DatasetLifecycle
+fields:
+  - name: archivable
+    description: True, if dataset can be archived and no archive job for this dataset exists yet.
+    type: bool
+  - name: retrievable
+    description: True, if dataset is stored on archive system and is ready to be retrieved.
+    type: bool
+  - name: publishable
+    description: True, if dataset can be published. Usually requires a long-term storage option on tape or similar.
+    type: bool
+  - name: date_of_disk_purging
+    description: Day when dataset will be removed from disk, assuming that it is already stored on tape.
+    model_name: dateOfDiskPurging
+    type: datetime
+  - name: archive_retention_time
+    description: Day when the dataset's future fate will be evaluated again, e.g. to decide if the dataset can be deleted from archive.
+    model_name: archiveRetentionTime
+    type: datetime
+  - name: date_of_publishing
+    description: Day when dataset is supposed to become public according to data policy.
+    model_name: dateOfPublishing
+    type: datetime
+  - name: published_on
+    description: Day when dataset was published.
+    model_name: publishedOn
+    type: datetime
+  - name: is_on_central_disk
+    description: True, if full dataset is available on central fileserver. If false, data needs to be copied from decentral storage place to a cache server before the ingest. This information needs to be transferred to the archive system at archive time.
+    model_name: isOnCentralDisk
+    type: bool
+  - name: archive_status_message
+    description: Short string defining current status of Dataset with respect to storage on disk/tape.
+    model_name: archiveStatusMessage
+    type: str
+  - name: retrieve_status_message
+    description: Latest message for this dataset concerning retrieval from archive system.
+    model_name: retrieveStatusMessage
+    type: str
+  - name: archive_return_message
+    description: Detailed status or error message returned by archive system when archiving this dataset.
+    model_name: archiveReturnMessage
+    type: str
+  - name: retrieve_return_message
+    description: Detailed status or error message returned by archive system when retrieving this dataset.
+    model_name: retrieveReturnMessage
+    type: str
+  - name: exported_to
+    description: Location of the last export destination.
+    model_name: exportedTo
+    type: str
+  - name: retrieve_integrity_check
+    description: Set to true when checksum tests after retrieval of datasets were successful.
+    model_name: retrieveIntegrityCheck
+    type: bool

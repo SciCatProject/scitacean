@@ -1,5 +1,9 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
+# @author Jan-Lukas Wynen
 from __future__ import annotations
 from typing import Optional
+import uuid
 
 
 class PID:
@@ -60,6 +64,24 @@ class PID:
             return PID(pid=pieces[0], prefix=None)
         return PID(prefix=pieces[0], pid=pieces[1])
 
+    @classmethod
+    def generate(cls, *, prefix: Optional[str] = None) -> PID:
+        """Create a new unique PID.
+
+        Uses UUID4 to generate the ID.
+
+        Parameters
+        ----------
+        prefix:
+            If given, the returned PID has this prefix.
+
+        Returns
+        -------
+        :
+            A new PID object.
+        """
+        return PID(prefix=prefix, pid=str(uuid.uuid4()))
+
     @property
     def pid(self) -> str:
         """Main part of the ID."""
@@ -87,4 +109,16 @@ class PID:
         return hash(str(self))
 
     def __eq__(self, other):
-        return str(self) == str(other)
+        if not isinstance(other, PID):
+            return False
+        return self.prefix == other.prefix and self.pid == other.pid
+
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, value) -> PID:
+        if isinstance(value, str):
+            return PID.parse(value)
+        return value

@@ -1,42 +1,114 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
 # @author Jan-Lukas Wynen
+from functools import partial
+from typing import Dict, Optional
 
-from typing import Any, Dict, Tuple
+from email_validator import validate_email, EmailNotValidError
+from scitacean import Dataset, DatasetType, PID
+from scitacean._internal.orcid import orcid_checksum
+from hypothesis import strategies as st
 
-from hypothesis import infer, strategies as st
-from pyscicat import model as m
+
+# email_validator and by extension pydantic is more picky than hypothesis
+# so make sure that generated emails actually pass model validation.
+def _is_valid_email(email: str) -> bool:
+    try:
+        validate_email(email, check_deliverability=False)
+        return True
+    except EmailNotValidError:
+        return False
 
 
-def builds_model(
-    model, to_infer: Tuple[str, ...], user_kwargs: Dict[str, Any]
+def multi_emails():
+    # Convert to lowercase because that is what pydantic does.
+    return st.lists(
+        st.emails().filter(_is_valid_email).map(lambda s: s.lower()), min_size=1
+    ).map(lambda email: ";".join(email))
+
+
+def _email_field_strategy(
+    field: Dataset.Field, dataset_type: DatasetType
 ) -> st.SearchStrategy:
-    """Return a SearchStrategy for a given Pydantic model.
-
-    ``hypothesis.strategies.builds`` cannot be used here because it always sets
-    ``Optional`` fields to ``None``,
-    see https://github.com/pydantic/pydantic/issues/3126
-    As a workaround, ``st.from_type`` does work with ``Optional`` but does
-    allow specifying individual fields.
-    """
-    inferred = {name: infer for name in to_infer}
-    customized = {
-        name: arg if isinstance(arg, st.SearchStrategy) else st.just(arg)
-        for name, arg in user_kwargs.items()
-    }
-    return st.builds(model, **{**inferred, **customized})
+    if field.required(dataset_type):
+        return multi_emails()
+    return st.none() | multi_emails()
 
 
-# TODO implement both for model and Dataset class
-def datasets(**kwargs) -> st.SearchStrategy[m.Dataset]:
-    """Returns a SearchStrategy for a dataset model."""
-    # TODO add all other optional fields
-    return builds_model(m.Dataset, ("classification", "isPublished"), kwargs)
+def orcids():
+    def make_orcid(digits: str):
+        digits = digits[:-1] + orcid_checksum(digits)
+        return "https://orcid.org/" + "-".join(
+            digits[i : i + 4] for i in range(0, 16, 4)
+        )
+
+    return st.text(alphabet="0123456789", min_size=16, max_size=16).map(make_orcid)
 
 
-def derived_datasets(**kwargs) -> st.SearchStrategy[m.DerivedDataset]:
-    return builds_model(m.DerivedDataset, ("classification", "isPublished"), kwargs)
+def _orcid_field_strategy(
+    field: Dataset.Field, dataset_type: DatasetType
+) -> st.SearchStrategy:
+    if field.required(dataset_type):
+        return orcids()
+    return st.none() | orcids()
 
 
-def raw_datasets(**kwargs) -> st.SearchStrategy[m.RawDataset]:
-    return builds_model(m.RawDataset, ("classification", "isPublished"), kwargs)
+def _scientific_metadata_strategy(
+    field: Dataset.Field, dataset_type: DatasetType
+) -> st.SearchStrategy:
+    assert field.type == Dict  # nosec (testing code -> assert is safe)
+    return st.dictionaries(
+        keys=st.text(),
+        values=st.text() | st.dictionaries(keys=st.text(), values=st.text()),
+    )
+
+
+_SPECIAL_FIELDS = {
+    "investigator": _email_field_strategy,
+    "contact_email": _email_field_strategy,
+    "owner_email": _email_field_strategy,
+    "orcid_of_owner": _orcid_field_strategy,
+    "meta": _scientific_metadata_strategy,
+}
+
+
+def _field_strategy(
+    field: Dataset.Field, dataset_type: DatasetType
+) -> st.SearchStrategy:
+    if (strategy := _SPECIAL_FIELDS.get(field.name)) is not None:
+        return strategy(field, dataset_type)
+
+    return st.from_type(
+        field.type if field.required(dataset_type) else Optional[field.type]
+    )
+
+
+def datasets(dataset_type: Optional[DatasetType] = None, **fixed) -> st.SearchStrategy:
+    if dataset_type is None:
+        return st.sampled_from(DatasetType).flatmap(partial(datasets, **fixed))
+
+    def make_fixed_arg(key):
+        val = fixed[key]
+        return val if isinstance(val, st.SearchStrategy) else st.just(val)
+
+    def make_arg(field):
+        if field.name in fixed:
+            return make_fixed_arg(field.name)
+        return _field_strategy(field, dataset_type=dataset_type)
+
+    def make_args(read_only):
+        return {
+            field.name: make_arg(field)
+            for field in Dataset.fields(read_only=read_only, dataset_type=dataset_type)
+            if field.name != "type"
+        }
+
+    kwargs = make_args(read_only=False)
+    read_only_arg = st.fixed_dictionaries(make_args(read_only=True))
+    return st.builds(
+        Dataset,
+        type=st.just(dataset_type),
+        _read_only=read_only_arg,
+        _pid=st.from_type(PID),
+        **kwargs,
+    )

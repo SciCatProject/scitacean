@@ -6,6 +6,8 @@ import subprocess
 import time
 from urllib.parse import urljoin
 
+import pytest
+
 from ..data import load_datasets, load_orig_datablocks
 
 
@@ -77,3 +79,12 @@ def stop_backend_containers(config_file):
     subprocess.check_call(
         ["docker", "compose", "--file", config_file, "down", "--volumes"]
     )
+
+
+def skip_if_not_backend(request):
+    if not request.config.getoption("--backend-tests"):
+        # The backend only exists if this option is set.
+        pytest.skip(
+            "Tests against a real backend are disabled, "
+            "use --backend-tests to enable them"
+        )
