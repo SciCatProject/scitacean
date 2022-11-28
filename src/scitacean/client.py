@@ -7,7 +7,8 @@ from __future__ import annotations
 
 import datetime
 from pathlib import Path
-from typing import List, Optional, Union
+import re
+from typing import Callable, List, Optional, Tuple, Union
 from urllib.parse import quote_plus
 
 import requests
@@ -16,6 +17,7 @@ from . import model
 from .dataset import Dataset
 from .error import ScicatCommError, ScicatLoginError
 from .logging import get_logger
+from .file import File
 from .pid import PID
 from .typing import FileTransfer
 from .util.credentials import SecretStr, StrStorage
@@ -232,6 +234,22 @@ class Client:
     def file_transfer(self) -> FileTransfer:
         """Stored handler for file down-/uploads."""
         return self._file_transfer
+
+    def download_files(
+        self, dataset: Dataset, *, target: Union[str, Path], select: FileSelector = True
+    ) -> Dataset:
+        target = Path(target)
+        # TODO undo if later fails but only if no files were written
+        target.mkdir(parents=True, exist_ok=True)
+        selector = _file_selector(select)
+        files = [f for f in dataset.files if selector(f)]
+        with self.file_transfer.connect_for_download() as con:
+            con.download_files(
+                remote=[f.remote_access_path for f in files],
+                local=[target / f.remote_path for f in files],
+            )
+        # TODO make new files -> replace method and return new dataset
+        # TODO implement new download in ess
 
     def download_file(self, *, remote: Union[str, Path], local: Union[str, Path]):
         if self._file_transfer is None:
@@ -544,3 +562,22 @@ def _get_token(url: str, username: StrStorage, password: StrStorage) -> str:
 
     get_logger().error("Failed log in:  %s", response.json()["error"])
     raise ScicatLoginError(response.content)
+
+
+FileSelector = Union[
+    bool, str, List[str], Tuple[str], re.Pattern, Callable[[File], bool]
+]
+
+
+def _file_selector(select: FileSelector) -> Callable[[File], bool]:
+    if select is True:
+        return lambda _: True
+    if select is False:
+        return lambda _: False
+    if isinstance(select, str):
+        return lambda f: f.remote_path == select
+    if isinstance(select, (list, tuple)):
+        return lambda f: f.remote_path in select
+    if isinstance(select, re.Pattern):
+        return lambda f: select.search(f.remote_path) is not None
+    return select

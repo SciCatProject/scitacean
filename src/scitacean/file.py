@@ -17,6 +17,7 @@ from .model import DataFile
 from .typing import Downloader
 
 
+# TODO store all attributes in File and do not store a model
 class File:
     """Store local and remote paths and metadata for a file.
 
@@ -134,6 +135,10 @@ class File:
         Must be consistent with the path in the dataset!
         """
         self._source_folder = value
+
+    @property
+    def remote_path(self) -> Optional[str]:
+        return self._model.path
 
     @property
     def remote_access_path(self) -> Optional[str]:
