@@ -15,13 +15,13 @@ from . import data
 from .common.backend import skip_if_not_backend
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def derived_dataset():
     return data.as_dataset_model(data.load_datasets()[0])
 
 
 @pytest.fixture
-def orig_datablock(derived_dataset):
+def orig_datablock():
     return data.as_orig_datablock_model(data.load_orig_datablocks()[0])
 
 
@@ -133,14 +133,16 @@ def test_create_dataset_model_id_clash(scicat_client, derived_dataset):
 
 def test_create_first_orig_datablock(scicat_client, derived_dataset):
     dset = deepcopy(derived_dataset)
-    dset.pid = "new-dataset-id"
+    dset.pid = PID(pid="new-dataset-id")
     dset.pid = scicat_client.create_dataset_model(dset)
 
     dblock = OrigDatablock(
-        id="PID.SAMPLE.PREFIX/new-datablock-id",
+        id=PID(prefix="PID.SAMPLE.PREFIX", pid="new-datablock-id"),
         size=9235,
         dataFileList=[
-            DataFile(path="data.nxs", size=9235, time="2023-08-18T13:52:33.000Z")
+            DataFile(
+                path="data.nxs", size=9235, time=parse_date("2023-08-18T13:52:33.000Z")
+            )
         ],
         datasetId=dset.pid,
         ownerGroup="uu",
@@ -185,9 +187,9 @@ def test_fake_can_disable_functions():
         }
     )
     with pytest.raises(RuntimeError, match="custom failure"):
-        client.scicat.get_dataset_model("some-pid")
+        client.scicat.get_dataset_model(PID(pid="some-pid"))
     with pytest.raises(IndexError, match="custom index error"):
-        client.scicat.get_orig_datablocks("some-pid")
+        client.scicat.get_orig_datablocks(PID(pid="some-pid"))
 
 
 def test_can_get_public_dataset_without_login(request, scicat_access, scicat_backend):

@@ -1,3 +1,8 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
+# @author Jan-Lukas Wynen
+"""Handle input data for tests."""
+from functools import lru_cache
 import json
 from pathlib import Path
 
@@ -32,6 +37,7 @@ def _load(filename):
         return json.load(f)
 
 
+@lru_cache(maxsize=1)
 def load_datasets():
     return _load("datasets.json")
 
@@ -43,6 +49,7 @@ def as_dataset_model(dataset_json):
     return RawDataset(**ds)
 
 
+@lru_cache(maxsize=1)
 def load_orig_datablocks():
     return _load("orig_datablocks.json")
 
