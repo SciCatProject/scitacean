@@ -20,6 +20,7 @@ def _process_json(raw):
         processed = {key: _process_field(val) for key, val in raw.items()}
         try:
             processed["pid"] = processed.pop("_id")
+            print("!!!a translated pid: ", processed["pid"])
         except KeyError:
             pass
     else:
@@ -38,6 +39,7 @@ def load_datasets():
 
 def as_dataset_model(dataset_json):
     ds = _process_json(dataset_json)
+    print("!!!1 processed json: ", ds)
     if ds["type"] == "derived":
         return DerivedDataset(**ds)
     return RawDataset(**ds)

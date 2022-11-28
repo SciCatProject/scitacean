@@ -17,7 +17,11 @@ from .common.backend import skip_if_not_backend
 
 @pytest.fixture(scope="module")
 def derived_dataset():
-    return data.as_dataset_model(data.load_datasets()[0])
+    d = data.load_datasets()[0]
+    print("!!!0 loaded json: ", d)
+    ds = data.as_dataset_model(d)
+    print("!!!2 loaded model: ", ds)
+    return ds
 
 
 @pytest.fixture
@@ -163,6 +167,8 @@ def test_create_first_orig_datablock(scicat_client, derived_dataset):
 
 
 def test_get_dataset(client, derived_dataset, orig_datablock):
+    print("!!!t in test: ", derived_dataset)
+    assert derived_dataset.pid is not None
     dset = client.get_dataset(derived_dataset.pid)
 
     assert dset.source_folder == derived_dataset.sourceFolder
