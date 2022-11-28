@@ -16,6 +16,7 @@ from ..dataset import Dataset
 from ..error import ScicatCommError
 from ..pid import PID
 from ..typing import FileTransfer
+from ..util.credentials import StrStorage
 from .. import model
 
 
@@ -129,7 +130,11 @@ class FakeClient(Client):
 
     @classmethod
     def from_token(
-        cls, *, url: str, token: str, file_transfer: Optional[FileTransfer] = None
+        cls,
+        *,
+        url: str,
+        token: Union[str, StrStorage],
+        file_transfer: Optional[FileTransfer] = None,
     ) -> FakeClient:
         """Create a new fake client.
 
@@ -142,8 +147,8 @@ class FakeClient(Client):
         cls,
         *,
         url: str,
-        username: str,
-        password: str,
+        username: Union[str, StrStorage],
+        password: Union[str, StrStorage],
         file_transfer: Optional[FileTransfer] = None,
     ) -> FakeClient:
         """Create a new fake client.

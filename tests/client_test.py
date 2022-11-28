@@ -2,6 +2,7 @@
 # Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
 # @author Jan-Lukas Wynen
 from copy import deepcopy
+import pickle
 
 from dateutil.parser import parse as parse_date
 import pytest
@@ -9,6 +10,7 @@ from scitacean.model import DataFile, DatasetType, DerivedDataset, OrigDatablock
 from scitacean import PID, ScicatCommError
 
 from scitacean.testing.client import FakeClient
+from scitacean.util.credentials import SecretStr
 from scitacean import Client
 
 from . import data
@@ -210,3 +212,24 @@ def test_cannot_upload_without_login(
     derived_dataset.pid = None
     with pytest.raises(ScicatCommError):
         client.scicat.create_dataset_model(derived_dataset)
+
+
+def test_cannot_pickle_client_credentials_manual_token_str():
+    client = Client.from_token(url="/", token="the-token")
+    with pytest.raises(TypeError):
+        pickle.dumps(client)
+
+
+def test_cannot_pickle_client_credentials_manual_token_secret_str():
+    client = Client.from_token(url="/", token=SecretStr("the-token"))
+    with pytest.raises(TypeError):
+        pickle.dumps(client)
+
+
+def test_cannot_pickle_client_credentials_login(request, scicat_access, scicat_backend):
+    skip_if_not_backend(request)
+    client = Client.from_credentials(
+        url=scicat_access.url, **scicat_access.functional_credentials
+    )
+    with pytest.raises(TypeError):
+        pickle.dumps(client)
