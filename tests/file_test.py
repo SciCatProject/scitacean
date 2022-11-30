@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
 # @author Jan-Lukas Wynen
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
+import hashlib
 
 import pytest
 from dateutil.parser import parse as parse_time
@@ -9,6 +10,7 @@ from dateutil.parser import parse as parse_time
 from scitacean import File
 from scitacean.file import checksum_of_file
 from scitacean.model import DataFile
+from scitacean import File, IntegrityError
 
 from .common.files import make_file
 
@@ -124,8 +126,157 @@ def test_make_model_local_file(fake_file):
     assert abs(fake_file["creation_time"] - model.time) < timedelta(seconds=1)
 
 
-# TODO check that size, checklsum, creation_time are
-#  - up to date if the file is only local
-#  - always the stored value if file in on remote regardless whether on local
+def test_uploaded(fake_file):
+    file = File.from_local(
+        fake_file["path"],
+        remote_uid="the-user",
+    )
+    model = file.make_model(checksum_algorithm="sha256")
+    model.gid = "the-group"
+    model.createdBy = "the-creator"
+    uploaded = file.uploaded(source_folder="/remote/src", model=model)
 
-# TODO test downlaod validation
+    assert uploaded.is_on_local
+    assert uploaded.is_on_remote
+
+    assert uploaded.source_folder == "/remote/src"
+    assert uploaded.remote_path == str(fake_file["path"])
+    assert uploaded.local_path == fake_file["path"]
+    assert uploaded.checksum(algorithm="sha256") == checksum_of_file(
+        fake_file["path"], algorithm="sha256"
+    )
+    assert uploaded.remote_uid == "the-user"
+    assert uploaded.remote_gid == "the-group"
+    assert uploaded.created_by == "the-creator"
+
+
+def test_downloaded():
+    model = DataFile(
+        path="dir/stream.s",
+        size=55123,
+        time=parse_time("2025-01-09T21:00:21.421Z"),
+        perm="xrw",
+        createdBy="creator-id",
+    )
+    file = File.from_scicat(model, source_folder="remote/source")
+    downloaded = file.downloaded(local_path="/local/stream.s")
+
+    assert downloaded.is_on_local
+    assert downloaded.is_on_remote
+
+    assert downloaded.source_folder == "remote/source"
+    assert downloaded.remote_path == "dir/stream.s"
+    assert downloaded.local_path == "/local/stream.s"
+    assert downloaded.remote_perm == "xrw"
+    assert downloaded.created_by == "creator-id"
+
+
+def test_creation_time_is_always_local_time(fake_file):
+    file = File.from_local(path=fake_file["path"])
+    model = file.make_model(checksum_algorithm="md5")
+    model.time = parse_time("2105-04-01T04:52:23")
+    uploaded = file.uploaded(source_folder="/source", model=model)
+
+    assert abs(fake_file["creation_time"] - uploaded.creation_time) < timedelta(
+        seconds=1
+    )
+
+
+def test_size_is_always_local_size(fake_file):
+    file = File.from_local(path=fake_file["path"])
+    model = file.make_model(checksum_algorithm="md5")
+    model.size = 999999999
+    uploaded = file.uploaded(source_folder="/source", model=model)
+
+    assert uploaded.size == fake_file["size"]
+
+
+def test_checksum_is_always_local_checksum(fake_file):
+    file = File.from_local(path=fake_file["path"])
+    model = file.make_model(checksum_algorithm="md5")
+    model.chk = "6e9eb73953231aebbbc8788f39f08618"
+    uploaded = file.uploaded(source_folder="/source", model=model)
+
+    assert uploaded.checksum(algorithm="md5") == checksum_of_file(
+        fake_file["path"], algorithm="md5"
+    )
+    assert uploaded.checksum(algorithm="sha256") == checksum_of_file(
+        fake_file["path"], algorithm="sha256"
+    )
+
+
+def test_creation_time_is_up_to_date(fs, fake_file):
+    file = File.from_local(path=fake_file["path"])
+    with open(fake_file["path"], "wb") as f:
+        f.write(b"some new content to update time stamp")
+    new_creation_time = datetime.fromtimestamp(
+        fake_file["path"].stat().st_mtime
+    ).astimezone(timezone.utc)
+    assert file.creation_time == new_creation_time
+
+
+def test_size_is_up_to_date(fs, fake_file):
+    file = File.from_local(path=fake_file["path"])
+    new_contents = b"content with a new size"
+    assert len(new_contents) != fake_file["size"]
+    with open(fake_file["path"], "wb") as f:
+        f.write(new_contents)
+    assert file.size == len(new_contents)
+
+
+def test_checksum_is_up_to_date(fs, fake_file):
+    file = File.from_local(path=fake_file["path"])
+    new_contents = b"content a different checksum"
+
+    checksum = hashlib.new("md5")
+    checksum.update(new_contents)
+    checksum = checksum.hexdigest()
+    assert checksum != fake_file["size"]
+
+    with open(fake_file["path"], "wb") as f:
+        f.write(new_contents)
+    assert file.checksum(algorithm="md5") == checksum
+
+
+def test_validate_after_download_detects_bad_checksum(fake_file):
+    model = DataFile(
+        path=fake_file["path"].name,
+        size=fake_file["size"],
+        time=parse_time("2022-06-22T15:42:53.123Z"),
+        chk="incorrect=checksum",
+    )
+    file = File.from_scicat(model, source_folder="remote/source/folder")
+    downloaded = file.downloaded(local_path=fake_file["path"])
+
+    with pytest.raises(IntegrityError):
+        downloaded.validate_after_download(checksum_algorithm="md5")
+
+
+def test_validate_after_download_ignores_checksum_if_no_algorithm(fake_file):
+    model = DataFile(
+        path=fake_file["path"].name,
+        size=fake_file["size"],
+        time=parse_time("2022-06-22T15:42:53.123Z"),
+        chk="incorrect=checksum",
+    )
+    file = File.from_scicat(model, source_folder="remote/source/folder")
+    downloaded = file.downloaded(local_path=fake_file["path"])
+
+    # does not raise
+    downloaded.validate_after_download(checksum_algorithm=None)
+
+
+@pytest.mark.parametrize("checksum_algorithm", ("md5", None))
+def test_validate_after_download_detects_size_mismatch(fake_file, checksum_algorithm):
+    model = DataFile(
+        path=fake_file["path"].name,
+        size=fake_file["size"] + 100,
+        time=parse_time("2022-06-22T15:42:53.123Z"),
+        chk="incorrect=checksum",
+    )
+    file = File.from_scicat(model, source_folder="remote/source/folder")
+    downloaded = file.downloaded(local_path=fake_file["path"])
+
+    # does not raise
+    with pytest.raises(IntegrityError):
+        downloaded.validate_after_download(checksum_algorithm=checksum_algorithm)

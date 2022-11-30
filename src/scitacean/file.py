@@ -16,7 +16,7 @@ from .logging import get_logger
 from .model import DataFile
 
 
-@dataclasses.dataclass(eq=False)
+@dataclasses.dataclass(eq=False, frozen=True)
 class File:
     """Store local and remote paths and metadata for a file.
 
@@ -34,17 +34,18 @@ class File:
     remote_gid: Optional[str]
     remote_perm: Optional[str]
     remote_uid: Optional[str]
-    _size: Optional[int] = dataclasses.field(default=None, compare=False, repr=False)
-    _creation_time: Optional[datetime] = dataclasses.field(
+    created_at: Optional[datetime] = None
+    created_by: Optional[str] = None
+    updated_at: Optional[datetime] = None
+    updated_by: Optional[str] = None
+    _remote_size: Optional[int] = dataclasses.field(default=None, repr=False)
+    _remote_creation_time: Optional[datetime] = dataclasses.field(
+        default=None, repr=False
+    )
+    _remote_checksum: Optional[str] = dataclasses.field(default=None, repr=False)
+    _checksum_cache: Optional[_Checksum] = dataclasses.field(
         default=None, compare=False, repr=False
     )
-    _checksum: Optional[Union[str, _Checksum]] = dataclasses.field(
-        default=None, compare=False, repr=False
-    )
-
-    def __post_init__(self):
-        if self._checksum is None:
-            self._checksum = _Checksum()
 
     @classmethod
     def from_local(
@@ -98,6 +99,7 @@ class File:
             remote_gid=remote_gid,
             remote_perm=remote_perm,
             remote_uid=remote_uid,
+            _checksum_cache=_Checksum(),
         )
 
     @classmethod
@@ -115,57 +117,62 @@ class File:
             remote_gid=model.gid,
             remote_perm=model.perm,
             remote_uid=model.uid,
-            _size=model.size,
-            _creation_time=model.time,
-            _checksum=model.chk,
+            created_at=model.createdAt,
+            created_by=model.createdBy,
+            updated_at=model.updatedAt,
+            updated_by=model.updatedBy,
+            _remote_size=model.size,
+            _remote_creation_time=model.time,
+            _remote_checksum=model.chk,
         )
 
     @property
     def size(self) -> int:
         """The size in bytes of the file.
 
-        If the file exists on remote, returns the stored size in the catalogue.
-        Otherwise, returns the current size on the local filesystem.
+        If the file exists on local, return the current size of the local file.
+        Otherwise, return the stored size in the catalogue.
         """
-        if self._size is not None:
-            return self._size
-        return _get_file_size(self.local_path)
+        if self.is_on_local:
+            return _get_file_size(self.local_path)
+        return self._remote_size
 
     @property
     def creation_time(self) -> datetime:
         """The logical creation time of the SciCat file.
 
-        If the file has not been uploaded yet, this is the time when
-        the file on the local filesystem was last modified.
+        If the file exists on local, return the time the local file was last modified.
+        Otherwise, return the stored time in the catalogue.
         """
-        if self._creation_time is not None:
-            return self._creation_time
-        return _get_modification_time(self.local_path)
+        if self.is_on_local:
+            return _get_modification_time(self.local_path)
+        return self._remote_creation_time
 
     def checksum(self, algorithm: Optional[str] = None) -> Optional[str]:
         """Return the checksum of the file.
 
         This can take a long time to compute for large files.
 
-        Uses the stored checksum if the file exists on remote.
+        If the file exists on local, return the current checksum of the local file.
+        Otherwise, return the stored checksum in the catalogue.
 
         Parameters
         ----------
         algorithm:
             Hash algorithm to compute the checksum.
             See :mod:`hashlib`.
-            May be omitted if and only if the file exists on remote.
+            May be omitted if and only if the file does not exist on local.
 
         Returns
         -------
         :
             The checksum of the file.
         """
-        if isinstance(self._checksum, str):
-            return self._checksum
-        if not self.is_on_local:
-            return None
-        return self._checksum.get(path=self.local_path, algorithm=algorithm)
+        if self.is_on_local:
+            if algorithm is None:
+                raise ValueError("The file is on local, checksum algorithm required")
+            return self._checksum_cache.get(path=self.local_path, algorithm=algorithm)
+        return self._remote_checksum
 
     @property
     def remote_access_path(self) -> Optional[str]:
@@ -200,16 +207,36 @@ class File:
             uid=self.remote_uid,
         )
 
-    # TODO upload and downlaod methods that don't actualy transfer but update the FIle
+    def uploaded(self, *, source_folder: str, model: DataFile) -> File:
+        return dataclasses.replace(
+            self,
+            source_folder=source_folder,
+            remote_gid=model.gid,
+            remote_uid=model.uid,
+            remote_perm=model.perm,
+            created_at=model.createdAt,
+            created_by=model.createdBy,
+            updated_at=model.updatedAt,
+            updated_by=model.updatedBy,
+            _remote_size=model.size,
+            _remote_checksum=model.chk,
+            _remote_creation_time=model.time,
+        )
+
+    def downloaded(self, *, local_path) -> File:
+        return dataclasses.replace(
+            self, local_path=local_path, _checksum_cache=_Checksum()
+        )
 
     def validate_after_download(self, *, checksum_algorithm: Optional[str]):
-        if not isinstance(self._checksum, str):
+        self._validate_after_download_file_size()
+        if self._remote_checksum is None:
             get_logger().info(
                 "Dataset does not contain a checksum for file '%s'. Skipping check.",
                 self.local_path,
             )
-            return self._validate_after_download_file_size()
-        stored = self.checksum()
+            return
+        stored = self._remote_checksum
         if not checksum_algorithm:
             get_logger().warning(
                 "File '%s' has a checksum but no algorithm has been defined. "
@@ -217,7 +244,7 @@ class File:
                 self.local_path,
                 stored,
             )
-            return self._validate_after_download_file_size()
+            return
         actual = checksum_of_file(self.local_path, algorithm=checksum_algorithm)
         if actual != stored:
             _log_and_raise(
@@ -230,11 +257,11 @@ class File:
 
     def _validate_after_download_file_size(self):
         actual = _get_file_size(self.local_path)
-        if actual != self.size:
+        if actual != self._remote_size:
             _log_and_raise(
                 IntegrityError,
                 f"Size of file '{self.local_path}' ({actual}B) does not "
-                f"match size stored in dataset ({self.size}B)",
+                f"match size stored in dataset ({self._remote_size}B)",
             )
 
 
