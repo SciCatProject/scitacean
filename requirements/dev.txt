@@ -52,7 +52,7 @@ notebook-shim==0.2.2
     # via nbclassic
 pip-compile-multi==2.6.1
     # via -r requirements/dev.in
-pip-tools==6.10.0
+pip-tools==6.11.0
     # via pip-compile-multi
 pre-commit==2.20.0
     # via -r requirements/dev.in

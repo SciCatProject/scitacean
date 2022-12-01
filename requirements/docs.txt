@@ -8,7 +8,7 @@
 -r base.txt
 alabaster==0.7.12
     # via sphinx
-asttokens==2.1.0
+asttokens==2.2.0
     # via stack-data
 attrs==22.1.0
     # via jsonschema
@@ -22,7 +22,7 @@ beautifulsoup4==4.11.1
     #   pydata-sphinx-theme
 bleach==5.0.1
     # via nbconvert
-debugpy==1.6.3
+debugpy==1.6.4
     # via ipykernel
 decorator==5.1.1
     # via ipython
@@ -43,7 +43,7 @@ imagesize==1.4.1
     # via sphinx
 ipykernel==6.17.1
     # via -r requirements/docs.in
-ipython==8.6.0
+ipython==8.7.0
     # via ipykernel
 jedi==0.18.2
     # via ipython
@@ -52,15 +52,16 @@ jinja2==3.1.2
     #   nbconvert
     #   nbsphinx
     #   sphinx
-jsonschema==4.17.1
+jsonschema==4.17.3
     # via nbformat
 jupyter-client==7.4.7
     # via
     #   ipykernel
     #   nbclient
-jupyter-core==5.0.0
+jupyter-core==5.1.0
     # via
     #   jupyter-client
+    #   nbclient
     #   nbconvert
     #   nbformat
 jupyterlab-pygments==0.2.2
@@ -75,7 +76,7 @@ matplotlib-inline==0.1.6
     #   ipython
 mistune==2.0.4
     # via nbconvert
-nbclient==0.7.0
+nbclient==0.7.2
     # via nbconvert
 nbconvert==7.2.5
     # via nbsphinx
@@ -90,7 +91,6 @@ nest-asyncio==1.5.6
     # via
     #   ipykernel
     #   jupyter-client
-    #   nbclient
 packaging==21.3
     # via
     #   ipykernel
@@ -160,7 +160,7 @@ sphinxcontrib-qthelp==1.0.3
     # via sphinx
 sphinxcontrib-serializinghtml==1.1.5
     # via sphinx
-stack-data==0.6.1
+stack-data==0.6.2
     # via ipython
 tinycss2==1.2.1
     # via nbconvert
@@ -168,7 +168,7 @@ tornado==6.2
     # via
     #   ipykernel
     #   jupyter-client
-traitlets==5.5.0
+traitlets==5.6.0
     # via
     #   ipykernel
     #   ipython
