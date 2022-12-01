@@ -18,6 +18,11 @@ repos:
     - id: bandit
       additional_dependencies: ["bandit[toml]"]
       args: ["-c", "pyproject.toml"]
+- repo: https://github.com/pycqa/isort
+  rev: 5.10.1
+  hooks:
+    - id: isort
+      name: isort (python)
 - repo: https://github.com/psf/black
   rev: 22.10.0
   hooks:
