@@ -45,8 +45,15 @@ ssh = ["fabric"]
 [tool.setuptools_scm]
 
 [tool.pytest.ini_options]
-addopts = "-ra -v --hypothesis-profile=scitacean"
+minversion = "7.0"
 testpaths = "tests"
+addopts = """
+--strict-config
+--strict-markers
+-ra
+-v
+--hypothesis-profile=scitacean
+"""
 filterwarnings = [
     "error",
 ]
@@ -54,6 +61,17 @@ filterwarnings = [
 [tool.mypy]
 mypy_path = "src"
 ignore_missing_imports = true
+enable_error_code = [
+    "ignore-without-code",
+    "redundant-expr",
+    "truthy-bool",
+]
+strict = true
+show_error_codes = true
+warn_unreachable = true
 
 [tool.bandit]
 exclude_dirs = ["docs/conf.py", "tests", "src/scitacean.egg-info"]
+
+[tool.isort]
+profile = "black"
