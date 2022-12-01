@@ -18,7 +18,7 @@ repos:
     - id: bandit
       additional_dependencies: ["bandit[toml]"]
       args: ["-c", "pyproject.toml"]
-- repo: https://github.com/ambv/black
+- repo: https://github.com/psf/black
   rev: 22.10.0
   hooks:
     - id: black
@@ -33,3 +33,15 @@ repos:
   rev: v2.2.2
   hooks:
     - id: codespell
+- repo: https://github.com/pre-commit/pygrep-hooks
+  rev: v1.9.0
+  hooks:
+    - id: python-check-blanket-noqa
+    - id: python-check-blanket-type-ignore
+    - id: python-no-eval
+    - id: python-no-log-warn
+    - id: python-use-type-annotations
+    - id: rst-backticks
+    - id: rst-directive-colons
+    - id: rst-inline-touching-normal
+    - id: text-unicode-replacement-char
