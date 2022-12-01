@@ -12,13 +12,13 @@ from urllib.parse import quote_plus
 
 import requests
 
+from . import model
 from .dataset import Dataset
 from .error import ScicatCommError, ScicatLoginError
 from .logging import get_logger
 from .pid import PID
 from .typing import FileTransfer
 from .util.credentials import SecretStr, StrStorage
-from . import model
 
 
 class Client:
@@ -532,7 +532,7 @@ def _get_token(url: str, username: StrStorage, password: StrStorage) -> str:
     # Users/login only works for functional accounts and auth/msad for regular users.
     # Try both and see what works. This is not nice but seems to be the only
     # feasible solution right now.
-    get_logger().info("Loging in to %s", url)
+    get_logger().info("Logging in to %s", url)
 
     response = _log_in_via_users_login(url=url, username=username, password=password)
     if response.ok:

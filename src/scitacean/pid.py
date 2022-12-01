@@ -2,8 +2,9 @@
 # Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
 # @author Jan-Lukas Wynen
 from __future__ import annotations
-from typing import Optional
+
 import uuid
+from typing import Optional
 
 
 class PID:

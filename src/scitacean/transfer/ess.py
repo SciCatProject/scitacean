@@ -2,11 +2,11 @@
 # Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
 # @author Jan-Lukas Wynen
 
+import os
 from contextlib import contextmanager
 from getpass import getpass
-import os
 from pathlib import Path
-from typing import Union, Tuple, Optional
+from typing import Optional, Tuple, Union
 
 # These are quite heavy dependencies.
 # It would be great if we could do without them in the long run.

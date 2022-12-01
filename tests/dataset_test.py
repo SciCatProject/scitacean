@@ -5,8 +5,10 @@
 from datetime import timedelta
 from pathlib import Path
 
-from hypothesis import assume, given, settings, strategies as st
 import pytest
+from hypothesis import assume, given, settings
+from hypothesis import strategies as st
+
 from scitacean import Dataset, DatasetType, File, model
 from scitacean.testing import strategies as sst
 

@@ -2,8 +2,8 @@
 # Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
 # @author Jan-Lukas Wynen
 
-from datetime import datetime, timezone
 import hashlib
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional, Union
 

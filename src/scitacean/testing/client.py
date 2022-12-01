@@ -6,18 +6,18 @@
 from __future__ import annotations
 
 import functools
+import uuid
 from copy import deepcopy
 from pathlib import Path
 from typing import Dict, List, Optional, Union
-import uuid
 
+from .. import model
 from ..client import Client, ScicatClient
 from ..dataset import Dataset
 from ..error import ScicatCommError
 from ..pid import PID
 from ..typing import FileTransfer
 from ..util.credentials import StrStorage
-from .. import model
 
 
 def _conditionally_disabled(func):
@@ -121,7 +121,7 @@ class FakeClient(Client):
         """
         # Normally, client must not be None, but the fake must never
         # call it, so setting it to None serves as an extra safeguard.
-        super().__init__(client=None, file_transfer=file_transfer)  # noqa
+        super().__init__(client=None, file_transfer=file_transfer)  # type: ignore
 
         self._scicat_client = FakeScicatClient(self)
         self.disabled = {} if disable is None else dict(disable)
@@ -206,7 +206,7 @@ class FakeScicatClient(ScicatClient):
     """Mimics a ScicatClient, to be used by FakeClient."""
 
     def __init__(self, main_client):
-        super().__init__(url="", token="")  # noqa # nosec
+        super().__init__(url="", token="")  # nosec: B106
         self.main = main_client
 
     @_conditionally_disabled

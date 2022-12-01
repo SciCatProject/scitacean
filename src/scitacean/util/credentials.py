@@ -3,6 +3,7 @@
 # @author Jan-Lukas Wynen
 """Tools for securely handling credentials."""
 from __future__ import annotations
+
 import datetime
 from typing import Optional, Union
 

@@ -6,9 +6,9 @@ Should probably not be used externally.
 
 from dateutil.parser import parse as parse_date
 
+from ..model import DataFile, DatasetType, OrigDatablock, RawDataset
 from ..pid import PID
 from .client import FakeClient
-from ..model import DataFile, DatasetType, OrigDatablock, RawDataset
 from .transfer import FakeFileTransfer
 
 

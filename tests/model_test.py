@@ -3,10 +3,11 @@
 # @author Jan-Lukas Wynen
 import uuid
 
-from dateutil.parser import parse as parse_date
 import pytest
+from dateutil.parser import parse as parse_date
+
+from scitacean import PID, Client, DatasetType
 from scitacean.model import DerivedDataset, RawDataset, Technique
-from scitacean import Client, DatasetType, PID
 
 from .common.backend import skip_if_not_backend
 

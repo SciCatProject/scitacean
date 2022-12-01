@@ -4,9 +4,10 @@
 """Main dataset structure."""
 
 from __future__ import annotations
+
+import html
 from dataclasses import dataclass
 from datetime import datetime
-import html
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Union
 

@@ -2,7 +2,9 @@
 # Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
 # @author Jan-Lukas Wynen
 from dateutil.parser import parse as parse_datetime
-from hypothesis import given, settings, strategies as st
+from hypothesis import given, settings
+from hypothesis import strategies as st
+
 from scitacean import DatasetType
 from scitacean.testing import strategies as sst
 

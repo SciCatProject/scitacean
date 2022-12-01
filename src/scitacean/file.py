@@ -4,12 +4,12 @@
 """Class to represent files."""
 
 from __future__ import annotations
-from datetime import datetime, timezone
+
 import hashlib
 import os
+from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 from typing import Optional, Union
-
 
 from .error import IntegrityError
 from .logging import get_logger
@@ -66,7 +66,7 @@ class File:
             -> remote_path:            folder/file.nxs
             -> actual remote location: remote/storage/folder/file.nxs
 
-        ``remote_path`` can also be overriden, in which case ``path`` and
+        ``remote_path`` can also be overridden, in which case ``path`` and
         ``base_path`` are not used to deduce the "actual remote location".
 
         Parameters
@@ -250,7 +250,7 @@ def _new_hash(algorithm: str):
         return hashlib.new(algorithm)
 
 
-# size based on http://git.savannah.gnu.org/gitweb/?p=coreutils.git;a=blob;f=src/ioblksize.h;h=ed2f4a9c4d77462f357353eb73ee4306c28b37f1;hb=HEAD#l23  # noqa
+# size based on http://git.savannah.gnu.org/gitweb/?p=coreutils.git;a=blob;f=src/ioblksize.h;h=ed2f4a9c4d77462f357353eb73ee4306c28b37f1;hb=HEAD#l23  # noqa: E501
 def checksum_of_file(path: Union[str, Path], *, algorithm: str) -> str:
     chk = _new_hash(algorithm)
     buffer = memoryview(bytearray(128 * 1024))

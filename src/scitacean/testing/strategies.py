@@ -4,10 +4,11 @@
 from functools import partial
 from typing import Dict, Optional
 
-from email_validator import validate_email, EmailNotValidError
-from scitacean import Dataset, DatasetType, PID
-from scitacean._internal.orcid import orcid_checksum
+from email_validator import EmailNotValidError, validate_email
 from hypothesis import strategies as st
+
+from scitacean import PID, Dataset, DatasetType
+from scitacean._internal.orcid import orcid_checksum
 
 
 # email_validator and by extension pydantic is more picky than hypothesis

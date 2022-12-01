@@ -4,10 +4,10 @@
 
 from contextlib import contextmanager
 
-from dateutil.parser import parse as parse_date
 import pytest
-from scitacean import Dataset, DatasetType, ScicatCommError
-from scitacean import model
+from dateutil.parser import parse as parse_date
+
+from scitacean import Dataset, DatasetType, ScicatCommError, model
 from scitacean.testing.client import FakeClient
 from scitacean.testing.transfer import FakeFileTransfer
 

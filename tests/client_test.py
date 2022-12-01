@@ -1,17 +1,16 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
 # @author Jan-Lukas Wynen
-from copy import deepcopy
 import pickle
+from copy import deepcopy
 
-from dateutil.parser import parse as parse_date
 import pytest
-from scitacean.model import DataFile, DatasetType, DerivedDataset, OrigDatablock
-from scitacean import PID, ScicatCommError
+from dateutil.parser import parse as parse_date
 
+from scitacean import PID, Client, ScicatCommError
+from scitacean.model import DataFile, DatasetType, DerivedDataset, OrigDatablock
 from scitacean.testing.client import FakeClient
 from scitacean.util.credentials import SecretStr
-from scitacean import Client
 
 from . import data
 from .common.backend import skip_if_not_backend

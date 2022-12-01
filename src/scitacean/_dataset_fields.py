@@ -11,7 +11,7 @@
 
 import dataclasses
 from datetime import datetime, timezone
-from typing import Any, Callable, Dict, Generator, Literal, List, Optional, Union
+from typing import Any, Callable, Dict, Generator, List, Literal, Optional, Union
 
 import dateutil.parser
 
@@ -88,7 +88,7 @@ class DatasetFields:
         ),
         Field(
             name="contact_email",
-            description="Email of contact person for this dataset. May contain a list of emails, which should then be seperated by semicolons.",
+            description="Email of contact person for this dataset. May contain a list of emails, which should then be separated by semicolons.",
             read_only=False,
             required_by_derived=True,
             required_by_raw=True,
@@ -328,7 +328,7 @@ class DatasetFields:
         ),
         Field(
             name="owner",
-            description="Owner or custodian of the dataset, usually first name + lastname. The string may contain a list of persons, which should then be seperated by semicolons.",
+            description="Owner or custodian of the dataset, usually first name + lastname. The string may contain a list of persons, which should then be separated by semicolons.",
             read_only=False,
             required_by_derived=True,
             required_by_raw=True,
@@ -338,7 +338,7 @@ class DatasetFields:
         ),
         Field(
             name="owner_email",
-            description="Email of owner or of custodian of the dataset. The string may contain a list of emails, which should then be seperated by semicolons.",
+            description="Email of owner or of custodian of the dataset. The string may contain a list of emails, which should then be separated by semicolons.",
             read_only=False,
             required_by_derived=False,
             required_by_raw=False,
@@ -628,7 +628,7 @@ class DatasetFields:
 
     @property
     def contact_email(self) -> Optional[str]:
-        """Email of contact person for this dataset. May contain a list of emails, which should then be seperated by semicolons."""
+        """Email of contact person for this dataset. May contain a list of emails, which should then be separated by semicolons."""
         return self._fields["contact_email"]
 
     @contact_email.setter
@@ -800,7 +800,7 @@ class DatasetFields:
 
     @property
     def owner(self) -> Optional[str]:
-        """Owner or custodian of the dataset, usually first name + lastname. The string may contain a list of persons, which should then be seperated by semicolons."""
+        """Owner or custodian of the dataset, usually first name + lastname. The string may contain a list of persons, which should then be separated by semicolons."""
         return self._fields["owner"]
 
     @owner.setter
@@ -809,7 +809,7 @@ class DatasetFields:
 
     @property
     def owner_email(self) -> Optional[str]:
-        """Email of owner or of custodian of the dataset. The string may contain a list of emails, which should then be seperated by semicolons."""
+        """Email of owner or of custodian of the dataset. The string may contain a list of emails, which should then be separated by semicolons."""
         return self._fields["owner_email"]
 
     @owner_email.setter

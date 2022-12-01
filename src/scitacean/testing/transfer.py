@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
 # @author Jan-Lukas Wynen
-from contextlib import contextmanager
 import os
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Dict, Optional, Union
 

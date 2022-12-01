@@ -1,12 +1,11 @@
-from dataclasses import dataclass
 import tempfile
+from dataclasses import dataclass
 from typing import Dict
 
 import hypothesis
 import pytest
 
 from .common import backend
-
 
 # The datasets strategy requires a large amount of memory and time.
 # This is not good but hard to avoid.

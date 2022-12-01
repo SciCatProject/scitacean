@@ -10,11 +10,13 @@ public interface and make sure that Dataset does not break any behavior.
 from datetime import datetime, timedelta, timezone
 
 import dateutil.parser
-from hypothesis import given, settings, strategies as st
 import pydantic
 import pytest
-from scitacean.model import DataFile, DerivedDataset, OrigDatablock, RawDataset
+from hypothesis import given, settings
+from hypothesis import strategies as st
+
 from scitacean import Dataset, DatasetType
+from scitacean.model import DataFile, DerivedDataset, OrigDatablock, RawDataset
 
 
 def test_init_dataset_with_only_type():
@@ -32,12 +34,12 @@ def test_init_dataset_accepted_types(typ):
 
 def test_init_dataset_raises_for_bad_type():
     with pytest.raises(ValueError):
-        Dataset(type="bad-type")  # noqa
+        Dataset(type="bad-type")  # type: ignore
 
 
 def test_init_dataset_needs_type():
     with pytest.raises(TypeError):
-        Dataset()  # noqa
+        Dataset()  # type: ignore
 
 
 def test_init_dataset_sets_creation_time():

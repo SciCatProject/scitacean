@@ -1,15 +1,14 @@
 import json
-from pathlib import Path
-import requests
 import shutil
 import subprocess
 import time
+from pathlib import Path
 from urllib.parse import urljoin
 
 import pytest
+import requests
 
 from ..data import load_datasets, load_orig_datablocks
-
 
 _TEST_BASE = Path(__file__).resolve().parent.parent
 _SCICAT_DOCKER_CONFIG = _TEST_BASE / "scicatlive/docker-compose.yaml"

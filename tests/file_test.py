@@ -7,8 +7,9 @@ from datetime import timedelta
 from hashlib import md5
 from typing import Dict
 
-from dateutil.parser import parse as parse_time
 import pytest
+from dateutil.parser import parse as parse_time
+
 from scitacean import File
 from scitacean.error import IntegrityError
 from scitacean.file import checksum_of_file

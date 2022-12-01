@@ -9,7 +9,7 @@ from string import Template
 from typing import Dict, List
 
 from spec import Field, Spec
-from templates import load_template, BANNER
+from templates import BANNER, load_template
 from util import get_model_name, quote
 
 

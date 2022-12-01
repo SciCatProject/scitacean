@@ -5,7 +5,7 @@ fields:
     description: ACIA information about AUthenticity,COnfidentiality,INtegrity and AVailability requirements of dataset. E.g. AV(ailabilty)=medium could trigger the creation of two tape copies. Format 'AV=medium,CO=low'
     type: str
   - name: contact_email
-    description: Email of contact person for this dataset. May contain a list of emails, which should then be seperated by semicolons.
+    description: Email of contact person for this dataset. May contain a list of emails, which should then be separated by semicolons.
     model_name: contactEmail
     required: true
     type: str
@@ -109,11 +109,11 @@ fields:
     type: str
     validation: orcid
   - name: owner
-    description: Owner or custodian of the dataset, usually first name + lastname. The string may contain a list of persons, which should then be seperated by semicolons.
+    description: Owner or custodian of the dataset, usually first name + lastname. The string may contain a list of persons, which should then be separated by semicolons.
     required: true
     type: str
   - name: owner_email
-    description: Email of owner or of custodian of the dataset. The string may contain a list of emails, which should then be seperated by semicolons.
+    description: Email of owner or of custodian of the dataset. The string may contain a list of emails, which should then be separated by semicolons.
     model_name: ownerEmail
     type: str
     validation: emails

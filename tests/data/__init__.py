@@ -2,12 +2,11 @@
 # Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
 # @author Jan-Lukas Wynen
 """Handle input data for tests."""
-from functools import lru_cache
 import json
+from functools import lru_cache
 from pathlib import Path
 
 from scitacean.model import DerivedDataset, OrigDatablock, RawDataset
-
 
 _BASE_PATH = Path(__file__).resolve().parent
 

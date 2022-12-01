@@ -1,9 +1,8 @@
 import doctest
-
-import scitacean
-
 import os
 import sys
+
+import scitacean
 
 sys.path.insert(0, os.path.abspath("."))
 
