@@ -8,3 +8,9 @@ jupyterlab
 pip-compile-multi
 pre-commit
 pyyaml
+
+types-docutils
+types-paramiko
+types-python-dateutil
+types-PyYAML
+types-requests
