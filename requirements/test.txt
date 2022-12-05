@@ -14,7 +14,7 @@ exceptiongroup==1.0.4
     # via
     #   hypothesis
     #   pytest
-hypothesis==6.58.2
+hypothesis==6.60.0
     # via -r requirements/test.in
 iniconfig==1.1.1
     # via pytest
