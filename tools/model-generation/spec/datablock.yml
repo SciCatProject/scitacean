@@ -35,5 +35,5 @@ fields:
     type: List[DataFile]
   - name: dataset_id
     description: PID of the dataset that this datablock belongs to.
-    model_name: datasetID
+    model_name: datasetId
     type: str

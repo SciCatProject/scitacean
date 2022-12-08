@@ -88,7 +88,7 @@ class Datablock(Ownable):
     size: int
     version: str
     chkAlg: Optional[str]
-    datasetID: Optional[str]
+    datasetId: Optional[str]
     packedSize: Optional[int]
     id: Optional[str]
 

@@ -71,7 +71,7 @@ class FakeClient(Client):
         pid = PID(prefix="sample.prefix", pid="1234-5678-abcd")
         client.datasets[pid] = model.DerivedDataset(...)
         client.orig_datablocks[pid] = [model.OrigDatablock(
-            datasetID=str(pid),
+            datasetId=str(pid),
             ...
         )]
         client.get_dataset(pid)
