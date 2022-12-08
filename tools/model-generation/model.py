@@ -87,7 +87,10 @@ def _split_dataset(specs: Dict[str, Spec]) -> Dict[str, Spec]:
 def generate_models(target: Path, specs: Dict[str, Spec]):
     specs = _split_dataset(specs)
     spec_order = TopologicalSorter(
-        {key: {val.inherits} for key, val in specs.items()}
+        {
+            key: {val.inherits}
+            for key, val in sorted(specs.items(), key=lambda kv: kv[0])
+        },
     ).static_order()
     _write_model(
         target,

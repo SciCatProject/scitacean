@@ -33,18 +33,6 @@ class BaseModel(pydantic.BaseModel):
         json_encoders = {PID: lambda v: str(v)}
 
 
-class Technique(BaseModel):
-    name: str
-    pid: str
-
-
-class MongoQueryable(BaseModel):
-    createdAt: Optional[datetime]
-    createdBy: Optional[str]
-    updatedAt: Optional[datetime]
-    updatedBy: Optional[str]
-
-
 class DatasetLifecycle(BaseModel):
     archivable: Optional[bool]
     archiveRetentionTime: Optional[datetime]
@@ -60,6 +48,18 @@ class DatasetLifecycle(BaseModel):
     retrieveIntegrityCheck: Optional[bool]
     retrieveReturnMessage: Optional[str]
     retrieveStatusMessage: Optional[str]
+
+
+class MongoQueryable(BaseModel):
+    createdAt: Optional[datetime]
+    createdBy: Optional[str]
+    updatedAt: Optional[datetime]
+    updatedBy: Optional[str]
+
+
+class Technique(BaseModel):
+    name: str
+    pid: str
 
 
 class DataFile(MongoQueryable):
@@ -93,17 +93,6 @@ class Datablock(Ownable):
     id: Optional[str]
 
     @pydantic.validator("size", "packedSize")
-    def _validate_size(cls, value):
-        return _validate_size(value)
-
-
-class OrigDatablock(Ownable):
-    dataFileList: List[DataFile]
-    size: int
-    datasetId: Optional[PID]
-    id: Optional[PID]
-
-    @pydantic.validator("size")
     def _validate_size(cls, value):
         return _validate_size(value)
 
@@ -153,6 +142,17 @@ class DerivedDataset(Ownable):
     @pydantic.validator("orcidOfOwner")
     def _validate_orcid(cls, value):
         return _validate_orcid(value)
+
+
+class OrigDatablock(Ownable):
+    dataFileList: List[DataFile]
+    size: int
+    datasetId: Optional[PID]
+    id: Optional[PID]
+
+    @pydantic.validator("size")
+    def _validate_size(cls, value):
+        return _validate_size(value)
 
 
 class RawDataset(Ownable):
