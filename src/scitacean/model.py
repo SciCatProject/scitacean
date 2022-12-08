@@ -83,7 +83,7 @@ class Ownable(MongoQueryable):
 
 
 class Datablock(Ownable):
-    archiveID: str
+    archiveId: str
     dataFileList: List[DataFile]
     size: int
     version: str

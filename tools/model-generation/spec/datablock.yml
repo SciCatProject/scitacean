@@ -7,7 +7,7 @@ fields:
     type: str
   - name: archive_id
     description: Unique identifier given by archive system to the stored datablock. This id is used when data is retrieved back.
-    model_name: archiveID
+    model_name: archiveId
     required: true
     type: str
   - name: size
