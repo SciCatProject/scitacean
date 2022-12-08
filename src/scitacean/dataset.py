@@ -11,7 +11,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Union
 
-from ._dataset_fields import DatasetFields
+from ._dataset_fields import DatasetFields, HasImmutableModelError
 from .file import File
 from .model import DatasetLifecycle, DerivedDataset, OrigDatablock, RawDataset
 from .pid import PID
@@ -31,7 +31,7 @@ class Dataset(DatasetFields):
 
         Corresponds to OrigDatablocks.
         """
-        return len(self._files)
+        return sum(map(lambda dblock: len(dblock.files), self._orig_datablocks))
 
     @property
     def number_of_files_archived(self) -> int:
@@ -59,11 +59,18 @@ class Dataset(DatasetFields):
     @property
     def files(self) -> Iterable[File]:
         """Files linked with the dataset."""
-        yield from self._files
+        for dblock in self._orig_datablocks:
+            yield from dblock.files
 
     def add_files(self, *files: File):
         """Add files to the dataset."""
-        self._files.extend(files)
+        if not self._orig_datablocks:
+            self._add_orig_datablock()
+        try:
+            self._orig_datablocks[-1].add_files(files)
+        except HasImmutableModelError:
+            self._add_orig_datablock()
+            self._orig_datablocks[-1].add_files(files)
 
     def add_local_files(
         self,
@@ -114,6 +121,7 @@ class Dataset(DatasetFields):
             raise TypeError(
                 f"Invalid arguments: {', '.join((*replacements, *_read_only))}"
             )
+        # TODO copy datablocks and file lists
         return Dataset(_files=self._files, _read_only=read_only, **kwargs)
 
     def make_models(self) -> SciCatModels:
@@ -128,16 +136,11 @@ class Dataset(DatasetFields):
         """
         if self.number_of_files == 0:
             return SciCatModels(dataset=self.make_dataset_model(), orig_datablocks=None)
-        datablock = OrigDatablock(
-            size=self.size,
-            dataFileList=[file.make_model() for file in self.files],
-            datasetId=self.pid,
-            ownerGroup=self.owner_group,
-            accessGroups=self.access_groups,
-            instrumentGroup=self.instrument_group,
-        )
         return SciCatModels(
-            dataset=self.make_dataset_model(), orig_datablocks=[datablock]
+            dataset=self.make_dataset_model(),
+            orig_datablocks=[
+                dblock.get_model(self) for dblock in self._orig_datablocks
+            ],
         )
 
     def __eq__(self, other: Dataset) -> bool:

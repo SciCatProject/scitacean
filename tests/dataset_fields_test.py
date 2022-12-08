@@ -215,7 +215,7 @@ def test_init_from_models_sets_files():
     assert f1.make_model().path == "sub/file2.png"
 
 
-def test_init_from_models_sets_files_doesn_not_support_multi_datablocks():
+def test_init_from_models_sets_files_multi_datablocks():
     dataset_model = RawDataset(
         contactEmail="p.stibbons@uu.am",
         creationTime=dateutil.parser.parse("2022-01-10T11:14:52-01:00"),
@@ -233,25 +233,44 @@ def test_init_from_models_sets_files_doesn_not_support_multi_datablocks():
                     size=6123,
                 )
             ],
-            size=6123 + 551,
+            size=6123,
             ownerGroup="faculty",
         ),
         OrigDatablock(
             dataFileList=[
                 DataFile(
-                    path="file1.dat",
-                    size=6123,
+                    path="sub/file2.png",
+                    size=992,
                 )
             ],
-            size=6123 + 551,
+            size=992,
             ownerGroup="faculty",
         ),
     ]
-    with pytest.raises(NotImplementedError):
-        Dataset.from_models(
-            dataset_model=dataset_model,
-            orig_datablock_models=orig_datablock_models,
-        )
+    dset = Dataset.from_models(
+        dataset_model=dataset_model,
+        orig_datablock_models=orig_datablock_models,
+    )
+
+    assert len(list(dset.files)) == 2
+    assert dset.number_of_files == 2
+    assert dset.number_of_files_archived == 0
+    assert dset.packed_size == 0
+    assert dset.size == 6123 + 992
+
+    f0 = [f for f in dset.files if f.remote_access_path.endswith(".dat")][0]
+    assert f0.source_folder == "/hex/source91"
+    assert f0.remote_access_path == "/hex/source91/file1.dat"
+    assert f0.local_path is None
+    assert f0.size == 6123
+    assert f0.make_model().path == "file1.dat"
+
+    f1 = [f for f in dset.files if f.remote_access_path.endswith(".png")][0]
+    assert f1.source_folder == "/hex/source91"
+    assert f1.remote_access_path == "/hex/source91/sub/file2.png"
+    assert f1.local_path is None
+    assert f1.size == 992
+    assert f1.make_model().path == "sub/file2.png"
 
 
 def test_fields_type_filter_derived():
