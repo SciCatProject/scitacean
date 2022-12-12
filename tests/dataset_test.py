@@ -128,7 +128,10 @@ def test_make_scicat_models_datablock_without_files(dataset):
 @settings(max_examples=10)
 def test_make_scicat_models_datablock_with_one_file(dataset):
     file_model = model.DataFile(path="path", size=6163, chk="8450ac0", gid="group")
-    dataset.add_files(File(source_folder="/src", local_path="/local", model=file_model))
+    dataset.add_files(
+        File.from_scicat(source_folder="/src", local_path=None, model=file_model),
+        checksum_algorithm="md5",
+    )
 
     blocks = dataset.make_models().orig_datablocks
     assert len(blocks) == 1
@@ -143,11 +146,12 @@ def test_make_scicat_models_datablock_with_one_file(dataset):
 @settings(max_examples=10)
 def test_eq_self(dset):
     dset.add_files(
-        File(
+        File.from_scicat(
             source_folder="/src",
-            local_path="/local",
+            local_path=None,
             model=model.DataFile(path="path", size=94571),
-        )
+        ),
+        checksum_algorithm=None,
     )
     assert dset == dset
 
@@ -173,18 +177,20 @@ def test_neq_single_mismatched_field_writable(field, initial, data):
 def test_neq_single_mismatched_file(initial):
     modified = initial.replace()
     modified.add_files(
-        File(
+        File.from_scicat(
             source_folder="/mod/src",
-            local_path="/local",
+            local_path=None,
             model=model.DataFile(path="path", size=51553312),
-        )
+        ),
+        checksum_algorithm=None,
     )
     initial.add_files(
-        File(
+        File.from_scicat(
             source_folder="/src",
-            local_path="/local",
+            local_path=None,
             model=model.DataFile(path="path", size=94571),
-        )
+        ),
+        checksum_algorithm=None,
     )
     assert modified != initial
 
@@ -194,11 +200,12 @@ def test_neq_single_mismatched_file(initial):
 def test_neq_extra_file(initial):
     modified = initial.replace()
     modified.add_files(
-        File(
+        File.from_scicat(
             source_folder="/mod/src",
             local_path="/local",
             model=model.DataFile(path="path", size=51553312),
-        )
+        ),
+        checksum_algorithm=None,
     )
     assert modified != initial
 
@@ -280,12 +287,12 @@ def test_replace_does_not_change_files_no_input_files(initial):
 @given(sst.datasets())
 @settings(max_examples=1)
 def test_replace_does_not_change_files_with_input_files(initial):
-    file = File(
+    file = File.from_scicat(
         source_folder="/src",
-        local_path="/local",
+        local_path=None,
         model=model.DataFile(path="path", size=6163),
     )
-    initial.add_files(file)
+    initial.add_files(file, checksum_algorithm=None)
     replaced = initial.replace(owner="a-new-owner")
     assert replaced.number_of_files == 1
     assert replaced.size == 6163

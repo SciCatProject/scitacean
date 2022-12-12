@@ -6,12 +6,14 @@
 from __future__ import annotations
 
 import html
+from copy import deepcopy
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Union
 
-from ._dataset_fields import DatasetFields, HasImmutableModelError
+from ._dataset_fields import DatasetFields
+from .datablock import OrigDatablockProxy
 from .file import File
 from .model import DatasetLifecycle, DerivedDataset, OrigDatablock, RawDataset
 from .pid import PID
@@ -31,7 +33,7 @@ class Dataset(DatasetFields):
 
         Corresponds to OrigDatablocks.
         """
-        return sum(map(lambda dblock: len(dblock.files), self._orig_datablocks))
+        return sum(map(lambda dblock: len(tuple(dblock.files)), self._orig_datablocks))
 
     @property
     def number_of_files_archived(self) -> int:
@@ -62,20 +64,17 @@ class Dataset(DatasetFields):
         for dblock in self._orig_datablocks:
             yield from dblock.files
 
-    def add_files(self, *files: File):
+    def add_files(self, *files: File, checksum_algorithm: Optional[str]):
         """Add files to the dataset."""
-        if not self._orig_datablocks:
-            self._add_orig_datablock()
-        try:
-            self._orig_datablocks[-1].add_files(files)
-        except HasImmutableModelError:
-            self._add_orig_datablock()
-            self._orig_datablocks[-1].add_files(files)
+        self._get_or_add_orig_datablock(
+            checksum_algorithm=checksum_algorithm
+        ).add_files(*files)
 
     def add_local_files(
         self,
         *paths: Union[str, Path],
         base_path: Union[str, Path] = "",
+        checksum_algorithm: Optional[str] = "md5",
     ):
         """Add files on the local file system to the dataset.
 
@@ -86,8 +85,15 @@ class Dataset(DatasetFields):
         base_path:
             The remote paths will be set up according to
             ``remote = [path.relative_to(base_path) for path in paths]``.
+        checksum_algorithm:
+            Compute checksums for files using this algorithm.
+            All algorithms in :mod:`hashlib` are supported.
+            Set to ``None`` to disable checksum computation.
         """
-        self.add_files(*(File.from_local(path, base_path=base_path) for path in paths))
+        self.add_files(
+            *(File.from_local(path, base_path=base_path) for path in paths),
+            checksum_algorithm=checksum_algorithm,
+        )
 
     def replace(self, *, _read_only: Dict[str, Any] = None, **replacements) -> Dataset:
         """Return a new dataset with replaced fields.
@@ -121,8 +127,11 @@ class Dataset(DatasetFields):
             raise TypeError(
                 f"Invalid arguments: {', '.join((*replacements, *_read_only))}"
             )
-        # TODO copy datablocks and file lists
-        return Dataset(_files=self._files, _read_only=read_only, **kwargs)
+        return Dataset(
+            _orig_datablocks=deepcopy(self._orig_datablocks),
+            _read_only=read_only,
+            **kwargs,
+        )
 
     def make_models(self) -> SciCatModels:
         """Build models to send to SciCat.
@@ -139,7 +148,7 @@ class Dataset(DatasetFields):
         return SciCatModels(
             dataset=self.make_dataset_model(),
             orig_datablocks=[
-                dblock.get_model(self) for dblock in self._orig_datablocks
+                dblock.make_model(self) for dblock in self._orig_datablocks
             ],
         )
 
@@ -151,6 +160,25 @@ class Dataset(DatasetFields):
             for field in Dataset.fields()
         )
         return eq
+
+    def _add_orig_datablock(
+        self, *, checksum_algorithm: Optional[str]
+    ) -> OrigDatablockProxy:
+        dblock = OrigDatablockProxy(checksum_algorithm=checksum_algorithm)
+        self._orig_datablocks.append(dblock)
+        return dblock
+
+    def _get_or_add_orig_datablock(
+        self, *, checksum_algorithm: Optional[str]
+    ) -> OrigDatablockProxy:
+        try:
+            return next(
+                db
+                for db in self._orig_datablocks
+                if db.checksum_algorithm == checksum_algorithm
+            )
+        except StopIteration:
+            return self._add_orig_datablock(checksum_algorithm=checksum_algorithm)
 
     def _repr_html_(self):
         rows = "\n".join(

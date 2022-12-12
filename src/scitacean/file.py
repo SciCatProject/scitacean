@@ -4,10 +4,11 @@
 """Class to represent files."""
 
 from __future__ import annotations
+
 import dataclasses
-from datetime import datetime, timezone
 import hashlib
 import os
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional, Union
 
@@ -16,7 +17,7 @@ from .logging import get_logger
 from .model import DataFile
 
 
-@dataclasses.dataclass(eq=False, frozen=True)
+@dataclasses.dataclass(frozen=True)
 class File:
     """Store local and remote paths and metadata for a file.
 
@@ -191,12 +192,15 @@ class File:
     def is_on_local(self) -> bool:
         return self.local_path is not None
 
-    def make_model(self, *, checksum_algorithm: Optional[str] = None) -> DataFile:
+    def make_model(
+        self, *, checksum_algorithm: Optional[str] = None, for_archive: bool = False
+    ) -> DataFile:
         chk = (
             self.checksum(checksum_algorithm)
             if checksum_algorithm is not None
             else None
         )
+        # TODO if for_archive: ensure not out of date
         return DataFile(
             path=self.remote_path,
             size=self.size,

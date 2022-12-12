@@ -9,13 +9,15 @@
 
 """Base dataclass for Dataset."""
 
+from __future__ import annotations
+
 import dataclasses
 from datetime import datetime, timezone
 from typing import Any, Callable, Dict, Generator, List, Literal, Optional, Union
 
 import dateutil.parser
 
-from .file import File
+from .datablock import OrigDatablockProxy
 from .model import (
     DatasetLifecycle,
     DatasetType,
@@ -44,37 +46,6 @@ def _parse_datetime(x: Optional[Union[datetime, str]]) -> datetime:
         if x != "now":
             return dateutil.parser.parse(x)
     return datetime.now(tz=timezone.utc)
-
-
-class HasImmutableModelError(Exception):
-    pass
-
-
-@dataclasses.dataclass
-class _OrigDatablock:
-    model: Optional[OrigDatablock] = None
-    files: List[File] = dataclasses.field(default_factory=list)
-
-    @property
-    def size(self) -> int:
-        return sum(file.size for file in self.files)
-
-    def add_files(self, *files: File):
-        if self.model is not None:
-            raise HasImmutableModelError()
-        self.files.extend(files)
-
-    def get_model(self, dataset) -> OrigDatablock:
-        if self.model is not None:
-            return self.model
-        return OrigDatablock(
-            size=self.size,
-            dataFileList=[file.make_model() for file in self.files],
-            datasetId=dataset.pid,
-            ownerGroup=dataset.owner_group,
-            accessGroups=dataset.access_groups,
-            instrumentGroup=dataset.instrument_group,
-        )
 
 
 class DatasetFields:
@@ -575,7 +546,7 @@ class DatasetFields:
         techniques: Optional[List[Technique]] = None,
         used_software: Optional[List[str]] = None,
         validation_status: Optional[str] = None,
-        _orig_datablocks: Optional[List[_OrigDatablock]] = None,
+        _orig_datablocks: Optional[List[OrigDatablockProxy]] = None,
         _pid: Optional[Union[str, PID]] = None,
         _read_only: Optional[Dict[str, Any]] = None,
     ):
@@ -640,9 +611,6 @@ class DatasetFields:
         if value is None:
             raise TypeError("Cannot set creation_time to None")
         self._fields["creation_time"] = _parse_datetime(value)
-
-    def _add_orig_datablock(self):
-        self._orig_datablocks.append(_OrigDatablock())
 
     @property
     def access_groups(self) -> Optional[List[str]]:
@@ -1123,9 +1091,14 @@ class DatasetFields:
         return cls(
             creation_time=dataset_model.creationTime,
             _pid=dataset_model.pid,
-            _orig_datablocks=_to_internal_orig_datablocks(
-                dataset_model, orig_datablock_models
-            ),
+            _orig_datablocks=[]
+            if not orig_datablock_models
+            else [
+                OrigDatablockProxy.from_model(
+                    dataset_model=dataset_model, orig_datablock_model=dblock
+                )
+                for dblock in orig_datablock_models
+            ],
             _read_only=read_only_args,
             **args,
         )
@@ -1137,22 +1110,6 @@ def _fields_from_model(model: Union[DerivedDataset, RawDataset]) -> dict:
         if isinstance(model, DerivedDataset)
         else _fields_from_raw_model(model)
     )
-
-
-def _to_internal_orig_datablocks(
-    dataset_model: Union[DerivedDataset, RawDataset],
-    orig_datablock_models: Optional[List[OrigDatablock]],
-) -> List[_OrigDatablock]:
-    return [
-        _OrigDatablock(
-            model=dblock,
-            files=[
-                File.from_scicat(file, source_folder=dataset_model.sourceFolder)
-                for file in dblock.dataFileList
-            ],
-        )
-        for dblock in orig_datablock_models
-    ]
 
 
 def _fields_from_derived_model(model) -> dict:
