@@ -5,9 +5,9 @@
 
 from __future__ import annotations
 
+import dataclasses
 import html
 from copy import deepcopy
-from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Union
@@ -94,7 +94,13 @@ class Dataset(DatasetFields):
             datablock=datablock,
         )
 
-    def replace(self, *, _read_only: Dict[str, Any] = None, **replacements) -> Dataset:
+    def replace(
+        self,
+        *,
+        _read_only: Dict[str, Any] = None,
+        _orig_datablocks: Optional[List[OrigDatablockProxy]] = None,
+        **replacements,
+    ) -> Dataset:
         """Return a new dataset with replaced fields.
 
         Returns
@@ -127,9 +133,27 @@ class Dataset(DatasetFields):
                 f"Invalid arguments: {', '.join((*replacements, *_read_only))}"
             )
         return Dataset(
-            _orig_datablocks=deepcopy(self._orig_datablocks),
+            _orig_datablocks=deepcopy(
+                _orig_datablocks
+                if _orig_datablocks is not None
+                else self._orig_datablocks
+            ),
             _read_only=read_only,
             **kwargs,
+        )
+
+    def replace_downloaded_files(self, files) -> Dataset:
+        def new_or_old(old: File):
+            for new in files:
+                if old.remote_path == new.remote_path:
+                    return new
+            return old
+
+        return self.replace(
+            _orig_datablocks=[
+                dataclasses.replace(dblock, init_files=map(new_or_old, dblock.files))
+                for dblock in self._orig_datablocks
+            ]
         )
 
     def make_models(self) -> SciCatModels:
@@ -233,7 +257,7 @@ def _format_type(typ) -> str:
         return html.escape(str(typ))
 
 
-@dataclass
+@dataclasses.dataclass
 class SciCatModels:
     dataset: Union[DerivedDataset, RawDataset]
     orig_datablocks: Optional[List[OrigDatablock]]

@@ -253,6 +253,7 @@ class Client:
         ]
         for f in downloaded_files:
             f.validate_after_download()
+        return dataset.replace_downloaded_files(downloaded_files)
 
 
 class ScicatClient:

@@ -167,6 +167,19 @@ def test_download_files_creates_local_files_select_one_by_predicate(
     assert not Path("download/thaum.dat").exists()
 
 
+def test_download_files_returns_updated_dataset(fs, dataset_and_files):
+    dataset, contents = dataset_and_files
+    client = Client.without_login(
+        url="/", file_transfer=FakeFileTransfer(fs=fs, files=contents)
+    )
+    finalized = client.download_files(dataset, target="./download")
+
+    for f in finalized.files:
+        assert f.is_on_local
+    for f in dataset.files:
+        assert not f.is_on_local  # original is unchanged
+
+
 def test_download_files_ignores_checksum_if_alg_is_none(fs, dataset_and_files):
     dataset, contents = dataset_and_files
 
