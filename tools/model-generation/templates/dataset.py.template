@@ -71,9 +71,10 @@ class DatasetFields:
         type: Union[DatasetType, Literal["derived", "raw"]],
         creation_time: Optional[Union[datetime, str]] = None,
         $field_init_args,
-        _orig_datablocks: Optional[List[OrigDatablockProxy]] = None,
+        checksum_algorithm: Optional[str] = 'md5',
         _pid: Optional[Union[str, PID]] = None,
         _read_only: Optional[Dict[str, Any]] = None,
+        _orig_datablocks: Optional[List[OrigDatablockProxy]] = None,
     ):
         _read_only = _read_only or {}
         self._fields = {
@@ -86,6 +87,16 @@ $field_dict_construction
         self._orig_datablocks = (
             [] if _orig_datablocks is None else list(_orig_datablocks)
         )
+        self._default_checksum_algorithm = self._validate_checksum_algorithm(checksum_algorithm)
+
+    @staticmethod
+    def _validate_checksum_algorithm(algorithm: Optional[str]):
+        if algorithm is None:
+            return algorithm
+        import hashlib
+        if algorithm not in hashlib.algorithms_available:
+            raise ValueError(f"Checksum algorithm not recognized: {algorithm}")
+        return algorithm
 
     @property
     def pid(self) -> Optional[PID]:
