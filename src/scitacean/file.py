@@ -150,7 +150,7 @@ class File:
             return _get_modification_time(self.local_path)
         return self._remote_creation_time
 
-    def checksum(self, algorithm: Optional[str] = None) -> Optional[str]:
+    def checksum(self) -> Optional[str]:
         """Return the checksum of the file.
 
         This can take a long time to compute for large files.
@@ -158,22 +158,17 @@ class File:
         If the file exists on local, return the current checksum of the local file.
         Otherwise, return the stored checksum in the catalogue.
 
-        Parameters
-        ----------
-        algorithm:
-            Hash algorithm to compute the checksum.
-            See :mod:`hashlib`.
-            May be omitted if and only if the file does not exist on local.
-
         Returns
         -------
         :
             The checksum of the file.
         """
         if self.is_on_local:
-            if algorithm is None:
-                raise ValueError("The file is on local, checksum algorithm required")
-            return self._checksum_cache.get(path=self.local_path, algorithm=algorithm)
+            if self.checksum_algorithm is None:
+                return None
+            return self._checksum_cache.get(
+                path=self.local_path, algorithm=self.checksum_algorithm
+            )
         return self._remote_checksum
 
     @property
@@ -193,14 +188,8 @@ class File:
     def is_on_local(self) -> bool:
         return self.local_path is not None
 
-    def make_model(
-        self, *, checksum_algorithm: Optional[str] = None, for_archive: bool = False
-    ) -> DataFile:
-        chk = (
-            self.checksum(checksum_algorithm)
-            if checksum_algorithm is not None
-            else None
-        )
+    def make_model(self, *, for_archive: bool = False) -> DataFile:
+        chk = self.checksum()
         # TODO if for_archive: ensure not out of date
         return DataFile(
             path=self.remote_path,
@@ -233,7 +222,7 @@ class File:
             self, local_path=local_path, _checksum_cache=_Checksum()
         )
 
-    def validate_after_download(self, *, checksum_algorithm: Optional[str]):
+    def validate_after_download(self):
         self._validate_after_download_file_size()
         if self._remote_checksum is None:
             get_logger().info(
@@ -242,22 +231,22 @@ class File:
             )
             return
         stored = self._remote_checksum
-        if not checksum_algorithm:
+        if not self.checksum_algorithm:
             get_logger().warning(
-                "File '%s' has a checksum but no algorithm has been defined. "
+                "File '%s' has a checksum but no algorithm has been set. "
                 "Skipping check. Checksum is %s",
                 self.local_path,
                 stored,
             )
             return
-        actual = checksum_of_file(self.local_path, algorithm=checksum_algorithm)
+        actual = checksum_of_file(self.local_path, algorithm=self.checksum_algorithm)
         if actual != stored:
             _log_and_raise(
                 IntegrityError,
                 f"Checksum of file '{self.local_path}' ({actual}) "
                 f"does not match checksum stored in dataset "
                 f"({stored}). Using algorithm "
-                f"'{checksum_algorithm}'.",
+                f"'{self.checksum_algorithm}'.",
             )
 
     def _validate_after_download_file_size(self):

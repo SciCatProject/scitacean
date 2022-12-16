@@ -21,7 +21,6 @@ class FakeDownloadConnection:
 
     def download_file(self, *, remote, local):
         if self.fs is not None:
-            print("creating", local)
             self.fs.create_file(local, contents=self.files[remote])
         else:
             with open(local, "wb") as f:

@@ -39,9 +39,11 @@ class OrigDatablockProxy:
         orig_datablock_model: OrigDatablock,
     ) -> OrigDatablockProxy:
         dblock = orig_datablock_model
+        # TODO store checksum once implemented
+        #   AND overwrite in Files
         return OrigDatablockProxy(
             pid=dblock.id,
-            checksum_algorithm=None,  # TODO change once implemented
+            checksum_algorithm=None,
             owner_group=dblock.ownerGroup,
             access_groups=dblock.accessGroups,
             instrument_group=dblock.instrumentGroup,
@@ -71,12 +73,7 @@ class OrigDatablockProxy:
         return OrigDatablock(
             id=self.pid,
             size=self.size,
-            dataFileList=[
-                file.make_model(
-                    checksum_algorithm=self.checksum_algorithm, for_archive=False
-                )
-                for file in self.files
-            ],
+            dataFileList=[file.make_model(for_archive=False) for file in self.files],
             datasetId=dataset.pid,
             ownerGroup=self.owner_group or dataset.owner_group,
             accessGroups=self.access_groups or dataset.access_groups,

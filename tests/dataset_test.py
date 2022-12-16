@@ -118,14 +118,15 @@ def test_add_multiple_local_files_to_new_dataset_with_base_path(typ, fs):
 
 
 @pytest.mark.parametrize("typ", (DatasetType.RAW, DatasetType.DERIVED))
-def test_can_set_default_checksum_algorithm(typ, fs):
+@pytest.mark.parametrize("algorithm", ("sha256", None))
+def test_can_set_default_checksum_algorithm(typ, algorithm, fs):
     make_file(fs, "local/data.dat")
 
-    dset = Dataset(type=typ, checksum_algorithm="sha256")
+    dset = Dataset(type=typ, checksum_algorithm=algorithm)
     dset.add_local_files("local/data.dat")
 
     [f] = dset.files
-    assert f.checksum_algorithm == "sha256"
+    assert f.checksum_algorithm == algorithm
 
 
 @given(sst.datasets())

@@ -11,18 +11,6 @@ from .pid import PID
 class DownloadConnection(Protocol):
     """An open connection to the file server for downloads."""
 
-    # TODO remove
-    def download_file(self, *, remote: Union[str, Path], local: Union[str, Path]):
-        """Download a file from the file server.
-
-        Parameters
-        ----------
-        remote:
-            The full path to the file on the server.
-        local:
-            Desired path of the file on the local filesystem.
-        """
-
     def download_files(self, *, remote: List[str], local: List[Path]):
         """Download files from the file server.
 
@@ -51,6 +39,7 @@ class Downloader(Protocol):
 class UploadConnection(Protocol):
     """An open connection to the file server for uploads."""
 
+    # TODO rename to source_folder (or remove?)
     source_dir: str
     """Files are uploaded to this directory / location."""
 

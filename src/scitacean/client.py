@@ -6,8 +6,8 @@
 from __future__ import annotations
 
 import datetime
-from pathlib import Path
 import re
+from pathlib import Path
 from typing import Callable, List, Optional, Tuple, Union
 from urllib.parse import quote_plus
 
@@ -16,8 +16,8 @@ import requests
 from . import model
 from .dataset import Dataset
 from .error import ScicatCommError, ScicatLoginError
-from .logging import get_logger
 from .file import File
+from .logging import get_logger
 from .pid import PID
 from .typing import FileTransfer
 from .util.credentials import SecretStr, StrStorage
@@ -241,15 +241,18 @@ class Client:
         target = Path(target)
         # TODO undo if later fails but only if no files were written
         target.mkdir(parents=True, exist_ok=True)
-        selector = _file_selector(select)
-        files = [f for f in dataset.files if selector(f)]
+        files = _select_files(select, dataset)
+        local_paths = [target / f.remote_path for f in files]
         with self.file_transfer.connect_for_download() as con:
             con.download_files(
                 remote=[f.remote_access_path for f in files],
-                local=[target / f.remote_path for f in files],
+                local=local_paths,
             )
-        # TODO make new files -> replace method and return new dataset
-        # TODO implement new download in ess
+        downloaded_files = [
+            f.downloaded(local_path=l) for f, l in zip(files, local_paths)
+        ]
+        for f in downloaded_files:
+            f.validate_after_download()
 
     def download_file(self, *, remote: Union[str, Path], local: Union[str, Path]):
         if self._file_transfer is None:
@@ -581,3 +584,8 @@ def _file_selector(select: FileSelector) -> Callable[[File], bool]:
     if isinstance(select, re.Pattern):
         return lambda f: select.search(f.remote_path) is not None
     return select
+
+
+def _select_files(select: FileSelector, dataset: Dataset) -> List[File]:
+    selector = _file_selector(select)
+    return [f for f in dataset.files if selector(f)]

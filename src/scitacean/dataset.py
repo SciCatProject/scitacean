@@ -160,7 +160,7 @@ class Dataset(DatasetFields):
         )
         return eq
 
-    def _add_orig_datablock(
+    def add_orig_datablock(
         self, *, checksum_algorithm: Optional[str]
     ) -> OrigDatablockProxy:
         dblock = OrigDatablockProxy(checksum_algorithm=checksum_algorithm)
@@ -180,7 +180,7 @@ class Dataset(DatasetFields):
             return self._lookup_orig_datablock(PID.parse(key))
         # The oth datablock is implicitly always there and created on demand.
         if key in (0, -1) and not self._orig_datablocks:
-            return self._add_orig_datablock(
+            return self.add_orig_datablock(
                 checksum_algorithm=self._default_checksum_algorithm
             )
         return self._orig_datablocks[key]

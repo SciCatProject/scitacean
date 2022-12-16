@@ -19,6 +19,7 @@ from ..logging import get_logger
 from ..pid import PID
 
 
+# TODO implement new multi-file functions
 # TODO process multiple files together
 # TODO pass pid in put/revert?
 #      downloading does not need a pid, so it should not be required in the constructor/

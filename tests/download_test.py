@@ -1,16 +1,18 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
 # @author Jan-Lukas Wynen
+import hashlib
 import os
-from pathlib import Path
 import re
+from pathlib import Path
 from typing import Union
 
-from dateutil.parser import parse as parse_date
 import pytest
+from dateutil.parser import parse as parse_date
+
+from scitacean import PID, Client, Dataset, DatasetType, File, IntegrityError
+from scitacean.model import DataFile, OrigDatablock, RawDataset
 from scitacean.testing.transfer import FakeFileTransfer
-from scitacean.model import DataFile, RawDataset, OrigDatablock
-from scitacean import Client, Dataset, DatasetType, PID
 
 
 @pytest.fixture
@@ -163,3 +165,75 @@ def test_download_files_creates_local_files_select_one_by_predicate(
     assert load("download/file1.dat") == contents["/src/stibbons/774/file1.dat"]
     assert not Path("download/log/what-happened.log").exists()
     assert not Path("download/thaum.dat").exists()
+
+
+def test_download_files_ignores_checksum_if_alg_is_none(fs, dataset_and_files):
+    dataset, contents = dataset_and_files
+
+    content = b"random-stuff"
+    bad_checksum = "incorrect-checksum"
+    model = DataFile(
+        path="file.txt",
+        size=len(content),
+        time=parse_date("2022-06-22T15:42:53+00:00"),
+        chk=bad_checksum,
+    )
+    dataset.add_orig_datablock(checksum_algorithm=None)
+    dataset.add_files(File.from_scicat(model, source_folder=dataset.source_folder))
+
+    client = Client.without_login(
+        url="/",
+        file_transfer=FakeFileTransfer(
+            fs=fs, files={os.path.join(dataset.source_folder, "file.txt"): content}
+        ),
+    )
+    # Does not raise
+    client.download_files(dataset, target="./download", select="file.txt")
+
+
+def test_download_files_detects_bad_checksum(fs, dataset_and_files):
+    dataset, contents = dataset_and_files
+
+    content = b"random-stuff"
+    bad_checksum = "incorrect-checksum"
+    model = DataFile(
+        path="file.txt",
+        size=len(content),
+        time=parse_date("2022-06-22T15:42:53+00:00"),
+        chk=bad_checksum,
+    )
+    dataset.add_orig_datablock(checksum_algorithm="md5")
+    dataset.add_files(File.from_scicat(model, source_folder=dataset.source_folder))
+
+    client = Client.without_login(
+        url="/",
+        file_transfer=FakeFileTransfer(
+            fs=fs, files={os.path.join(dataset.source_folder, "file.txt"): content}
+        ),
+    )
+    with pytest.raises(IntegrityError):
+        client.download_files(dataset, target="./download", select="file.txt")
+
+
+def test_download_files_detects_bad_size(fs, dataset_and_files):
+    dataset, contents = dataset_and_files
+
+    content = b"random-stuff"
+    bad_checksum = hashlib.md5(content).hexdigest()
+    model = DataFile(
+        path="file.txt",
+        size=89412,  # Too large
+        time=parse_date("2022-06-22T15:42:53+00:00"),
+        chk=bad_checksum,
+    )
+    dataset.add_orig_datablock(checksum_algorithm="md5")
+    dataset.add_files(File.from_scicat(model, source_folder=dataset.source_folder))
+
+    client = Client.without_login(
+        url="/",
+        file_transfer=FakeFileTransfer(
+            fs=fs, files={os.path.join(dataset.source_folder, "file.txt"): content}
+        ),
+    )
+    with pytest.raises(IntegrityError):
+        client.download_files(dataset, target="./download", select="file.txt")
