@@ -39,6 +39,7 @@ class File:
     created_by: Optional[str] = None
     updated_at: Optional[datetime] = None
     updated_by: Optional[str] = None
+    checksum_algorithm: Optional[str] = None
     _remote_size: Optional[int] = dataclasses.field(default=None, repr=False)
     _remote_creation_time: Optional[datetime] = dataclasses.field(
         default=None, repr=False

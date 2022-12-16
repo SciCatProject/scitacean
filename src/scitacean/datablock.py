@@ -33,6 +33,7 @@ class OrigDatablockProxy:
 
     @classmethod
     def from_model(
+        cls,
         *,
         dataset_model: Union[DerivedDataset, RawDataset],
         orig_datablock_model: OrigDatablock,
@@ -59,7 +60,10 @@ class OrigDatablockProxy:
         return sum(file.size for file in self.files)
 
     def add_files(self, *files: File):
-        self._files.extend(files)
+        self._files.extend(
+            dataclasses.replace(f, checksum_algorithm=self.checksum_algorithm)
+            for f in files
+        )
         self._files_modified = True
 
     def make_model(self, dataset) -> OrigDatablock:
