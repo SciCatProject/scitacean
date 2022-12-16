@@ -64,17 +64,15 @@ class Dataset(DatasetFields):
         for dblock in self._orig_datablocks:
             yield from dblock.files
 
-    def add_files(self, *files: File, checksum_algorithm: Optional[str]):
+    def add_files(self, *files: File, datablock: Union[int, str, PID] = -1):
         """Add files to the dataset."""
-        self._get_or_add_orig_datablock(
-            checksum_algorithm=checksum_algorithm
-        ).add_files(*files)
+        self._get_or_add_orig_datablock(datablock).add_files(*files)
 
     def add_local_files(
         self,
         *paths: Union[str, Path],
         base_path: Union[str, Path] = "",
-        checksum_algorithm: Optional[str] = "md5",
+        datablock: Union[int, str, PID] = -1,
     ):
         """Add files on the local file system to the dataset.
 
@@ -85,14 +83,15 @@ class Dataset(DatasetFields):
         base_path:
             The remote paths will be set up according to
             ``remote = [path.relative_to(base_path) for path in paths]``.
-        checksum_algorithm:
-            Compute checksums for files using this algorithm.
-            All algorithms in :mod:`hashlib` are supported.
-            Set to ``None`` to disable checksum computation.
+        datablock:
+            Select the orig datablock to store the file in.
+            If an ``int``, use the datablock with that index.
+            If a ``str`` or ``PID``, use the datablock with that id;
+            if there is none with matching id, raise ``KeyError``.
         """
         self.add_files(
             *(File.from_local(path, base_path=base_path) for path in paths),
-            checksum_algorithm=checksum_algorithm,
+            datablock=datablock,
         )
 
     def replace(self, *, _read_only: Dict[str, Any] = None, **replacements) -> Dataset:
@@ -168,17 +167,23 @@ class Dataset(DatasetFields):
         self._orig_datablocks.append(dblock)
         return dblock
 
-    def _get_or_add_orig_datablock(
-        self, *, checksum_algorithm: Optional[str]
-    ) -> OrigDatablockProxy:
+    def _lookup_orig_datablock(self, pid: PID) -> OrigDatablockProxy:
         try:
-            return next(
-                db
-                for db in self._orig_datablocks
-                if db.checksum_algorithm == checksum_algorithm
-            )
+            return next(db for db in self._orig_datablocks if db.pid == pid)
         except StopIteration:
-            return self._add_orig_datablock(checksum_algorithm=checksum_algorithm)
+            raise KeyError(f"No OrigDatablock with id {PID}") from None
+
+    def _get_or_add_orig_datablock(
+        self, key: Union[int, str, PID]
+    ) -> OrigDatablockProxy:
+        if isinstance(key, (str, PID)):
+            return self._lookup_orig_datablock(PID.parse(key))
+        # The oth datablock is implicitly always there and created on demand.
+        if key in (0, -1) and not self._orig_datablocks:
+            return self._add_orig_datablock(
+                checksum_algorithm=self._default_checksum_algorithm
+            )
+        return self._orig_datablocks[key]
 
     def _repr_html_(self):
         rows = "\n".join(
