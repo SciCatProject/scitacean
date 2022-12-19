@@ -47,10 +47,7 @@ class OrigDatablockProxy:
             owner_group=dblock.ownerGroup,
             access_groups=dblock.accessGroups,
             instrument_group=dblock.instrumentGroup,
-            init_files=[
-                File.from_scicat(file, source_folder=dataset_model.sourceFolder)
-                for file in dblock.dataFileList
-            ],
+            init_files=[File.from_scicat(file) for file in dblock.dataFileList],
         )
 
     @property

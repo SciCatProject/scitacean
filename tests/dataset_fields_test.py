@@ -200,16 +200,14 @@ def test_init_from_models_sets_files():
     assert dset.packed_size == 0
     assert dset.size == 6123 + 551
 
-    f0 = [f for f in dset.files if f.remote_access_path.endswith(".dat")][0]
-    assert f0.source_folder == "/hex/source91"
-    assert f0.remote_access_path == "/hex/source91/file1.dat"
+    f0 = [f for f in dset.files if f.remote_path.endswith(".dat")][0]
+    assert f0.remote_access_path(dset.source_folder) == "/hex/source91/file1.dat"
     assert f0.local_path is None
     assert f0.size == 6123
     assert f0.make_model().path == "file1.dat"
 
-    f1 = [f for f in dset.files if f.remote_access_path.endswith(".png")][0]
-    assert f1.source_folder == "/hex/source91"
-    assert f1.remote_access_path == "/hex/source91/sub/file2.png"
+    f1 = [f for f in dset.files if f.remote_path.endswith(".png")][0]
+    assert f1.remote_access_path(dset.source_folder) == "/hex/source91/sub/file2.png"
     assert f1.local_path is None
     assert f1.size == 551
     assert f1.make_model().path == "sub/file2.png"
@@ -258,16 +256,14 @@ def test_init_from_models_sets_files_multi_datablocks():
     assert dset.packed_size == 0
     assert dset.size == 6123 + 992
 
-    f0 = [f for f in dset.files if f.remote_access_path.endswith(".dat")][0]
-    assert f0.source_folder == "/hex/source91"
-    assert f0.remote_access_path == "/hex/source91/file1.dat"
+    f0 = [f for f in dset.files if f.remote_path.endswith(".dat")][0]
+    assert f0.remote_access_path(dset.source_folder) == "/hex/source91/file1.dat"
     assert f0.local_path is None
     assert f0.size == 6123
     assert f0.make_model().path == "file1.dat"
 
-    f1 = [f for f in dset.files if f.remote_access_path.endswith(".png")][0]
-    assert f1.source_folder == "/hex/source91"
-    assert f1.remote_access_path == "/hex/source91/sub/file2.png"
+    f1 = [f for f in dset.files if f.remote_path.endswith(".png")][0]
+    assert f1.remote_access_path(dset.source_folder) == "/hex/source91/sub/file2.png"
     assert f1.local_path is None
     assert f1.size == 992
     assert f1.make_model().path == "sub/file2.png"

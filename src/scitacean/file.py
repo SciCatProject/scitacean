@@ -23,15 +23,14 @@ class File:
 
     There are two central properties:
 
-    - ``remote_access_path``: Full path to the remote file if the file exists
-      on the file server. Is ``None`` if the file does not exist on the remote.
+    - ``remote_path``: Path to the remote file relative to the dataset's
+      ``source_folder``.
     - ``local_path``: Path to the file on the local filesystem if it exists.
       Is ``None`` if the file does not exist locally.
     """
 
     local_path: Optional[Path]
     remote_path: str
-    source_folder: Optional[str]
     remote_gid: Optional[str]
     remote_perm: Optional[str]
     remote_uid: Optional[str]
@@ -97,7 +96,6 @@ class File:
         return File(
             local_path=path,
             remote_path=remote_path,
-            source_folder=None,
             remote_gid=remote_gid,
             remote_perm=remote_perm,
             remote_uid=remote_uid,
@@ -109,13 +107,11 @@ class File:
         cls,
         model: DataFile,
         *,
-        source_folder: str,
         local_path: Optional[Union[str, Path]] = None,
     ) -> File:
         return File(
             local_path=Path(local_path) if isinstance(local_path, str) else local_path,
             remote_path=model.path,
-            source_folder=source_folder,
             remote_gid=model.gid,
             remote_perm=model.perm,
             remote_uid=model.uid,
@@ -171,18 +167,17 @@ class File:
             )
         return self._remote_checksum
 
-    @property
-    def remote_access_path(self) -> Optional[str]:
+    def remote_access_path(self, source_folder) -> Optional[str]:
         """Full path to the file on the remote if it exists."""
+        if not self.is_on_remote:
+            return None
         return (
-            os.path.join(self.source_folder, self.remote_path)
-            if self.is_on_remote
-            else None
+            os.path.join(source_folder, self.remote_path) if self.is_on_remote else None
         )
 
     @property
     def is_on_remote(self) -> bool:
-        return self.source_folder is not None
+        return self._remote_size is not None
 
     @property
     def is_on_local(self) -> bool:
@@ -201,10 +196,9 @@ class File:
             uid=self.remote_uid,
         )
 
-    def uploaded(self, *, source_folder: str, model: DataFile) -> File:
+    def uploaded(self, model: DataFile) -> File:
         return dataclasses.replace(
             self,
-            source_folder=source_folder,
             remote_gid=model.gid,
             remote_uid=model.uid,
             remote_perm=model.perm,

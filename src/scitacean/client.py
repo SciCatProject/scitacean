@@ -197,7 +197,10 @@ class Client:
             dset.source_folder = con.source_dir
             for file in dset.files:
                 file.source_folder = dset.source_folder
-                con.upload_file(local=file.local_path, remote=file.remote_access_path)
+                con.upload_file(
+                    local=file.local_path,
+                    remote=file.remote_access_path(dset.source_folder),
+                )
 
             models = dset.make_models()
             try:
@@ -205,7 +208,8 @@ class Client:
             except ScicatCommError:
                 for file in dset.files:
                     con.revert_upload(
-                        local=file.local_path, remote=file.remote_access_path
+                        local=file.local_path,
+                        remote=file.remote_access_path(dset.source_folder),
                     )
                 raise
 
@@ -245,7 +249,7 @@ class Client:
         local_paths = [target / f.remote_path for f in files]
         with self.file_transfer.connect_for_download() as con:
             con.download_files(
-                remote=[f.remote_access_path for f in files],
+                remote=[f.remote_access_path(dataset.source_folder) for f in files],
                 local=local_paths,
             )
         downloaded_files = [

@@ -22,8 +22,7 @@ def fake_file(fs):
 
 def test_file_from_local(fake_file):
     file = replace(File.from_local(fake_file["path"]), checksum_algorithm="md5")
-    assert file.source_folder is None
-    assert file.remote_access_path is None
+    assert file.remote_access_path("/remote") is None
     assert file.local_path == fake_file["path"]
     assert file.remote_path == str(fake_file["path"])
     assert file.checksum() == fake_file["checksum"]
@@ -40,8 +39,7 @@ def test_file_from_local_with_base_path(fake_file):
     file = replace(
         File.from_local(fake_file["path"], base_path="local"), checksum_algorithm="md5"
     )
-    assert file.source_folder is None
-    assert file.remote_access_path is None
+    assert file.remote_access_path("/remote") is None
     assert file.local_path == fake_file["path"]
     assert file.remote_path == "dir/events.nxs"
     assert file.checksum() == fake_file["checksum"]
@@ -57,8 +55,7 @@ def test_file_from_local_set_remote_path(fake_file):
         File.from_local(fake_file["path"], remote_path="remote/location/file.nxs"),
         checksum_algorithm="md5",
     )
-    assert file.source_folder is None
-    assert file.remote_access_path is None
+    assert file.remote_access_path("/remote") is None
     assert file.local_path == fake_file["path"]
     assert file.remote_path == "remote/location/file.nxs"
     assert file.checksum() == fake_file["checksum"]
@@ -80,8 +77,7 @@ def test_file_from_local_set_many_args(fake_file):
         ),
         checksum_algorithm="md5",
     )
-    assert file.source_folder is None
-    assert file.remote_access_path is None
+    assert file.remote_access_path("/remote") is None
     assert file.local_path == fake_file["path"]
     assert file.checksum() == fake_file["checksum"]
     assert file.size == fake_file["size"]
@@ -102,10 +98,9 @@ def test_file_from_scicat():
     model = DataFile(
         path="dir/image.jpg", size=12345, time=parse_date("2022-06-22T15:42:53.123Z")
     )
-    file = File.from_scicat(model, source_folder="remote/source/folder")
+    file = File.from_scicat(model)
 
-    assert file.source_folder == "remote/source/folder"
-    assert file.remote_access_path == "remote/source/folder/dir/image.jpg"
+    assert file.remote_access_path("/remote/folder") == "/remote/folder/dir/image.jpg"
     assert file.local_path is None
     assert file.checksum() is None
     assert file.size == 12345
@@ -143,12 +138,11 @@ def test_uploaded(fake_file):
     model = file.make_model()
     model.gid = "the-group"
     model.createdBy = "the-creator"
-    uploaded = file.uploaded(source_folder="/remote/src", model=model)
+    uploaded = file.uploaded(model=model)
 
     assert uploaded.is_on_local
     assert uploaded.is_on_remote
 
-    assert uploaded.source_folder == "/remote/src"
     assert uploaded.remote_path == str(fake_file["path"])
     assert uploaded.local_path == fake_file["path"]
     assert uploaded.checksum() == checksum_of_file(
@@ -167,13 +161,12 @@ def test_downloaded():
         perm="xrw",
         createdBy="creator-id",
     )
-    file = File.from_scicat(model, source_folder="remote/source")
+    file = File.from_scicat(model)
     downloaded = file.downloaded(local_path="/local/stream.s")
 
     assert downloaded.is_on_local
     assert downloaded.is_on_remote
 
-    assert downloaded.source_folder == "remote/source"
     assert downloaded.remote_path == "dir/stream.s"
     assert downloaded.local_path == "/local/stream.s"
     assert downloaded.remote_perm == "xrw"
@@ -184,7 +177,7 @@ def test_creation_time_is_always_local_time(fake_file):
     file = File.from_local(path=fake_file["path"])
     model = file.make_model()
     model.time = parse_date("2105-04-01T04:52:23")
-    uploaded = file.uploaded(source_folder="/source", model=model)
+    uploaded = file.uploaded(model=model)
 
     assert abs(fake_file["creation_time"] - uploaded.creation_time) < timedelta(
         seconds=1
@@ -195,7 +188,7 @@ def test_size_is_always_local_size(fake_file):
     file = File.from_local(path=fake_file["path"])
     model = file.make_model()
     model.size = 999999999
-    uploaded = file.uploaded(source_folder="/source", model=model)
+    uploaded = file.uploaded(model=model)
 
     assert uploaded.size == fake_file["size"]
 
@@ -204,7 +197,7 @@ def test_checksum_is_always_local_checksum(fake_file):
     file = File.from_local(path=fake_file["path"])
     model = file.make_model()
     model.chk = "6e9eb73953231aebbbc8788f39f08618"
-    uploaded = file.uploaded(source_folder="/source", model=model)
+    uploaded = file.uploaded(model=model)
 
     assert replace(uploaded, checksum_algorithm="md5").checksum() == checksum_of_file(
         fake_file["path"], algorithm="md5"
@@ -255,7 +248,7 @@ def test_validate_after_download_detects_bad_checksum(fake_file):
         chk="incorrect-checksum",
     )
     file = replace(
-        File.from_scicat(model, source_folder="remote/source/folder"),
+        File.from_scicat(model),
         checksum_algorithm="md5",
     )
     downloaded = file.downloaded(local_path=fake_file["path"])
@@ -271,7 +264,7 @@ def test_validate_after_download_ignores_checksum_if_no_algorithm(fake_file):
         time=parse_date("2022-06-22T15:42:53.123Z"),
         chk="incorrect-checksum",
     )
-    file = File.from_scicat(model, source_folder="remote/source/folder")
+    file = File.from_scicat(model)
     downloaded = file.downloaded(local_path=fake_file["path"])
 
     # does not raise
@@ -287,7 +280,7 @@ def test_validate_after_download_detects_size_mismatch(fake_file, checksum_algor
         chk="incorrect-checksum",
     )
     file = replace(
-        File.from_scicat(model, source_folder="remote/source/folder"),
+        File.from_scicat(model),
         checksum_algorithm=checksum_algorithm,
     )
     downloaded = file.downloaded(local_path=fake_file["path"])
