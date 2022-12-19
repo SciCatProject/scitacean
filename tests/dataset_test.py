@@ -137,9 +137,10 @@ def test_can_set_default_checksum_algorithm(typ, algorithm, fs):
 @given(sst.datasets())
 @settings(max_examples=100)
 def test_dataset_models_roundtrip(initial):
-    models = initial.make_models()
+    dataset_model = initial.make_model()
+    dblock_models = initial.make_datablock_models()
     rebuilt = Dataset.from_models(
-        dataset_model=models.dataset, orig_datablock_models=models.orig_datablocks
+        dataset_model=dataset_model, orig_datablock_models=dblock_models.orig_datablocks
     )
     assert initial == rebuilt
 
@@ -147,7 +148,7 @@ def test_dataset_models_roundtrip(initial):
 @given(sst.datasets())
 @settings(max_examples=10)
 def test_make_scicat_models_datablock_without_files(dataset):
-    assert dataset.make_models().orig_datablocks is None
+    assert dataset.make_datablock_models().orig_datablocks is None
 
 
 @given(sst.datasets())
@@ -156,7 +157,7 @@ def test_make_scicat_models_datablock_with_one_file(dataset):
     file_model = model.DataFile(path="path", size=6163, chk="8450ac0", gid="group")
     dataset.add_files(File.from_scicat(local_path=None, model=file_model))
 
-    blocks = dataset.make_models().orig_datablocks
+    blocks = dataset.make_datablock_models().orig_datablocks
     assert len(blocks) == 1
 
     block = blocks[0]

@@ -15,7 +15,7 @@ from typing import Any, Dict, Iterable, List, Optional, Union
 from ._dataset_fields import DatasetFields
 from .datablock import OrigDatablockProxy
 from .file import File
-from .model import DatasetLifecycle, DerivedDataset, OrigDatablock, RawDataset
+from .model import DatasetLifecycle, OrigDatablock
 from .pid import PID
 
 
@@ -142,7 +142,7 @@ class Dataset(DatasetFields):
             **kwargs,
         )
 
-    def replace_downloaded_files(self, files) -> Dataset:
+    def replace_files(self, *files: File) -> Dataset:
         def new_or_old(old: File):
             for new in files:
                 if old.remote_path == new.remote_path:
@@ -156,23 +156,13 @@ class Dataset(DatasetFields):
             ]
         )
 
-    def make_models(self) -> SciCatModels:
-        """Build models to send to SciCat.
-
-        Creates model for both the dataset and datablocks.
-
-        Returns
-        -------
-        :
-            Created models.
-        """
+    def make_datablock_models(self) -> DatablockModels:
         if self.number_of_files == 0:
-            return SciCatModels(dataset=self.make_dataset_model(), orig_datablocks=None)
-        return SciCatModels(
-            dataset=self.make_dataset_model(),
+            return DatablockModels(orig_datablocks=None)
+        return DatablockModels(
             orig_datablocks=[
                 dblock.make_model(self) for dblock in self._orig_datablocks
-            ],
+            ]
         )
 
     def __eq__(self, other: Dataset) -> bool:
@@ -258,6 +248,7 @@ def _format_type(typ) -> str:
 
 
 @dataclasses.dataclass
-class SciCatModels:
-    dataset: Union[DerivedDataset, RawDataset]
+class DatablockModels:
+    # TODO
+    # datablocks: Optional[List[OrigDatablock]]
     orig_datablocks: Optional[List[OrigDatablock]]

@@ -74,9 +74,10 @@ def test_upload_assigns_fixed_fields(client, dataset):
 
 def test_upload_creates_dataset_and_datablock(client, dataset):
     finalized = client.upload_new_dataset_now(dataset)
-    assert client.datasets[finalized.pid] == finalized.make_models().dataset
+    assert client.datasets[finalized.pid] == finalized.make_model()
     assert (
-        client.orig_datablocks[finalized.pid] == finalized.make_models().orig_datablocks
+        client.orig_datablocks[finalized.pid]
+        == finalized.make_datablock_models().orig_datablocks
     )
 
 
@@ -98,7 +99,7 @@ def test_upload_does_not_create_dataset_if_file_upload_fails(dataset, fs):
     class RaisingUpload(FakeFileTransfer):
         source_dir = "/"
 
-        def upload_file(self, *, local, remote):
+        def upload_files(self, *files):
             raise RuntimeError("Fake upload failure")
 
         @contextmanager

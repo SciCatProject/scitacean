@@ -194,29 +194,22 @@ class Client:
         """
         dset = dataset.replace(_read_only={"pid": PID.generate()})
         with self.file_transfer.connect_for_upload(dset.pid) as con:
-            dset.source_folder = con.source_dir
-            for file in dset.files:
-                file.source_folder = dset.source_folder
-                con.upload_file(
-                    local=file.local_path,
-                    remote=file.remote_access_path(dset.source_folder),
-                )
-
-            models = dset.make_models()
+            # TODO check if any remote file is out of date.
+            #  if so, raise an error. We never overwrite remote files!
+            uploaded_files = con.upload_files(*dset.files)
+            dset = dset.replace_files(*uploaded_files).replace(
+                source_folder=con.source_dir
+            )
             try:
-                dataset_id = self.scicat.create_dataset_model(models.dataset)
+                dataset_id = self.scicat.create_dataset_model(dset.make_model())
             except ScicatCommError:
-                for file in dset.files:
-                    con.revert_upload(
-                        local=file.local_path,
-                        remote=file.remote_access_path(dset.source_folder),
-                    )
+                con.revert_upload(*uploaded_files)
                 raise
 
         finalized = dset.replace(_read_only={"pid": dataset_id})
-        models.orig_datablocks[0].datasetId = dataset_id
         try:
-            self.scicat.create_orig_datablock(models.orig_datablocks[0])
+            for orig_datablock in finalized.make_datablock_models().orig_datablocks:
+                self.scicat.create_orig_datablock(orig_datablock)
         except ScicatCommError as exc:
             raise RuntimeError(
                 f"Failed to upload original datablocks for SciCat dataset {dset.pid}:"
@@ -224,6 +217,7 @@ class Client:
                 "but are not linked with each other. Please fix the dataset manually!"
             ) from exc
 
+        # TODO replace dataset fully
         return finalized
 
     @property
@@ -252,12 +246,12 @@ class Client:
                 remote=[f.remote_access_path(dataset.source_folder) for f in files],
                 local=local_paths,
             )
-        downloaded_files = [
+        downloaded_files = tuple(
             f.downloaded(local_path=l) for f, l in zip(files, local_paths)
-        ]
+        )
         for f in downloaded_files:
             f.validate_after_download()
-        return dataset.replace_downloaded_files(downloaded_files)
+        return dataset.replace_files(*downloaded_files)
 
 
 class ScicatClient:

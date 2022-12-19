@@ -15,7 +15,7 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from scitacean import Dataset, DatasetType
+from scitacean import PID, Dataset, DatasetType
 from scitacean.model import DataFile, DerivedDataset, OrigDatablock, RawDataset
 
 
@@ -324,7 +324,7 @@ def test_make_raw_model():
         packedSize=0,
         size=0,
     )
-    assert dset.make_dataset_model() == expected
+    assert dset.make_model() == expected
 
 
 def test_make_derived_model():
@@ -337,7 +337,7 @@ def test_make_derived_model():
         investigator="p.stibbons@uu.am",
         source_folder="/hex/source62",
         meta={"weight": {"value": 5.23, "unit": "kg"}},
-        input_datasets=["623-122"],
+        input_datasets=[PID(pid="623-122")],
         used_software=["scitacean", "magick"],
     )
     expected = DerivedDataset(
@@ -351,14 +351,14 @@ def test_make_derived_model():
         history=[],
         isPublished=False,
         scientificMetadata={"weight": {"value": 5.23, "unit": "kg"}},
-        inputDatasets=["623-122"],
+        inputDatasets=[PID(pid="623-122")],
         usedSoftware=["scitacean", "magick"],
         numberOfFiles=0,
         numberOfFilesArchived=0,
         packedSize=0,
         size=0,
     )
-    assert dset.make_dataset_model() == expected
+    assert dset.make_model() == expected
 
 
 @pytest.mark.parametrize(
@@ -383,7 +383,7 @@ def test_make_raw_model_raises_if_derived_field_set(field, data):
     )
     setattr(dset, field.name, data.draw(st.from_type(field.type)))
     with pytest.raises(ValueError):
-        dset.make_dataset_model()
+        dset.make_model()
 
 
 @pytest.mark.parametrize(
@@ -405,12 +405,12 @@ def test_make_derived_model_raises_if_raw_field_set(field, data):
         owner_group="faculty",
         investigator="p.stibbons@uu.am",
         source_folder="/hex/source62",
-        input_datasets=["623-122"],
+        input_datasets=[PID(pid="623-122")],
         used_software=["scitacean", "magick"],
     )
     setattr(dset, field.name, data.draw(st.from_type(field.type)))
     with pytest.raises(ValueError):
-        dset.make_dataset_model()
+        dset.make_model()
 
 
 @pytest.mark.parametrize("field", ("contact_email", "investigator", "owner_email"))
@@ -426,7 +426,7 @@ def test_email_validation(field):
     )
     setattr(dset, field, "not-an-email")
     with pytest.raises(pydantic.ValidationError):
-        dset.make_dataset_model()
+        dset.make_model()
 
 
 @pytest.mark.parametrize(
@@ -448,7 +448,7 @@ def test_orcid_validation_valid(good_orcid):
         source_folder="/hex/source62",
         orcid_of_owner=good_orcid,
     )
-    assert dset.make_dataset_model().orcidOfOwner == good_orcid
+    assert dset.make_model().orcidOfOwner == good_orcid
 
 
 @pytest.mark.parametrize(
@@ -472,7 +472,7 @@ def test_orcid_validation_missing_url(bad_orcid):
         orcid_of_owner=bad_orcid,
     )
     with pytest.raises(pydantic.ValidationError):
-        dset.make_dataset_model()
+        dset.make_model()
 
 
 # TODO technique

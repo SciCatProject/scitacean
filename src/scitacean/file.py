@@ -196,19 +196,29 @@ class File:
             uid=self.remote_uid,
         )
 
-    def uploaded(self, model: DataFile) -> File:
+    def uploaded(
+        self,
+        *,
+        remote_path: Optional[str] = None,
+        remote_uid: Optional[str] = None,
+        remote_gid: Optional[str] = None,
+        remote_perm: Optional[str] = None,
+        remote_creation_time: Optional[datetime] = None,
+    ) -> File:
+        if remote_creation_time is None:
+            remote_creation_time = datetime.now().astimezone(timezone.utc)
+        args = dict(
+            remote_path=remote_path,
+            remote_gid=remote_gid,
+            remote_uid=remote_uid,
+            remote_perm=remote_perm,
+            _remote_creation_time=remote_creation_time,
+        )
         return dataclasses.replace(
             self,
-            remote_gid=model.gid,
-            remote_uid=model.uid,
-            remote_perm=model.perm,
-            created_at=model.createdAt,
-            created_by=model.createdBy,
-            updated_at=model.updatedAt,
-            updated_by=model.updatedBy,
-            _remote_size=model.size,
-            _remote_checksum=model.chk,
-            _remote_creation_time=model.time,
+            _remote_size=self.size,
+            _remote_checksum=self.checksum(),
+            **{key: val for key, val in args.items() if val is not None},
         )
 
     def downloaded(self, *, local_path) -> File:

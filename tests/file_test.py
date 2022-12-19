@@ -135,10 +135,9 @@ def test_uploaded(fake_file):
         ),
         checksum_algorithm="sha256",
     )
-    model = file.make_model()
-    model.gid = "the-group"
-    model.createdBy = "the-creator"
-    uploaded = file.uploaded(model=model)
+    uploaded = file.uploaded(
+        remote_gid="the-group", remote_creation_time=parse_date("2100-09-07T11:34:51")
+    )
 
     assert uploaded.is_on_local
     assert uploaded.is_on_remote
@@ -150,7 +149,7 @@ def test_uploaded(fake_file):
     )
     assert uploaded.remote_uid == "the-user"
     assert uploaded.remote_gid == "the-group"
-    assert uploaded.created_by == "the-creator"
+    assert uploaded._remote_creation_time == parse_date("2100-09-07T11:34:51")
 
 
 def test_downloaded():
@@ -177,7 +176,7 @@ def test_creation_time_is_always_local_time(fake_file):
     file = File.from_local(path=fake_file["path"])
     model = file.make_model()
     model.time = parse_date("2105-04-01T04:52:23")
-    uploaded = file.uploaded(model=model)
+    uploaded = file.uploaded()
 
     assert abs(fake_file["creation_time"] - uploaded.creation_time) < timedelta(
         seconds=1
@@ -188,16 +187,16 @@ def test_size_is_always_local_size(fake_file):
     file = File.from_local(path=fake_file["path"])
     model = file.make_model()
     model.size = 999999999
-    uploaded = file.uploaded(model=model)
+    uploaded = file.uploaded()
 
     assert uploaded.size == fake_file["size"]
 
 
 def test_checksum_is_always_local_checksum(fake_file):
     file = File.from_local(path=fake_file["path"])
-    model = file.make_model()
-    model.chk = "6e9eb73953231aebbbc8788f39f08618"
-    uploaded = file.uploaded(model=model)
+    uploaded = replace(
+        file.uploaded(), _remote_checksum="6e9eb73953231aebbbc8788f39f08618"
+    )
 
     assert replace(uploaded, checksum_algorithm="md5").checksum() == checksum_of_file(
         fake_file["path"], algorithm="md5"

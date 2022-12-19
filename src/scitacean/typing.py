@@ -3,8 +3,9 @@
 # @author Jan-Lukas Wynen
 
 from pathlib import Path
-from typing import ContextManager, List, Protocol, Union
+from typing import ContextManager, List, Protocol
 
+from .file import File
 from .pid import PID
 
 
@@ -43,33 +44,31 @@ class UploadConnection(Protocol):
     source_dir: str
     """Files are uploaded to this directory / location."""
 
-    def upload_file(self, *, remote: Union[str, Path], local: Union[str, Path]) -> str:
-        """Upload a file to the file server.
+    def upload_files(self, *files: File) -> str:
+        """Upload files to the file server.
 
         Parameters
         ----------
-        remote:
-            The file needs to be uploaded to ``source_dir/remote``.
-        local:
-            Path of the file on the local filesystem.
+        files:
+            Specify which files to upload including local and remote paths.
 
         Returns
         -------
         :
-            The full remote path ``source_dir/remote``.
+            Updated files with added remote parameters.
+            For each returned file, both ``file.is_on_remote`` and
+            ``file.is_on_local`` are true.
         """
 
-    def revert_upload(self, *, remote: Union[str, Path], local: Union[str, Path] = ""):
-        """Delete a file uploaded by upload_file.
+    def revert_upload(self, *files: File):
+        """Delete files uploaded by upload_file.
 
         Only files uploaded by the same connection object may be handled.
 
         Parameters
         ----------
-        remote:
-            The file needs to be uploaded to ``source_dir/remote``.
-        local:
-            Path of the file on the local filesystem.
+        files:
+            Specify which files to delete.
         """
 
 

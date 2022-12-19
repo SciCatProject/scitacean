@@ -968,7 +968,14 @@ class DatasetFields:
         )
         return f"Dataset({args})"
 
-    def make_dataset_model(self) -> Union[DerivedDataset, RawDataset]:
+    def make_model(self) -> Union[DerivedDataset, RawDataset]:
+        """Build a dataset model to send to SciCat.
+
+        Returns
+        -------
+        :
+            Created model.
+        """
         if self.type == DatasetType.DERIVED:
             return self._make_derived_model()
         return self._make_raw_model()
