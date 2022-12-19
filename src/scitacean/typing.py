@@ -44,7 +44,7 @@ class UploadConnection(Protocol):
     source_dir: str
     """Files are uploaded to this directory / location."""
 
-    def upload_files(self, *files: File) -> str:
+    def upload_files(self, *files: File) -> List[File]:
         """Upload files to the file server.
 
         Parameters
