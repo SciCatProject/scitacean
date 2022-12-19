@@ -5,40 +5,48 @@
 
 from __future__ import annotations
 
+import dataclasses
 import hashlib
 import os
 from datetime import datetime, timezone
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 from typing import Optional, Union
 
 from .error import IntegrityError
 from .logging import get_logger
 from .model import DataFile
-from .typing import Downloader
 
 
+@dataclasses.dataclass(frozen=True)
 class File:
     """Store local and remote paths and metadata for a file.
 
     There are two central properties:
 
-    - ``remote_access_path``: Full path to the remote file if the file exists
-      on the file server. Is ``None`` if the file does not exist on the remote.
+    - ``remote_path``: Path to the remote file relative to the dataset's
+      ``source_folder``.
     - ``local_path``: Path to the file on the local filesystem if it exists.
       Is ``None`` if the file does not exist locally.
     """
 
-    def __init__(
-        self,
-        *,
-        source_folder: Optional[str],
-        local_path: Optional[Union[str, Path]],
-        model: DataFile,
-    ):
-        self._local_path = Path(local_path) if local_path is not None else None
-        self._source_folder = str(source_folder) if source_folder is not None else None
-        # remote_path is stored as model.path
-        self._model = model
+    local_path: Optional[Path]
+    remote_path: str
+    remote_gid: Optional[str]
+    remote_perm: Optional[str]
+    remote_uid: Optional[str]
+    created_at: Optional[datetime] = None
+    created_by: Optional[str] = None
+    updated_at: Optional[datetime] = None
+    updated_by: Optional[str] = None
+    checksum_algorithm: Optional[str] = None
+    _remote_size: Optional[int] = dataclasses.field(default=None, repr=False)
+    _remote_creation_time: Optional[datetime] = dataclasses.field(
+        default=None, repr=False
+    )
+    _remote_checksum: Optional[str] = dataclasses.field(default=None, repr=False)
+    _checksum_cache: Optional[_Checksum] = dataclasses.field(
+        default=None, compare=False, repr=False
+    )
 
     @classmethod
     def from_local(
@@ -46,9 +54,7 @@ class File:
         path: Union[str, Path],
         *,
         base_path: Union[str, Path] = "",
-        remote_path: Optional[Union[str, PurePosixPath]] = None,
-        source_folder: Optional[Union[str, PurePosixPath]] = None,
-        checksum_algorithm: str = "md5",
+        remote_path: Optional[str] = None,
         remote_uid: Optional[str] = None,
         remote_gid: Optional[str] = None,
         remote_perm: Optional[str] = None,
@@ -77,11 +83,6 @@ class File:
             Only use ``path.relative_to(base_path)`` to determine the remote location.
         remote_path:
             Path on the remote, relative to ``source_folder``.
-        source_folder:
-            Base path on the remote.
-            Must be ``None`` if the file does not exist on the remote.
-        checksum_algorithm:
-            Algorithm used to compute the file's checksum. See :mod:`hashlib`.
         remote_uid:
             User ID on the remote. Will be determined automatically on upload.
         remote_gid:
@@ -91,18 +92,14 @@ class File:
         """
         path = Path(path)
         if not remote_path:
-            remote_path = path.relative_to(base_path)
+            remote_path = str(path.relative_to(base_path))
         return File(
             local_path=path,
-            source_folder=source_folder,
-            model=file_model_from_local_file(
-                path,
-                remote_path=remote_path,
-                checksum_algorithm=checksum_algorithm,
-                uid=remote_uid,
-                gid=remote_gid,
-                perm=remote_perm,
-            ),
+            remote_path=remote_path,
+            remote_gid=remote_gid,
+            remote_perm=remote_perm,
+            remote_uid=remote_uid,
+            _checksum_cache=_Checksum(),
         )
 
     @classmethod
@@ -110,136 +107,176 @@ class File:
         cls,
         model: DataFile,
         *,
-        source_folder: Union[str, PurePosixPath],
-        local_path: Union[str, Path] = None,
+        local_path: Optional[Union[str, Path]] = None,
     ) -> File:
         return File(
-            source_folder=source_folder,
-            local_path=local_path,
-            model=model,
+            local_path=Path(local_path) if isinstance(local_path, str) else local_path,
+            remote_path=model.path,
+            remote_gid=model.gid,
+            remote_perm=model.perm,
+            remote_uid=model.uid,
+            created_at=model.createdAt,
+            created_by=model.createdBy,
+            updated_at=model.updatedAt,
+            updated_by=model.updatedBy,
+            _remote_size=model.size,
+            _remote_creation_time=model.time,
+            _remote_checksum=model.chk,
         )
-
-    @property
-    def source_folder(self) -> Optional[str]:
-        """Base path on the remote.
-
-        Is ``None`` if the files is not on the remote.
-        """
-        return self._source_folder
-
-    @source_folder.setter
-    def source_folder(self, value: Optional[str]):
-        """Set the base path on the remote.
-
-        Must be consistent with the path in the dataset!
-        """
-        self._source_folder = value
-
-    @property
-    def remote_access_path(self) -> Optional[str]:
-        """Full path to the file on the remote if it exists."""
-        return (
-            None
-            if self.source_folder is None
-            else os.path.join(self.source_folder, self._model.path)
-        )
-
-    @property
-    def local_path(self) -> Optional[Path]:
-        """Path to the local file if it exists."""
-        return self._local_path
-
-    @property
-    def checksum(self) -> Optional[str]:
-        """Checksum of the file."""
-        return self._model.chk
 
     @property
     def size(self) -> int:
-        """Size in bytes."""
-        return self._model.size
+        """The size in bytes of the file.
+
+        If the file exists on local, return the current size of the local file.
+        Otherwise, return the stored size in the catalogue.
+        """
+        if self.is_on_local:
+            return _get_file_size(self.local_path)
+        return self._remote_size
 
     @property
-    def creation_time(self) -> Optional[datetime]:
-        """Date and time when the file was created."""
-        return self._model.time
+    def creation_time(self) -> datetime:
+        """The logical creation time of the SciCat file.
 
-    def provide_locally(
+        If the file exists on local, return the time the local file was last modified.
+        Otherwise, return the stored time in the catalogue.
+        """
+        if self.is_on_local:
+            return _get_modification_time(self.local_path)
+        return self._remote_creation_time
+
+    def checksum(self) -> Optional[str]:
+        """Return the checksum of the file.
+
+        This can take a long time to compute for large files.
+
+        If the file exists on local, return the current checksum of the local file.
+        Otherwise, return the stored checksum in the catalogue.
+
+        Returns
+        -------
+        :
+            The checksum of the file.
+        """
+        if self.is_on_local:
+            if self.checksum_algorithm is None:
+                return None
+            return self._checksum_cache.get(
+                path=self.local_path, algorithm=self.checksum_algorithm
+            )
+        return self._remote_checksum
+
+    def remote_access_path(self, source_folder) -> Optional[str]:
+        """Full path to the file on the remote if it exists."""
+        if not self.is_on_remote:
+            return None
+        return (
+            os.path.join(source_folder, self.remote_path) if self.is_on_remote else None
+        )
+
+    @property
+    def is_on_remote(self) -> bool:
+        return self._remote_size is not None
+
+    @property
+    def is_on_local(self) -> bool:
+        return self.local_path is not None
+
+    def make_model(self, *, for_archive: bool = False) -> DataFile:
+        chk = self.checksum()
+        # TODO if for_archive: ensure not out of date
+        return DataFile(
+            path=self.remote_path,
+            size=self.size,
+            chk=chk,
+            gid=self.remote_gid,
+            perm=self.remote_perm,
+            time=self.creation_time,
+            uid=self.remote_uid,
+        )
+
+    def uploaded(
         self,
-        directory: Union[str, Path],
         *,
-        downloader: Downloader,
-        checksum_algorithm: Optional[str],
-    ) -> Path:
-        """Download the file to the local filesystem."""
-        directory = Path(directory)
-        directory.mkdir(parents=True, exist_ok=True)  # TODO undo if later fails
-        local_path = directory / self._model.path
-        with downloader.connect_for_download() as con:
-            con.download_file(local=local_path, remote=self.remote_access_path)
-        self._local_path = local_path
-        self._validate_local_file(checksum_algorithm=checksum_algorithm)
-        return local_path
+        remote_path: Optional[str] = None,
+        remote_uid: Optional[str] = None,
+        remote_gid: Optional[str] = None,
+        remote_perm: Optional[str] = None,
+        remote_creation_time: Optional[datetime] = None,
+    ) -> File:
+        if remote_creation_time is None:
+            remote_creation_time = datetime.now().astimezone(timezone.utc)
+        args = dict(
+            remote_path=remote_path,
+            remote_gid=remote_gid,
+            remote_uid=remote_uid,
+            remote_perm=remote_perm,
+            _remote_creation_time=remote_creation_time,
+        )
+        return dataclasses.replace(
+            self,
+            _remote_size=self.size,
+            _remote_checksum=self.checksum(),
+            **{key: val for key, val in args.items() if val is not None},
+        )
 
-    def _validate_local_file(self, *, checksum_algorithm):
-        if not self._model.chk:
+    def downloaded(self, *, local_path) -> File:
+        return dataclasses.replace(
+            self, local_path=local_path, _checksum_cache=_Checksum()
+        )
+
+    def validate_after_download(self):
+        self._validate_after_download_file_size()
+        if self._remote_checksum is None:
             get_logger().info(
                 "Dataset does not contain a checksum for file '%s'. Skipping check.",
-                self._local_path,
+                self.local_path,
             )
-            return self._validate_local_file_size()
-        if not checksum_algorithm:
+            return
+        stored = self._remote_checksum
+        if not self.checksum_algorithm:
             get_logger().warning(
-                "File '%s' has a checksum but no algorithm has been defined. "
+                "File '%s' has a checksum but no algorithm has been set. "
                 "Skipping check. Checksum is %s",
-                self._local_path,
-                self._model.chk,
+                self.local_path,
+                stored,
             )
-            return self._validate_local_file_size()
-        actual = checksum_of_file(self._local_path, algorithm=checksum_algorithm)
-        if actual != self._model.chk:
+            return
+        actual = checksum_of_file(self.local_path, algorithm=self.checksum_algorithm)
+        if actual != stored:
             _log_and_raise(
                 IntegrityError,
-                f"Checksum of file '{self._local_path}' ({actual}) "
+                f"Checksum of file '{self.local_path}' ({actual}) "
                 f"does not match checksum stored in dataset "
-                f"({self._model.chk}). Using algorithm "
-                f"'{checksum_algorithm}'.",
+                f"({stored}). Using algorithm "
+                f"'{self.checksum_algorithm}'.",
             )
 
-    def _validate_local_file_size(self):
-        st = self._local_path.stat()
-        actual = st.st_size
-        if actual != self._model.size:
+    def _validate_after_download_file_size(self):
+        actual = _get_file_size(self.local_path)
+        if actual != self._remote_size:
             _log_and_raise(
                 IntegrityError,
-                f"Size of file '{self._local_path}' ({actual}B) does not "
-                f"match size stored in dataset ({self._model.size}B)",
+                f"Size of file '{self.local_path}' ({actual}B) does not "
+                f"match size stored in dataset ({self._remote_size}B)",
             )
 
-    def make_model(self) -> Optional[DataFile]:
-        return self._model
 
-    def __repr__(self):
-        return (
-            f"File(source_folder={self.source_folder}, local_path={self.local_path}, "
-            f"model={self.make_model()!r})"
-        )
+def _get_file_size(path: Path) -> int:
+    return path.stat().st_size
+
+
+def _get_modification_time(path: Path) -> datetime:
+    """Return the time in UTC when a file was last modified."""
+    # TODO is this correct on non-linux?
+    # TODO is this correct if the file was created in a different timezone (DST)?
+    return datetime.fromtimestamp(path.stat().st_mtime).astimezone(timezone.utc)
 
 
 def _log_and_raise(typ, msg):
     get_logger().error(msg)
     raise typ(msg)
-
-
-def _creation_time(st: os.stat_result) -> datetime:
-    """Return the time in UTC when a file was created.
-
-    Uses modification time as SciCat only cares about the latest version of the file
-    and not when it was first created on the local system.
-    """
-    # TODO is this correct on non-linux?
-    # TODO is this correct if the file was created in a different timezone (DST)?
-    return datetime.fromtimestamp(st.st_mtime).astimezone(timezone.utc)
 
 
 def _new_hash(algorithm: str):
@@ -260,23 +297,29 @@ def checksum_of_file(path: Union[str, Path], *, algorithm: str) -> str:
     return chk.hexdigest()
 
 
-def file_model_from_local_file(
-    path: Path,
-    *,
-    remote_path: PurePosixPath,
-    checksum_algorithm: str,
-    uid: Optional[str],
-    gid: Optional[str],
-    perm: Optional[str],
-) -> DataFile:
-    st = path.stat()
-    chk = checksum_of_file(path, algorithm=checksum_algorithm)
-    return DataFile(
-        path=str(remote_path),
-        size=st.st_size,
-        time=_creation_time(st),
-        chk=chk,
-        uid=uid,
-        gid=gid,
-        perm=perm,
-    )
+class _Checksum:
+    """Compute and cache the checksum of a file."""
+
+    def __init__(self):
+        self._value = None
+        self._path = None
+        self._algorithm = None
+        self._access_time = None
+
+    def get(self, *, path: Path, algorithm: str) -> str:
+        if self._is_out_of_date(path=path, algorithm=algorithm):
+            self._update(path=path, algorithm=algorithm)
+        return self._value
+
+    def _is_out_of_date(self, *, path: Path, algorithm: str) -> bool:
+        return (
+            path != self._path
+            or algorithm != self._algorithm
+            or _get_modification_time(path) > self._access_time
+        )
+
+    def _update(self, *, path: Path, algorithm: str):
+        self._value = checksum_of_file(path, algorithm=algorithm)
+        self._path = path
+        self._algorithm = algorithm
+        self._access_time = datetime.now(tz=timezone.utc)

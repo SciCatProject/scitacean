@@ -6,7 +6,7 @@ import os
 from contextlib import contextmanager
 from getpass import getpass
 from pathlib import Path
-from typing import Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 # These are quite heavy dependencies.
 # It would be great if we could do without them in the long run.
@@ -15,10 +15,12 @@ from fabric import Connection
 from invoke.exceptions import UnexpectedExit
 from paramiko.ssh_exception import AuthenticationException, PasswordRequiredException
 
+from ..file import File
 from ..logging import get_logger
 from ..pid import PID
 
 
+# TODO implement new multi-file functions
 # TODO process multiple files together
 # TODO pass pid in put/revert?
 #      downloading does not need a pid, so it should not be required in the constructor/
@@ -56,8 +58,12 @@ class _ESSDownloadConnection:
     def __init__(self, *, connection: Connection):
         self._connection = connection
 
-    def download_file(self, *, remote: Union[str, Path], local: Union[str, Path]):
-        """Download a file from the given remote path."""
+    def download_files(self, *, remote: List[str], local: List[Path]):
+        """Download files from the given remote path."""
+        for (r, l) in zip(remote, local):
+            self.download_file(remote=r, local=l)
+
+    def download_file(self, *, remote: str, local: Path):
         get_logger().info(
             "Downloading file %s from host %s to %s",
             remote,
@@ -82,6 +88,17 @@ class _ESSUploadConnection:
     def remote_path(self, filename) -> str:
         return os.path.join(self.source_dir, filename)
 
+    def upload_files(self, *files: File) -> List[File]:
+        """Upload files to the remote staging folder."""
+        return [
+            file.uploaded(
+                remote_path=self.upload_file(
+                    remote=file.remote_path, local=file.local_path
+                )
+            )
+            for file in files
+        ]
+
     def upload_file(self, *, remote: Union[str, Path], local: Union[str, Path]) -> str:
         """Upload a file to the remote staging folder."""
         remote_path = self.remote_path(remote)
@@ -101,23 +118,10 @@ class _ESSUploadConnection:
             raise exc
         return remote_path
 
-    def revert_upload(self, *, remote: Union[str, Path], local: Union[str, Path] = ""):
-        """Remove an uploaded file from the remote staging folder."""
-        remote_path = self.remote_path(remote)
-        get_logger().info(
-            "Reverting upload of file %s to %s on host %s",
-            local,
-            remote_path,
-            self._connection.host,
-        )
-
-        try:
-            self._connection.run(f"rm {remote_path}", hide=True)
-        except UnexpectedExit as exc:
-            get_logger().warning(
-                "Error reverting file %s:\n%s", remote_path, exc.result
-            )
-            return
+    def revert_upload(self, *files: File):
+        """Remove uploaded files from the remote folder."""
+        for file in files:
+            self._revert_upload_single(remote=file.remote_path, local=file.local_path)
 
         if _folder_is_empty(self._connection, self.source_dir):
             try:
@@ -134,6 +138,25 @@ class _ESSUploadConnection:
                     self._connection.host,
                     exc.result,
                 )
+
+    def _revert_upload_single(
+        self, *, remote: Union[str, Path], local: Union[str, Path] = ""
+    ):
+        remote_path = self.remote_path(remote)
+        get_logger().info(
+            "Reverting upload of file %s to %s on host %s",
+            local,
+            remote_path,
+            self._connection.host,
+        )
+
+        try:
+            self._connection.run(f"rm {remote_path}", hide=True)
+        except UnexpectedExit as exc:
+            get_logger().warning(
+                "Error reverting file %s:\n%s", remote_path, exc.result
+            )
+            return
 
 
 def _ask_for_key_passphrase() -> str:

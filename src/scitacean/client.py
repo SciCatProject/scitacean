@@ -6,8 +6,9 @@
 from __future__ import annotations
 
 import datetime
+import re
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import Callable, List, Optional, Tuple, Union
 from urllib.parse import quote_plus
 
 import requests
@@ -15,6 +16,7 @@ import requests
 from . import model
 from .dataset import Dataset
 from .error import ScicatCommError, ScicatLoginError
+from .file import File
 from .logging import get_logger
 from .pid import PID
 from .typing import FileTransfer
@@ -192,25 +194,26 @@ class Client:
         """
         dset = dataset.replace(_read_only={"pid": PID.generate()})
         with self.file_transfer.connect_for_upload(dset.pid) as con:
-            dset.source_folder = con.source_dir
-            for file in dset.files:
-                file.source_folder = dset.source_folder
-                con.upload_file(local=file.local_path, remote=file.remote_access_path)
-
-            models = dset.make_models()
+            # TODO check if any remote file is out of date.
+            #  if so, raise an error. We never overwrite remote files!
+            uploaded_files = con.upload_files(*dset.files)
+            dset = dset.replace_files(*uploaded_files).replace(
+                source_folder=con.source_dir
+            )
             try:
-                dataset_id = self.scicat.create_dataset_model(models.dataset)
+                finalized_model = self.scicat.create_dataset_model(dset.make_model())
             except ScicatCommError:
-                for file in dset.files:
-                    con.revert_upload(
-                        local=file.local_path, remote=file.remote_access_path
-                    )
+                con.revert_upload(*uploaded_files)
                 raise
 
-        finalized = dset.replace(_read_only={"pid": dataset_id})
-        models.orig_datablocks[0].datasetId = dataset_id
+        with_new_pid = dset.replace(_read_only={"pid": finalized_model.pid})
         try:
-            self.scicat.create_orig_datablock(models.orig_datablocks[0])
+            finalized_orig_datablocks = [
+                self.scicat.create_orig_datablock(orig_datablock)
+                for orig_datablock in (
+                    with_new_pid.make_datablock_models().orig_datablocks
+                )
+            ]
         except ScicatCommError as exc:
             raise RuntimeError(
                 f"Failed to upload original datablocks for SciCat dataset {dset.pid}:"
@@ -218,7 +221,10 @@ class Client:
                 "but are not linked with each other. Please fix the dataset manually!"
             ) from exc
 
-        return finalized
+        return Dataset.from_models(
+            dataset_model=finalized_model,
+            orig_datablock_models=finalized_orig_datablocks,
+        )
 
     @property
     def scicat(self) -> ScicatClient:
@@ -233,23 +239,99 @@ class Client:
         """Stored handler for file down-/uploads."""
         return self._file_transfer
 
-    def download_file(self, *, remote: Union[str, Path], local: Union[str, Path]):
-        if self._file_transfer is None:
-            raise RuntimeError(
-                f"No file transfer handler specified, cannot download file {remote}"
-            )
-        with self._file_transfer.connect_for_download() as con:
-            con.download_file(remote=remote, local=local)
+    def _file_selector(select: FileSelector) -> Callable[[File], bool]:
+        if select is True:
+            return lambda _: True
+        if select is False:
+            return lambda _: False
+        if isinstance(select, str):
+            return lambda f: f.remote_path == select
+        if isinstance(select, (list, tuple)):
+            return lambda f: f.remote_path in select
+        if isinstance(select, re.Pattern):
+            return lambda f: select.search(f.remote_path) is not None
+        return select
 
-    def upload_file(
-        self, *, dataset_id: str, remote: Union[str, Path], local: Union[str, Path]
-    ) -> str:
-        if self._file_transfer is None:
-            raise RuntimeError(
-                f"No file transfer handler specified, cannot upload file {local}"
+    def download_files(
+        self, dataset: Dataset, *, target: Union[str, Path], select: FileSelector = True
+    ) -> Dataset:
+        r"""Download files of a dataset.
+
+        Makes selected files available on the local filesystem using the file transfer
+        object stored in the client.
+
+        Parameters
+        ----------
+        dataset:
+            Download files of this dataset.
+        target:
+            Files are stored to this path on the local filesystem.
+        select:
+            A file ``f`` is downloaded if ``select`` is
+
+            - **True**: downloaded
+            - **False**: not downloaded
+            - A **string**: if ``f.remote_path`` equals this string
+            - A **list[str]** or **tuple[str]**: if ``f.remote_path``
+              equals any of these strings
+            - An **re.Pattern** as returned by :func:`re.compile`:
+              if this pattern matches ``f.remote_path`` using :func:`re.search`
+            - A **Callable[File]**: if this callable returns ``True`` for ``f``
+
+        Returns
+        -------
+        :
+            A copy of the input dataset with files replaced to reflect the downloads.
+            That is, the ``local_path`` of all downloaded files is set.
+
+        Examples
+        --------
+        Download all files
+
+        .. code-block:: python
+
+            client.download_files(dataset, target="./data", select=True)
+
+        Download a specific file
+
+        .. code-block:: python
+
+            client.download_files(dataset, target="./data", select="my-file.dat")
+
+        Download all files with a ``nxs`` extension
+
+        .. code-block:: python
+
+            import re
+            client.download_files(
+                dataset,
+                target="./data",
+                select=re.compile(r"\.nxs$")
             )
-        with self._file_transfer.connect_for_upload(dataset_id) as con:
-            return con.upload_file(remote=remote, local=local)
+            # or
+            from pathlib import Path
+            client.download_files(
+                dataset,
+                target="./data",
+                select=lambda file: Path(file.remote_path).suffix == ".nxs"
+            )
+        """
+        target = Path(target)
+        # TODO undo if later fails but only if no files were written
+        target.mkdir(parents=True, exist_ok=True)
+        files = _select_files(select, dataset)
+        local_paths = [target / f.remote_path for f in files]
+        with self.file_transfer.connect_for_download() as con:
+            con.download_files(
+                remote=[f.remote_access_path(dataset.source_folder) for f in files],
+                local=local_paths,
+            )
+        downloaded_files = tuple(
+            f.downloaded(local_path=l) for f, l in zip(files, local_paths)
+        )
+        for f in downloaded_files:
+            f.validate_after_download()
+        return dataset.replace_files(*downloaded_files)
 
 
 class ScicatClient:
@@ -359,7 +441,7 @@ class ScicatClient:
     # TODO return full dataset
     def create_dataset_model(
         self, dset: Union[model.DerivedDataset, model.RawDataset]
-    ) -> PID:
+    ) -> Union[model.DerivedDataset, model.RawDataset]:
         """Create a new dataset in SciCat.
 
         The dataset PID must be either
@@ -388,13 +470,16 @@ class ScicatClient:
             If SciCat refuses the dataset or communication
             fails for some other reason.
         """
-        return PID.parse(
-            self._call_endpoint(
-                cmd="post", url="Datasets", data=dset, operation="create_dataset_model"
-            ).get("pid")
+        uploaded = self._call_endpoint(
+            cmd="post", url="Datasets", data=dset, operation="create_dataset_model"
+        )
+        return (
+            model.DerivedDataset(**uploaded)
+            if uploaded["type"] == "derived"
+            else model.RawDataset(**uploaded)
         )
 
-    def create_orig_datablock(self, dblock: model.OrigDatablock):
+    def create_orig_datablock(self, dblock: model.OrigDatablock) -> model.OrigDatablock:
         """Create a new orig datablock in SciCat.
 
         The datablock PID must be either
@@ -416,11 +501,13 @@ class ScicatClient:
             If SciCat refuses the datablock or communication
             fails for some other reason.
         """
-        return self._call_endpoint(
-            cmd="post",
-            url=f"Datasets/{quote_plus(str(dblock.datasetId))}/origdatablocks",
-            data=dblock,
-            operation="create_orig_datablock",
+        return model.OrigDatablock(
+            **self._call_endpoint(
+                cmd="post",
+                url=f"Datasets/{quote_plus(str(dblock.datasetId))}/origdatablocks",
+                data=dblock,
+                operation="create_orig_datablock",
+            )
         )
 
     def _send_to_scicat(
@@ -544,3 +631,27 @@ def _get_token(url: str, username: StrStorage, password: StrStorage) -> str:
 
     get_logger().error("Failed log in:  %s", response.json()["error"])
     raise ScicatLoginError(response.content)
+
+
+FileSelector = Union[
+    bool, str, List[str], Tuple[str], re.Pattern, Callable[[File], bool]
+]
+
+
+def _file_selector(select: FileSelector) -> Callable[[File], bool]:
+    if select is True:
+        return lambda _: True
+    if select is False:
+        return lambda _: False
+    if isinstance(select, str):
+        return lambda f: f.remote_path == select
+    if isinstance(select, (list, tuple)):
+        return lambda f: f.remote_path in select
+    if isinstance(select, re.Pattern):
+        return lambda f: select.search(f.remote_path) is not None
+    return select
+
+
+def _select_files(select: FileSelector, dataset: Dataset) -> List[File]:
+    selector = _file_selector(select)
+    return [f for f in dataset.files if selector(f)]

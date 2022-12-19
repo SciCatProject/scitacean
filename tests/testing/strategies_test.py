@@ -11,7 +11,7 @@ from scitacean.testing import strategies as sst
 
 @given(sst.datasets())
 def test_datasets_makes_valid_dataset(dset):
-    _ = dset.make_models()
+    _ = dset.make_model()
 
 
 @settings(max_examples=10)

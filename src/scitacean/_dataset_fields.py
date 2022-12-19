@@ -9,13 +9,15 @@
 
 """Base dataclass for Dataset."""
 
+from __future__ import annotations
+
 import dataclasses
 from datetime import datetime, timezone
 from typing import Any, Callable, Dict, Generator, List, Literal, Optional, Union
 
 import dateutil.parser
 
-from .file import File
+from .datablock import OrigDatablockProxy
 from .model import (
     DatasetLifecycle,
     DatasetType,
@@ -544,9 +546,10 @@ class DatasetFields:
         techniques: Optional[List[Technique]] = None,
         used_software: Optional[List[str]] = None,
         validation_status: Optional[str] = None,
-        _files: Optional[List[File]] = None,
+        checksum_algorithm: Optional[str] = "md5",
         _pid: Optional[Union[str, PID]] = None,
         _read_only: Optional[Dict[str, Any]] = None,
+        _orig_datablocks: Optional[List[OrigDatablockProxy]] = None,
     ):
         _read_only = _read_only or {}
         self._fields = {
@@ -591,7 +594,22 @@ class DatasetFields:
             "validation_status": _apply_default(validation_status, None, None),
             "version": _apply_default(_read_only.get("version"), None, None),
         }
-        self._files = [] if _files is None else list(_files)
+        self._orig_datablocks = (
+            [] if _orig_datablocks is None else list(_orig_datablocks)
+        )
+        self._default_checksum_algorithm = self._validate_checksum_algorithm(
+            checksum_algorithm
+        )
+
+    @staticmethod
+    def _validate_checksum_algorithm(algorithm: Optional[str]):
+        if algorithm is None:
+            return algorithm
+        import hashlib
+
+        if algorithm not in hashlib.algorithms_available:
+            raise ValueError(f"Checksum algorithm not recognized: {algorithm}")
+        return algorithm
 
     @property
     def pid(self) -> Optional[PID]:
@@ -950,7 +968,14 @@ class DatasetFields:
         )
         return f"Dataset({args})"
 
-    def make_dataset_model(self) -> Union[DerivedDataset, RawDataset]:
+    def make_model(self) -> Union[DerivedDataset, RawDataset]:
+        """Build a dataset model to send to SciCat.
+
+        Returns
+        -------
+        :
+            Created model.
+        """
         if self.type == DatasetType.DERIVED:
             return self._make_derived_model()
         return self._make_raw_model()
@@ -1087,7 +1112,14 @@ class DatasetFields:
         return cls(
             creation_time=dataset_model.creationTime,
             _pid=dataset_model.pid,
-            _files=_files_from_datablocks(dataset_model, orig_datablock_models),
+            _orig_datablocks=[]
+            if not orig_datablock_models
+            else [
+                OrigDatablockProxy.from_model(
+                    dataset_model=dataset_model, orig_datablock_model=dblock
+                )
+                for dblock in orig_datablock_models
+            ],
             _read_only=read_only_args,
             **args,
         )
@@ -1099,25 +1131,6 @@ def _fields_from_model(model: Union[DerivedDataset, RawDataset]) -> dict:
         if isinstance(model, DerivedDataset)
         else _fields_from_raw_model(model)
     )
-
-
-def _files_from_datablocks(
-    dataset_model: Union[DerivedDataset, RawDataset],
-    orig_datablock_models: Optional[List[OrigDatablock]],
-) -> List[File]:
-    if not orig_datablock_models:
-        return []
-
-    if len(orig_datablock_models) != 1:
-        raise NotImplementedError(
-            f"Got {len(orig_datablock_models)} original datablocks for "
-            f"dataset {dataset_model.pid} but only support for one is implemented."
-        )
-    dblock = orig_datablock_models[0]
-    return [
-        File.from_scicat(file, source_folder=dataset_model.sourceFolder)
-        for file in dblock.dataFileList
-    ]
 
 
 def _fields_from_derived_model(model) -> dict:

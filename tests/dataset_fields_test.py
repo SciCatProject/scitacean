@@ -15,7 +15,7 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from scitacean import Dataset, DatasetType
+from scitacean import PID, Dataset, DatasetType
 from scitacean.model import DataFile, DerivedDataset, OrigDatablock, RawDataset
 
 
@@ -200,22 +200,20 @@ def test_init_from_models_sets_files():
     assert dset.packed_size == 0
     assert dset.size == 6123 + 551
 
-    f0 = [f for f in dset.files if f.remote_access_path.endswith(".dat")][0]
-    assert f0.source_folder == "/hex/source91"
-    assert f0.remote_access_path == "/hex/source91/file1.dat"
+    f0 = [f for f in dset.files if f.remote_path.endswith(".dat")][0]
+    assert f0.remote_access_path(dset.source_folder) == "/hex/source91/file1.dat"
     assert f0.local_path is None
     assert f0.size == 6123
     assert f0.make_model().path == "file1.dat"
 
-    f1 = [f for f in dset.files if f.remote_access_path.endswith(".png")][0]
-    assert f1.source_folder == "/hex/source91"
-    assert f1.remote_access_path == "/hex/source91/sub/file2.png"
+    f1 = [f for f in dset.files if f.remote_path.endswith(".png")][0]
+    assert f1.remote_access_path(dset.source_folder) == "/hex/source91/sub/file2.png"
     assert f1.local_path is None
     assert f1.size == 551
     assert f1.make_model().path == "sub/file2.png"
 
 
-def test_init_from_models_sets_files_doesn_not_support_multi_datablocks():
+def test_init_from_models_sets_files_multi_datablocks():
     dataset_model = RawDataset(
         contactEmail="p.stibbons@uu.am",
         creationTime=dateutil.parser.parse("2022-01-10T11:14:52-01:00"),
@@ -233,25 +231,42 @@ def test_init_from_models_sets_files_doesn_not_support_multi_datablocks():
                     size=6123,
                 )
             ],
-            size=6123 + 551,
+            size=6123,
             ownerGroup="faculty",
         ),
         OrigDatablock(
             dataFileList=[
                 DataFile(
-                    path="file1.dat",
-                    size=6123,
+                    path="sub/file2.png",
+                    size=992,
                 )
             ],
-            size=6123 + 551,
+            size=992,
             ownerGroup="faculty",
         ),
     ]
-    with pytest.raises(NotImplementedError):
-        Dataset.from_models(
-            dataset_model=dataset_model,
-            orig_datablock_models=orig_datablock_models,
-        )
+    dset = Dataset.from_models(
+        dataset_model=dataset_model,
+        orig_datablock_models=orig_datablock_models,
+    )
+
+    assert len(list(dset.files)) == 2
+    assert dset.number_of_files == 2
+    assert dset.number_of_files_archived == 0
+    assert dset.packed_size == 0
+    assert dset.size == 6123 + 992
+
+    f0 = [f for f in dset.files if f.remote_path.endswith(".dat")][0]
+    assert f0.remote_access_path(dset.source_folder) == "/hex/source91/file1.dat"
+    assert f0.local_path is None
+    assert f0.size == 6123
+    assert f0.make_model().path == "file1.dat"
+
+    f1 = [f for f in dset.files if f.remote_path.endswith(".png")][0]
+    assert f1.remote_access_path(dset.source_folder) == "/hex/source91/sub/file2.png"
+    assert f1.local_path is None
+    assert f1.size == 992
+    assert f1.make_model().path == "sub/file2.png"
 
 
 def test_fields_type_filter_derived():
@@ -309,7 +324,7 @@ def test_make_raw_model():
         packedSize=0,
         size=0,
     )
-    assert dset.make_dataset_model() == expected
+    assert dset.make_model() == expected
 
 
 def test_make_derived_model():
@@ -322,7 +337,7 @@ def test_make_derived_model():
         investigator="p.stibbons@uu.am",
         source_folder="/hex/source62",
         meta={"weight": {"value": 5.23, "unit": "kg"}},
-        input_datasets=["623-122"],
+        input_datasets=[PID(pid="623-122")],
         used_software=["scitacean", "magick"],
     )
     expected = DerivedDataset(
@@ -336,14 +351,14 @@ def test_make_derived_model():
         history=[],
         isPublished=False,
         scientificMetadata={"weight": {"value": 5.23, "unit": "kg"}},
-        inputDatasets=["623-122"],
+        inputDatasets=[PID(pid="623-122")],
         usedSoftware=["scitacean", "magick"],
         numberOfFiles=0,
         numberOfFilesArchived=0,
         packedSize=0,
         size=0,
     )
-    assert dset.make_dataset_model() == expected
+    assert dset.make_model() == expected
 
 
 @pytest.mark.parametrize(
@@ -368,7 +383,7 @@ def test_make_raw_model_raises_if_derived_field_set(field, data):
     )
     setattr(dset, field.name, data.draw(st.from_type(field.type)))
     with pytest.raises(ValueError):
-        dset.make_dataset_model()
+        dset.make_model()
 
 
 @pytest.mark.parametrize(
@@ -390,12 +405,12 @@ def test_make_derived_model_raises_if_raw_field_set(field, data):
         owner_group="faculty",
         investigator="p.stibbons@uu.am",
         source_folder="/hex/source62",
-        input_datasets=["623-122"],
+        input_datasets=[PID(pid="623-122")],
         used_software=["scitacean", "magick"],
     )
     setattr(dset, field.name, data.draw(st.from_type(field.type)))
     with pytest.raises(ValueError):
-        dset.make_dataset_model()
+        dset.make_model()
 
 
 @pytest.mark.parametrize("field", ("contact_email", "investigator", "owner_email"))
@@ -411,7 +426,7 @@ def test_email_validation(field):
     )
     setattr(dset, field, "not-an-email")
     with pytest.raises(pydantic.ValidationError):
-        dset.make_dataset_model()
+        dset.make_model()
 
 
 @pytest.mark.parametrize(
@@ -433,7 +448,7 @@ def test_orcid_validation_valid(good_orcid):
         source_folder="/hex/source62",
         orcid_of_owner=good_orcid,
     )
-    assert dset.make_dataset_model().orcidOfOwner == good_orcid
+    assert dset.make_model().orcidOfOwner == good_orcid
 
 
 @pytest.mark.parametrize(
@@ -457,7 +472,7 @@ def test_orcid_validation_missing_url(bad_orcid):
         orcid_of_owner=bad_orcid,
     )
     with pytest.raises(pydantic.ValidationError):
-        dset.make_dataset_model()
+        dset.make_model()
 
 
 # TODO technique

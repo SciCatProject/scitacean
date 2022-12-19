@@ -38,7 +38,7 @@ class FakeClient(Client):
     uploading of datasets without actually accessing a SciCat server.
 
     Since this client fakes communication with SciCat, it stores raw
-    `pydantic <https://pydantic-docs.helpmanual.io/>`_ models, namely
+    `pydantic <https://docs.pydantic.dev/>`_ models, namely
 
     - ``FakeClient.datasets``:
             :class:`dict` of :class:`pydantic.model.DerivedDataset` and
@@ -71,7 +71,7 @@ class FakeClient(Client):
         pid = PID(prefix="sample.prefix", pid="1234-5678-abcd")
         client.datasets[pid] = model.DerivedDataset(...)
         client.orig_datablocks[pid] = [model.OrigDatablock(
-            datasetID=str(pid),
+            datasetId=str(pid),
             ...
         )]
         client.get_dataset(pid)
@@ -230,7 +230,7 @@ class FakeScicatClient(ScicatClient):
     @_conditionally_disabled
     def create_dataset_model(
         self, dset: Union[model.DerivedDataset, model.RawDataset]
-    ) -> PID:
+    ) -> Union[model.DerivedDataset, model.RawDataset]:
         pid = PID(
             pid=str(dset.pid) if dset.pid is not None else str(uuid.uuid4()),
             prefix="PID.SAMPLE.PREFIX",
@@ -239,11 +239,12 @@ class FakeScicatClient(ScicatClient):
             raise ScicatCommError(f"Dataset id already exists: {pid}")
         self.main.datasets[pid] = deepcopy(dset)
         self.main.datasets[pid].pid = pid
-        return pid
+        return self.main.datasets[pid]
 
     @_conditionally_disabled
-    def create_orig_datablock(self, dblock: model.OrigDatablock):
+    def create_orig_datablock(self, dblock: model.OrigDatablock) -> model.OrigDatablock:
         dataset_id = dblock.datasetId
         if dataset_id not in self.main.datasets:
             raise ScicatCommError(f"No dataset with id {dataset_id}")
         self.main.orig_datablocks.setdefault(dataset_id, []).append(dblock)
+        return dblock

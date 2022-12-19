@@ -4,13 +4,14 @@
 import os
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 try:
     from pyfakefs.fake_filesystem import FakeFilesystem
 except ImportError:
     FakeFilesystem = Any
 
+from ..file import File
 from ..pid import PID
 
 
@@ -25,6 +26,10 @@ class FakeDownloadConnection:
         else:
             with open(local, "wb") as f:
                 f.write(self.files[remote])
+
+    def download_files(self, *, remote: List[str], local: List[Path]):
+        for r, l in zip(remote, local):
+            self.download_file(remote=r, local=l)
 
 
 class FakeUploadConnection:
@@ -51,9 +56,20 @@ class FakeUploadConnection:
             self.files[remote] = f.read()
         return remote
 
-    def revert_upload(self, *, remote: Union[str, Path], local: Union[str, Path] = ""):
-        remote = self._remote_path(remote)
-        self.reverted[remote] = self.files.pop(remote)
+    def upload_files(self, *files: File) -> List[File]:
+        return [
+            file.uploaded(
+                remote_path=self.upload_file(
+                    remote=file.remote_path, local=file.local_path
+                )
+            )
+            for file in files
+        ]
+
+    def revert_upload(self, *files: File):
+        for file in files:
+            remote = self._remote_path(file.remote_path)
+            self.reverted[remote] = self.files.pop(remote)
 
 
 class FakeFileTransfer:

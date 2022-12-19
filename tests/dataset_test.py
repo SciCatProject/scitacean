@@ -38,11 +38,13 @@ def test_add_local_file_to_new_dataset(typ, fs):
     assert dset.packed_size == 0
     assert dset.size == file_data["size"]
 
-    f = next(iter(dset.files))
-    assert f.source_folder is None
-    assert f.remote_access_path is None
+    [f] = dset.files
+    assert not f.is_on_remote
+    assert f.is_on_local
+    assert f.remote_access_path(dset.source_folder) is None
     assert f.local_path == Path("local/folder/data.dat")
     assert f.size == file_data["size"]
+    assert f.checksum_algorithm == "md5"
 
     assert abs(file_data["creation_time"] - f.creation_time) < timedelta(seconds=1)
     assert abs(file_data["creation_time"] - f.make_model().time) < timedelta(seconds=1)
@@ -62,19 +64,25 @@ def test_add_multiple_local_files_to_new_dataset(typ, fs):
     assert dset.packed_size == 0
     assert dset.size == file_data0["size"] + file_data1["size"]
 
-    f0 = [f for f in dset.files if f.local_path.suffix == ".dat"][0]
-    assert f0.source_folder is None
-    assert f0.remote_access_path is None
+    [f0, f1] = dset.files
+    if f0.local_path.suffix == ".mp3":
+        f1, f0 = f0, f1
+
+    assert not f0.is_on_remote
+    assert f0.is_on_local
+    assert f0.remote_access_path(dset.source_folder) is None
     assert f0.local_path == Path("common/location1/data.dat")
     assert f0.size == file_data0["size"]
     assert f0.make_model().path == "common/location1/data.dat"
+    assert f0.checksum_algorithm == "md5"
 
-    f1 = [f for f in dset.files if f.local_path.suffix == ".mp3"][0]
-    assert f1.source_folder is None
-    assert f1.remote_access_path is None
+    assert not f1.is_on_remote
+    assert f1.is_on_local
+    assert f1.remote_access_path(dset.source_folder) is None
     assert f1.local_path == Path("common/song.mp3")
     assert f1.size == file_data1["size"]
     assert f1.make_model().path == "common/song.mp3"
+    assert f1.checksum_algorithm == "md5"
 
 
 @pytest.mark.parametrize("typ", (DatasetType.RAW, DatasetType.DERIVED))
@@ -93,27 +101,46 @@ def test_add_multiple_local_files_to_new_dataset_with_base_path(typ, fs):
     assert dset.packed_size == 0
     assert dset.size == file_data0["size"] + file_data1["size"]
 
-    f0 = [f for f in dset.files if f.local_path.suffix == ".dat"][0]
-    assert f0.source_folder is None
-    assert f0.remote_access_path is None
+    [f0, f1] = dset.files
+    if f0.local_path.suffix == ".mp3":
+        f1, f0 = f0, f1
+
+    assert not f0.is_on_remote
+    assert f0.is_on_local
+    assert f0.remote_access_path(dset.source_folder) is None
     assert f0.local_path == Path("common/location1/data.dat")
     assert f0.size == file_data0["size"]
     assert f0.make_model().path == "location1/data.dat"
+    assert f0.checksum_algorithm == "md5"
 
-    f1 = [f for f in dset.files if f.local_path.suffix == ".mp3"][0]
-    assert f1.source_folder is None
-    assert f1.remote_access_path is None
+    assert not f1.is_on_remote
+    assert f1.is_on_local
+    assert f1.remote_access_path(dset.source_folder) is None
     assert f1.local_path == Path("common/song.mp3")
     assert f1.size == file_data1["size"]
     assert f1.make_model().path == "song.mp3"
+    assert f1.checksum_algorithm == "md5"
+
+
+@pytest.mark.parametrize("typ", (DatasetType.RAW, DatasetType.DERIVED))
+@pytest.mark.parametrize("algorithm", ("sha256", None))
+def test_can_set_default_checksum_algorithm(typ, algorithm, fs):
+    make_file(fs, "local/data.dat")
+
+    dset = Dataset(type=typ, checksum_algorithm=algorithm)
+    dset.add_local_files("local/data.dat")
+
+    [f] = dset.files
+    assert f.checksum_algorithm == algorithm
 
 
 @given(sst.datasets())
 @settings(max_examples=100)
 def test_dataset_models_roundtrip(initial):
-    models = initial.make_models()
+    dataset_model = initial.make_model()
+    dblock_models = initial.make_datablock_models()
     rebuilt = Dataset.from_models(
-        dataset_model=models.dataset, orig_datablock_models=models.orig_datablocks
+        dataset_model=dataset_model, orig_datablock_models=dblock_models.orig_datablocks
     )
     assert initial == rebuilt
 
@@ -121,16 +148,16 @@ def test_dataset_models_roundtrip(initial):
 @given(sst.datasets())
 @settings(max_examples=10)
 def test_make_scicat_models_datablock_without_files(dataset):
-    assert dataset.make_models().orig_datablocks is None
+    assert dataset.make_datablock_models().orig_datablocks is None
 
 
 @given(sst.datasets())
 @settings(max_examples=10)
 def test_make_scicat_models_datablock_with_one_file(dataset):
     file_model = model.DataFile(path="path", size=6163, chk="8450ac0", gid="group")
-    dataset.add_files(File(source_folder="/src", local_path="/local", model=file_model))
+    dataset.add_files(File.from_scicat(local_path=None, model=file_model))
 
-    blocks = dataset.make_models().orig_datablocks
+    blocks = dataset.make_datablock_models().orig_datablocks
     assert len(blocks) == 1
 
     block = blocks[0]
@@ -143,9 +170,8 @@ def test_make_scicat_models_datablock_with_one_file(dataset):
 @settings(max_examples=10)
 def test_eq_self(dset):
     dset.add_files(
-        File(
-            source_folder="/src",
-            local_path="/local",
+        File.from_scicat(
+            local_path=None,
             model=model.DataFile(path="path", size=94571),
         )
     )
@@ -173,16 +199,14 @@ def test_neq_single_mismatched_field_writable(field, initial, data):
 def test_neq_single_mismatched_file(initial):
     modified = initial.replace()
     modified.add_files(
-        File(
-            source_folder="/mod/src",
-            local_path="/local",
+        File.from_scicat(
+            local_path=None,
             model=model.DataFile(path="path", size=51553312),
         )
     )
     initial.add_files(
-        File(
-            source_folder="/src",
-            local_path="/local",
+        File.from_scicat(
+            local_path=None,
             model=model.DataFile(path="path", size=94571),
         )
     )
@@ -194,8 +218,7 @@ def test_neq_single_mismatched_file(initial):
 def test_neq_extra_file(initial):
     modified = initial.replace()
     modified.add_files(
-        File(
-            source_folder="/mod/src",
+        File.from_scicat(
             local_path="/local",
             model=model.DataFile(path="path", size=51553312),
         )
@@ -280,13 +303,12 @@ def test_replace_does_not_change_files_no_input_files(initial):
 @given(sst.datasets())
 @settings(max_examples=1)
 def test_replace_does_not_change_files_with_input_files(initial):
-    file = File(
-        source_folder="/src",
-        local_path="/local",
+    file = File.from_scicat(
+        local_path=None,
         model=model.DataFile(path="path", size=6163),
     )
     initial.add_files(file)
     replaced = initial.replace(owner="a-new-owner")
     assert replaced.number_of_files == 1
     assert replaced.size == 6163
-    assert list(replaced.files) == [file]
+    assert list(replaced.files) == list(initial.files)

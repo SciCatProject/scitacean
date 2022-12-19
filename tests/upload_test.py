@@ -62,21 +62,24 @@ def dataset(derived_dataset_model, fs):
     return dset
 
 
-def test_upload_assigns_fixed_fields(client, dataset):
+def test_upload_returns_updated_dataset(client, dataset):
     finalized = client.upload_new_dataset_now(dataset)
-    expected = dataset.replace(_read_only={"pid": finalized.pid})
-
-    with client.file_transfer.connect_for_upload(finalized.pid) as con:
-        source_dir = con.source_dir
-    expected.source_folder = source_dir
+    expected = client.get_dataset(finalized.pid).replace(
+        # The backend may update the dataset after upload
+        _read_only={
+            "updated_at": finalized.updated_at,
+            "updated_by": finalized.updated_by,
+        }
+    )
     assert finalized == expected
 
 
 def test_upload_creates_dataset_and_datablock(client, dataset):
     finalized = client.upload_new_dataset_now(dataset)
-    assert client.datasets[finalized.pid] == finalized.make_models().dataset
+    assert client.datasets[finalized.pid] == finalized.make_model()
     assert (
-        client.orig_datablocks[finalized.pid] == finalized.make_models().orig_datablocks
+        client.orig_datablocks[finalized.pid]
+        == finalized.make_datablock_models().orig_datablocks
     )
 
 
@@ -98,7 +101,7 @@ def test_upload_does_not_create_dataset_if_file_upload_fails(dataset, fs):
     class RaisingUpload(FakeFileTransfer):
         source_dir = "/"
 
-        def upload_file(self, *, local, remote):
+        def upload_files(self, *files):
             raise RuntimeError("Fake upload failure")
 
         @contextmanager

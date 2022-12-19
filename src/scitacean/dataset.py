@@ -5,15 +5,17 @@
 
 from __future__ import annotations
 
+import dataclasses
 import html
-from dataclasses import dataclass
+from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Union
 
 from ._dataset_fields import DatasetFields
+from .datablock import OrigDatablockProxy
 from .file import File
-from .model import DatasetLifecycle, DerivedDataset, OrigDatablock, RawDataset
+from .model import DatasetLifecycle, OrigDatablock
 from .pid import PID
 
 
@@ -31,7 +33,7 @@ class Dataset(DatasetFields):
 
         Corresponds to OrigDatablocks.
         """
-        return len(self._files)
+        return sum(map(lambda dblock: len(tuple(dblock.files)), self._orig_datablocks))
 
     @property
     def number_of_files_archived(self) -> int:
@@ -59,16 +61,18 @@ class Dataset(DatasetFields):
     @property
     def files(self) -> Iterable[File]:
         """Files linked with the dataset."""
-        yield from self._files
+        for dblock in self._orig_datablocks:
+            yield from dblock.files
 
-    def add_files(self, *files: File):
+    def add_files(self, *files: File, datablock: Union[int, str, PID] = -1):
         """Add files to the dataset."""
-        self._files.extend(files)
+        self._get_or_add_orig_datablock(datablock).add_files(*files)
 
     def add_local_files(
         self,
         *paths: Union[str, Path],
         base_path: Union[str, Path] = "",
+        datablock: Union[int, str, PID] = -1,
     ):
         """Add files on the local file system to the dataset.
 
@@ -79,10 +83,24 @@ class Dataset(DatasetFields):
         base_path:
             The remote paths will be set up according to
             ``remote = [path.relative_to(base_path) for path in paths]``.
+        datablock:
+            Select the orig datablock to store the file in.
+            If an ``int``, use the datablock with that index.
+            If a ``str`` or ``PID``, use the datablock with that id;
+            if there is none with matching id, raise ``KeyError``.
         """
-        self.add_files(*(File.from_local(path, base_path=base_path) for path in paths))
+        self.add_files(
+            *(File.from_local(path, base_path=base_path) for path in paths),
+            datablock=datablock,
+        )
 
-    def replace(self, *, _read_only: Dict[str, Any] = None, **replacements) -> Dataset:
+    def replace(
+        self,
+        *,
+        _read_only: Dict[str, Any] = None,
+        _orig_datablocks: Optional[List[OrigDatablockProxy]] = None,
+        **replacements,
+    ) -> Dataset:
         """Return a new dataset with replaced fields.
 
         Returns
@@ -114,30 +132,37 @@ class Dataset(DatasetFields):
             raise TypeError(
                 f"Invalid arguments: {', '.join((*replacements, *_read_only))}"
             )
-        return Dataset(_files=self._files, _read_only=read_only, **kwargs)
-
-    def make_models(self) -> SciCatModels:
-        """Build models to send to SciCat.
-
-        Creates model for both the dataset and datablocks.
-
-        Returns
-        -------
-        :
-            Created models.
-        """
-        if self.number_of_files == 0:
-            return SciCatModels(dataset=self.make_dataset_model(), orig_datablocks=None)
-        datablock = OrigDatablock(
-            size=self.size,
-            dataFileList=[file.make_model() for file in self.files],
-            datasetId=self.pid,
-            ownerGroup=self.owner_group,
-            accessGroups=self.access_groups,
-            instrumentGroup=self.instrument_group,
+        return Dataset(
+            _orig_datablocks=deepcopy(
+                _orig_datablocks
+                if _orig_datablocks is not None
+                else self._orig_datablocks
+            ),
+            _read_only=read_only,
+            **kwargs,
         )
-        return SciCatModels(
-            dataset=self.make_dataset_model(), orig_datablocks=[datablock]
+
+    def replace_files(self, *files: File) -> Dataset:
+        def new_or_old(old: File):
+            for new in files:
+                if old.remote_path == new.remote_path:
+                    return new
+            return old
+
+        return self.replace(
+            _orig_datablocks=[
+                dataclasses.replace(dblock, init_files=map(new_or_old, dblock.files))
+                for dblock in self._orig_datablocks
+            ]
+        )
+
+    def make_datablock_models(self) -> DatablockModels:
+        if self.number_of_files == 0:
+            return DatablockModels(orig_datablocks=None)
+        return DatablockModels(
+            orig_datablocks=[
+                dblock.make_model(self) for dblock in self._orig_datablocks
+            ]
         )
 
     def __eq__(self, other: Dataset) -> bool:
@@ -148,6 +173,31 @@ class Dataset(DatasetFields):
             for field in Dataset.fields()
         )
         return eq
+
+    def add_orig_datablock(
+        self, *, checksum_algorithm: Optional[str]
+    ) -> OrigDatablockProxy:
+        dblock = OrigDatablockProxy(checksum_algorithm=checksum_algorithm)
+        self._orig_datablocks.append(dblock)
+        return dblock
+
+    def _lookup_orig_datablock(self, pid: PID) -> OrigDatablockProxy:
+        try:
+            return next(db for db in self._orig_datablocks if db.pid == pid)
+        except StopIteration:
+            raise KeyError(f"No OrigDatablock with id {PID}") from None
+
+    def _get_or_add_orig_datablock(
+        self, key: Union[int, str, PID]
+    ) -> OrigDatablockProxy:
+        if isinstance(key, (str, PID)):
+            return self._lookup_orig_datablock(PID.parse(key))
+        # The oth datablock is implicitly always there and created on demand.
+        if key in (0, -1) and not self._orig_datablocks:
+            return self.add_orig_datablock(
+                checksum_algorithm=self._default_checksum_algorithm
+            )
+        return self._orig_datablocks[key]
 
     def _repr_html_(self):
         rows = "\n".join(
@@ -197,7 +247,8 @@ def _format_type(typ) -> str:
         return html.escape(str(typ))
 
 
-@dataclass
-class SciCatModels:
-    dataset: Union[DerivedDataset, RawDataset]
+@dataclasses.dataclass
+class DatablockModels:
+    # TODO
+    # datablocks: Optional[List[OrigDatablock]]
     orig_datablocks: Optional[List[OrigDatablock]]

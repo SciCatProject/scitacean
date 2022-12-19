@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import uuid
-from typing import Optional
+from typing import Optional, Union
 
 
 class PID:
@@ -42,7 +42,7 @@ class PID:
         self._prefix = prefix
 
     @classmethod
-    def parse(cls, x: str) -> PID:
+    def parse(cls, x: Union[str, PID]) -> PID:
         """Build a PID from a string.
 
         The string is split at the first "/" to determine
@@ -54,12 +54,15 @@ class PID:
         ----------
         x:
             String holding an ID with or without prefix.
+            Or a PID object, in which case a copy is returned.
 
         Returns
         -------
         :
             A new PID object constructed from ``x``.
         """
+        if isinstance(x, PID):
+            return PID(pid=x.pid, prefix=x.prefix)
         pieces = x.split("/", 1)
         if len(pieces) == 1:
             return PID(pid=pieces[0], prefix=None)
