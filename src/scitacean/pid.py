@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import uuid
-from typing import Optional, Union
+from typing import Callable, Generator, Optional, Union
 
 
 class PID:
@@ -101,28 +101,32 @@ class PID:
         """Return a new PID with the prefix set to None."""
         return PID(pid=self.pid, prefix=None)
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.prefix is not None:
             return self.prefix + "/" + self.pid
         return self.pid
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"PID(prefix={self.prefix}, pid={self.pid})"
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(str(self))
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, PID):
             return False
         return self.prefix == other.prefix and self.pid == other.pid
 
     @classmethod
-    def __get_validators__(cls):
+    def __get_validators__(
+        cls,
+    ) -> Generator[Callable[[Union[str, PID]], PID], None, None]:
         yield cls.validate
 
     @classmethod
-    def validate(cls, value) -> PID:
+    def validate(cls, value: Union[str, PID]) -> PID:
         if isinstance(value, str):
             return PID.parse(value)
-        return value
+        if isinstance(value, PID):
+            return value
+        raise TypeError("expected a PID or str")

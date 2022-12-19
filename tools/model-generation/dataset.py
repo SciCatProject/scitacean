@@ -87,7 +87,7 @@ def _format_make_model(typ: str, fields: List[Field]) -> str:
         for field in fields
         if typ in field.extra.get("used", ())
     )
-    formatted = f"""def _make_{typ}_model(self):
+    formatted = f"""def _make_{typ}_model(self) -> {typ.capitalize()}Dataset:
 {checks}
     return {("Derived" if typ == "derived" else "Raw")}Dataset(
         {construction}

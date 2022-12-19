@@ -12,14 +12,53 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Union
 
-from ._dataset_fields import DatasetFields
+from ._dataset_fields import DatasetFields, fields_from_model
 from .datablock import OrigDatablockProxy
 from .file import File
-from .model import DatasetLifecycle, OrigDatablock
+from .model import DatasetLifecycle, DerivedDataset, OrigDatablock, RawDataset
 from .pid import PID
 
 
 class Dataset(DatasetFields):
+    @classmethod
+    def from_models(
+        cls,
+        *,
+        dataset_model: Union[DerivedDataset, RawDataset],
+        orig_datablock_models: Optional[List[OrigDatablock]],
+    ) -> Dataset:
+        """Create a new dataset from fully filled in models.
+
+        Parameters
+        ----------
+        dataset_model:
+            Fields, including scientific metadata are filled from this model.
+        orig_datablock_models:
+            File links are populated from this model.
+
+        Returns
+        -------
+        :
+            A new dataset.
+        """
+        args = fields_from_model(dataset_model)
+        read_only_args = args.pop("_read_only")
+        read_only_args["history"] = dataset_model.history
+        return cls(
+            creation_time=dataset_model.creationTime,
+            _pid=dataset_model.pid,
+            _orig_datablocks=[]
+            if not orig_datablock_models
+            else [
+                OrigDatablockProxy.from_model(
+                    dataset_model=dataset_model, orig_datablock_model=dblock
+                )
+                for dblock in orig_datablock_models
+            ],
+            _read_only=read_only_args,
+            **args,
+        )
+
     @property
     def history(self) -> List[Dataset]:
         # TODO convert elements to Dataset

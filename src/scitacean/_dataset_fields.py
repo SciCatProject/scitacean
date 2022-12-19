@@ -980,7 +980,7 @@ class DatasetFields:
             return self._make_derived_model()
         return self._make_raw_model()
 
-    def _make_derived_model(self):
+    def _make_derived_model(self) -> DerivedDataset:
         if self.creation_location is not None:
             raise ValueError("'creation_location' must not be set in derived datasets")
         if self.data_format is not None:
@@ -1033,7 +1033,7 @@ class DatasetFields:
             version=self.version,
         )
 
-    def _make_raw_model(self):
+    def _make_raw_model(self) -> RawDataset:
         if self.input_datasets is not None:
             raise ValueError("'input_datasets' must not be set in raw datasets")
         if self.job_log_data is not None:
@@ -1085,47 +1085,8 @@ class DatasetFields:
             version=self.version,
         )
 
-    @classmethod
-    def from_models(
-        cls,
-        *,
-        dataset_model: Union[DerivedDataset, RawDataset],
-        orig_datablock_models: Optional[List[OrigDatablock]],
-    ):
-        """Create a new dataset from fully filled in models.
 
-        Parameters
-        ----------
-        dataset_model:
-            Fields, including scientific metadata are filled from this model.
-        orig_datablock_models:
-            File links are populated from this model.
-
-        Returns
-        -------
-        :
-            A new dataset.
-        """
-        args = _fields_from_model(dataset_model)
-        read_only_args = args.pop("_read_only")
-        read_only_args["history"] = dataset_model.history
-        return cls(
-            creation_time=dataset_model.creationTime,
-            _pid=dataset_model.pid,
-            _orig_datablocks=[]
-            if not orig_datablock_models
-            else [
-                OrigDatablockProxy.from_model(
-                    dataset_model=dataset_model, orig_datablock_model=dblock
-                )
-                for dblock in orig_datablock_models
-            ],
-            _read_only=read_only_args,
-            **args,
-        )
-
-
-def _fields_from_model(model: Union[DerivedDataset, RawDataset]) -> dict:
+def fields_from_model(model: Union[DerivedDataset, RawDataset]) -> dict:
     return (
         _fields_from_derived_model(model)
         if isinstance(model, DerivedDataset)
