@@ -62,13 +62,15 @@ def dataset(derived_dataset_model, fs):
     return dset
 
 
-def test_upload_assigns_fixed_fields(client, dataset):
+def test_upload_returns_updated_dataset(client, dataset):
     finalized = client.upload_new_dataset_now(dataset)
-    expected = dataset.replace(_read_only={"pid": finalized.pid})
-
-    with client.file_transfer.connect_for_upload(finalized.pid) as con:
-        source_dir = con.source_dir
-    expected.source_folder = source_dir
+    expected = client.get_dataset(finalized.pid).replace(
+        # The backend may update the dataset after upload
+        _read_only={
+            "updated_at": finalized.updated_at,
+            "updated_by": finalized.updated_by,
+        }
+    )
     assert finalized == expected
 
 
