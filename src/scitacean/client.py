@@ -239,9 +239,83 @@ class Client:
         """Stored handler for file down-/uploads."""
         return self._file_transfer
 
+    def _file_selector(select: FileSelector) -> Callable[[File], bool]:
+        if select is True:
+            return lambda _: True
+        if select is False:
+            return lambda _: False
+        if isinstance(select, str):
+            return lambda f: f.remote_path == select
+        if isinstance(select, (list, tuple)):
+            return lambda f: f.remote_path in select
+        if isinstance(select, re.Pattern):
+            return lambda f: select.search(f.remote_path) is not None
+        return select
+
     def download_files(
         self, dataset: Dataset, *, target: Union[str, Path], select: FileSelector = True
     ) -> Dataset:
+        r"""Download files of a dataset.
+
+        Makes selected files available on the local filesystem using the file transfer
+        object stored in the client.
+
+        Parameters
+        ----------
+        dataset:
+            Download files of this dataset.
+        target:
+            Files are stored to this path on the local filesystem.
+        select:
+            A file ``f`` is downloaded if ``select`` is
+
+            - **True**: downloaded
+            - **False**: not downloaded
+            - A **string**: if ``f.remote_path`` equals this string
+            - A **list[str]** or **tuple[str]**: if ``f.remote_path``
+              equals any of these strings
+            - An **re.Pattern** as returned by :func:`re.compile`:
+              if this pattern matches ``f.remote_path`` using :func:`re.search`
+            - A **Callable[File]**: if this callable returns ``True`` for ``f``
+
+        Returns
+        -------
+        :
+            A copy of the input dataset with files replaced to reflect the downloads.
+            That is, the ``local_path`` of all downloaded files is set.
+
+        Examples
+        --------
+        Download all files
+
+        .. code-block:: python
+
+            client.download_files(dataset, target="./data", select=True)
+
+        Download a specific file
+
+        .. code-block:: python
+
+            client.download_files(dataset, target="./data", select="my-file.dat")
+
+        Download all files with a ``nxs`` extension
+
+        .. code-block:: python
+
+            import re
+            client.download_files(
+                dataset,
+                target="./data",
+                select=re.compile(r"\.nxs$")
+            )
+            # or
+            from pathlib import Path
+            client.download_files(
+                dataset,
+                target="./data",
+                select=lambda file: Path(file.remote_path).suffix == ".nxs"
+            )
+        """
         target = Path(target)
         # TODO undo if later fails but only if no files were written
         target.mkdir(parents=True, exist_ok=True)

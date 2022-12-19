@@ -38,7 +38,7 @@ class FakeClient(Client):
     uploading of datasets without actually accessing a SciCat server.
 
     Since this client fakes communication with SciCat, it stores raw
-    `pydantic <https://pydantic-docs.helpmanual.io/>`_ models, namely
+    `pydantic <https://docs.pydantic.dev/>`_ models, namely
 
     - ``FakeClient.datasets``:
             :class:`dict` of :class:`pydantic.model.DerivedDataset` and
