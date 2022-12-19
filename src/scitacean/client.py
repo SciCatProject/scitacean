@@ -159,9 +159,16 @@ class Client:
         """
         if isinstance(pid, str):
             pid = PID.parse(pid)
+        try:
+            orig_datablocks = self.scicat.get_orig_datablocks(pid)
+        except ScicatCommError:
+            # TODO more precise error handling. We only want to set to None if
+            #   communication succeeded and the dataset exists but there simply
+            #   are no datablocks.
+            orig_datablocks = None
         return Dataset.from_models(
             dataset_model=self.scicat.get_dataset_model(pid),
-            orig_datablock_models=self.scicat.get_orig_datablocks(pid),
+            orig_datablock_models=orig_datablocks,
         )
 
     def upload_new_dataset_now(self, dataset: Dataset) -> Dataset:
@@ -192,8 +199,9 @@ class Client:
             and some files or a partial dataset are left on the servers.
             Note the error message if that happens.
         """
-        dset = dataset.replace(_read_only={"pid": PID.generate()})
-        with self.file_transfer.connect_for_upload(dset.pid) as con:
+        base_pid = PID.generate()
+        dset = dataset.replace(_read_only={"pid": base_pid})
+        with self.file_transfer.connect_for_upload(base_pid) as con:
             # TODO check if any remote file is out of date.
             #  if so, raise an error. We never overwrite remote files!
             uploaded_files = con.upload_files(*dset.files)
@@ -207,24 +215,34 @@ class Client:
                 raise
 
         with_new_pid = dset.replace(_read_only={"pid": finalized_model.pid})
-        try:
-            finalized_orig_datablocks = [
-                self.scicat.create_orig_datablock(orig_datablock)
-                for orig_datablock in (
-                    with_new_pid.make_datablock_models().orig_datablocks
-                )
-            ]
-        except ScicatCommError as exc:
-            raise RuntimeError(
-                f"Failed to upload original datablocks for SciCat dataset {dset.pid}:"
-                f"\n{exc.args}\nThe dataset and data files were successfully uploaded "
-                "but are not linked with each other. Please fix the dataset manually!"
-            ) from exc
+        datablock_models = with_new_pid.make_datablock_models()
+        finalized_orig_datablocks = self._upload_orig_datablocks(
+            datablock_models.orig_datablocks
+        )
 
         return Dataset.from_models(
             dataset_model=finalized_model,
             orig_datablock_models=finalized_orig_datablocks,
         )
+
+    def _upload_orig_datablocks(
+        self, orig_datablocks: Optional[List[model.OrigDatablock]]
+    ) -> Optional[List[model.OrigDatablock]]:
+        if orig_datablocks is None:
+            return None
+
+        try:
+            return [
+                self.scicat.create_orig_datablock(orig_datablock)
+                for orig_datablock in orig_datablocks
+            ]
+        except ScicatCommError as exc:
+            raise RuntimeError(
+                "Failed to upload original datablocks for SciCat dataset "
+                f"{orig_datablocks[0].datasetId}:"
+                f"\n{exc.args}\nThe dataset and data files were successfully uploaded "
+                "but are not linked with each other. Please fix the dataset manually!"
+            ) from exc
 
     @property
     def scicat(self) -> ScicatClient:
@@ -238,19 +256,6 @@ class Client:
     def file_transfer(self) -> FileTransfer:
         """Stored handler for file down-/uploads."""
         return self._file_transfer
-
-    def _file_selector(select: FileSelector) -> Callable[[File], bool]:
-        if select is True:
-            return lambda _: True
-        if select is False:
-            return lambda _: False
-        if isinstance(select, str):
-            return lambda f: f.remote_path == select
-        if isinstance(select, (list, tuple)):
-            return lambda f: f.remote_path in select
-        if isinstance(select, re.Pattern):
-            return lambda f: select.search(f.remote_path) is not None
-        return select
 
     def download_files(
         self, dataset: Dataset, *, target: Union[str, Path], select: FileSelector = True

@@ -74,6 +74,23 @@ def test_upload_returns_updated_dataset(client, dataset):
     assert finalized == expected
 
 
+def test_upload_without_files_creates_dataset(client, derived_dataset_model):
+    dataset = Dataset.from_models(
+        dataset_model=derived_dataset_model, orig_datablock_models=None
+    )
+    finalized = client.upload_new_dataset_now(dataset)
+    expected = client.get_dataset(finalized.pid).replace(
+        # The backend may update the dataset after upload
+        _read_only={
+            "updated_at": finalized.updated_at,
+            "updated_by": finalized.updated_by,
+        }
+    )
+    assert finalized == expected
+    with pytest.raises(ScicatCommError):
+        client.scicat.get_orig_datablocks(finalized.pid)
+
+
 def test_upload_creates_dataset_and_datablock(client, dataset):
     finalized = client.upload_new_dataset_now(dataset)
     assert client.datasets[finalized.pid] == finalized.make_model()

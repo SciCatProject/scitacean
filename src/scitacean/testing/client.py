@@ -8,12 +8,10 @@ from __future__ import annotations
 import functools
 import uuid
 from copy import deepcopy
-from pathlib import Path
 from typing import Dict, List, Optional, Union
 
 from .. import model
 from ..client import Client, ScicatClient
-from ..dataset import Dataset
 from ..error import ScicatCommError
 from ..pid import PID
 from ..typing import FileTransfer
@@ -167,39 +165,10 @@ class FakeClient(Client):
         """
         return FakeClient(file_transfer=file_transfer)
 
-    def get_dataset(self, pid: Union[PID, str]) -> Dataset:
-        """Return a dataset from the client's internal storage."""
-        if not isinstance(pid, PID):
-            pid = PID.parse(pid)
-        return Dataset.from_models(
-            dataset_model=self.scicat.get_dataset_model(pid),
-            orig_datablock_models=self.scicat.get_orig_datablocks(pid),
-        )
-
     @property
     def scicat(self) -> FakeScicatClient:
         """Client for lower level SciCat communication."""
         return self._scicat_client
-
-    def download_file(self, *, remote: Union[str, Path], local: Union[str, Path]):
-        """Download a file using the client's file_transfer."""
-        if self.file_transfer is None:
-            raise RuntimeError(
-                f"No file transfer handler specified, cannot download file {remote}"
-            )
-        with self.file_transfer.connect_for_download() as con:
-            con.download_file(remote=remote, local=local)
-
-    def upload_file(
-        self, *, dataset_id: PID, remote: Union[str, Path], local: Union[str, Path]
-    ) -> str:
-        """Upload a file using the client's file_transfer."""
-        if self.file_transfer is None:
-            raise RuntimeError(
-                f"No file transfer handler specified, cannot upload file {local}"
-            )
-        with self.file_transfer.connect_for_upload(dataset_id) as con:
-            return con.upload_file(remote=remote, local=local)
 
 
 class FakeScicatClient(ScicatClient):
