@@ -37,7 +37,7 @@ def test_derived_dataset_default_values(client):
         usedSoftware=["software1"],
         type=DatasetType.DERIVED,
     )
-    pid = client.scicat.create_dataset_model(dset)
+    pid = client.scicat.create_dataset_model(dset).pid
     finalized = client.scicat.get_dataset_model(pid)
 
     # Inputs
@@ -93,7 +93,7 @@ def test_raw_dataset_default_values(client):
         sourceFolder="/source/folder",
         type=DatasetType.RAW,
     )
-    pid = client.scicat.create_dataset_model(dset)
+    pid = client.scicat.create_dataset_model(dset).pid
     finalized = client.scicat.get_dataset_model(pid)
 
     # Inputs
@@ -191,7 +191,7 @@ def test_derived_dataset_overwritten_values(client):
         validationStatus="not-validated",
         version="9999.00.888",
     )
-    pid = client.scicat.create_dataset_model(dset)
+    pid = client.scicat.create_dataset_model(dset).pid
     finalized = client.scicat.get_dataset_model(pid)
 
     preserved_inputs = [
@@ -286,7 +286,7 @@ def test_raw_dataset_overwritten_values(client):
         validationStatus="not-validated",
         version="9999.00.888",
     )
-    pid = client.scicat.create_dataset_model(dset)
+    pid = client.scicat.create_dataset_model(dset).pid
     finalized = client.scicat.get_dataset_model(pid)
 
     preserved_inputs = [

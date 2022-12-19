@@ -115,13 +115,12 @@ def test_create_dataset_model(pid, scicat_client):
         ownerGroup="bfoess",
         accessGroups=["koelle"],
     )
-    full_pid = scicat_client.create_dataset_model(dset)
-    dset.pid = full_pid
-    downloaded = scicat_client.get_dataset_model(full_pid)
-    for key, expected in dset.dict(exclude_none=True).items():
+    finalized = scicat_client.create_dataset_model(dset)
+    downloaded = scicat_client.get_dataset_model(finalized.pid)
+    for key, expected in finalized.dict(exclude_none=True).items():
         # The database populates a number of fields that are None in dset.
         # But we don't want to test those here as we don't want to test the database.
-        assert expected == downloaded.dict()[key], f"key = {key}"
+        assert expected == downloaded.dict(exclude_none=True)[key], f"key = {key}"
 
 
 def test_create_dataset_model_id_clash(scicat_client, derived_dataset):
@@ -135,7 +134,7 @@ def test_create_dataset_model_id_clash(scicat_client, derived_dataset):
 def test_create_first_orig_datablock(scicat_client, derived_dataset):
     dset = deepcopy(derived_dataset)
     dset.pid = PID(pid="new-dataset-id")
-    dset.pid = scicat_client.create_dataset_model(dset)
+    uploaded = scicat_client.create_dataset_model(dset)
 
     dblock = OrigDatablock(
         id=PID(prefix="PID.SAMPLE.PREFIX", pid="new-datablock-id"),
@@ -145,12 +144,12 @@ def test_create_first_orig_datablock(scicat_client, derived_dataset):
                 path="data.nxs", size=9235, time=parse_date("2023-08-18T13:52:33.000Z")
             )
         ],
-        datasetId=dset.pid,
+        datasetId=uploaded.pid,
         ownerGroup="uu",
         accessGroups=["group1", "2nd_group"],
     )
     scicat_client.create_orig_datablock(dblock)
-    downloaded = scicat_client.get_orig_datablocks(dset.pid)
+    downloaded = scicat_client.get_orig_datablocks(uploaded.pid)
     assert len(downloaded) == 1
     downloaded = downloaded[0]
     for key, expected in dblock.dict(exclude_none=True).items():
