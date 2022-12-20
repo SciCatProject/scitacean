@@ -13,8 +13,10 @@ from typing import List, Optional, Tuple, Union
 # Note that invoke and paramiko are dependencies of fabric.
 from fabric import Connection
 from invoke.exceptions import UnexpectedExit
+from paramiko import SFTPClient
 from paramiko.ssh_exception import AuthenticationException, PasswordRequiredException
 
+from ..error import FileUploadError
 from ..file import File
 from ..logging import get_logger
 from ..pid import PID
@@ -88,41 +90,51 @@ class _ESSUploadConnection:
         self._remote_base_path = remote_base_path
 
     @property
+    def _sftp(self) -> SFTPClient:
+        return self._connection.sftp()
+
+    @property
     def source_dir(self) -> str:
         return os.path.join(self._remote_base_path, self._dataset_id.pid)
 
     def remote_path(self, filename) -> str:
         return os.path.join(self.source_dir, filename)
 
-    def upload_files(self, *files: File) -> List[File]:
-        """Upload files to the remote staging folder."""
-        return [
-            file.uploaded(
-                remote_path=self.upload_file(
-                    remote=file.remote_path, local=file.local_path
-                )
-            )
-            for file in files
-        ]
-
-    def upload_file(self, *, remote: Union[str, Path], local: Union[str, Path]) -> str:
-        """Upload a file to the remote staging folder."""
-        remote_path = self.remote_path(remote)
-        get_logger().info(
-            "Uploading file %s to %s on host %s", local, remote, self._connection.host
-        )
-
-        self._connection.run(f"mkdir -p {self.source_dir}", hide=True)
+    def _make_source_folder(self):
         try:
-            self._connection.put(
-                remote=str(remote_path),
-                local=str(local),
-            )
-        except Exception as exc:
-            if _folder_is_empty(self._connection, self.source_dir):
-                self._connection.run(f"rm -r {self.source_dir}", hide=True)
-            raise exc
-        return remote_path
+            self._sftp.mkdir(self.source_dir)
+        except OSError as exc:
+            raise FileUploadError(
+                f"Failed to create source folder: {exc.args}"
+            ) from None
+
+    def upload_files(self, *files: File) -> List[File]:
+        """Upload files to the remote folder."""
+        # TODO revert if any fails
+        self._make_source_folder()
+        return [self._upload_file(file) for file in files]
+
+        # except Exception as exc:
+        #     if _folder_is_empty(self._connection, self.source_dir):
+        #         self._connection.run(f"rm -r {self.source_dir}", hide=True)
+        #     raise exc
+
+    def _upload_file(self, file: File) -> File:
+        remote_path = self.remote_path(file.remote_path)
+        get_logger().info(
+            "Uploading file %s to %s on host %s",
+            file.local_path,
+            remote_path,
+            self._connection.host,
+        )
+        self._sftp.put(remotepath=remote_path, localpath=str(file.local_path))
+        st = self._sftp.stat(remote_path)
+        return file.uploaded(
+            remote_gid=st.st_gid,
+            remote_uid=st.st_uid,
+            remote_creation_time=st.st_mtime,
+            remote_perm=st.st_mode,
+        )
 
     def revert_upload(self, *files: File):
         """Remove uploaded files from the remote folder."""
@@ -169,7 +181,7 @@ def _ask_for_key_passphrase() -> str:
     return getpass("The private key is encrypted, enter passphrase: ")
 
 
-def _ask_for_credentials(host) -> Tuple[str, str]:
+def _ask_for_credentials(host: str) -> Tuple[str, str]:
     print(f"You need to authenticate to access {host}")
     username = input("Username: ")
     password = getpass("Password: ")
