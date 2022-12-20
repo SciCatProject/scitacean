@@ -13,7 +13,7 @@ from typing import List, Optional, Tuple, Union
 # Note that invoke and paramiko are dependencies of fabric.
 from fabric import Connection
 from invoke.exceptions import UnexpectedExit
-from paramiko import SFTPClient
+from paramiko import SFTPAttributes, SFTPClient
 from paramiko.ssh_exception import AuthenticationException, PasswordRequiredException
 
 from ..error import FileUploadError
@@ -129,12 +129,50 @@ class _ESSUploadConnection:
         )
         self._sftp.put(remotepath=remote_path, localpath=str(file.local_path))
         st = self._sftp.stat(remote_path)
+        self._validate_upload(file, st)
         return file.uploaded(
             remote_gid=st.st_gid,
             remote_uid=st.st_uid,
             remote_creation_time=st.st_mtime,
             remote_perm=st.st_mode,
         )
+
+    def _validate_upload(self, file: File, st: SFTPAttributes):
+        if file.size != st.st_size:
+            raise FileUploadError(
+                f"Upload of file {file.remote_path} failed: "
+                f"Size of uploaded file ({st.st_size}) does not "
+                f"match size of local file ({file.size})"
+            )
+
+        if (checksum := self._compute_checksum(file)) is None:
+            return
+        if checksum != file.checksum():
+            raise FileUploadError(
+                f"Upload of file {file.remote_path} failed: "
+                f"Checksum of uploaded file ({checksum}) does not "
+                f"match checksum of local file ({file.checksum()}) "
+                f"using algorithm {file.checksum_algorithm}"
+            )
+
+    def _compute_checksum(self, file: File) -> Optional[str]:
+        if (hash_exe := _coreutils_checksum_for(file)) is None:
+            return None
+        try:
+            res = self._connection.run(
+                f"{hash_exe} {self.remote_path(file.remote_path)}", hide=True
+            )
+        except UnexpectedExit as exc:
+            if exc.result.return_code == 127:
+                get_logger().warning(
+                    "Cannot validate checksum of uploaded file %s because checksum "
+                    "algorithm '%s' is not implemented on the server.",
+                    file.remote_path,
+                    file.checksum_algorithm,
+                )
+                return None
+            raise
+        return res.stdout.split(" ", 1)[0]
 
     def revert_upload(self, *files: File):
         """Remove uploaded files from the remote folder."""
@@ -241,3 +279,25 @@ def _folder_is_empty(con, path) -> bool:
         return con.run(f"ls {path}", hide=True).stdout == ""
     except UnexpectedExit:
         return False  # no further processing is needed in this case
+
+
+def _coreutils_checksum_for(file: File) -> Optional[str]:
+    # blake2s is not supported because `b2sum -l 256` produces a different digest
+    # and I don't know why.
+    supported = {
+        "md5": "md5sum -b",
+        "sha256": "sha256sum -b",
+        "sha384": "sha384sum -b",
+        "sha512": "sha512sum -b",
+        "blake2b": "b2sum -l 512 -b",
+    }
+    algorithm = file.checksum_algorithm
+    if algorithm == "blake2s" or algorithm not in supported:
+        get_logger().warning(
+            "Cannot validate checksum of uploaded file %s because checksum algorithm "
+            "'%s' is not supported by scitacean for remote files.",
+            file.remote_path,
+            file.checksum_algorithm,
+        )
+        return None
+    return supported[algorithm]
