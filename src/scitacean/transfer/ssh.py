@@ -22,20 +22,19 @@ from ..logging import get_logger
 from ..pid import PID
 
 
-# TODO implement new multi-file functions
 # TODO process multiple files together
 # TODO pass pid in put/revert?
 #      downloading does not need a pid, so it should not be required in the constructor/
 # TODO cache download (maybe using pooch)
-class ESSTestFileTransfer:
-    """Transfer files to/from test directory at ESS using SSH."""
+class SSHFileTransfer:
+    """Upload / download files using SSH."""
 
     def __init__(
         self,
         *,
-        host: str = "login.esss.dk",
+        remote_base_path: Optional[str] = None,
+        host: str,
         port: Optional[int] = None,
-        remote_base_path: str = "/mnt/groupdata/scicat/upload",
     ):
         self._host = host
         self._port = port
@@ -45,15 +44,17 @@ class ESSTestFileTransfer:
     def connect_for_download(self):
         con = _connect(self._host, self._port)
         try:
-            yield _ESSDownloadConnection(connection=con)
+            yield SSHDownloadConnection(connection=con)
         finally:
             con.close()
 
     @contextmanager
     def connect_for_upload(self, dataset_id: PID):
+        if self._remote_base_path is None:
+            raise ValueError("remote_base_path must be set when uploading files")
         con = _connect(self._host, self._port)
         try:
-            yield _ESSUploadConnection(
+            yield SSHUploadConnection(
                 connection=con,
                 dataset_id=dataset_id,
                 remote_base_path=self._remote_base_path,
@@ -62,7 +63,7 @@ class ESSTestFileTransfer:
             con.close()
 
 
-class _ESSDownloadConnection:
+class SSHDownloadConnection:
     def __init__(self, *, connection: Connection):
         self._connection = connection
 
@@ -81,7 +82,7 @@ class _ESSDownloadConnection:
         self._connection.get(remote=str(remote), local=str(local))
 
 
-class _ESSUploadConnection:
+class SSHUploadConnection:
     def __init__(
         self, *, connection: Connection, dataset_id: PID, remote_base_path: str
     ):

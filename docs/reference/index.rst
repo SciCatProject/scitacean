@@ -27,7 +27,7 @@ File Transfer
    :template: scitacean-class-template.rst
    :recursive:
 
-   transfer.ess.ESSTestFileTransfer
+   transfer.ssh.SSHFileTransfer
 
 Dataclasses
 ~~~~~~~~~~~
