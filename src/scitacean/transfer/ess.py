@@ -41,17 +41,23 @@ class ESSTestFileTransfer:
 
     @contextmanager
     def connect_for_download(self):
-        with _connect(self._host, self._port) as con:
+        con = _connect(self._host, self._port)
+        try:
             yield _ESSDownloadConnection(connection=con)
+        finally:
+            con.close()
 
     @contextmanager
     def connect_for_upload(self, dataset_id: PID):
-        with _connect(self._host, self._port) as con:
+        con = _connect(self._host, self._port)
+        try:
             yield _ESSUploadConnection(
                 connection=con,
                 dataset_id=dataset_id,
                 remote_base_path=self._remote_base_path,
             )
+        finally:
+            con.close()
 
 
 class _ESSDownloadConnection:
@@ -170,50 +176,43 @@ def _ask_for_credentials(host) -> Tuple[str, str]:
     return username, password
 
 
-@contextmanager
-def _generic_connect(host, port, **kwargs):
-    with Connection(host=host, port=port, **kwargs) as con:
-        con.open()
-        yield con
+def _generic_connect(host: str, port: Optional[int], **kwargs) -> Connection:
+    con = Connection(host=host, port=port, **kwargs)
+    con.open()
+    return con
 
 
-@contextmanager
-def _unauthenticated_connect(host, port):
-    with _generic_connect(host, port) as con:
-        yield con
+def _unauthenticated_connect(host: str, port: Optional[int]) -> Connection:
+    return _generic_connect(host=host, port=port)
 
 
-@contextmanager
-def _authenticated_connect(host, port, exc: AuthenticationException):
+def _authenticated_connect(
+    host: str, port: Optional[int], exc: AuthenticationException
+) -> Connection:
     # TODO fail fast if output going to file
     if isinstance(exc, PasswordRequiredException) and "encrypted" in exc.args[0]:
         # TODO does not work anymore, exception is always AuthenticationException
-        with _generic_connect(
+        return _generic_connect(
             host=host,
             port=port,
             connect_kwargs={"passphrase": _ask_for_key_passphrase()},
-        ) as con:
-            yield con
+        )
     else:
         username, password = _ask_for_credentials(host)
-        with _generic_connect(
+        return _generic_connect(
             host=host, port=port, user=username, connect_kwargs={"password": password}
-        ) as con:
-            yield con
+        )
 
 
-@contextmanager
-def _connect(host, port):
+def _connect(host: str, port: Optional[int]) -> Connection:
     # Catch all exceptions and remove traceback up to this point.
     # We pass secrets as arguments to functions called in this block and those
     # can be leaked through exception handlers.
     try:
         try:
-            with _unauthenticated_connect(host, port) as con:
-                yield con
+            return _unauthenticated_connect(host, port)
         except AuthenticationException as exc:
-            with _authenticated_connect(host, port, exc) as con:
-                yield con
+            return _authenticated_connect(host, port, exc)
     except Exception as exc:
         # TODO dedicated exception type?
         raise type(exc)(exc.args) from None
