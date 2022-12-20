@@ -110,14 +110,15 @@ class _ESSUploadConnection:
 
     def upload_files(self, *files: File) -> List[File]:
         """Upload files to the remote folder."""
-        # TODO revert if any fails
         self._make_source_folder()
-        return [self._upload_file(file) for file in files]
-
-        # except Exception as exc:
-        #     if _folder_is_empty(self._connection, self.source_dir):
-        #         self._connection.run(f"rm -r {self.source_dir}", hide=True)
-        #     raise exc
+        uploaded = []
+        try:
+            for file in files:
+                uploaded.append(self._upload_file(file))
+        except Exception:
+            self.revert_upload(*uploaded)
+            raise
+        return uploaded
 
     def _upload_file(self, file: File) -> File:
         remote_path = self.remote_path(file.remote_path)
@@ -186,7 +187,7 @@ class _ESSUploadConnection:
                     self.source_dir,
                     self._connection.host,
                 )
-                self._connection.run(f"rm -r {self.source_dir}", hide=True)
+                self._sftp.rmdir(self.source_dir)
             except UnexpectedExit as exc:
                 get_logger().warning(
                     "Failed to remove empty remote directory %s on host:\n%s",
@@ -207,7 +208,7 @@ class _ESSUploadConnection:
         )
 
         try:
-            self._connection.run(f"rm {remote_path}", hide=True)
+            self._sftp.remove(remote_path)
         except UnexpectedExit as exc:
             get_logger().warning(
                 "Error reverting file %s:\n%s", remote_path, exc.result
