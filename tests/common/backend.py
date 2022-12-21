@@ -1,6 +1,10 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
+# @author Jan-Lukas Wynen
+# flake8: noqa
+
 import json
 import shutil
-import subprocess
 import time
 from pathlib import Path
 from urllib.parse import urljoin
@@ -18,7 +22,7 @@ _SCICAT_ORIG_DATABLOCK_SEED_FILE = Path("seed_db/seed/OrigDatablock.json")
 
 # List of required services for tests.
 # We only need the backend and API to run tests.
-_SERVICES = ("catamel", "mongodb", "mongodb_seed", "reverse-proxy")
+SERVICES = ("catamel", "mongodb", "mongodb_seed", "reverse-proxy")
 
 
 def can_connect(scicat_access) -> bool:
@@ -56,28 +60,6 @@ def configure(target_dir) -> Path:
     _merge_seed_file(target, _SCICAT_ORIG_DATABLOCK_SEED_FILE, load_orig_datablocks())
 
     return target / _SCICAT_DOCKER_CONFIG.name
-
-
-def start_backend_containers(config_file):
-    # waiting for scicatlive-mongodb_seed-1 with recreate seems to deadlock
-    subprocess.check_call(
-        [
-            "docker",
-            "compose",
-            "--file",
-            config_file,
-            "up",
-            "--detach",
-            "--force-recreate",
-            *_SERVICES,
-        ]
-    )
-
-
-def stop_backend_containers(config_file):
-    subprocess.check_call(
-        ["docker", "compose", "--file", config_file, "down", "--volumes"]
-    )
 
 
 def skip_if_not_backend(request):

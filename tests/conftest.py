@@ -1,3 +1,8 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
+# @author Jan-Lukas Wynen
+# flake8: noqa
+
 import tempfile
 from dataclasses import dataclass
 from typing import Dict
@@ -6,6 +11,7 @@ import hypothesis
 import pytest
 
 from .common import backend
+from .common.docker import docker_compose
 
 # The datasets strategy requires a large amount of memory and time.
 # This is not good but hard to avoid.
@@ -38,14 +44,11 @@ def scicat_backend(request, scicat_access):
     if request.config.getoption("--backend-tests"):
         with tempfile.TemporaryDirectory() as temp_dir:
             config_file = backend.configure(temp_dir)
-            try:
-                backend.start_backend_containers(config_file)
+            with docker_compose(config_file, *backend.SERVICES):
                 backend.wait_until_backend_is_live(
                     scicat_access, max_time=20, n_tries=20
                 )
                 yield True
-            finally:
-                backend.stop_backend_containers(config_file)
     else:
         yield False
 
