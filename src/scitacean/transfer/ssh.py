@@ -257,16 +257,15 @@ def _authenticated_connect(
 
 
 def _connect(host: str, port: Optional[int]) -> Connection:
-    # Catch all exceptions and remove traceback up to this point.
-    # We pass secrets as arguments to functions called in this block and those
-    # can be leaked through exception handlers.
     try:
         try:
             return _unauthenticated_connect(host, port)
         except AuthenticationException as exc:
             return _authenticated_connect(host, port, exc)
     except Exception as exc:
-        # TODO dedicated exception type?
+        # We pass secrets as arguments to functions called in this block and those
+        # can be leaked through exception handlers. So catch all exceptions
+        # and strip the backtrace up to this point to hide those secrets.
         raise type(exc)(exc.args) from None
     except BaseException as exc:
         raise type(exc)(exc.args) from None
