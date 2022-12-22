@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import ContextManager, List, Protocol
 
 from .file import File
+from .filesystem import RemotePath
 from .pid import PID
 
 
@@ -41,7 +42,7 @@ class UploadConnection(Protocol):
     """An open connection to the file server for uploads."""
 
     # TODO rename to source_folder (or remove?)
-    source_dir: str
+    source_dir: RemotePath
     """Files are uploaded to this directory / location."""
 
     def upload_files(self, *files: File) -> List[File]:

@@ -8,8 +8,6 @@ from getpass import getpass
 from pathlib import Path
 from typing import List, Optional, Tuple, Union
 
-# These are quite heavy dependencies.
-# It would be great if we could do without them in the long run.
 # Note that invoke and paramiko are dependencies of fabric.
 from fabric import Connection
 from invoke.exceptions import UnexpectedExit
@@ -18,6 +16,7 @@ from paramiko.ssh_exception import AuthenticationException, PasswordRequiredExce
 
 from ..error import FileUploadError
 from ..file import File
+from ..filesystem import RemotePath
 from ..logging import get_logger
 from ..pid import PID
 
@@ -32,13 +31,15 @@ class SSHFileTransfer:
     def __init__(
         self,
         *,
-        remote_base_path: Optional[str] = None,
+        remote_base_path: Optional[Union[str, RemotePath]] = None,
         host: str,
         port: Optional[int] = None,
     ):
         self._host = host
         self._port = port
-        self._remote_base_path = remote_base_path
+        self._remote_base_path = (
+            RemotePath(remote_base_path) if remote_base_path is not None else None
+        )
 
     @contextmanager
     def connect_for_download(self):
@@ -84,7 +85,7 @@ class SSHDownloadConnection:
 
 class SSHUploadConnection:
     def __init__(
-        self, *, connection: Connection, dataset_id: PID, remote_base_path: str
+        self, *, connection: Connection, dataset_id: PID, remote_base_path: RemotePath
     ):
         self._connection = connection
         self._dataset_id = dataset_id
@@ -95,18 +96,18 @@ class SSHUploadConnection:
         return self._connection.sftp()
 
     @property
-    def source_dir(self) -> str:
-        return os.path.join(self._remote_base_path, self._dataset_id.pid)
+    def source_dir(self) -> RemotePath:
+        return self._remote_base_path / self._dataset_id.pid
 
-    def remote_path(self, filename) -> str:
-        return os.path.join(self.source_dir, filename)
+    def remote_path(self, filename) -> RemotePath:
+        return self.source_dir / filename
 
     def _make_source_folder(self):
         try:
-            self._sftp.mkdir(self.source_dir)
+            self._connection.run(f"mkdir -p {os.fspath(self.source_dir)}", hide=True)
         except OSError as exc:
             raise FileUploadError(
-                f"Failed to create source folder: {exc.args}"
+                f"Failed to create source folder {self.source_dir}: {exc.args}"
             ) from None
 
     def upload_files(self, *files: File) -> List[File]:
@@ -129,8 +130,10 @@ class SSHUploadConnection:
             remote_path,
             self._connection.host,
         )
-        self._sftp.put(remotepath=remote_path, localpath=str(file.local_path))
-        st = self._sftp.stat(remote_path)
+        self._sftp.put(
+            remotepath=os.fspath(remote_path), localpath=os.fspath(file.local_path)
+        )
+        st = self._sftp.stat(os.fspath(remote_path))
         self._validate_upload(file, st)
         return file.uploaded(
             remote_gid=st.st_gid,
@@ -188,7 +191,7 @@ class SSHUploadConnection:
                     self.source_dir,
                     self._connection.host,
                 )
-                self._sftp.rmdir(self.source_dir)
+                self._sftp.rmdir(os.fspath(self.source_dir))
             except UnexpectedExit as exc:
                 get_logger().warning(
                     "Failed to remove empty remote directory %s on host:\n%s",
@@ -197,9 +200,7 @@ class SSHUploadConnection:
                     exc.result,
                 )
 
-    def _revert_upload_single(
-        self, *, remote: Union[str, Path], local: Union[str, Path] = ""
-    ):
+    def _revert_upload_single(self, *, remote: RemotePath, local: Path):
         remote_path = self.remote_path(remote)
         get_logger().info(
             "Reverting upload of file %s to %s on host %s",
@@ -209,7 +210,7 @@ class SSHUploadConnection:
         )
 
         try:
-            self._sftp.remove(remote_path)
+            self._sftp.remove(os.fspath(remote_path))
         except UnexpectedExit as exc:
             get_logger().warning(
                 "Error reverting file %s:\n%s", remote_path, exc.result

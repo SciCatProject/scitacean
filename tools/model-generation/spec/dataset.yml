@@ -153,7 +153,7 @@ fields:
     description: Absolute file path on file server containing the files of this dataset, e.g. /some/path/to/sourcefolder. In case of a single file dataset, e.g. HDF5 data, it contains the path up to, but excluding the filename.
     model_name: sourceFolder
     required: true
-    type: str
+    type: RemotePath
   - name: source_folder_host
     description: DNS host name of file server hosting source_folder, optionally including protocol e.g. [protocol://]fileserver1.example.com
     model_name: sourceFolderHost
