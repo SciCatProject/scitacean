@@ -1,4 +1,4 @@
-# Build arteficts
+# Build artifacts
 build
 dist
 src/scitacean.egg-info
@@ -21,3 +21,7 @@ __pycache__/
 .idea/
 .vscode/
 .vs/
+
+# Environments
+Pipfile
+venv
