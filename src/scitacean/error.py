@@ -4,6 +4,10 @@
 """Exception classes."""
 
 
+class FileUploadError(RuntimeError):
+    """Raised when file upload fails."""
+
+
 class IntegrityError(RuntimeError):
     """Raised when a dataset or file is broken."""
 

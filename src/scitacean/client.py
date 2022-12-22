@@ -561,7 +561,7 @@ class ScicatClient:
             err = response.json().get("error", {})
             logger.error("API call failed, endpoint: %s, response: %s", full_url, err)
             raise ScicatCommError(f"Error in operation {operation}: {err}")
-        logger.info("API call successful for operation '%s'")
+        logger.info("API call successful for operation '%s'", operation)
         return response.json()
 
 
