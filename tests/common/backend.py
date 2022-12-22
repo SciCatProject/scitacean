@@ -50,6 +50,7 @@ def scicat_backend(request, scicat_access):
 
     if not request.config.getoption("--backend-tests"):
         yield False
+        return
 
     with tempfile.TemporaryDirectory() as temp_dir:
         config_file = configure(temp_dir)
