@@ -653,7 +653,7 @@ def _file_selector(select: FileSelector) -> Callable[[File], bool]:
     if isinstance(select, (list, tuple)):
         return lambda f: f.remote_path in select
     if isinstance(select, re.Pattern):
-        return lambda f: select.search(f.remote_path) is not None
+        return lambda f: select.search(str(f.remote_path)) is not None
     return select
 
 

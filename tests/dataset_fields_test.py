@@ -16,6 +16,7 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from scitacean import PID, Dataset, DatasetType
+from scitacean.filesystem import RemotePath
 from scitacean.model import DataFile, DerivedDataset, OrigDatablock, RawDataset
 
 
@@ -128,7 +129,7 @@ def test_init_from_models_sets_metadata():
             creationTime=dateutil.parser.parse("2022-01-10T11:14:52+02:00"),
             principalInvestigator="librarian@uu.am",
             owner="PonderStibbons",
-            sourceFolder="/hex/source91",
+            sourceFolder=RemotePath("/hex/source91"),
             type=DatasetType.RAW,
             ownerGroup="faculty",
             createdBy="pstibbons",
@@ -170,7 +171,7 @@ def test_init_from_models_sets_files():
             creationTime=dateutil.parser.parse("2022-01-10T11:14:52-01:00"),
             principalInvestigator="librarian@uu.am",
             owner="PonderStibbons",
-            sourceFolder="/hex/source91",
+            sourceFolder=RemotePath("/hex/source91"),
             type=DatasetType.RAW,
             ownerGroup="faculty",
         ),
@@ -200,13 +201,13 @@ def test_init_from_models_sets_files():
     assert dset.packed_size == 0
     assert dset.size == 6123 + 551
 
-    f0 = [f for f in dset.files if f.remote_path.endswith(".dat")][0]
+    f0 = [f for f in dset.files if f.remote_path.suffix == ".dat"][0]
     assert f0.remote_access_path(dset.source_folder) == "/hex/source91/file1.dat"
     assert f0.local_path is None
     assert f0.size == 6123
     assert f0.make_model().path == "file1.dat"
 
-    f1 = [f for f in dset.files if f.remote_path.endswith(".png")][0]
+    f1 = [f for f in dset.files if f.remote_path.suffix == ".png"][0]
     assert f1.remote_access_path(dset.source_folder) == "/hex/source91/sub/file2.png"
     assert f1.local_path is None
     assert f1.size == 551
@@ -219,7 +220,7 @@ def test_init_from_models_sets_files_multi_datablocks():
         creationTime=dateutil.parser.parse("2022-01-10T11:14:52-01:00"),
         principalInvestigator="librarian@uu.am",
         owner="PonderStibbons",
-        sourceFolder="/hex/source91",
+        sourceFolder=RemotePath("/hex/source91"),
         type=DatasetType.RAW,
         ownerGroup="faculty",
     )
@@ -256,13 +257,13 @@ def test_init_from_models_sets_files_multi_datablocks():
     assert dset.packed_size == 0
     assert dset.size == 6123 + 992
 
-    f0 = [f for f in dset.files if f.remote_path.endswith(".dat")][0]
+    f0 = [f for f in dset.files if f.remote_path.suffix == ".dat"][0]
     assert f0.remote_access_path(dset.source_folder) == "/hex/source91/file1.dat"
     assert f0.local_path is None
     assert f0.size == 6123
     assert f0.make_model().path == "file1.dat"
 
-    f1 = [f for f in dset.files if f.remote_path.endswith(".png")][0]
+    f1 = [f for f in dset.files if f.remote_path.suffix == ".png"][0]
     assert f1.remote_access_path(dset.source_folder) == "/hex/source91/sub/file2.png"
     assert f1.local_path is None
     assert f1.size == 992
@@ -302,7 +303,7 @@ def test_make_raw_model():
         owner="Ponder Stibbons;Mustrum Ridcully",
         owner_group="faculty",
         investigator="p.stibbons@uu.am",
-        source_folder="/hex/source62",
+        source_folder=RemotePath("/hex/source62"),
         creation_location="ANK/UU",
         shared_with=["librarian", "hicks"],
     )
@@ -312,7 +313,7 @@ def test_make_raw_model():
         owner="Ponder Stibbons;Mustrum Ridcully",
         ownerGroup="faculty",
         principalInvestigator="p.stibbons@uu.am",
-        sourceFolder="/hex/source62",
+        sourceFolder=RemotePath("/hex/source62"),
         type=DatasetType.RAW,
         history=[],
         isPublished=False,
@@ -335,7 +336,7 @@ def test_make_derived_model():
         owner="Ponder Stibbons;Mustrum Ridcully",
         owner_group="faculty",
         investigator="p.stibbons@uu.am",
-        source_folder="/hex/source62",
+        source_folder=RemotePath("/hex/source62"),
         meta={"weight": {"value": 5.23, "unit": "kg"}},
         input_datasets=[PID(pid="623-122")],
         used_software=["scitacean", "magick"],
@@ -346,7 +347,7 @@ def test_make_derived_model():
         owner="Ponder Stibbons;Mustrum Ridcully",
         ownerGroup="faculty",
         investigator="p.stibbons@uu.am",
-        sourceFolder="/hex/source62",
+        sourceFolder=RemotePath("/hex/source62"),
         type=DatasetType.DERIVED,
         history=[],
         isPublished=False,
@@ -379,7 +380,7 @@ def test_make_raw_model_raises_if_derived_field_set(field, data):
         owner="Mustrum Ridcully",
         owner_group="faculty",
         investigator="p.stibbons@uu.am",
-        source_folder="/hex/source62",
+        source_folder=RemotePath("/hex/source62"),
     )
     setattr(dset, field.name, data.draw(st.from_type(field.type)))
     with pytest.raises(ValueError):
@@ -404,7 +405,7 @@ def test_make_derived_model_raises_if_raw_field_set(field, data):
         owner="Ponder Stibbons",
         owner_group="faculty",
         investigator="p.stibbons@uu.am",
-        source_folder="/hex/source62",
+        source_folder=RemotePath("/hex/source62"),
         input_datasets=[PID(pid="623-122")],
         used_software=["scitacean", "magick"],
     )
@@ -422,7 +423,7 @@ def test_email_validation(field):
         owner="Mustrum Ridcully",
         owner_group="faculty",
         investigator="p.stibbons@uu.am",
-        source_folder="/hex/source62",
+        source_folder=RemotePath("/hex/source62"),
     )
     setattr(dset, field, "not-an-email")
     with pytest.raises(pydantic.ValidationError):
@@ -445,7 +446,7 @@ def test_orcid_validation_valid(good_orcid):
         owner="Jan-Lukas Wynen",
         owner_group="ess",
         investigator="jan-lukas.wynen@ess.eu",
-        source_folder="/hex/source62",
+        source_folder=RemotePath("/hex/source62"),
         orcid_of_owner=good_orcid,
     )
     assert dset.make_model().orcidOfOwner == good_orcid
@@ -468,7 +469,7 @@ def test_orcid_validation_missing_url(bad_orcid):
         owner="Jan-Lukas Wynen",
         owner_group="ess",
         investigator="jan-lukas.wynen@ess.eu",
-        source_folder="/hex/source62",
+        source_folder=RemotePath("/hex/source62"),
         orcid_of_owner=bad_orcid,
     )
     with pytest.raises(pydantic.ValidationError):

@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Optional, Union
 
 from .error import IntegrityError
-from .filesystem import checksum_of_file, file_modification_time, file_size
+from .filesystem import RemotePath, checksum_of_file, file_modification_time, file_size
 from .logging import get_logger
 from .model import DataFile
 
@@ -30,7 +30,7 @@ class File:
     """
 
     local_path: Optional[Path]
-    remote_path: str
+    remote_path: RemotePath
     remote_gid: Optional[str]
     remote_perm: Optional[str]
     remote_uid: Optional[str]
@@ -54,7 +54,7 @@ class File:
         path: Union[str, Path],
         *,
         base_path: Union[str, Path] = "",
-        remote_path: Optional[str] = None,
+        remote_path: Optional[Union[str, RemotePath]] = None,
         remote_uid: Optional[str] = None,
         remote_gid: Optional[str] = None,
         remote_perm: Optional[str] = None,
@@ -95,7 +95,7 @@ class File:
             remote_path = str(path.relative_to(base_path))
         return File(
             local_path=path,
-            remote_path=remote_path,
+            remote_path=RemotePath(remote_path),
             remote_gid=remote_gid,
             remote_perm=remote_perm,
             remote_uid=remote_uid,
@@ -111,7 +111,7 @@ class File:
     ) -> File:
         return File(
             local_path=Path(local_path) if isinstance(local_path, str) else local_path,
-            remote_path=model.path,
+            remote_path=RemotePath(model.path),
             remote_gid=model.gid,
             remote_perm=model.perm,
             remote_uid=model.uid,
@@ -167,13 +167,13 @@ class File:
             )
         return self._remote_checksum
 
-    def remote_access_path(self, source_folder: str) -> Optional[str]:
+    def remote_access_path(
+        self, source_folder: Union[RemotePath, str]
+    ) -> Optional[RemotePath]:
         """Full path to the file on the remote if it exists."""
         if not self.is_on_remote:
             return None
-        return (
-            os.path.join(source_folder, self.remote_path) if self.is_on_remote else None
-        )
+        return source_folder / self.remote_path if self.is_on_remote else None
 
     @property
     def is_on_remote(self) -> bool:
@@ -187,7 +187,7 @@ class File:
         chk = self.checksum()
         # TODO if for_archive: ensure not out of date
         return DataFile(
-            path=self.remote_path,
+            path=os.fspath(self.remote_path),
             size=self.size,
             chk=chk,
             gid=self.remote_gid,
@@ -199,7 +199,7 @@ class File:
     def uploaded(
         self,
         *,
-        remote_path: Optional[str] = None,
+        remote_path: Optional[Union[str, RemotePath]] = None,
         remote_uid: Optional[str] = None,
         remote_gid: Optional[str] = None,
         remote_perm: Optional[str] = None,
@@ -208,7 +208,7 @@ class File:
         if remote_creation_time is None:
             remote_creation_time = datetime.now().astimezone(timezone.utc)
         args = dict(
-            remote_path=remote_path,
+            remote_path=RemotePath(remote_path) if remote_path is not None else None,
             remote_gid=remote_gid,
             remote_uid=remote_uid,
             remote_perm=remote_perm,

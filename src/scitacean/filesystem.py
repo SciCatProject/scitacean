@@ -50,6 +50,9 @@ class RemotePath(os.PathLike):
             return False
         return str(self) == str(other)
 
+    def __hash__(self) -> int:
+        return hash(str(self))
+
     @property
     def name(self) -> str:
         """The name of the file with all directories removed."""

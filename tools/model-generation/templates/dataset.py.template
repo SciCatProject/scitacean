@@ -14,6 +14,7 @@ from typing import Any, Callable, Dict, Generator, List, Literal, Optional, Unio
 import dateutil.parser
 
 from .datablock import OrigDatablockProxy
+from .filesystem import RemotePath
 from .model import (
     DatasetLifecycle,
     DatasetType,

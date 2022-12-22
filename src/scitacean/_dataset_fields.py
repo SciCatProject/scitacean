@@ -18,6 +18,7 @@ from typing import Any, Callable, Dict, Generator, List, Literal, Optional, Unio
 import dateutil.parser
 
 from .datablock import OrigDatablockProxy
+from .filesystem import RemotePath
 from .model import (
     DatasetLifecycle,
     DatasetType,
@@ -424,7 +425,7 @@ class DatasetFields:
             read_only=False,
             required_by_derived=True,
             required_by_raw=True,
-            type=str,
+            type=RemotePath,
             used_by_derived=True,
             used_by_raw=True,
         ),
@@ -541,7 +542,7 @@ class DatasetFields:
         proposal_id: Optional[str] = None,
         sample_id: Optional[str] = None,
         shared_with: Optional[List[str]] = None,
-        source_folder: Optional[str] = None,
+        source_folder: Optional[RemotePath] = None,
         source_folder_host: Optional[str] = None,
         techniques: Optional[List[Technique]] = None,
         used_software: Optional[List[str]] = None,
@@ -871,12 +872,12 @@ class DatasetFields:
         self._fields["shared_with"] = val
 
     @property
-    def source_folder(self) -> Optional[str]:
+    def source_folder(self) -> Optional[RemotePath]:
         """Absolute file path on file server containing the files of this dataset, e.g. /some/path/to/sourcefolder. In case of a single file dataset, e.g. HDF5 data, it contains the path up to, but excluding the filename."""
         return self._fields["source_folder"]
 
     @source_folder.setter
-    def source_folder(self, val: Optional[str]):
+    def source_folder(self, val: Optional[RemotePath]):
         self._fields["source_folder"] = val
 
     @property

@@ -10,12 +10,14 @@
 """Pydantic models to encode data for communication with SciCat."""
 
 import enum
+import os
 from datetime import datetime
 from typing import Dict, List, Optional
 
 import pydantic
 
 from ._internal.orcid import is_valid_orcid
+from .filesystem import RemotePath
 from .pid import PID
 
 
@@ -30,7 +32,7 @@ class DatasetType(str, enum.Enum):
 class BaseModel(pydantic.BaseModel):
     class Config:
         extra = pydantic.Extra.forbid
-        json_encoders = {PID: lambda v: str(v)}
+        json_encoders = {PID: lambda v: str(v), RemotePath: lambda v: os.fspath(v)}
 
 
 class DatasetLifecycle(BaseModel):
@@ -103,7 +105,7 @@ class DerivedDataset(Ownable):
     inputDatasets: List[PID]
     investigator: str
     owner: str
-    sourceFolder: str
+    sourceFolder: RemotePath
     type: DatasetType
     usedSoftware: List[str]
     classification: Optional[str]
@@ -160,7 +162,7 @@ class RawDataset(Ownable):
     creationTime: datetime
     principalInvestigator: str
     owner: str
-    sourceFolder: str
+    sourceFolder: RemotePath
     type: DatasetType
     classification: Optional[str]
     creationLocation: Optional[str]
