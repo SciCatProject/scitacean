@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
 # @author Jan-Lukas Wynen
-import os
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
@@ -12,11 +11,12 @@ except ImportError:
     FakeFilesystem = Any
 
 from ..file import File
+from ..filesystem import RemotePath
 from ..pid import PID
 
 
 class FakeDownloadConnection:
-    def __init__(self, fs: Optional[FakeFilesystem], files: Dict[str, bytes]):
+    def __init__(self, fs: Optional[FakeFilesystem], files: Dict[RemotePath, bytes]):
         self.files = files
         self.fs = fs
 
@@ -35,8 +35,8 @@ class FakeDownloadConnection:
 class FakeUploadConnection:
     def __init__(
         self,
-        files: Dict[str, bytes],
-        reverted: Optional[Dict[str, bytes]],
+        files: Dict[RemotePath, bytes],
+        reverted: Dict[RemotePath, bytes],
         dataset_id: PID,
     ):
         self.files = files
@@ -44,27 +44,22 @@ class FakeUploadConnection:
         self._dataset_id = dataset_id
 
     @property
-    def source_dir(self) -> str:
-        return f"/remote/{self._dataset_id.pid}/"
+    def source_dir(self) -> RemotePath:
+        return RemotePath("/remote") / self._dataset_id.pid
 
-    def _remote_path(self, filename) -> str:
-        return os.path.join(self.source_dir, filename)
+    def _remote_path(self, filename: RemotePath) -> RemotePath:
+        return self.source_dir / filename
 
-    def upload_file(self, *, remote: Union[str, Path], local: Union[str, Path]) -> str:
+    def _upload_file(self, *, remote: RemotePath, local: Path) -> RemotePath:
         remote = self._remote_path(remote)
         with open(local, "rb") as f:
             self.files[remote] = f.read()
         return remote
 
     def upload_files(self, *files: File) -> List[File]:
-        return [
-            file.uploaded(
-                remote_path=self.upload_file(
-                    remote=file.remote_path, local=file.local_path
-                )
-            )
-            for file in files
-        ]
+        for file in files:
+            self._upload_file(remote=file.remote_path, local=file.local_path)
+        return files
 
     def revert_upload(self, *files: File):
         for file in files:
@@ -123,8 +118,8 @@ class FakeFileTransfer:
             Files that have been uploaded and subsequently been removed.
         """
         self.fs = fs
-        self.files = {} if files is None else files
-        self.reverted = {} if reverted is None else reverted
+        self.files = _remote_path_dict(files)
+        self.reverted = _remote_path_dict(reverted)
 
     @contextmanager
     def connect_for_download(self):
@@ -135,3 +130,11 @@ class FakeFileTransfer:
         yield FakeUploadConnection(
             files=self.files, reverted=self.reverted, dataset_id=dataset_id
         )
+
+
+def _remote_path_dict(
+    d: Optional[Dict[Union[str, RemotePath], bytes]]
+) -> Dict[RemotePath, bytes]:
+    if d is None:
+        return {}
+    return {RemotePath(path): contents for path, contents in d.items()}

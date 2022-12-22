@@ -41,6 +41,9 @@ class RemotePath(os.PathLike):
     def __str__(self) -> str:
         return self._path
 
+    def __repr__(self) -> str:
+        return f"RemotePath({str(self)})"
+
     def __fspath__(self) -> str:
         """Return the file system representation of the path."""
         return str(self)

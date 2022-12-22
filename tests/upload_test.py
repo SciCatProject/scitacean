@@ -105,11 +105,12 @@ def test_upload_uploads_files_to_source_folder(client, dataset):
 
     with client.file_transfer.connect_for_upload(finalized.pid) as con:
         source_dir = con.source_dir
+
     assert (
-        client.file_transfer.files[source_dir + "file.nxs"] == b"contents of file.nxs"
+        client.file_transfer.files[source_dir / "file.nxs"] == b"contents of file.nxs"
     )
     assert (
-        client.file_transfer.files[source_dir + "the_log_file.log"]
+        client.file_transfer.files[source_dir / "the_log_file.log"]
         == b"this is a log file"
     )
 

@@ -2,7 +2,6 @@
 # Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
 # @author Jan-Lukas Wynen
 import hashlib
-import os
 import re
 from pathlib import Path
 from typing import Union
@@ -11,6 +10,7 @@ import pytest
 from dateutil.parser import parse as parse_date
 
 from scitacean import PID, Client, Dataset, DatasetType, File, IntegrityError
+from scitacean.filesystem import RemotePath
 from scitacean.model import DataFile, OrigDatablock, RawDataset
 from scitacean.testing.transfer import FakeFileTransfer
 
@@ -37,7 +37,7 @@ def dataset_and_files(data_files):
         ownerGroup="faculty",
         pid=PID(prefix="UU.000", pid="5125.ab.663.8c9f"),
         principalInvestigator="m.ridcully@uu.am",
-        sourceFolder="/src/stibbons/774",
+        sourceFolder=RemotePath("/src/stibbons/774"),
         type=DatasetType.RAW,
     )
     block = OrigDatablock(
@@ -49,8 +49,7 @@ def dataset_and_files(data_files):
     )
     dset = Dataset.from_models(dataset_model=model, orig_datablock_models=[block])
     return dset, {
-        os.path.join(dset.source_folder, name): content
-        for name, content in data_files[1].items()
+        dset.source_folder / name: content for name, content in data_files[1].items()
     }
 
 
@@ -197,7 +196,7 @@ def test_download_files_ignores_checksum_if_alg_is_none(fs, dataset_and_files):
     client = Client.without_login(
         url="/",
         file_transfer=FakeFileTransfer(
-            fs=fs, files={os.path.join(dataset.source_folder, "file.txt"): content}
+            fs=fs, files={dataset.source_folder / "file.txt": content}
         ),
     )
     # Does not raise
@@ -221,7 +220,7 @@ def test_download_files_detects_bad_checksum(fs, dataset_and_files):
     client = Client.without_login(
         url="/",
         file_transfer=FakeFileTransfer(
-            fs=fs, files={os.path.join(dataset.source_folder, "file.txt"): content}
+            fs=fs, files={dataset.source_folder / "file.txt": content}
         ),
     )
     with pytest.raises(IntegrityError):
@@ -245,7 +244,7 @@ def test_download_files_detects_bad_size(fs, dataset_and_files):
     client = Client.without_login(
         url="/",
         file_transfer=FakeFileTransfer(
-            fs=fs, files={os.path.join(dataset.source_folder, "file.txt"): content}
+            fs=fs, files={dataset.source_folder / "file.txt": content}
         ),
     )
     with pytest.raises(IntegrityError):
