@@ -51,10 +51,10 @@ class RemotePath(os.PathLike):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, (RemotePath, str)):
             return False
-        return str(self) == str(other)
+        return self._path == RemotePath(other)._path
 
     def __hash__(self) -> int:
-        return hash(str(self))
+        return hash(self._path)
 
     @property
     def name(self) -> str:
