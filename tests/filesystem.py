@@ -89,3 +89,35 @@ def test_remote_path_suffix():
     assert RemotePath("archive.tz/data.dat").suffix == ".dat"
     assert RemotePath("location.dir/file").suffix is None
     assert RemotePath("source/file").suffix is None
+
+
+@pytest.mark.parametrize("size", (0, 1, 57121))
+def test_file_size(fs, size):
+    fs.create_file("image.tiff", st_size=size)
+    assert file_size(Path("image.tiff")) == size
+
+
+def test_file_modification_time(fs):
+    fs.create_file("data.dat")
+    expected = datetime.now(tz=timezone.utc)
+    assert abs(file_modification_time(Path("data.dat")) - expected) < timedelta(
+        seconds=5
+    )
+
+
+@pytest.mark.parametrize(
+    "contents",
+    (b"small file contents", b"large contents " * 100000),
+    ids=("small", "large"),
+)
+def test_checksum_of_file(fs, contents):
+    fs.create_file("file.txt", contents=contents)
+
+    assert (
+        checksum_of_file("file.txt", algorithm="md5")
+        == hashlib.md5(contents).hexdigest()
+    )
+    assert (
+        checksum_of_file("file.txt", algorithm="sha256")
+        == hashlib.sha256(contents).hexdigest()
+    )

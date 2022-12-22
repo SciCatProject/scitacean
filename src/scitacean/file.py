@@ -6,13 +6,13 @@
 from __future__ import annotations
 
 import dataclasses
-import hashlib
 import os
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional, Union
 
 from .error import IntegrityError
+from .filesystem import checksum_of_file, file_modification_time, file_size
 from .logging import get_logger
 from .model import DataFile
 
@@ -132,7 +132,7 @@ class File:
         Otherwise, return the stored size in the catalogue.
         """
         if self.is_on_local:
-            return _get_file_size(self.local_path)
+            return file_size(self.local_path)
         return self._remote_size
 
     @property
@@ -143,7 +143,7 @@ class File:
         Otherwise, return the stored time in the catalogue.
         """
         if self.is_on_local:
-            return _get_modification_time(self.local_path)
+            return file_modification_time(self.local_path)
         return self._remote_creation_time
 
     def checksum(self) -> Optional[str]:
@@ -167,7 +167,7 @@ class File:
             )
         return self._remote_checksum
 
-    def remote_access_path(self, source_folder) -> Optional[str]:
+    def remote_access_path(self, source_folder: str) -> Optional[str]:
         """Full path to the file on the remote if it exists."""
         if not self.is_on_remote:
             return None
@@ -254,7 +254,7 @@ class File:
             )
 
     def _validate_after_download_file_size(self):
-        actual = _get_file_size(self.local_path)
+        actual = file_size(self.local_path)
         if actual != self._remote_size:
             _log_and_raise(
                 IntegrityError,
@@ -263,38 +263,9 @@ class File:
             )
 
 
-def _get_file_size(path: Path) -> int:
-    return path.stat().st_size
-
-
-def _get_modification_time(path: Path) -> datetime:
-    """Return the time in UTC when a file was last modified."""
-    # TODO is this correct on non-linux?
-    # TODO is this correct if the file was created in a different timezone (DST)?
-    return datetime.fromtimestamp(path.stat().st_mtime).astimezone(timezone.utc)
-
-
 def _log_and_raise(typ, msg):
     get_logger().error(msg)
     raise typ(msg)
-
-
-def _new_hash(algorithm: str):
-    try:
-        return hashlib.new(algorithm, usedforsecurity=False)
-    except TypeError:
-        # Fallback for Python < 3.9
-        return hashlib.new(algorithm)
-
-
-# size based on http://git.savannah.gnu.org/gitweb/?p=coreutils.git;a=blob;f=src/ioblksize.h;h=ed2f4a9c4d77462f357353eb73ee4306c28b37f1;hb=HEAD#l23  # noqa: E501
-def checksum_of_file(path: Union[str, Path], *, algorithm: str) -> str:
-    chk = _new_hash(algorithm)
-    buffer = memoryview(bytearray(128 * 1024))
-    with open(path, "rb", buffering=0) as file:
-        for n in iter(lambda: file.readinto(buffer), 0):
-            chk.update(buffer[:n])
-    return chk.hexdigest()
 
 
 class _Checksum:
@@ -315,7 +286,7 @@ class _Checksum:
         return (
             path != self._path
             or algorithm != self._algorithm
-            or _get_modification_time(path) > self._access_time
+            or file_modification_time(path) > self._access_time
         )
 
     def _update(self, *, path: Path, algorithm: str):
