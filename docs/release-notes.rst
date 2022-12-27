@@ -1,5 +1,7 @@
 .. _release-notes:
 
+.. currentmodule:: scitacean
+
 Release Notes
 =============
 
@@ -41,9 +43,9 @@ Breaking changes
 ~~~~~~~~~~~~~~~~
 
 * A number of attributes of Dataset are now read only.
-* :meth:`Dataset.new` was removed, use the regular ``__init__`` method instead.
+* ``Dataset.new`` was removed, use the regular ``__init__`` method instead.
 * ``File.provide_locally`` was removed in favor of :meth:`Client.download_files`.
-* ``ESSTestFileTransfer`` was renamed to :class:`scitacean.transfer.ssh.SSHFileTransfer`.
+* ``ESSTestFileTransfer`` was renamed to :class:`transfer.ssh.SSHFileTransfer`.
 
 Bugfixes
 ~~~~~~~~
