@@ -100,8 +100,8 @@ todo_include_todos = False
 
 html_theme = "pydata_sphinx_theme"
 html_theme_options = {
-    "left_sidebar_end": ["edit-this-page", "sourcelink"],
-    "page_sidebar_items": [],
+    "primary_sidebar_end": ["edit-this-page", "sourcelink"],
+    "secondary_sidebar_items": [],
     "show_nav_level": 1,
     "header_links_before_dropdown": 4,
     "external_links": [
