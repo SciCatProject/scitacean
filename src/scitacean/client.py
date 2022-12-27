@@ -314,11 +314,10 @@ class Client:
                 select=re.compile(r"\.nxs$")
             )
             # or
-            from pathlib import Path
             client.download_files(
                 dataset,
                 target="./data",
-                select=lambda file: Path(file.remote_path).suffix == ".nxs"
+                select=lambda file: file.remote_path.suffix == ".nxs"
             )
         """
         target = Path(target)
