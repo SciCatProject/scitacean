@@ -66,6 +66,12 @@ footer.bd-footer {
     color: #cecece;
 }
 
+footer.bd-footer > div {
+    /* Make sure the text does not overlap the gradient */
+    margin-left: 0;
+    padding-left: 8%;
+}
+
 footer.bd-footer p {
     color: #cecece;
 }
