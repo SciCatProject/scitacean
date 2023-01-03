@@ -84,11 +84,6 @@ footer.bd-footer p {
     background-color: var(--cean-color-table-odd);
 }
 
-h1:before, h2:before {
-    content: "::";
-    margin-right: 0.5ex;
-}
-
 a.headerlink {
     color: var(--pst-color-primary);
 }
