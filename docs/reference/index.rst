@@ -18,6 +18,7 @@ Main Classes
    Dataset
    File
    pid.PID
+   model.DatasetType
 
 File Transfer
 ~~~~~~~~~~~~~
@@ -40,6 +41,26 @@ Dataclasses
    :recursive:
 
    DatasetFields
+
+Models
+~~~~~~
+
+.. currentmodule:: scitacean
+
+Pydantic models for communication with a SciCat server.
+
+.. autosummary::
+   :toctree: ../generated/classes
+
+   model.Datablock
+   model.DataFile
+   model.DatasetLifecycle
+   model.DerivedDataset
+   model.MongoQueryable
+   model.OrigDatablock
+   model.Ownable
+   model.RawDataset
+   model.Technique
 
 Typing
 ~~~~~~

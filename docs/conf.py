@@ -178,4 +178,10 @@ linkcheck_ignore = [
 
 # -- Options for autodoc_pydantic -----------------------------------------
 
+# Doesn't work because some types (e.g. PID) are not serializable.
 autodoc_pydantic_model_show_json = False
+
+# These mess up the index page.
+autodoc_pydantic_model_show_config_summary = False
+autodoc_pydantic_model_show_field_summary = False
+autodoc_pydantic_model_show_validator_summary = False
