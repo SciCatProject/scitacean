@@ -12,6 +12,7 @@ from .docker import docker_compose
 _SSH_SERVER_DOCKER_CONFIG = (
     Path(__file__).resolve().parent / "docker-compose-ssh-server.yaml"
 )
+_COMMAND_LINE_OPTION = "--ssh-tests"
 
 
 @dataclass
@@ -46,8 +47,17 @@ def ssh_fileserver(request, ssh_access):
 
     Does nothing unless the --ssh-tests command line option is set.
     """
-    if not request.config.getoption("--ssh-tests"):
+    if not request.config.getoption(_COMMAND_LINE_OPTION):
         yield False
+        return
 
     with docker_compose(_SSH_SERVER_DOCKER_CONFIG):
         yield True
+
+
+def skip_if_not_ssh(request):
+    if not request.config.getoption(_COMMAND_LINE_OPTION):
+        pytest.skip(
+            "Tests against an SSH file server are disabled, "
+            f"use {_COMMAND_LINE_OPTION} to enable them"
+        )
