@@ -44,6 +44,21 @@ Dataclasses
 
    DatasetFields
 
+Exceptions
+~~~~~~~~~~
+
+.. currentmodule:: scitacean
+
+.. autosummary::
+   :toctree: ../generated/classes
+   :template: scitacean-class-template.rst
+   :recursive:
+
+   FileUploadError
+   IntegrityError
+   ScicatCommError
+   ScicatLoginError
+
 Models
 ~~~~~~
 

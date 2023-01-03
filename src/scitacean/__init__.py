@@ -11,7 +11,7 @@ except importlib.metadata.PackageNotFoundError:
 from ._dataset_fields import DatasetType
 from .client import Client
 from .dataset import Dataset
-from .error import IntegrityError, ScicatCommError, ScicatLoginError
+from .error import FileUploadError, IntegrityError, ScicatCommError, ScicatLoginError
 from .file import File
 from .pid import PID
 
@@ -20,6 +20,7 @@ __all__ = (
     "Dataset",
     "DatasetType",
     "File",
+    "FileUploadError",
     "IntegrityError",
     "PID",
     "ScicatCommError",
