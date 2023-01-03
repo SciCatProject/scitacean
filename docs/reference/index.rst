@@ -9,6 +9,8 @@ Classes
 Main Classes
 ~~~~~~~~~~~~
 
+.. There is special handling of class constructors in the template.
+
 .. autosummary::
    :toctree: ../generated/classes
    :template: scitacean-class-template.rst
