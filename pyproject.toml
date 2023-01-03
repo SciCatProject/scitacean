@@ -58,6 +58,9 @@ filterwarnings = [
     "error",
     # Many tests don't set a checksum, so File raises this warning.
     "ignore:Cannot check if local file:UserWarning",
+    # From fabric / invoke
+    "ignore:_SixMetaPathImporter:ImportWarning",
+    "ignore:the imp module is deprecated in favour of importlib:DeprecationWarning",
 ]
 
 [tool.mypy]
