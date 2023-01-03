@@ -3,7 +3,9 @@
 {% set constructors = {"Client": ["from_credentials", "from_token", "without_login"],
                        "Dataset": ["__init__", "from_models"],
                        "File": ["from_local", "from_scicat"],
-                       "PID": ["__init__", "parse"]} %}
+                       "OrigDatablockProxy": ["__init__", "from_model"],
+                       "PID": ["__init__", "parse"],
+                      } %}
 {% set regular_methods = methods | reject("in", constructors.get(name, []) + ["__init__"]) | list %}
 
 

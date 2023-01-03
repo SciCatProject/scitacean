@@ -32,6 +32,17 @@ File Transfer
 
    transfer.ssh.SSHFileTransfer
 
+Auxiliary Classes
+~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: ../generated/classes
+   :template: scitacean-class-template.rst
+   :recursive:
+
+   datablock.OrigDatablockProxy
+   dataset.DatablockModels
+
 Dataclasses
 ~~~~~~~~~~~
 

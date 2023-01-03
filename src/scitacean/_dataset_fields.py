@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import dataclasses
 from datetime import datetime, timezone
-from typing import Any, Callable, Dict, Generator, List, Literal, Optional, Union
+from typing import Any, Callable, Dict, List, Literal, Optional, Union
 
 import dateutil.parser
 
@@ -551,6 +551,15 @@ class DatasetFields:
         _read_only: Optional[Dict[str, Any]] = None,
         _orig_datablocks: Optional[List[OrigDatablockProxy]] = None,
     ):
+        """Construct a dataset with given values.
+
+        All arguments correspond to dataset fields, except `checksum_algorithm` which
+        is used as the default algorithm when files are added.
+
+        Arguments starting with an underscore are used internally to initialize
+        datasets from SciCat models, and you should generally avoid setting them
+        yourself!
+        """
         _read_only = _read_only or {}
         self._fields = {
             "creation_time": _parse_datetime(creation_time),
@@ -618,10 +627,14 @@ class DatasetFields:
 
     @property
     def creation_time(self) -> datetime:
+        """Time when dataset became fully available on disk,
+        i.e. all containing files have been written."""
         return self._fields["creation_time"]
 
     @creation_time.setter
     def creation_time(self, value: Union[datetime, str]):
+        """Time when dataset became fully available on disk,
+        i.e. all containing files have been written."""
         if value is None:
             raise TypeError("Cannot set creation_time to None")
         self._fields["creation_time"] = _parse_datetime(value)
@@ -939,25 +952,6 @@ class DatasetFields:
         """Version of SciCat API used in creation of dataset."""
         return self._fields["version"]
 
-    @classmethod
-    def fields(
-        cls,
-        dataset_type: Optional[Union[DatasetType, Literal["derived", "raw"]]] = None,
-        read_only: Optional[bool] = None,
-    ) -> Generator[Field, None, None]:
-        """Iterator over dataset fields."""
-        it = DatasetFields._FIELD_SPEC
-        if dataset_type is not None:
-            attr = (
-                "used_by_derived"
-                if dataset_type == DatasetType.DERIVED
-                else "used_by_raw"
-            )
-            it = filter(lambda field: getattr(field, attr), it)
-        if read_only is not None:
-            it = filter(lambda field: field.read_only == read_only, it)
-        yield from it
-
     def __str__(self) -> str:
         args = ", ".join(
             f"{name}={value}"
@@ -967,18 +961,6 @@ class DatasetFields:
             if value is not None
         )
         return f"Dataset({args})"
-
-    def make_model(self) -> Union[DerivedDataset, RawDataset]:
-        """Build a dataset model to send to SciCat.
-
-        Returns
-        -------
-        :
-            Created model.
-        """
-        if self.type == DatasetType.DERIVED:
-            return self._make_derived_model()
-        return self._make_raw_model()
 
     def _make_derived_model(self) -> DerivedDataset:
         if self.creation_location is not None:

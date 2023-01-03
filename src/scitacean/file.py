@@ -108,6 +108,20 @@ class File:
         *,
         local_path: Optional[Union[str, Path]] = None,
     ) -> File:
+        """Construct a new file object from SciCat models.
+
+        Parameters
+        ----------
+        model:
+            Pydantic model for the file.
+        local_path:
+            Value for the local path.
+
+        Returns
+        -------
+        :
+            A new file object.
+        """
         return File(
             local_path=Path(local_path) if isinstance(local_path, str) else local_path,
             remote_path=RemotePath(model.path),
@@ -183,6 +197,19 @@ class File:
         return self.local_path is not None
 
     def make_model(self, *, for_archive: bool = False) -> DataFile:
+        """Build a pydantic model for this file.
+
+        Parameters
+        ----------
+        for_archive:
+            Select whether the file is stored in an archive or on regular disk,
+            that is whether it belongs to a Datablock or an OrigDatablock.
+
+        Returns
+        -------
+        :
+            A new pydantic model.
+        """
         chk = self.checksum()
         # TODO if for_archive: ensure not out of date
         return DataFile(
@@ -204,6 +231,30 @@ class File:
         remote_perm: Optional[str] = None,
         remote_creation_time: Optional[datetime] = None,
     ) -> File:
+        """Return new file metadata after an upload.
+
+        Assumes that the input file exists on local.
+        The returned object is on both local and remote.
+
+        Parameters
+        ----------
+        remote_path:
+            New remote path.
+        remote_uid:
+            New user ID on remote, overwrites any current value.
+        remote_gid:
+            New group ID on remote, overwrites any current value.
+        remote_perm:
+            New unix permissions on remote, overwrites any current value.
+        remote_creation_time:
+            Time the file became available on remote.
+            Defaults to the current time in UTC.
+
+        Returns
+        -------
+        :
+            A new file object.
+        """
         if remote_creation_time is None:
             remote_creation_time = datetime.now().astimezone(timezone.utc)
         args = dict(
@@ -220,12 +271,38 @@ class File:
             **{key: val for key, val in args.items() if val is not None},
         )
 
-    def downloaded(self, *, local_path) -> File:
+    def downloaded(self, *, local_path: Path) -> File:
+        """Return new file metadata after a download.
+
+        Assumes that the input file exists on remote.
+        The returned object is on both local and remote.
+
+        Parameters
+        ----------
+        local_path:
+            New local path.
+
+        Returns
+        -------
+        :
+            A new file object.
+        """
         return dataclasses.replace(
             self, local_path=local_path, _checksum_cache=_Checksum()
         )
 
     def validate_after_download(self):
+        """Check that the file on disk matches the metadata.
+
+        Compares file size and, if possible, its checksum.
+        Raises on failure.
+        If the function returns without exception, the file is valid.
+
+        Raises
+        ------
+        IntegrityError
+            If a check fails.
+        """
         self._validate_after_download_file_size()
         if self._remote_checksum is None:
             get_logger().info(
