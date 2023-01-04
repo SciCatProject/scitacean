@@ -55,6 +55,8 @@ Bugfixes
 Documentation
 ~~~~~~~~~~~~~
 
+* Document fakes for testing.
+
 Stability, Maintainability, and Testing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
