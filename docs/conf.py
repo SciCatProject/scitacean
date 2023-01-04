@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.abspath("."))
 
 # General information about the project.
 project = "scitacean"
-copyright = "2022 scitacean contributors"
+copyright = "2023 SciCat Project"
 author = "Scitacean contributors"
 
 html_show_sourcelink = True
