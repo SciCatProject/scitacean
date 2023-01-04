@@ -13,6 +13,7 @@ from .client import Client
 from .dataset import Dataset
 from .error import FileUploadError, IntegrityError, ScicatCommError, ScicatLoginError
 from .file import File
+from .filesystem import RemotePath
 from .pid import PID
 
 __all__ = (
@@ -23,6 +24,7 @@ __all__ = (
     "FileUploadError",
     "IntegrityError",
     "PID",
+    "RemotePath",
     "ScicatCommError",
     "ScicatLoginError",
 )

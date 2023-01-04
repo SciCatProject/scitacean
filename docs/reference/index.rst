@@ -19,8 +19,6 @@ Main Classes
    Client
    Dataset
    File
-   pid.PID
-   model.DatasetType
 
 File Transfer
 ~~~~~~~~~~~~~
@@ -42,6 +40,9 @@ Auxiliary Classes
 
    datablock.OrigDatablockProxy
    dataset.DatablockModels
+   PID
+   RemotePath
+   model.DatasetType
 
 Dataclasses
 ~~~~~~~~~~~

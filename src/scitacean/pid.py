@@ -28,7 +28,7 @@ class PID:
     __slots__ = ("_pid", "_prefix")
 
     def __init__(self, *, pid: str, prefix: Optional[str] = None):
-        """
+        """Initialize an instance from individual components.
 
         Parameters
         ----------
@@ -124,6 +124,7 @@ class PID:
 
     @classmethod
     def validate(cls, value: Union[str, PID]) -> PID:
+        """Pydantic validator for PID fields."""
         if isinstance(value, str):
             return PID.parse(value)
         if isinstance(value, PID):

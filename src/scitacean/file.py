@@ -23,21 +23,44 @@ class File:
     There are two central properties:
 
     - ``remote_path``: Path to the remote file relative to the dataset's
-      ``source_folder``.
-    - ``local_path``: Path to the file on the local filesystem if it exists.
+      ``source_folder``. This is always set, even if the file does not exist
+      on the remote filesystem.
+    - ``local_path``: Path to the file on the local filesystem.
       Is ``None`` if the file does not exist locally.
+
+    Files can be in one of three states and the state can be changed as shown below.
+    The state can be queried using :meth:`File.is_on_local`
+    and :meth:`File.is_on_remote`.
+
+    .. code-block:: none
+
+         local                                  remote
+           │                                      │
+           │ uploaded                  downloaded │
+           │                                      │
+           └───────────> local+remote <───────────┘
     """
 
     local_path: Optional[Path]
+    """Path to the file on the local filesystem."""
     remote_path: RemotePath
+    """Path to the file on the remote filesystem."""
     remote_gid: Optional[str]
+    """Unix group ID on remote."""
     remote_perm: Optional[str]
+    """Unix file mode on remote."""
     remote_uid: Optional[str]
+    """Unix user ID on remote."""
     created_at: Optional[datetime] = None
+    """Creator of the file entry in SciCat."""
     created_by: Optional[str] = None
+    """Creation time of the file entry in SciCat."""
     updated_at: Optional[datetime] = None
+    """Last updator of the file entry in SciCat."""
     updated_by: Optional[str] = None
+    """Last update time of the file entry in SciCat."""
     checksum_algorithm: Optional[str] = None
+    """Algorithm to use for checksums."""
     _remote_size: Optional[int] = dataclasses.field(default=None, repr=False)
     _remote_creation_time: Optional[datetime] = dataclasses.field(
         default=None, repr=False
@@ -60,13 +83,13 @@ class File:
     ) -> File:
         """Link a file on the local filesystem.
 
-        Given following ``path``, ``base_path``, and ``source_folder`` ::
+        Given following ``path``, ``base_path``, and ``source_folder``::
 
             path:                      somewhere/on/local/folder/file.nxs
             base_bath:                 somewhere/on/local
             source_folder:             remote/storage
 
-        the file will be located on the remote at ::
+        the file will be located on the remote at::
 
             -> remote_path:            folder/file.nxs
             -> actual remote location: remote/storage/folder/file.nxs
@@ -190,10 +213,12 @@ class File:
 
     @property
     def is_on_remote(self) -> bool:
+        """True if the file is on remote."""
         return self._remote_size is not None
 
     @property
     def is_on_local(self) -> bool:
+        """True if the file is on local."""
         return self.local_path is not None
 
     def make_model(self, *, for_archive: bool = False) -> DataFile:
