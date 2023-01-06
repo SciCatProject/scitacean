@@ -10,25 +10,25 @@ attrs==22.1.0
     #   flake8-bugbear
     #   jsonschema
 bandit[toml]==1.7.4
-    # via -r requirements/static.in
+    # via -r static.in
 black==22.10.0
-    # via -r requirements/static.in
+    # via -r static.in
 click==8.1.3
     # via black
 fastjsonschema==2.16.2
     # via nbformat
 flake8==6.0.0
     # via
-    #   -r requirements/static.in
+    #   -r static.in
     #   flake8-bugbear
 flake8-bugbear==22.10.27
-    # via -r requirements/static.in
+    # via -r static.in
 gitdb==4.0.10
     # via gitpython
-gitpython==3.1.29
+gitpython==3.1.30
     # via bandit
 isort==5.10.1
-    # via -r requirements/static.in
+    # via -r static.in
 jsonschema==4.17.3
     # via nbformat
 jupyter-core==5.1.0
@@ -40,7 +40,7 @@ mypy-extensions==0.4.3
 nbformat==5.7.0
     # via nbstripout
 nbstripout==0.6.1
-    # via -r requirements/static.in
+    # via -r static.in
 pathspec==0.10.2
     # via black
 pbr==5.11.0
@@ -63,8 +63,6 @@ stevedore==4.1.1
     # via bandit
 toml==0.10.2
     # via bandit
-tomli==2.0.1
-    # via black
 traitlets==5.6.0
     # via
     #   jupyter-core
