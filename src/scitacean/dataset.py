@@ -9,12 +9,18 @@ import html
 from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Union
+from typing import Any, Dict, Generator, Iterable, List, Literal, Optional, Union
 
 from ._dataset_fields import DatasetFields, fields_from_model
 from .datablock import OrigDatablockProxy
 from .file import File
-from .model import DatasetLifecycle, DerivedDataset, OrigDatablock, RawDataset
+from .model import (
+    DatasetLifecycle,
+    DatasetType,
+    DerivedDataset,
+    OrigDatablock,
+    RawDataset,
+)
 from .pid import PID
 
 
@@ -26,7 +32,11 @@ class Dataset(DatasetFields):
         dataset_model: Union[DerivedDataset, RawDataset],
         orig_datablock_models: Optional[List[OrigDatablock]],
     ) -> Dataset:
-        """Create a new dataset from fully filled in models.
+        """Create a new dataset from pydantic models.
+
+        This function is mainly meant to be used with
+        models that were downloaded from SciCat.
+        :meth:`Dataset.__init__` should be preferred for other use cases.
 
         Parameters
         ----------
@@ -34,6 +44,7 @@ class Dataset(DatasetFields):
             Fields, including scientific metadata are filled from this model.
         orig_datablock_models:
             File links are populated from this model.
+            All files are initialized to be on remote but not local.
 
         Returns
         -------
@@ -57,6 +68,43 @@ class Dataset(DatasetFields):
             _read_only=read_only_args,
             **args,
         )
+
+    @classmethod
+    def fields(
+        cls,
+        dataset_type: Optional[Union[DatasetType, Literal["derived", "raw"]]] = None,
+        read_only: Optional[bool] = None,
+    ) -> Generator[Dataset.Field, None, None]:
+        """Iterator over dataset fields.
+
+        This is similar to :func:`dataclasses.fields`.
+
+        Parameters
+        ----------
+        dataset_type:
+            If set, return only the fields for this dataset type.
+            If unset, do not filter fields.
+        read_only:
+            If true or false, return only fields which are read-only
+            or allow write-access, respectively.
+            If unset, do not filter fields.
+
+        Returns
+        -------
+        :
+            Iterable over the fields of datasets.
+        """
+        it = DatasetFields._FIELD_SPEC
+        if dataset_type is not None:
+            attr = (
+                "used_by_derived"
+                if dataset_type == DatasetType.DERIVED
+                else "used_by_raw"
+            )
+            it = filter(lambda field: getattr(field, attr), it)
+        if read_only is not None:
+            it = filter(lambda field: field.read_only == read_only, it)
+        yield from it
 
     @property
     def history(self) -> List[Dataset]:
@@ -120,8 +168,11 @@ class Dataset(DatasetFields):
             Local paths to the files.
         base_path:
             The remote paths will be set up according to
-            ``remote = [path.relative_to(base_path) for path in paths]``.
+
+            ``remotes = [path.relative_to(base_path) for path in paths]``.
         datablock:
+            Advanced feature, do not set unless you know what this is!
+
             Select the orig datablock to store the file in.
             If an ``int``, use the datablock with that index.
             If a ``str`` or ``PID``, use the datablock with that id;
@@ -137,9 +188,17 @@ class Dataset(DatasetFields):
         *,
         _read_only: Dict[str, Any] = None,
         _orig_datablocks: Optional[List[OrigDatablockProxy]] = None,
-        **replacements,
+        **replacements: Any,
     ) -> Dataset:
         """Return a new dataset with replaced fields.
+
+        Parameters starting with an underscore are for internal use.
+        Using them may result in a broken dataset.
+
+        Parameters
+        ----------
+        replacements:
+            New field values.
 
         Returns
         -------
@@ -181,7 +240,25 @@ class Dataset(DatasetFields):
         )
 
     def replace_files(self, *files: File) -> Dataset:
-        def new_or_old(old: File):
+        """Return a new dataset with replaced files.
+
+        For each argument, if the input dataset has a file with the
+        same remote path, that file is replaced.
+        Otherwise, a new file is added.
+        Other existing files are kept in the returned dataset.
+
+        Parameters
+        ----------
+        files:
+            New files for the dataset.
+
+        Returns
+        -------
+        :
+            A new dataset with given files.
+        """
+
+        def new_or_old(old: File) -> File:
             for new in files:
                 if old.remote_path == new.remote_path:
                     return new
@@ -195,6 +272,13 @@ class Dataset(DatasetFields):
         )
 
     def make_datablock_models(self) -> DatablockModels:
+        """Build models for all contained (orig) datablocks.
+
+        Returns
+        -------
+        :
+            Structure with datablock and orig datablock models.
+        """
         if self.number_of_files == 0:
             return DatablockModels(orig_datablocks=None)
         return DatablockModels(
@@ -202,6 +286,22 @@ class Dataset(DatasetFields):
                 dblock.make_model(self) for dblock in self._orig_datablocks
             ]
         )
+
+    def make_model(self) -> Union[DerivedDataset, RawDataset]:
+        """Build a dataset model to send to SciCat.
+
+        This triggers validation of the dataset.
+        All fields must therefore be properly initialized for a dataset of type
+        ``self.type`` before calling ``make_model``.
+
+        Returns
+        -------
+        :
+            Created model.
+        """
+        if self.type == DatasetType.DERIVED:
+            return self._make_derived_model()
+        return self._make_raw_model()
 
     def __eq__(self, other: Dataset) -> bool:
         if not isinstance(other, Dataset):
@@ -215,6 +315,19 @@ class Dataset(DatasetFields):
     def add_orig_datablock(
         self, *, checksum_algorithm: Optional[str]
     ) -> OrigDatablockProxy:
+        """Append a new orig datablock to the list of orig datablocks.
+
+        Parameters
+        ----------
+        checksum_algorithm:
+            Use this algorithm to compute checksums of files
+            associated with this datablock.
+
+        Returns
+        -------
+        :
+            The newly added datablock.
+        """
         dblock = OrigDatablockProxy(checksum_algorithm=checksum_algorithm)
         self._orig_datablocks.append(dblock)
         return dblock
@@ -287,6 +400,9 @@ def _format_type(typ) -> str:
 
 @dataclasses.dataclass
 class DatablockModels:
+    """Pydantic models for (orig) datablocks."""
+
     # TODO
-    # datablocks: Optional[List[OrigDatablock]]
+    # datablocks: Optional[List[Datablock]]
     orig_datablocks: Optional[List[OrigDatablock]]
+    """Orig datablocks"""

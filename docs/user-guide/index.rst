@@ -7,3 +7,4 @@ User Guide
    installation
    downloading
    uploading
+   testing

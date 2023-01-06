@@ -25,6 +25,7 @@ class RemotePath(os.PathLike):
     """
 
     def __init__(self, path: Union[str, RemotePath]):
+        """Initialize from a given path."""
         self._path = os.fspath(path)
 
     def __truediv__(self, other: Union[str, RemotePath]) -> RemotePath:
@@ -76,6 +77,7 @@ class RemotePath(os.PathLike):
 
     @classmethod
     def validate(cls, value: Union[str, RemotePath]) -> RemotePath:
+        """Pydantic validator for RemotePath fields."""
         return RemotePath(value)
 
 
@@ -88,6 +90,7 @@ def _strip_leading_slash(s: str) -> str:
 
 
 def file_size(path: Path) -> int:
+    """Return the size of a file in bytes."""
     return path.stat().st_size
 
 
@@ -106,6 +109,20 @@ def _new_hash(algorithm: str):
 
 # size based on http://git.savannah.gnu.org/gitweb/?p=coreutils.git;a=blob;f=src/ioblksize.h;h=ed2f4a9c4d77462f357353eb73ee4306c28b37f1;hb=HEAD#l23  # noqa: E501
 def checksum_of_file(path: Union[str, Path], *, algorithm: str) -> str:
+    """Compute the checksum of a file.
+
+    Parameters
+    ----------
+    path:
+        Path of the file.
+    algorithm:
+        Hash algorithm to use. Can be any algorithm supported by :func:`hashlib.new`.
+
+    Returns
+    -------
+    :
+        THe hex digest of the hash.
+    """
     chk = _new_hash(algorithm)
     buffer = memoryview(bytearray(128 * 1024))
     with open(path, "rb", buffering=0) as file:

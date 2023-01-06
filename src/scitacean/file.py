@@ -23,21 +23,44 @@ class File:
     There are two central properties:
 
     - ``remote_path``: Path to the remote file relative to the dataset's
-      ``source_folder``.
-    - ``local_path``: Path to the file on the local filesystem if it exists.
+      ``source_folder``. This is always set, even if the file does not exist
+      on the remote filesystem.
+    - ``local_path``: Path to the file on the local filesystem.
       Is ``None`` if the file does not exist locally.
+
+    Files can be in one of three states and the state can be changed as shown below.
+    The state can be queried using :meth:`File.is_on_local`
+    and :meth:`File.is_on_remote`.
+
+    .. code-block:: none
+
+         local                                  remote
+           │                                      │
+           │ uploaded                  downloaded │
+           │                                      │
+           └───────────> local+remote <───────────┘
     """
 
     local_path: Optional[Path]
+    """Path to the file on the local filesystem."""
     remote_path: RemotePath
+    """Path to the file on the remote filesystem."""
     remote_gid: Optional[str]
+    """Unix group ID on remote."""
     remote_perm: Optional[str]
+    """Unix file mode on remote."""
     remote_uid: Optional[str]
+    """Unix user ID on remote."""
     created_at: Optional[datetime] = None
+    """Creator of the file entry in SciCat."""
     created_by: Optional[str] = None
+    """Creation time of the file entry in SciCat."""
     updated_at: Optional[datetime] = None
+    """Last updator of the file entry in SciCat."""
     updated_by: Optional[str] = None
+    """Last update time of the file entry in SciCat."""
     checksum_algorithm: Optional[str] = None
+    """Algorithm to use for checksums."""
     _remote_size: Optional[int] = dataclasses.field(default=None, repr=False)
     _remote_creation_time: Optional[datetime] = dataclasses.field(
         default=None, repr=False
@@ -60,13 +83,13 @@ class File:
     ) -> File:
         """Link a file on the local filesystem.
 
-        Given following ``path``, ``base_path``, and ``source_folder`` ::
+        Given following ``path``, ``base_path``, and ``source_folder``::
 
             path:                      somewhere/on/local/folder/file.nxs
             base_bath:                 somewhere/on/local
             source_folder:             remote/storage
 
-        the file will be located on the remote at ::
+        the file will be located on the remote at::
 
             -> remote_path:            folder/file.nxs
             -> actual remote location: remote/storage/folder/file.nxs
@@ -108,6 +131,20 @@ class File:
         *,
         local_path: Optional[Union[str, Path]] = None,
     ) -> File:
+        """Construct a new file object from SciCat models.
+
+        Parameters
+        ----------
+        model:
+            Pydantic model for the file.
+        local_path:
+            Value for the local path.
+
+        Returns
+        -------
+        :
+            A new file object.
+        """
         return File(
             local_path=Path(local_path) if isinstance(local_path, str) else local_path,
             remote_path=RemotePath(model.path),
@@ -176,13 +213,28 @@ class File:
 
     @property
     def is_on_remote(self) -> bool:
+        """True if the file is on remote."""
         return self._remote_size is not None
 
     @property
     def is_on_local(self) -> bool:
+        """True if the file is on local."""
         return self.local_path is not None
 
     def make_model(self, *, for_archive: bool = False) -> DataFile:
+        """Build a pydantic model for this file.
+
+        Parameters
+        ----------
+        for_archive:
+            Select whether the file is stored in an archive or on regular disk,
+            that is whether it belongs to a Datablock or an OrigDatablock.
+
+        Returns
+        -------
+        :
+            A new pydantic model.
+        """
         chk = self.checksum()
         # TODO if for_archive: ensure not out of date
         return DataFile(
@@ -204,6 +256,30 @@ class File:
         remote_perm: Optional[str] = None,
         remote_creation_time: Optional[datetime] = None,
     ) -> File:
+        """Return new file metadata after an upload.
+
+        Assumes that the input file exists on local.
+        The returned object is on both local and remote.
+
+        Parameters
+        ----------
+        remote_path:
+            New remote path.
+        remote_uid:
+            New user ID on remote, overwrites any current value.
+        remote_gid:
+            New group ID on remote, overwrites any current value.
+        remote_perm:
+            New unix permissions on remote, overwrites any current value.
+        remote_creation_time:
+            Time the file became available on remote.
+            Defaults to the current time in UTC.
+
+        Returns
+        -------
+        :
+            A new file object.
+        """
         if remote_creation_time is None:
             remote_creation_time = datetime.now().astimezone(timezone.utc)
         args = dict(
@@ -220,12 +296,38 @@ class File:
             **{key: val for key, val in args.items() if val is not None},
         )
 
-    def downloaded(self, *, local_path) -> File:
+    def downloaded(self, *, local_path: Path) -> File:
+        """Return new file metadata after a download.
+
+        Assumes that the input file exists on remote.
+        The returned object is on both local and remote.
+
+        Parameters
+        ----------
+        local_path:
+            New local path.
+
+        Returns
+        -------
+        :
+            A new file object.
+        """
         return dataclasses.replace(
             self, local_path=local_path, _checksum_cache=_Checksum()
         )
 
     def validate_after_download(self):
+        """Check that the file on disk matches the metadata.
+
+        Compares file size and, if possible, its checksum.
+        Raises on failure.
+        If the function returns without exception, the file is valid.
+
+        Raises
+        ------
+        IntegrityError
+            If a check fails.
+        """
         self._validate_after_download_file_size()
         if self._remote_checksum is None:
             get_logger().info(

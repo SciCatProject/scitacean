@@ -9,6 +9,8 @@ Classes
 Main Classes
 ~~~~~~~~~~~~
 
+.. There is special handling of class constructors in the template.
+
 .. autosummary::
    :toctree: ../generated/classes
    :template: scitacean-class-template.rst
@@ -17,7 +19,6 @@ Main Classes
    Client
    Dataset
    File
-   pid.PID
 
 File Transfer
 ~~~~~~~~~~~~~
@@ -28,6 +29,20 @@ File Transfer
    :recursive:
 
    transfer.ssh.SSHFileTransfer
+
+Auxiliary Classes
+~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: ../generated/classes
+   :template: scitacean-class-template.rst
+   :recursive:
+
+   datablock.OrigDatablockProxy
+   dataset.DatablockModels
+   PID
+   RemotePath
+   model.DatasetType
 
 Dataclasses
 ~~~~~~~~~~~
@@ -40,6 +55,41 @@ Dataclasses
    :recursive:
 
    DatasetFields
+
+Exceptions
+~~~~~~~~~~
+
+.. currentmodule:: scitacean
+
+.. autosummary::
+   :toctree: ../generated/classes
+   :template: scitacean-class-template.rst
+   :recursive:
+
+   FileUploadError
+   IntegrityError
+   ScicatCommError
+   ScicatLoginError
+
+Models
+~~~~~~
+
+.. currentmodule:: scitacean
+
+Pydantic models for communication with a SciCat server.
+
+.. autosummary::
+   :toctree: ../generated/classes
+
+   model.Datablock
+   model.DataFile
+   model.DatasetLifecycle
+   model.DerivedDataset
+   model.MongoQueryable
+   model.OrigDatablock
+   model.Ownable
+   model.RawDataset
+   model.Technique
 
 Typing
 ~~~~~~

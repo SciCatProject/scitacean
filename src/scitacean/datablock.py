@@ -17,6 +17,14 @@ from .pid import PID
 
 @dataclasses.dataclass
 class OrigDatablockProxy:
+    """Dataclass for an orig datablock.
+
+    Instances of this class are mutable as opposed to
+    :class:`scitacean.model.OrigDatablock`.
+    They are used for building datasets and get converted to/from pydantic
+    models for communication with a server.
+    """
+
     _files: List[File] = dataclasses.field(init=False)
     _files_modified: bool = dataclasses.field(default=False, init=False)
     checksum_algorithm: Optional[str] = None
@@ -36,6 +44,20 @@ class OrigDatablockProxy:
         dataset_model: Union[DerivedDataset, RawDataset],
         orig_datablock_model: OrigDatablock,
     ) -> OrigDatablockProxy:
+        """Construct a new OrigDatablockProxy from pydantic models.
+
+        Parameters
+        ----------
+        dataset_model:
+            Model of the dataset that this orig datablock belongs to.
+        orig_datablock_model:
+            Model of the orig datablock to construct.
+
+        Returns
+        -------
+        :
+            A new instance.
+        """
         dblock = orig_datablock_model
         # TODO store checksum once implemented
         #   AND overwrite in Files
@@ -50,13 +72,22 @@ class OrigDatablockProxy:
 
     @property
     def files(self) -> Iterator[File]:
+        """Iterator over all files."""
         return iter(self._files)
 
     @property
     def size(self) -> int:
+        """Total size of all files."""
         return sum(file.size for file in self.files)
 
     def add_files(self, *files: File):
+        """Append files to the datablock.
+
+        Parameters
+        ----------
+        files:
+            File objects to add.
+        """
         self._files.extend(
             dataclasses.replace(f, checksum_algorithm=self.checksum_algorithm)
             for f in files
@@ -64,6 +95,18 @@ class OrigDatablockProxy:
         self._files_modified = True
 
     def make_model(self, dataset) -> OrigDatablock:
+        """Build a new pydantic model for this datablock.
+
+        Parameters
+        ----------
+        dataset:
+            The dataset that this orig datablock belongs to.
+
+        Returns
+        -------
+        :
+            A new model for this orig datablock.
+        """
         # TODO set checksum_algorithm once implemented
         return OrigDatablock(
             id=self.pid,

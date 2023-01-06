@@ -30,6 +30,7 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
+    "sphinxcontrib.autodoc_pydantic",
     "sphinx_autodoc_typehints",
     "sphinx_copybutton",
     "nbsphinx",
@@ -174,3 +175,13 @@ linkcheck_ignore = [
     # Many links for PRs from our release notes. Slow and unlikely to cause issues.
     "https://github.com/SciCatProject/scitacean/pulls/[0-9]+",
 ]
+
+# -- Options for autodoc_pydantic -----------------------------------------
+
+# Doesn't work because some types (e.g. PID) are not serializable.
+autodoc_pydantic_model_show_json = False
+
+# These mess up the index page.
+autodoc_pydantic_model_show_config_summary = False
+autodoc_pydantic_model_show_field_summary = False
+autodoc_pydantic_model_show_validator_summary = False
