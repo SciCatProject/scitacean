@@ -3,11 +3,12 @@
 import hashlib
 from dataclasses import replace
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 import pytest
 from dateutil.parser import parse as parse_date
 
-from scitacean import File, IntegrityError
+from scitacean import File, IntegrityError, RemotePath
 from scitacean.file import checksum_of_file
 from scitacean.logging import logger_name
 from scitacean.model import DataFile
@@ -166,8 +167,8 @@ def test_downloaded():
     assert downloaded.is_on_local
     assert downloaded.is_on_remote
 
-    assert downloaded.remote_path == "dir/stream.s"
-    assert downloaded.local_path == "/local/stream.s"
+    assert downloaded.remote_path == RemotePath("dir/stream.s")
+    assert downloaded.local_path == Path("/local/stream.s")
     assert downloaded.remote_perm == "xrw"
     assert downloaded.created_by == "creator-id"
 
