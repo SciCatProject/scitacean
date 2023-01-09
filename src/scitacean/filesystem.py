@@ -12,10 +12,10 @@ import hashlib
 import os
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Callable, Generator, Optional, Union
+from typing import Any, Callable, Generator, Optional, Union
 
 
-class RemotePath(os.PathLike):
+class RemotePath(os.PathLike):  # type: ignore[type-arg]
     """A path on the remote filesystem.
 
     Remote paths need not correspond to a regular filesystem path like
@@ -99,7 +99,7 @@ def file_modification_time(path: Path) -> datetime:
     return datetime.fromtimestamp(path.stat().st_mtime).astimezone(timezone.utc)
 
 
-def _new_hash(algorithm: str):
+def _new_hash(algorithm: str) -> Any:
     try:
         return hashlib.new(algorithm, usedforsecurity=False)
     except TypeError:
@@ -128,4 +128,4 @@ def checksum_of_file(path: Union[str, Path], *, algorithm: str) -> str:
     with open(path, "rb", buffering=0) as file:
         for n in iter(lambda: file.readinto(buffer), 0):
             chk.update(buffer[:n])
-    return chk.hexdigest()
+    return chk.hexdigest()  # type: ignore[no-any-return]

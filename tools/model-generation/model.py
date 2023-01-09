@@ -32,7 +32,7 @@ def _format_validator(validator: str, fields: List[Field]) -> str:
     if not to_validate:
         return ""
     return f"""    @pydantic.validator({", ".join(map(quote, to_validate))})
-    def _validate_{validator}(cls, value):
+    def _validate_{validator}(cls, value: Any) -> Any:
         return _validate_{validator}(value)"""
 
 

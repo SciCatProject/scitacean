@@ -5,7 +5,7 @@ import os
 from contextlib import contextmanager
 from getpass import getpass
 from pathlib import Path
-from typing import List, Optional, Tuple, Union
+from typing import Iterator, List, Optional, Tuple, Union
 
 # Note that invoke and paramiko are dependencies of fabric.
 from fabric import Connection
@@ -33,7 +33,7 @@ class SSHFileTransfer:
         remote_base_path: Optional[Union[str, RemotePath]] = None,
         host: str,
         port: Optional[int] = None,
-    ):
+    ) -> None:
         self._host = host
         self._port = port
         self._remote_base_path = (
@@ -41,7 +41,7 @@ class SSHFileTransfer:
         )
 
     @contextmanager
-    def connect_for_download(self):
+    def connect_for_download(self) -> Iterator["SSHDownloadConnection"]:
         con = _connect(self._host, self._port)
         try:
             yield SSHDownloadConnection(connection=con)
@@ -49,7 +49,7 @@ class SSHFileTransfer:
             con.close()
 
     @contextmanager
-    def connect_for_upload(self, dataset_id: PID):
+    def connect_for_upload(self, dataset_id: PID) -> Iterator["SSHUploadConnection"]:
         if self._remote_base_path is None:
             raise ValueError("remote_base_path must be set when uploading files")
         con = _connect(self._host, self._port)
@@ -64,15 +64,15 @@ class SSHFileTransfer:
 
 
 class SSHDownloadConnection:
-    def __init__(self, *, connection: Connection):
+    def __init__(self, *, connection: Connection) -> None:
         self._connection = connection
 
-    def download_files(self, *, remote: List[str], local: List[Path]):
+    def download_files(self, *, remote: List[str], local: List[Path]) -> None:
         """Download files from the given remote path."""
         for (r, l) in zip(remote, local):
             self.download_file(remote=r, local=l)
 
-    def download_file(self, *, remote: str, local: Path):
+    def download_file(self, *, remote: str, local: Path) -> None:
         get_logger().info(
             "Downloading file %s from host %s to %s",
             remote,
@@ -85,23 +85,23 @@ class SSHDownloadConnection:
 class SSHUploadConnection:
     def __init__(
         self, *, connection: Connection, dataset_id: PID, remote_base_path: RemotePath
-    ):
+    ) -> None:
         self._connection = connection
         self._dataset_id = dataset_id
         self._remote_base_path = remote_base_path
 
     @property
     def _sftp(self) -> SFTPClient:
-        return self._connection.sftp()
+        return self._connection.sftp()  # type: ignore[no-any-return]
 
     @property
     def source_dir(self) -> RemotePath:
         return self._remote_base_path / self._dataset_id.pid
 
-    def remote_path(self, filename) -> RemotePath:
+    def remote_path(self, filename: Union[str, RemotePath]) -> RemotePath:
         return self.source_dir / filename
 
-    def _make_source_folder(self):
+    def _make_source_folder(self) -> None:
         try:
             self._connection.run(f"mkdir -p {os.fspath(self.source_dir)}", hide=True)
         except OSError as exc:

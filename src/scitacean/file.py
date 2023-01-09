@@ -8,7 +8,7 @@ import dataclasses
 import os
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional, Union
+from typing import NoReturn, Optional, Union, cast
 
 from .error import IntegrityError
 from .filesystem import RemotePath, checksum_of_file, file_modification_time, file_size
@@ -168,8 +168,8 @@ class File:
         Otherwise, return the stored size in the catalogue.
         """
         if self.is_on_local:
-            return file_size(self.local_path)
-        return self._remote_size
+            return file_size(cast(Path, self.local_path))
+        return self._remote_size  # type: ignore[return-value]
 
     @property
     def creation_time(self) -> datetime:
@@ -179,8 +179,8 @@ class File:
         Otherwise, return the stored time in the catalogue.
         """
         if self.is_on_local:
-            return file_modification_time(self.local_path)
-        return self._remote_creation_time
+            return file_modification_time(cast(Path, self.local_path))
+        return self._remote_creation_time  # type: ignore[return-value]
 
     def checksum(self) -> Optional[str]:
         """Return the checksum of the file.
@@ -198,8 +198,9 @@ class File:
         if self.is_on_local:
             if self.checksum_algorithm is None:
                 return None
-            return self._checksum_cache.get(
-                path=self.local_path, algorithm=self.checksum_algorithm
+            return self._checksum_cache.get(  # type: ignore[union-attr]
+                path=self.local_path,  # type: ignore[arg-type]
+                algorithm=self.checksum_algorithm,
             )
         return self._remote_checksum
 
@@ -207,9 +208,7 @@ class File:
         self, source_folder: Union[RemotePath, str]
     ) -> Optional[RemotePath]:
         """Full path to the file on the remote if it exists."""
-        if not self.is_on_remote:
-            return None
-        return source_folder / self.remote_path if self.is_on_remote else None
+        return (source_folder / self.remote_path) if self.is_on_remote else None
 
     @property
     def is_on_remote(self) -> bool:
@@ -319,7 +318,7 @@ class File:
             self, local_path=Path(local_path), _checksum_cache=_Checksum()
         )
 
-    def validate_after_download(self):
+    def validate_after_download(self) -> None:
         """Check that the file on disk matches the metadata.
 
         Compares file size and, if possible, its checksum.
@@ -347,7 +346,9 @@ class File:
                 stored,
             )
             return
-        actual = checksum_of_file(self.local_path, algorithm=self.checksum_algorithm)
+        actual = checksum_of_file(
+            cast(Path, self.local_path), algorithm=self.checksum_algorithm
+        )
         if actual != stored:
             _log_and_raise(
                 IntegrityError,
@@ -357,8 +358,8 @@ class File:
                 f"'{self.checksum_algorithm}'.",
             )
 
-    def _validate_after_download_file_size(self):
-        actual = file_size(self.local_path)
+    def _validate_after_download_file_size(self) -> None:
+        actual = file_size(cast(Path, self.local_path))
         if actual != self._remote_size:
             get_logger().info(
                 "Size of downloaded file '%s' (%d bytes) does not "
@@ -371,7 +372,7 @@ class File:
             )
 
 
-def _log_and_raise(typ, msg):
+def _log_and_raise(typ: type, msg: str) -> NoReturn:
     get_logger().error(msg)
     raise typ(msg)
 
@@ -379,25 +380,26 @@ def _log_and_raise(typ, msg):
 class _Checksum:
     """Compute and cache the checksum of a file."""
 
-    def __init__(self):
-        self._value = None
-        self._path = None
-        self._algorithm = None
-        self._access_time = None
+    def __init__(self) -> None:
+        self._value: Optional[str] = None
+        self._path: Optional[Path] = None
+        self._algorithm: Optional[str] = None
+        self._access_time: Optional[datetime] = None
 
     def get(self, *, path: Path, algorithm: str) -> str:
         if self._is_out_of_date(path=path, algorithm=algorithm):
             self._update(path=path, algorithm=algorithm)
-        return self._value
+        return self._value  # type: ignore[return-value]
 
     def _is_out_of_date(self, *, path: Path, algorithm: str) -> bool:
         return (
-            path != self._path
+            self._access_time is None
+            or path != self._path
             or algorithm != self._algorithm
             or file_modification_time(path) > self._access_time
         )
 
-    def _update(self, *, path: Path, algorithm: str):
+    def _update(self, *, path: Path, algorithm: str) -> None:
         self._value = checksum_of_file(path, algorithm=algorithm)
         self._path = path
         self._algorithm = algorithm
