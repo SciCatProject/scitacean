@@ -140,7 +140,9 @@ class Client:
             client=ScicatClient.without_login(url=url), file_transfer=file_transfer
         )
 
-    def get_dataset(self, pid: Union[str, PID]) -> Dataset:
+    def get_dataset(
+        self, pid: Union[str, PID], strict_validation: bool = False
+    ) -> Dataset:
         """Download a dataset from SciCat.
 
         Does not download any files.
@@ -150,6 +152,11 @@ class Client:
         pid:
             ID of the dataset. Must include the prefix, i.e. have the form
             ``prefix/dataset-id``.
+        strict_validation:
+            If ``True``, the dataset must pass validation.
+            If ``False``, a dataset is still returned if validation fails.
+            Note that some dataset fields may have a bad value or type.
+            A warning will be logged if validation fails.
 
         Returns
         -------
@@ -159,14 +166,18 @@ class Client:
         if isinstance(pid, str):
             pid = PID.parse(pid)
         try:
-            orig_datablocks = self.scicat.get_orig_datablocks(pid)
+            orig_datablocks = self.scicat.get_orig_datablocks(
+                pid, strict_validation=strict_validation
+            )
         except ScicatCommError:
             # TODO more precise error handling. We only want to set to None if
             #   communication succeeded and the dataset exists but there simply
             #   are no datablocks.
             orig_datablocks = None
         return Dataset.from_models(
-            dataset_model=self.scicat.get_dataset_model(pid),
+            dataset_model=self.scicat.get_dataset_model(
+                pid, strict_validation=strict_validation
+            ),
             orig_datablock_models=orig_datablocks,
         )
 
@@ -385,7 +396,7 @@ class ScicatClient:
         return ScicatClient(url=url, token=None, timeout=timeout)
 
     def get_dataset_model(
-        self, pid: PID
+        self, pid: PID, strict_validation: bool = False
     ) -> Union[model.DerivedDataset, model.RawDataset]:
         """Fetch a dataset from SciCat.
 
@@ -393,6 +404,11 @@ class ScicatClient:
         ----------
         pid:
             Unique ID of the dataset. Must include the facility ID.
+        strict_validation:
+            If ``True``, the dataset must pass validation.
+            If ``False``, a dataset is still returned if validation fails.
+            Note that some dataset fields may have a bad value or type.
+            A warning will be logged if validation fails.
 
         Returns
         -------
@@ -409,19 +425,28 @@ class ScicatClient:
             url=f"Datasets/{quote_plus(str(pid))}",
             operation="get_dataset_model",
         )
-        return (
-            model.DerivedDataset(**dset_json)
+        return model.construct(
+            model.DerivedDataset
             if dset_json["type"] == "derived"
-            else model.RawDataset(**dset_json)
+            else model.RawDataset,
+            _strict_validation=strict_validation,
+            **dset_json,
         )
 
-    def get_orig_datablocks(self, pid: PID) -> List[model.OrigDatablock]:
+    def get_orig_datablocks(
+        self, pid: PID, strict_validation: bool = False
+    ) -> List[model.OrigDatablock]:
         """Fetch all orig datablocks from SciCat for a given dataset.
 
         Parameters
         ----------
         pid:
             Unique ID of the *dataset*. Must include the facility ID.
+        strict_validation:
+            If ``True``, the datablocks must pass validation.
+            If ``False``, datablocks are still returned if validation fails.
+            Note that some fields may have a bad value or type.
+            A warning will be logged if validation fails.
 
         Returns
         -------
@@ -439,9 +464,11 @@ class ScicatClient:
             url=f"Datasets/{quote_plus(str(pid))}/origdatablocks",
             operation="get_orig_datablocks",
         )
-        return [_make_orig_datablock(dblock) for dblock in dblock_json]
+        return [
+            _make_orig_datablock(dblock, strict_validation=strict_validation)
+            for dblock in dblock_json
+        ]
 
-    # TODO return full dataset
     def create_dataset_model(
         self, dset: Union[model.DerivedDataset, model.RawDataset]
     ) -> Union[model.DerivedDataset, model.RawDataset]:
@@ -571,9 +598,18 @@ def _url_concat(a: str, b: str) -> str:
     return a + b
 
 
-def _make_orig_datablock(fields):
-    files = [model.DataFile(**file_fields) for file_fields in fields["dataFileList"]]
-    return model.OrigDatablock(**{**fields, "dataFileList": files})
+def _make_orig_datablock(fields, strict_validation: bool):
+    files = [
+        model.make_model_with_optional_validation(
+            model.DataFile, _strict_validation=strict_validation, **file_fields
+        )
+        for file_fields in fields["dataFileList"]
+    ]
+    return model.make_model_with_optional_validation(
+        model.OrigDatablock,
+        _strict_validation=strict_validation,
+        **{**fields, "dataFileList": files},
+    )
 
 
 def _log_in_via_users_login(
