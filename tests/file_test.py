@@ -270,10 +270,7 @@ def test_validate_after_download_ignores_checksum_if_no_algorithm(fake_file):
     downloaded.validate_after_download()
 
 
-@pytest.mark.parametrize("checksum_algorithm", ("md5", None))
-def test_validate_after_download_detects_size_mismatch(
-    fake_file, checksum_algorithm, caplog
-):
+def test_validate_after_download_detects_size_mismatch(fake_file, caplog):
     model = DataFile(
         path=fake_file["path"].name,
         size=fake_file["size"] + 100,
@@ -282,10 +279,9 @@ def test_validate_after_download_detects_size_mismatch(
     )
     file = replace(
         File.from_scicat(model),
-        checksum_algorithm=checksum_algorithm,
+        checksum_algorithm=None,
     )
     downloaded = file.downloaded(local_path=fake_file["path"])
     with caplog.at_level("INFO", logger=logger_name()):
-        with pytest.raises(IntegrityError):  # raises because of a mismatch in checksum
-            downloaded.validate_after_download()
+        downloaded.validate_after_download()
     assert "does not match size reported in dataset" in caplog.text

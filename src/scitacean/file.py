@@ -255,6 +255,7 @@ class File:
         remote_gid: Optional[str] = None,
         remote_perm: Optional[str] = None,
         remote_creation_time: Optional[datetime] = None,
+        remote_size: Optional[int] = None,
     ) -> File:
         """Return new file metadata after an upload.
 
@@ -274,6 +275,8 @@ class File:
         remote_creation_time:
             Time the file became available on remote.
             Defaults to the current time in UTC.
+        remote_size:
+            File size on remote.
 
         Returns
         -------
@@ -291,7 +294,7 @@ class File:
         )
         return dataclasses.replace(
             self,
-            _remote_size=self.size,
+            _remote_size=remote_size if remote_size is not None else self.size,
             _remote_checksum=self.checksum(),
             **{key: val for key, val in args.items() if val is not None},
         )
