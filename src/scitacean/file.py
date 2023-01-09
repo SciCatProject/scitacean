@@ -357,10 +357,14 @@ class File:
     def _validate_after_download_file_size(self):
         actual = file_size(self.local_path)
         if actual != self._remote_size:
-            _log_and_raise(
-                IntegrityError,
-                f"Size of file '{self.local_path}' ({actual}B) does not "
-                f"match size stored in dataset ({self._remote_size}B)",
+            get_logger().info(
+                "Size of downloaded file '%s' (%d bytes) does not "
+                "match size reported in dataset (%d bytes)."
+                "This may be due to a difference in file systems and perfectly fine. "
+                "Or it is caused by an error during download.",
+                self.local_path,
+                actual,
+                self._remote_size,
             )
 
 

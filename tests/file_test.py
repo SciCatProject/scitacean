@@ -9,6 +9,7 @@ from dateutil.parser import parse as parse_date
 
 from scitacean import File, IntegrityError
 from scitacean.file import checksum_of_file
+from scitacean.logging import logger_name
 from scitacean.model import DataFile
 
 from .common.files import make_file
@@ -270,7 +271,9 @@ def test_validate_after_download_ignores_checksum_if_no_algorithm(fake_file):
 
 
 @pytest.mark.parametrize("checksum_algorithm", ("md5", None))
-def test_validate_after_download_detects_size_mismatch(fake_file, checksum_algorithm):
+def test_validate_after_download_detects_size_mismatch(
+    fake_file, checksum_algorithm, caplog
+):
     model = DataFile(
         path=fake_file["path"].name,
         size=fake_file["size"] + 100,
@@ -282,6 +285,7 @@ def test_validate_after_download_detects_size_mismatch(fake_file, checksum_algor
         checksum_algorithm=checksum_algorithm,
     )
     downloaded = file.downloaded(local_path=fake_file["path"])
-
-    with pytest.raises(IntegrityError):
-        downloaded.validate_after_download()
+    with caplog.at_level("INFO", logger=logger_name()):
+        with pytest.raises(IntegrityError):  # raises because of a mismatch in checksum
+            downloaded.validate_after_download()
+    assert "does not match size reported in dataset" in caplog.text
