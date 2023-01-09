@@ -55,6 +55,7 @@ class Dataset(DatasetFields):
         read_only_args = args.pop("_read_only")
         read_only_args["history"] = dataset_model.history
         return cls(
+            type=dataset_model.type,
             creation_time=dataset_model.creationTime,
             _pid=dataset_model.pid,
             _orig_datablocks=[]

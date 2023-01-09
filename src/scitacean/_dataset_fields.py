@@ -621,6 +621,16 @@ class DatasetFields:
         return algorithm
 
     @property
+    def type(self) -> DatasetType:
+        """Dataset type, Derived or Raw."""
+        return self._fields["type"]
+
+    @type.setter
+    def type(self, val: DatasetType) -> None:
+        """Dataset type, Derived or Raw."""
+        self._fields["type"] = val
+
+    @property
     def pid(self) -> Optional[PID]:
         """Persistent identifier for datasets."""
         return self._fields["pid"]
@@ -911,15 +921,6 @@ class DatasetFields:
         self._fields["techniques"] = val
 
     @property
-    def type(self) -> Optional[DatasetType]:
-        """Dataset type. 'Derived' or 'Raw'"""
-        return self._fields["type"]
-
-    @type.setter
-    def type(self, val: Optional[DatasetType]):
-        self._fields["type"] = val
-
-    @property
     def updated_at(self) -> Optional[datetime]:
         """Time when the object was last updated in the database."""
         return self._fields["updated_at"]
@@ -1109,7 +1110,6 @@ def _fields_from_derived_model(model) -> dict:
         source_folder=model.sourceFolder,
         source_folder_host=model.sourceFolderHost,
         techniques=model.techniques,
-        type=model.type,
         used_software=model.usedSoftware,
         validation_status=model.validationStatus,
     )
@@ -1150,6 +1150,5 @@ def _fields_from_raw_model(model) -> dict:
         source_folder=model.sourceFolder,
         source_folder_host=model.sourceFolderHost,
         techniques=model.techniques,
-        type=model.type,
         validation_status=model.validationStatus,
     )

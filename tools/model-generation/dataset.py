@@ -38,7 +38,7 @@ def _format_dataset_field_init_args(fields: List[Field]) -> str:
     return ",\n        ".join(
         f"{f.name}: Optional[{f.type}] = None"
         for f in fields
-        if not f.read_only and not f.manual and f.name != "type"
+        if not f.read_only and not f.manual
     )
 
 
@@ -57,7 +57,7 @@ def _format_dataset_field_dict_construction(fields: List[Field]) -> str:
     return "\n".join(
         _format_dataset_field_construction(field)
         for field in fields
-        if not field.manual and field.name != "type"
+        if not field.manual
     )
 
 

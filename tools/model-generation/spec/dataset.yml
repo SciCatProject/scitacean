@@ -163,6 +163,7 @@ fields:
     type: List[Technique]
   - name: type
     description: "Dataset type. 'Derived' or 'Raw'"
+    manual: true
     required: true
     type: DatasetType
   - name: used_software
