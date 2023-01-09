@@ -62,13 +62,12 @@ def _validate_orcid(value: Optional[str]) -> Optional[str]:
     )
 
 
-ModelType = TypeVar('ModelType', bound=pydantic.BaseModel)
+ModelType = TypeVar("ModelType", bound=pydantic.BaseModel)
 
 
-def construct(model: Type[ModelType],
-              *,
-              _strict_validation: bool = True,
-              **fields: Any) -> ModelType:
+def construct(
+    model: Type[ModelType], *, _strict_validation: bool = True, **fields: Any
+) -> ModelType:
     """Instantiates a model.
 
     Warning
@@ -98,8 +97,10 @@ def construct(model: Type[ModelType],
     except pydantic.ValidationError as e:
         if _strict_validation:
             raise
-        get_logger().warning("Validation of metadata failed: %s\n"
-                             "The returned object may be incomplete or broken."
-                             "In particular, some fields may not have the correct type", str(e))
+        get_logger().warning(
+            "Validation of metadata failed: %s\n"
+            "The returned object may be incomplete or broken."
+            "In particular, some fields may not have the correct type",
+            str(e),
+        )
         return model.construct(**fields)
-
