@@ -600,12 +600,12 @@ def _url_concat(a: str, b: str) -> str:
 
 def _make_orig_datablock(fields, strict_validation: bool):
     files = [
-        model.make_model_with_optional_validation(
+        model.construct(
             model.DataFile, _strict_validation=strict_validation, **file_fields
         )
         for file_fields in fields["dataFileList"]
     ]
-    return model.make_model_with_optional_validation(
+    return model.construct(
         model.OrigDatablock,
         _strict_validation=strict_validation,
         **{**fields, "dataFileList": files},
