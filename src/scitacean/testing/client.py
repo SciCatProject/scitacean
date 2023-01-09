@@ -179,15 +179,19 @@ class FakeScicatClient(ScicatClient):
 
     @_conditionally_disabled
     def get_dataset_model(
-        self, pid: PID
+        self, pid: PID, strict_validation: bool = False
     ) -> Union[model.DerivedDataset, model.RawDataset]:
+        _ = strict_validation  # unused by fake
         try:
             return self.main.datasets[pid]
         except KeyError:
             raise ScicatCommError(f"Unable to retrieve dataset {pid}") from None
 
     @_conditionally_disabled
-    def get_orig_datablocks(self, pid: PID) -> List[model.OrigDatablock]:
+    def get_orig_datablocks(
+        self, pid: PID, strict_validation: bool = False
+    ) -> List[model.OrigDatablock]:
+        _ = strict_validation  # unused by fake
         try:
             return self.main.orig_datablocks[pid]
         except KeyError:
