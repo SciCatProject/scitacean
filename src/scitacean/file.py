@@ -299,7 +299,7 @@ class File:
             **{key: val for key, val in args.items() if val is not None},
         )
 
-    def downloaded(self, *, local_path: Path) -> File:
+    def downloaded(self, *, local_path: Union[str, Path]) -> File:
         """Return new file metadata after a download.
 
         Assumes that the input file exists on remote.
@@ -316,7 +316,7 @@ class File:
             A new file object.
         """
         return dataclasses.replace(
-            self, local_path=local_path, _checksum_cache=_Checksum()
+            self, local_path=Path(local_path), _checksum_cache=_Checksum()
         )
 
     def validate_after_download(self):
