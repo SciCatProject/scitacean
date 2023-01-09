@@ -3,12 +3,14 @@
 import hashlib
 from dataclasses import replace
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 import pytest
 from dateutil.parser import parse as parse_date
 
-from scitacean import File, IntegrityError
+from scitacean import File, IntegrityError, RemotePath
 from scitacean.file import checksum_of_file
+from scitacean.logging import logger_name
 from scitacean.model import DataFile
 
 from .common.files import make_file
@@ -165,8 +167,8 @@ def test_downloaded():
     assert downloaded.is_on_local
     assert downloaded.is_on_remote
 
-    assert downloaded.remote_path == "dir/stream.s"
-    assert downloaded.local_path == "/local/stream.s"
+    assert downloaded.remote_path == RemotePath("dir/stream.s")
+    assert downloaded.local_path == Path("/local/stream.s")
     assert downloaded.remote_perm == "xrw"
     assert downloaded.created_by == "creator-id"
 
@@ -269,8 +271,7 @@ def test_validate_after_download_ignores_checksum_if_no_algorithm(fake_file):
     downloaded.validate_after_download()
 
 
-@pytest.mark.parametrize("checksum_algorithm", ("md5", None))
-def test_validate_after_download_detects_size_mismatch(fake_file, checksum_algorithm):
+def test_validate_after_download_detects_size_mismatch(fake_file, caplog):
     model = DataFile(
         path=fake_file["path"].name,
         size=fake_file["size"] + 100,
@@ -279,9 +280,9 @@ def test_validate_after_download_detects_size_mismatch(fake_file, checksum_algor
     )
     file = replace(
         File.from_scicat(model),
-        checksum_algorithm=checksum_algorithm,
+        checksum_algorithm=None,
     )
     downloaded = file.downloaded(local_path=fake_file["path"])
-
-    with pytest.raises(IntegrityError):
+    with caplog.at_level("INFO", logger=logger_name()):
         downloaded.validate_after_download()
+    assert "does not match size reported in dataset" in caplog.text

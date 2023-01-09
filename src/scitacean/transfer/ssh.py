@@ -139,16 +139,10 @@ class SSHUploadConnection:
             remote_uid=st.st_uid,
             remote_creation_time=st.st_mtime,
             remote_perm=st.st_mode,
+            remote_size=st.st_size,
         )
 
     def _validate_upload(self, file: File, st: SFTPAttributes):
-        if file.size != st.st_size:
-            raise FileUploadError(
-                f"Upload of file {file.remote_path} failed: "
-                f"Size of uploaded file ({st.st_size}) does not "
-                f"match size of local file ({file.size})"
-            )
-
         if (checksum := self._compute_checksum(file)) is None:
             return
         if checksum != file.checksum():

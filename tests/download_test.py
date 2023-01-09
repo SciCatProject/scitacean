@@ -10,6 +10,7 @@ from dateutil.parser import parse as parse_date
 
 from scitacean import PID, Client, Dataset, DatasetType, File, IntegrityError
 from scitacean.filesystem import RemotePath
+from scitacean.logging import logger_name
 from scitacean.model import DataFile, OrigDatablock, RawDataset
 from scitacean.testing.transfer import FakeFileTransfer
 
@@ -226,7 +227,7 @@ def test_download_files_detects_bad_checksum(fs, dataset_and_files):
         client.download_files(dataset, target="./download", select="file.txt")
 
 
-def test_download_files_detects_bad_size(fs, dataset_and_files):
+def test_download_files_detects_bad_size(fs, dataset_and_files, caplog):
     dataset, contents = dataset_and_files
 
     content = b"random-stuff"
@@ -246,5 +247,7 @@ def test_download_files_detects_bad_size(fs, dataset_and_files):
             fs=fs, files={dataset.source_folder / "file.txt": content}
         ),
     )
-    with pytest.raises(IntegrityError):
+    with caplog.at_level("INFO", logger=logger_name()):
         client.download_files(dataset, target="./download", select="file.txt")
+    assert "does not match size reported in dataset" in caplog.text
+    assert "89412" in caplog.text

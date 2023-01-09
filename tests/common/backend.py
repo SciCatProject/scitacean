@@ -92,7 +92,9 @@ def _merge_seed_file(
 
 def configure(target_dir: Path) -> Path:
     target = Path(target_dir) / "scicatlive"
-    shutil.copytree(_SCICAT_DOCKER_CONFIG.parent, target)
+    shutil.copytree(
+        _SCICAT_DOCKER_CONFIG.parent, target, ignore=shutil.ignore_patterns(".git")
+    )
     _merge_seed_file(target, _SCICAT_DATASET_SEED_FILE, load_datasets())
     _merge_seed_file(target, _SCICAT_ORIG_DATABLOCK_SEED_FILE, load_orig_datablocks())
 
