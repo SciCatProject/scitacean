@@ -3,14 +3,17 @@
 
 import os
 from contextlib import contextmanager
+from datetime import datetime, tzinfo
 from getpass import getpass
 from pathlib import Path
 from typing import Iterator, List, Optional, Tuple, Union
 
+from dateutil.tz import gettz
+
 # Note that invoke and paramiko are dependencies of fabric.
 from fabric import Connection
 from invoke.exceptions import UnexpectedExit
-from paramiko import SFTPAttributes, SFTPClient
+from paramiko import SFTPClient
 from paramiko.ssh_exception import AuthenticationException, PasswordRequiredException
 
 from ..error import FileUploadError
@@ -89,6 +92,7 @@ class SSHUploadConnection:
         self._connection = connection
         self._dataset_id = dataset_id
         self._remote_base_path = remote_base_path
+        self._remote_timezone = self._get_remote_timezone()
 
     @property
     def _sftp(self) -> SFTPClient:
@@ -133,16 +137,21 @@ class SSHUploadConnection:
             remotepath=os.fspath(remote_path), localpath=os.fspath(file.local_path)
         )
         st = self._sftp.stat(os.fspath(remote_path))
-        self._validate_upload(file, st)
+        self._validate_upload(file)
+        creation_time = (
+            datetime.fromtimestamp(st.st_mtime, tz=self._remote_timezone)
+            if st.st_mtime
+            else None
+        )
         return file.uploaded(
-            remote_gid=st.st_gid,
-            remote_uid=st.st_uid,
-            remote_creation_time=st.st_mtime,
-            remote_perm=st.st_mode,
+            remote_gid=str(st.st_gid),
+            remote_uid=str(st.st_uid),
+            remote_creation_time=creation_time,
+            remote_perm=str(st.st_mode),
             remote_size=st.st_size,
         )
 
-    def _validate_upload(self, file: File, st: SFTPAttributes):
+    def _validate_upload(self, file: File) -> None:
         if (checksum := self._compute_checksum(file)) is None:
             return
         if checksum != file.checksum():
@@ -171,6 +180,17 @@ class SSHUploadConnection:
                 return None
             raise
         return res.stdout.split(" ", 1)[0]
+
+    def _get_remote_timezone(self) -> tzinfo:
+        cmd = 'date +"%Z"'
+        tz_str = self._connection.run(cmd, hide=True).stdout.strip()
+        if (tz := gettz(tz_str)) is not None:
+            return tz
+        raise RuntimeError(
+            "Failed to get timezone of remote fileserver. "
+            f"Command {cmd} returned '{tz_str}' which "
+            "cannot be parsed as a timezone."
+        )
 
     def revert_upload(self, *files: File):
         """Remove uploaded files from the remote folder."""
