@@ -1,4 +1,4 @@
-Dependency Management
+Dependency management
 =====================
 
 Scitacean is a library, so the package dependencies are never pinned.

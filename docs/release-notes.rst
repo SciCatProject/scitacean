@@ -2,7 +2,7 @@
 
 .. currentmodule:: scitacean
 
-Release Notes
+Release notes
 =============
 
 

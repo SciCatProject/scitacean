@@ -1,4 +1,4 @@
-API Reference
+API reference
 =============
 
 Classes
@@ -6,7 +6,7 @@ Classes
 
 .. currentmodule:: scitacean
 
-Main Classes
+Main classes
 ~~~~~~~~~~~~
 
 .. There is special handling of class constructors in the template.
@@ -20,7 +20,7 @@ Main Classes
    Dataset
    File
 
-File Transfer
+File transfer
 ~~~~~~~~~~~~~
 
 .. autosummary::
@@ -30,7 +30,7 @@ File Transfer
 
    transfer.ssh.SSHFileTransfer
 
-Auxiliary Classes
+Auxiliary classes
 ~~~~~~~~~~~~~~~~~
 
 .. autosummary::

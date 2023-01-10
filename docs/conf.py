@@ -33,6 +33,7 @@ extensions = [
     "sphinxcontrib.autodoc_pydantic",
     "sphinx_autodoc_typehints",
     "sphinx_copybutton",
+    "myst_parser",
     "nbsphinx",
 ]
 
@@ -108,7 +109,7 @@ html_theme_options = {
     "external_links": [
         {"name": "SciCat", "url": "https://scicatproject.github.io/"},
         {
-            "name": "SciCat Backend",
+            "name": "SciCat backend",
             "url": "https://scicatproject.github.io/documentation/",
         },
     ],

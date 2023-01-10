@@ -1,13 +1,11 @@
-Developer Documentation
+Developer documentation
 =======================
 
-Contributing to Scitacean
--------------------------
+.. include:: ../../CONTRIBUTING.md
+   :parser: myst_parser.sphinx_
 
-Contributions, bug reports, and ideas are always welcome.
-
-TODO
-
+Table of contents
+-----------------
 
 .. toctree::
    :maxdepth: 2
