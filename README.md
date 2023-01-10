@@ -1,5 +1,5 @@
 # Scitacean
 
-*High level Python API for SciCat*
+Scitacean is a high level Python package for downloading and uploading datasets from and to [SciCat](https://scicatproject.github.io/).
 
-This package is highly experimental!
+See the [documentation](https://scicatproject.github.io/scitacean/) for installation and usage instructions.
