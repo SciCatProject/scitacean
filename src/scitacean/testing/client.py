@@ -7,7 +7,7 @@ from __future__ import annotations
 import functools
 import uuid
 from copy import deepcopy
-from typing import Dict, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional, Union
 
 from .. import model
 from ..client import Client, ScicatClient
@@ -17,9 +17,9 @@ from ..typing import FileTransfer
 from ..util.credentials import StrStorage
 
 
-def _conditionally_disabled(func):
+def _conditionally_disabled(func: Callable[..., Any]) -> Callable[..., Any]:
     @functools.wraps(func)
-    def impl(self, *args, **kwargs):
+    def impl(self, *args, **kwargs):  # type: ignore[no-untyped-def]
         if (exc := self.main.disabled.get(func.__name__)) is not None:
             raise exc
         return func(self, *args, **kwargs)
@@ -104,7 +104,7 @@ class FakeClient(Client):
         *,
         file_transfer: Optional[FileTransfer] = None,
         disable: Optional[Dict[str, Exception]] = None,
-    ):
+    ) -> None:
         """Initialize a fake client with empty dataset storage.
 
         Parameters
@@ -116,11 +116,8 @@ class FakeClient(Client):
             dict function names to exceptions. Functions listed here raise
             the given exception when called and do nothing else.
         """
-        # Normally, client must not be None, but the fake must never
-        # call it, so setting it to None serves as an extra safeguard.
-        super().__init__(client=None, file_transfer=file_transfer)  # type: ignore
+        super().__init__(client=FakeScicatClient(self), file_transfer=file_transfer)
 
-        self._scicat_client = FakeScicatClient(self)
         self.disabled = {} if disable is None else dict(disable)
         self.datasets: Dict[PID, Union[model.DerivedDataset, model.RawDataset]] = {}
         self.orig_datablocks: Dict[PID, List[model.OrigDatablock]] = {}
@@ -164,16 +161,11 @@ class FakeClient(Client):
         """
         return FakeClient(file_transfer=file_transfer)
 
-    @property
-    def scicat(self) -> FakeScicatClient:
-        """Client for lower level SciCat communication."""
-        return self._scicat_client
-
 
 class FakeScicatClient(ScicatClient):
     """Mimics a ScicatClient, to be used by FakeClient."""
 
-    def __init__(self, main_client):
+    def __init__(self, main_client) -> None:
         super().__init__(url="", token="")  # nosec: B106
         self.main = main_client
 
