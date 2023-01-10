@@ -6,7 +6,7 @@ from contextlib import contextmanager
 from datetime import datetime, tzinfo
 from getpass import getpass
 from pathlib import Path
-from typing import Iterator, List, Optional, Tuple, Union
+from typing import Any, Iterator, List, Optional, Tuple, Union
 
 from dateutil.tz import gettz
 
@@ -179,7 +179,7 @@ class SSHUploadConnection:
                 )
                 return None
             raise
-        return res.stdout.split(" ", 1)[0]
+        return res.stdout.split(" ", 1)[0]  # type: ignore[no-any-return]
 
     def _get_remote_timezone(self) -> tzinfo:
         cmd = 'date +"%Z"'
@@ -192,10 +192,12 @@ class SSHUploadConnection:
             "cannot be parsed as a timezone."
         )
 
-    def revert_upload(self, *files: File):
+    def revert_upload(self, *files: File) -> None:
         """Remove uploaded files from the remote folder."""
         for file in files:
-            self._revert_upload_single(remote=file.remote_path, local=file.local_path)
+            self._revert_upload_single(
+                remote=file.remote_path, local=file.local_path
+            )  # type: ignore[arg-type]
 
         if _folder_is_empty(self._connection, self.source_dir):
             try:
@@ -213,7 +215,7 @@ class SSHUploadConnection:
                     exc.result,
                 )
 
-    def _revert_upload_single(self, *, remote: RemotePath, local: Path):
+    def _revert_upload_single(self, *, remote: RemotePath, local: Path) -> None:
         remote_path = self.remote_path(remote)
         get_logger().info(
             "Reverting upload of file %s to %s on host %s",
@@ -242,7 +244,7 @@ def _ask_for_credentials(host: str) -> Tuple[str, str]:
     return username, password
 
 
-def _generic_connect(host: str, port: Optional[int], **kwargs) -> Connection:
+def _generic_connect(host: str, port: Optional[int], **kwargs: Any) -> Connection:
     con = Connection(host=host, port=port, **kwargs)
     con.open()
     return con
@@ -285,13 +287,10 @@ def _connect(host: str, port: Optional[int]) -> Connection:
         raise type(exc)(exc.args) from None
 
 
-def _remote_path_exists(con: Connection, path: str) -> bool:
-    return con.run(f"stat {path}", hide=True, warn=True).exited == 0
-
-
-def _folder_is_empty(con, path) -> bool:
+def _folder_is_empty(con: Connection, path: RemotePath) -> bool:
     try:
-        return con.run(f"ls {path}", hide=True).stdout == ""
+        ls: str = con.run(f"ls {path}", hide=True).stdout
+        return ls == ""
     except UnexpectedExit:
         return False  # no further processing is needed in this case
 

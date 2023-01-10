@@ -6,13 +6,14 @@ Should probably not be used externally.
 
 from dateutil.parser import parse as parse_date
 
+from ..filesystem import RemotePath
 from ..model import DataFile, DatasetType, OrigDatablock, RawDataset
 from ..pid import PID
 from .client import FakeClient
 from .transfer import FakeFileTransfer
 
 
-def _create_raw_dataset(client: FakeClient):
+def _create_raw_dataset(client: FakeClient) -> None:
     content1 = b"5 4 9 11 15 12 7 6 1"
     content2 = (
         b"INFO Starting measurement\nWARN Detector saturated\nINFO Measurement finished"
@@ -37,7 +38,7 @@ def _create_raw_dataset(client: FakeClient):
         creationTime=parse_date("2022-06-29T14:01:05.000Z"),
         numberOfFiles=2,
         size=len(content1) + len(content2),
-        sourceFolder="/hex/ps/thaum",
+        sourceFolder=RemotePath("/hex/ps/thaum"),
         scientificMetadata={
             "data_type": "histogram",
             "temperature": {"value": "123", "unit": "K"},

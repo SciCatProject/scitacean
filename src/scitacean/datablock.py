@@ -6,11 +6,14 @@
 from __future__ import annotations
 
 import dataclasses
-from typing import Iterator, List, Optional, Union
+from typing import TYPE_CHECKING, Iterator, List, Optional, Union
 
 from .file import File
 from .model import DerivedDataset, OrigDatablock, RawDataset
 from .pid import PID
+
+if TYPE_CHECKING:
+    from .dataset import Dataset
 
 # TODO DatablockProxy
 
@@ -34,7 +37,7 @@ class OrigDatablockProxy:
     instrument_group: Optional[str] = None
     init_files: dataclasses.InitVar[Optional[List[File]]] = None
 
-    def __post_init__(self, init_files: Optional[List[File]]):
+    def __post_init__(self, init_files: Optional[List[File]]) -> None:
         self._files = list(init_files) if init_files is not None else []
 
     @classmethod
@@ -80,7 +83,7 @@ class OrigDatablockProxy:
         """Total size of all files."""
         return sum(file.size for file in self.files)
 
-    def add_files(self, *files: File):
+    def add_files(self, *files: File) -> None:
         """Append files to the datablock.
 
         Parameters
@@ -94,7 +97,7 @@ class OrigDatablockProxy:
         )
         self._files_modified = True
 
-    def make_model(self, dataset) -> OrigDatablock:
+    def make_model(self, dataset: Dataset) -> OrigDatablock:
         """Build a new pydantic model for this datablock.
 
         Parameters
