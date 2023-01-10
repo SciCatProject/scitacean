@@ -51,6 +51,7 @@ Bugfixes
 ~~~~~~~~
 
 * It is not possible to log in with username+password as a non-functional user.
+* Added and fixed a number of type annotations.
 
 Documentation
 ~~~~~~~~~~~~~
