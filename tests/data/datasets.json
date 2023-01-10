@@ -120,5 +120,39 @@
       }
     ],
     "dataFormat": "Index cards"
+  },
+  {
+    "_id": "PID.SAMPLE.PREFIX/partially-broken",
+    "createdBy": "librarian",
+    "createdAt": {
+      "$date": "2022-11-25T22:41:20.629Z"
+    },
+    "ownerGroup": "uu",
+    "classification": "IN=medium,AV=low,CO=low",
+    "contactEmail": "ook@uu.am",
+    "creationTime": {
+      "$date": "2022-11-25T22:12:04.512Z"
+    },
+    "datasetName": "A dataset with some incorrect fields",
+    "description": "Bad fields: principalInvestigator, endTime",
+    "history": [],
+    "isPublished": false,
+    "numberOfFiles": 0,
+    "numberOfFilesArchived": 0,
+    "owner": "librarian",
+    "ownerEmail": "ook@uu.am",
+    "size": 0,
+    "sourceFolder": "/remote/source",
+    "type": "raw",
+    "version": "3.1.0",
+    "principalInvestigator": "stibbons",
+    "techniques": [
+      {
+        "pid": "L1",
+        "name": "librarianism"
+      }
+    ],
+    "dataFormat": "Index cards",
+    "endTime": "yesterday"
   }
 ]

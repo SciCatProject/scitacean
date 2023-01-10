@@ -7,12 +7,13 @@
 import enum
 import os
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional, Type, TypeVar
 
 import pydantic
 
 from ._internal.orcid import is_valid_orcid
 from .filesystem import RemotePath
+from .logging import get_logger
 from .pid import PID
 
 
@@ -59,3 +60,47 @@ def _validate_orcid(value: Optional[str]) -> Optional[str]:
         "value is not a valid ORCID, "
         "note that ORCIDs must be prefixed with 'https://orcid.org'."
     )
+
+
+ModelType = TypeVar("ModelType", bound=pydantic.BaseModel)
+
+
+def construct(
+    model: Type[ModelType], *, _strict_validation: bool = True, **fields: Any
+) -> ModelType:
+    """Instantiates a model.
+
+    Warning
+    -------
+    If the model is created without validation, no fields will be converted
+    to their proper type but will simply be whatever arguments are passed.
+
+    A warning will be emitted in this case.
+
+    Parameters
+    ----------
+    model:
+        Class of the model to create.
+    _strict_validation:
+        If ``True``, the model must pass validation.
+        If ``False``, a model is still returned if validation fails.
+    fields:
+        Field values to pass to the model initializer.
+
+    Returns
+    -------
+    :
+        An initialized model.
+    """
+    try:
+        return model(**fields)
+    except pydantic.ValidationError as e:
+        if _strict_validation:
+            raise
+        get_logger().warning(
+            "Validation of metadata failed: %s\n"
+            "The returned object may be incomplete or broken."
+            "In particular, some fields may not have the correct type",
+            str(e),
+        )
+        return model.construct(**fields)

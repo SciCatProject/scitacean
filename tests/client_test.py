@@ -3,6 +3,7 @@
 import pickle
 from copy import deepcopy
 
+import pydantic
 import pytest
 from dateutil.parser import parse as parse_date
 
@@ -209,6 +210,28 @@ def test_cannot_upload_without_login(
     derived_dataset.pid = None
     with pytest.raises(ScicatCommError):
         client.scicat.create_dataset_model(derived_dataset)
+
+
+def test_get_broken_dataset(request, scicat_access, scicat_backend):
+    skip_if_not_backend(request)
+    client = Client.without_login(url=scicat_access.url)
+    dset = client.get_dataset("PID.SAMPLE.PREFIX/partially-broken")
+    assert dset.type == DatasetType.RAW
+    # Intact field; was not converted to RemotePath
+    assert isinstance(dset.source_folder, str)
+    assert dset.source_folder == "/remote/source"
+
+    # Broken fields loaded
+    assert dset.investigator == "stibbons"
+    assert isinstance(dset.end_time, str)
+    assert dset.end_time == "yesterday"
+
+
+def test_get_broken_dataset_strict_validation(request, scicat_access, scicat_backend):
+    skip_if_not_backend(request)
+    client = Client.without_login(url=scicat_access.url)
+    with pytest.raises(pydantic.ValidationError):
+        client.get_dataset("PID.SAMPLE.PREFIX/partially-broken", strict_validation=True)
 
 
 def test_cannot_pickle_client_credentials_manual_token_str():
