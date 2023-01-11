@@ -26,7 +26,7 @@ from .pid import PID
 
 
 def _apply_default(
-    value: Any, default: Any, default_factory: Optional[Callable]
+    value: Any, default: Any, default_factory: Optional[Callable[[], Any]]
 ) -> Any:
     if value is not None:
         return value
@@ -101,7 +101,7 @@ $field_dict_construction
         )
 
     @staticmethod
-    def _validate_checksum_algorithm(algorithm: Optional[str]):
+    def _validate_checksum_algorithm(algorithm: Optional[str]) -> Optional[str]:
         if algorithm is None:
             return algorithm
         import hashlib
@@ -111,35 +111,35 @@ $field_dict_construction
         return algorithm
 
     @property
+    def type(self) -> DatasetType:
+        """Dataset type, Derived or Raw."""
+        return self._fields["type"]  # type: ignore[no-any-return]
+
+    @type.setter
+    def type(self, val: DatasetType) -> None:
+        """Dataset type, Derived or Raw."""
+        self._fields["type"] = val
+
+    @property
     def pid(self) -> Optional[PID]:
         """Persistent identifier for datasets."""
-        return self._fields["pid"]
+        return self._fields["pid"]  # type: ignore[no-any-return]
 
     @property
     def creation_time(self) -> datetime:
-        """Time when dataset became fully available on disk,
+        """Time when the dataset became fully available on disk,
         i.e. all containing files have been written."""
-        return self._fields["creation_time"]
+        return self._fields["creation_time"]  # type: ignore[no-any-return]
 
     @creation_time.setter
-    def creation_time(self, value: Union[datetime, str]):
-        """Time when dataset became fully available on disk,
+    def creation_time(self, value: Union[datetime, str]) -> None:
+        """Time when the dataset became fully available on disk,
         i.e. all containing files have been written."""
         if value is None:
             raise TypeError("Cannot set creation_time to None")
         self._fields["creation_time"] = _parse_datetime(value)
 
 $properties
-
-    def __str__(self) -> str:
-        args = ", ".join(
-            f"{name}={value}"
-            for name, value in (
-                (field.name, getattr(self, field.name)) for field in self.fields()
-            )
-            if value is not None
-        )
-        return f"Dataset({args})"
 
 $make_derived_model
 

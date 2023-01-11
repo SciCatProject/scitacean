@@ -30,6 +30,14 @@ Release notes
    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
+v23.01.1 (Unreleased)
+---------------------
+
+Bugfixes
+~~~~~~~~
+
+* Store file creation times as proper datetimes with the timezone of the fileserver.
+
 v23.01.0 (2023-01-10)
 ---------------------
 
@@ -51,6 +59,7 @@ Bugfixes
 ~~~~~~~~
 
 * It is not possible to log in with username+password as a non-functional user.
+* Added and fixed a number of type annotations.
 
 Documentation
 ~~~~~~~~~~~~~

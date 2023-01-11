@@ -28,7 +28,10 @@ class DatasetType(str, enum.Enum):
 class BaseModel(pydantic.BaseModel):
     class Config:
         extra = pydantic.Extra.forbid
-        json_encoders = {PID: lambda v: str(v), RemotePath: lambda v: os.fspath(v)}
+        json_encoders = {
+            PID: lambda v: str(v),
+            RemotePath: lambda v: os.fspath(v),  # type: ignore[no-any-return]
+        }
 
 
 $models

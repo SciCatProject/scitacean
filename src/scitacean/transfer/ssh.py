@@ -3,14 +3,17 @@
 
 import os
 from contextlib import contextmanager
+from datetime import datetime, tzinfo
 from getpass import getpass
 from pathlib import Path
-from typing import List, Optional, Tuple, Union
+from typing import Any, Iterator, List, Optional, Tuple, Union
+
+from dateutil.tz import gettz
 
 # Note that invoke and paramiko are dependencies of fabric.
 from fabric import Connection
 from invoke.exceptions import UnexpectedExit
-from paramiko import SFTPAttributes, SFTPClient
+from paramiko import SFTPClient
 from paramiko.ssh_exception import AuthenticationException, PasswordRequiredException
 
 from ..error import FileUploadError
@@ -33,7 +36,7 @@ class SSHFileTransfer:
         remote_base_path: Optional[Union[str, RemotePath]] = None,
         host: str,
         port: Optional[int] = None,
-    ):
+    ) -> None:
         self._host = host
         self._port = port
         self._remote_base_path = (
@@ -41,7 +44,7 @@ class SSHFileTransfer:
         )
 
     @contextmanager
-    def connect_for_download(self):
+    def connect_for_download(self) -> Iterator["SSHDownloadConnection"]:
         con = _connect(self._host, self._port)
         try:
             yield SSHDownloadConnection(connection=con)
@@ -49,7 +52,7 @@ class SSHFileTransfer:
             con.close()
 
     @contextmanager
-    def connect_for_upload(self, dataset_id: PID):
+    def connect_for_upload(self, dataset_id: PID) -> Iterator["SSHUploadConnection"]:
         if self._remote_base_path is None:
             raise ValueError("remote_base_path must be set when uploading files")
         con = _connect(self._host, self._port)
@@ -64,15 +67,15 @@ class SSHFileTransfer:
 
 
 class SSHDownloadConnection:
-    def __init__(self, *, connection: Connection):
+    def __init__(self, *, connection: Connection) -> None:
         self._connection = connection
 
-    def download_files(self, *, remote: List[str], local: List[Path]):
+    def download_files(self, *, remote: List[str], local: List[Path]) -> None:
         """Download files from the given remote path."""
         for (r, l) in zip(remote, local):
             self.download_file(remote=r, local=l)
 
-    def download_file(self, *, remote: str, local: Path):
+    def download_file(self, *, remote: str, local: Path) -> None:
         get_logger().info(
             "Downloading file %s from host %s to %s",
             remote,
@@ -85,23 +88,24 @@ class SSHDownloadConnection:
 class SSHUploadConnection:
     def __init__(
         self, *, connection: Connection, dataset_id: PID, remote_base_path: RemotePath
-    ):
+    ) -> None:
         self._connection = connection
         self._dataset_id = dataset_id
         self._remote_base_path = remote_base_path
+        self._remote_timezone = self._get_remote_timezone()
 
     @property
     def _sftp(self) -> SFTPClient:
-        return self._connection.sftp()
+        return self._connection.sftp()  # type: ignore[no-any-return]
 
     @property
     def source_dir(self) -> RemotePath:
         return self._remote_base_path / self._dataset_id.pid
 
-    def remote_path(self, filename) -> RemotePath:
+    def remote_path(self, filename: Union[str, RemotePath]) -> RemotePath:
         return self.source_dir / filename
 
-    def _make_source_folder(self):
+    def _make_source_folder(self) -> None:
         try:
             self._connection.run(f"mkdir -p {os.fspath(self.source_dir)}", hide=True)
         except OSError as exc:
@@ -133,16 +137,21 @@ class SSHUploadConnection:
             remotepath=os.fspath(remote_path), localpath=os.fspath(file.local_path)
         )
         st = self._sftp.stat(os.fspath(remote_path))
-        self._validate_upload(file, st)
+        self._validate_upload(file)
+        creation_time = (
+            datetime.fromtimestamp(st.st_mtime, tz=self._remote_timezone)
+            if st.st_mtime
+            else None
+        )
         return file.uploaded(
-            remote_gid=st.st_gid,
-            remote_uid=st.st_uid,
-            remote_creation_time=st.st_mtime,
-            remote_perm=st.st_mode,
+            remote_gid=str(st.st_gid),
+            remote_uid=str(st.st_uid),
+            remote_creation_time=creation_time,
+            remote_perm=str(st.st_mode),
             remote_size=st.st_size,
         )
 
-    def _validate_upload(self, file: File, st: SFTPAttributes):
+    def _validate_upload(self, file: File) -> None:
         if (checksum := self._compute_checksum(file)) is None:
             return
         if checksum != file.checksum():
@@ -170,12 +179,25 @@ class SSHUploadConnection:
                 )
                 return None
             raise
-        return res.stdout.split(" ", 1)[0]
+        return res.stdout.split(" ", 1)[0]  # type: ignore[no-any-return]
 
-    def revert_upload(self, *files: File):
+    def _get_remote_timezone(self) -> tzinfo:
+        cmd = 'date +"%Z"'
+        tz_str = self._connection.run(cmd, hide=True).stdout.strip()
+        if (tz := gettz(tz_str)) is not None:
+            return tz
+        raise RuntimeError(
+            "Failed to get timezone of remote fileserver. "
+            f"Command {cmd} returned '{tz_str}' which "
+            "cannot be parsed as a timezone."
+        )
+
+    def revert_upload(self, *files: File) -> None:
         """Remove uploaded files from the remote folder."""
         for file in files:
-            self._revert_upload_single(remote=file.remote_path, local=file.local_path)
+            self._revert_upload_single(
+                remote=file.remote_path, local=file.local_path
+            )  # type: ignore[arg-type]
 
         if _folder_is_empty(self._connection, self.source_dir):
             try:
@@ -193,7 +215,7 @@ class SSHUploadConnection:
                     exc.result,
                 )
 
-    def _revert_upload_single(self, *, remote: RemotePath, local: Path):
+    def _revert_upload_single(self, *, remote: RemotePath, local: Path) -> None:
         remote_path = self.remote_path(remote)
         get_logger().info(
             "Reverting upload of file %s to %s on host %s",
@@ -222,7 +244,7 @@ def _ask_for_credentials(host: str) -> Tuple[str, str]:
     return username, password
 
 
-def _generic_connect(host: str, port: Optional[int], **kwargs) -> Connection:
+def _generic_connect(host: str, port: Optional[int], **kwargs: Any) -> Connection:
     con = Connection(host=host, port=port, **kwargs)
     con.open()
     return con
@@ -265,13 +287,10 @@ def _connect(host: str, port: Optional[int]) -> Connection:
         raise type(exc)(exc.args) from None
 
 
-def _remote_path_exists(con: Connection, path: str) -> bool:
-    return con.run(f"stat {path}", hide=True, warn=True).exited == 0
-
-
-def _folder_is_empty(con, path) -> bool:
+def _folder_is_empty(con: Connection, path: RemotePath) -> bool:
     try:
-        return con.run(f"ls {path}", hide=True).stdout == ""
+        ls: str = con.run(f"ls {path}", hide=True).stdout
+        return ls == ""
     except UnexpectedExit:
         return False  # no further processing is needed in this case
 

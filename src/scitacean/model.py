@@ -32,7 +32,10 @@ class DatasetType(str, enum.Enum):
 class BaseModel(pydantic.BaseModel):
     class Config:
         extra = pydantic.Extra.forbid
-        json_encoders = {PID: lambda v: str(v), RemotePath: lambda v: os.fspath(v)}
+        json_encoders = {
+            PID: lambda v: str(v),
+            RemotePath: lambda v: os.fspath(v),  # type: ignore[no-any-return]
+        }
 
 
 class DatasetLifecycle(BaseModel):
@@ -74,7 +77,7 @@ class DataFile(MongoQueryable):
     uid: Optional[str]
 
     @pydantic.validator("size")
-    def _validate_size(cls, value):
+    def _validate_size(cls, value: Any) -> Any:
         return _validate_size(value)
 
 
@@ -95,7 +98,7 @@ class Datablock(Ownable):
     id: Optional[str]
 
     @pydantic.validator("size", "packedSize")
-    def _validate_size(cls, value):
+    def _validate_size(cls, value: Any) -> Any:
         return _validate_size(value)
 
 
@@ -134,15 +137,15 @@ class DerivedDataset(Ownable):
     version: Optional[str]
 
     @pydantic.validator("contactEmail", "investigator", "ownerEmail")
-    def _validate_emails(cls, value):
+    def _validate_emails(cls, value: Any) -> Any:
         return _validate_emails(value)
 
     @pydantic.validator("numberOfFiles", "numberOfFilesArchived", "packedSize", "size")
-    def _validate_size(cls, value):
+    def _validate_size(cls, value: Any) -> Any:
         return _validate_size(value)
 
     @pydantic.validator("orcidOfOwner")
-    def _validate_orcid(cls, value):
+    def _validate_orcid(cls, value: Any) -> Any:
         return _validate_orcid(value)
 
 
@@ -153,7 +156,7 @@ class OrigDatablock(Ownable):
     id: Optional[PID]
 
     @pydantic.validator("size")
-    def _validate_size(cls, value):
+    def _validate_size(cls, value: Any) -> Any:
         return _validate_size(value)
 
 
@@ -193,15 +196,15 @@ class RawDataset(Ownable):
     version: Optional[str]
 
     @pydantic.validator("contactEmail", "principalInvestigator", "ownerEmail")
-    def _validate_emails(cls, value):
+    def _validate_emails(cls, value: Any) -> Any:
         return _validate_emails(value)
 
     @pydantic.validator("numberOfFiles", "numberOfFilesArchived", "packedSize", "size")
-    def _validate_size(cls, value):
+    def _validate_size(cls, value: Any) -> Any:
         return _validate_size(value)
 
     @pydantic.validator("orcidOfOwner")
-    def _validate_orcid(cls, value):
+    def _validate_orcid(cls, value: Any) -> Any:
         return _validate_orcid(value)
 
 

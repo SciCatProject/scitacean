@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import datetime
-from typing import Optional, Union
+from typing import NoReturn, Optional, Union
 
 
 class StrStorage:
@@ -92,7 +92,7 @@ class SecretStr(StrStorage):
         return "SecretStr(***)"
 
     # prevent pickling
-    def __reduce_ex__(self, protocol):
+    def __reduce_ex__(self, protocol: object) -> NoReturn:
         raise TypeError("SecretStr must not be pickled")
 
 

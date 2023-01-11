@@ -12,7 +12,7 @@ from .pid import PID
 class DownloadConnection(Protocol):
     """An open connection to the file server for downloads."""
 
-    def download_files(self, *, remote: List[str], local: List[Path]):
+    def download_files(self, *, remote: List[str], local: List[Path]) -> None:
         """Download files from the file server.
 
         Parameters
@@ -60,7 +60,7 @@ class UploadConnection(Protocol):
             ``file.is_on_local`` are true.
         """
 
-    def revert_upload(self, *files: File):
+    def revert_upload(self, *files: File) -> None:
         """Delete files uploaded by upload_file.
 
         Only files uploaded by the same connection object may be handled.

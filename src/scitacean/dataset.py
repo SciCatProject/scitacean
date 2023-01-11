@@ -55,6 +55,7 @@ class Dataset(DatasetFields):
         read_only_args = args.pop("_read_only")
         read_only_args["history"] = dataset_model.history
         return cls(
+            type=dataset_model.type,
             creation_time=dataset_model.creationTime,
             _pid=dataset_model.pid,
             _orig_datablocks=[]
@@ -94,7 +95,7 @@ class Dataset(DatasetFields):
         :
             Iterable over the fields of datasets.
         """
-        it = DatasetFields._FIELD_SPEC
+        it = iter(DatasetFields._FIELD_SPEC)
         if dataset_type is not None:
             attr = (
                 "used_by_derived"
@@ -150,7 +151,7 @@ class Dataset(DatasetFields):
         for dblock in self._orig_datablocks:
             yield from dblock.files
 
-    def add_files(self, *files: File, datablock: Union[int, str, PID] = -1):
+    def add_files(self, *files: File, datablock: Union[int, str, PID] = -1) -> None:
         """Add files to the dataset."""
         self._get_or_add_orig_datablock(datablock).add_files(*files)
 
@@ -159,7 +160,7 @@ class Dataset(DatasetFields):
         *paths: Union[str, Path],
         base_path: Union[str, Path] = "",
         datablock: Union[int, str, PID] = -1,
-    ):
+    ) -> None:
         """Add files on the local file system to the dataset.
 
         Parameters
@@ -186,7 +187,7 @@ class Dataset(DatasetFields):
     def replace(
         self,
         *,
-        _read_only: Dict[str, Any] = None,
+        _read_only: Optional[Dict[str, Any]] = None,
         _orig_datablocks: Optional[List[OrigDatablockProxy]] = None,
         **replacements: Any,
     ) -> Dataset:
@@ -208,7 +209,7 @@ class Dataset(DatasetFields):
         """
         _read_only = _read_only or {}
 
-        def get_val(source, name):
+        def get_val(source: Dict[str, Any], name: str) -> Any:
             try:
                 return source.pop(name)
             except KeyError:
@@ -303,7 +304,7 @@ class Dataset(DatasetFields):
             return self._make_derived_model()
         return self._make_raw_model()
 
-    def __eq__(self, other: Dataset) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, Dataset):
             return False
         eq = all(
@@ -350,7 +351,17 @@ class Dataset(DatasetFields):
             )
         return self._orig_datablocks[key]
 
-    def _repr_html_(self):
+    def __str__(self) -> str:
+        args = ", ".join(
+            f"{name}={value}"
+            for name, value in (
+                (field.name, getattr(self, field.name)) for field in self.fields()
+            )
+            if value is not None
+        )
+        return f"Dataset({args})"
+
+    def _repr_html_(self) -> str:
         rows = "\n".join(
             _format_field(self, field)
             for field in sorted(
@@ -382,7 +393,7 @@ def _format_field(dset: Dataset, field: Dataset.Field) -> str:
     )
 
 
-def _format_type(typ) -> str:
+def _format_type(typ: Any) -> str:
     try:
         return {
             str: "str",
@@ -392,7 +403,7 @@ def _format_type(typ) -> str:
             PID: "PID",
             DatasetLifecycle: "DatasetLifecycle",
             List[str]: "list[str]",
-            List[dict]: "list[dict]",
+            List[dict]: "list[dict]",  # type: ignore[type-arg]
         }[typ]
     except KeyError:
         return html.escape(str(typ))
