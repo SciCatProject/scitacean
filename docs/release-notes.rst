@@ -30,6 +30,14 @@ Release notes
    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
+v23.01.1 (Unreleased)
+---------------------
+
+Bugfixes
+~~~~~~~~
+
+* Store file creation times as proper datetimes with the timezone of the fileserver.
+
 v23.01.0 (2023-01-10)
 ---------------------
 
