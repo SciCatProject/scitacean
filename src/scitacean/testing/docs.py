@@ -69,9 +69,9 @@ def _create_raw_dataset(client: FakeClient) -> None:
 
 
 def setup_fake_client() -> FakeClient:
-    client = FakeClient.from_token(  # nosec B106
+    client = FakeClient.from_token(
         url="fake-url.sci/api/v3",
-        token="fake-token",
+        token="fake-token",  # noqa: S106
         file_transfer=FakeFileTransfer(fs=None),
     )
     _create_raw_dataset(client)

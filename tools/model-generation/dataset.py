@@ -107,9 +107,9 @@ def _format_fields_from_model(typ: str, fields: List[Field]) -> str:
     return f"""def _fields_from_{typ}_model(model) -> dict:
     return dict(
         _read_only=dict(
-            {format_assignments(True, 12)}
+            {format_assignments(read_only=True, indent=12)}
         ),
-        {format_assignments(False, 8)}
+        {format_assignments(read_only=False, indent=8)}
     )
 """
 
@@ -147,9 +147,7 @@ def _inline_base(spec: Spec, specs: Dict[str, Spec]) -> Spec:
 
 
 def _add_used_extra(spec: Spec) -> Spec:
-    """Make sure that every field has extra["used"],
-    even fields defined in base classes.
-    """
+    """Make sure that every field has extra["used"]."""
     return dataclasses.replace(
         spec,
         fields=[

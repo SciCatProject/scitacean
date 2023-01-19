@@ -1,10 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
 
-"""
-These tests use Dataset instead of DatasetFields in order to test the
-public interface and make sure that Dataset does not break any behavior.
-"""
+# These tests use Dataset instead of DatasetFields in order to test the
+# public interface and make sure that Dataset does not break any behavior.
 
 from datetime import datetime, timedelta, timezone
 

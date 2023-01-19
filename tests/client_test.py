@@ -57,17 +57,19 @@ def scicat_client(client):
 
 def test_from_token_fake():
     # This should not call the API
-    assert isinstance(
-        FakeClient.from_token(url="some.url/api/v3", token="a-token"), FakeClient
-    )
+    client = FakeClient.from_token(url="some.url/api/v3", token="a-token")  # noqa: S106
+    assert isinstance(client, FakeClient)
 
 
 def test_from_credentials_fake():
     # This should not call the API
+    client = FakeClient.from_credentials(
+        url="some.url/api/v3",
+        username="someone",
+        password="the-fake-does-not-care",  # noqa: S106
+    )
     assert isinstance(
-        FakeClient.from_credentials(
-            url="some.url/api/v3", username="someone", password="the-fake-does-not-care"
-        ),
+        client,
         FakeClient,
     )
 
@@ -235,7 +237,7 @@ def test_get_broken_dataset_strict_validation(request, scicat_access, scicat_bac
 
 
 def test_cannot_pickle_client_credentials_manual_token_str():
-    client = Client.from_token(url="/", token="the-token")
+    client = Client.from_token(url="/", token="the-token")  # noqa: S106
     with pytest.raises(TypeError):
         pickle.dumps(client)
 

@@ -46,7 +46,6 @@ def scicat_backend(request, scicat_access):
 
     Does nothing unless the --backend-tests command line option is set.
     """
-
     if not request.config.getoption("--backend-tests"):
         yield False
         return
@@ -62,6 +61,7 @@ def can_connect(scicat_access: SciCatAccess) -> bool:
     response = requests.post(
         urljoin(scicat_access.url, "Users/login"),
         json=scicat_access.functional_credentials,
+        timeout=0.5,
     )
     return response.ok
 
@@ -69,9 +69,7 @@ def can_connect(scicat_access: SciCatAccess) -> bool:
 def wait_until_backend_is_live(
     scicat_access: SciCatAccess, max_time: float, n_tries: int
 ):
-    """
-    The containers take a while to be fully live.
-    """
+    """The containers take a while to be fully live."""
     for _ in range(n_tries):
         if can_connect(scicat_access):
             return
