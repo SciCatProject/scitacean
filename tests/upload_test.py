@@ -46,7 +46,9 @@ def derived_dataset_model(ownable):
 @pytest.fixture
 def client(fs):
     return FakeClient.from_token(
-        url="", token="", file_transfer=FakeFileTransfer(fs=fs, files={}, reverted={})
+        url="",
+        token="",  # noqa: S106
+        file_transfer=FakeFileTransfer(fs=fs, files={}, reverted={}),
     )
 
 

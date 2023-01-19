@@ -56,7 +56,7 @@ def _orcid_field_strategy(
 def _scientific_metadata_strategy(
     field: Dataset.Field, dataset_type: DatasetType
 ) -> st.SearchStrategy[Dict[str, Any]]:
-    assert field.type == Dict  # nosec (testing code -> assert is safe)
+    assert field.type == Dict  # noqa: S101 (testing code -> assert is safe)
     return st.dictionaries(
         keys=st.text(),
         values=st.text() | st.dictionaries(keys=st.text(), values=st.text()),

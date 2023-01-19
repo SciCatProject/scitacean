@@ -238,7 +238,7 @@ def _ask_for_key_passphrase() -> str:
 
 
 def _ask_for_credentials(host: str) -> Tuple[str, str]:
-    print(f"You need to authenticate to access {host}")
+    print(f"You need to authenticate to access {host}")  # noqa: T201
     username = input("Username: ")
     password = getpass("Password: ")
     return username, password

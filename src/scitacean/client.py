@@ -385,7 +385,11 @@ class ScicatClient:
             password = SecretStr(password)
         return ScicatClient(
             url=url,
-            token=SecretStr(_get_token(url=url, username=username, password=password)),
+            token=SecretStr(
+                _get_token(
+                    url=url, username=username, password=password, timeout=timeout
+                )
+            ),
             timeout=timeout,
         )
 
@@ -613,7 +617,7 @@ def _make_orig_datablock(fields, strict_validation: bool):
 
 
 def _log_in_via_users_login(
-    url: str, username: StrStorage, password: StrStorage
+    url: str, username: StrStorage, password: StrStorage, timeout: datetime.timedelta
 ) -> requests.Response:
     """Currently only used for functional accounts."""
     response = requests.post(
@@ -621,6 +625,7 @@ def _log_in_via_users_login(
         json={"username": username.get_str(), "password": password.get_str()},
         stream=False,
         verify=True,
+        timeout=timeout.seconds if timeout is not None else None,
     )
     if not response.ok:
         get_logger().info(
@@ -630,7 +635,7 @@ def _log_in_via_users_login(
 
 
 def _log_in_via_auth_msad(
-    url: str, username: StrStorage, password: StrStorage
+    url: str, username: StrStorage, password: StrStorage, timeout: datetime.timedelta
 ) -> requests.Response:
     """Used for user accounts."""
     import re
@@ -642,6 +647,7 @@ def _log_in_via_auth_msad(
         json={"username": username.get_str(), "password": password.get_str()},
         stream=False,
         verify=True,
+        timeout=timeout.seconds if timeout is not None else None,
     )
     if not response.ok:
         get_logger().error(
@@ -650,8 +656,10 @@ def _log_in_via_auth_msad(
     return response
 
 
-def _get_token(url: str, username: StrStorage, password: StrStorage) -> str:
-    """Logs in using the provided username + password
+def _get_token(
+    url: str, username: StrStorage, password: StrStorage, timeout: datetime.timedelta
+) -> str:
+    """Logs in using the provided username + password.
 
     Returns a token for the given user.
     """
@@ -660,11 +668,15 @@ def _get_token(url: str, username: StrStorage, password: StrStorage) -> str:
     # feasible solution right now.
     get_logger().info("Logging in to %s", url)
 
-    response = _log_in_via_users_login(url=url, username=username, password=password)
+    response = _log_in_via_users_login(
+        url=url, username=username, password=password, timeout=timeout
+    )
     if response.ok:
         return response.json()["id"]  # not sure if semantically correct
 
-    response = _log_in_via_auth_msad(url=url, username=username, password=password)
+    response = _log_in_via_auth_msad(
+        url=url, username=username, password=password, timeout=timeout
+    )
     if response.ok:
         return response.json()["access_token"]
 

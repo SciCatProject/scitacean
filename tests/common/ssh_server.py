@@ -46,7 +46,6 @@ def ssh_fileserver(request, ssh_access):
 
     Does nothing unless the --ssh-tests command line option is set.
     """
-
     if not request.config.getoption("--ssh-tests"):
         yield False
 
