@@ -33,6 +33,7 @@ extensions = [
     "sphinxcontrib.autodoc_pydantic",
     "sphinx_autodoc_typehints",
     "sphinx_copybutton",
+    "sphinx_design",
     "myst_parser",
     "nbsphinx",
 ]

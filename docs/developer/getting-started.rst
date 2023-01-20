@@ -43,49 +43,69 @@ This can be done conveniently using `pre-commit <https://pre-commit.com/>`_:
 
 Alternatively, if you want a different workflow, take a look at ``tox.ini`` or ``.pre-commit.yaml`` to see what tools are run and how.
 
-Manual setup
-------------
-
-Run the tests using
-
-.. code-block:: sh
-
-    pytest
-
-Or to run tests against a real backend (see setup above)
+Running tests
+-------------
 
 
-.. code-block:: sh
+.. tab-set::
 
-    pytest --backend-tests
+    .. tab-item:: Manually
 
-Note that the setup and teardown of the backend takes several seconds.
+        Run the tests using
 
-Build the documentation using
+        .. code-block:: sh
 
-.. code-block:: sh
+            python -m pytest
 
-    python -m sphinx -v -b html -d build/.doctrees docs build/html
-
-Additionally, test the documentation using
-
-.. code-block:: sh
-
-    python -m sphinx -v -b doctest -d build/.doctrees docs build/html
-    python -m sphinx -v -b linkcheck -d build/.doctrees docs build/html
+        Or to run tests against a real backend (see setup above)
 
 
-Using tox
----------
+        .. code-block:: sh
 
-Run the tests using (e.g. python 3.10)
+            pytest --backend-tests
 
-.. code-block:: sh
+        Note that the setup and teardown of the backend takes several seconds.
 
-    tox -e py310
+    .. tab-item:: tox
 
-Build the documentation using
+        Run the tests using (e.g. python 3.10)
 
-.. code-block:: sh
+        .. code-block:: sh
 
-    tox -e docs
+            tox -e py310
+
+        Or to also run backend tests use
+
+        .. code-block:: sh
+
+            tox -e py310-backend
+
+Building the docs
+-----------------
+
+.. tab-set::
+
+    .. tab-item:: Manually
+
+        Build the documentation using
+
+        .. code-block:: sh
+
+            python -m sphinx -v -b html -d build/.doctrees docs build/html
+
+        Additionally, test the documentation using
+
+        .. code-block:: sh
+
+            python -m sphinx -v -b doctest -d build/.doctrees docs build/html
+            python -m sphinx -v -b linkcheck -d build/.doctrees docs build/html
+
+    .. tab-item:: tox
+
+        Build the documentation using
+
+        .. code-block:: sh
+
+            tox -e docs
+
+        This both builds the docs and runs ``docstest`` and ``linkcheck``.

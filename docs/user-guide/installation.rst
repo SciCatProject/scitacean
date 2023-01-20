@@ -1,12 +1,19 @@
 Installation
 ============
 
-pip
----
+.. tab-set::
 
-.. code-block:: sh
+    .. tab-item:: pip
 
-    pip install scitacean[ssh]
+        .. code-block:: sh
 
-If :class:`scitacean.transfer.ssh.SSHFileTransfer` is not required, the ``ssh`` extra can be omitted.
+            pip install scitacean[ssh]
+
+        If :class:`scitacean.transfer.ssh.SSHFileTransfer` is not required, the ``ssh`` extra can be omitted.
+
+    .. tab-item:: conda
+
+        .. code-block:: sh
+
+            conda install -c conda-forge scitacean
 
