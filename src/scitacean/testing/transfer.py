@@ -2,7 +2,7 @@
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Iterator, List, Optional, Union
 
 try:
     from pyfakefs.fake_filesystem import FakeFilesystem
@@ -19,14 +19,14 @@ class FakeDownloadConnection:
         self.files = files
         self.fs = fs
 
-    def download_file(self, *, remote, local):
+    def download_file(self, *, remote: RemotePath, local: Path) -> None:
         if self.fs is not None:
             self.fs.create_file(local, contents=self.files[remote])
         else:
             with open(local, "wb") as f:
                 f.write(self.files[remote])
 
-    def download_files(self, *, remote: List[str], local: List[Path]):
+    def download_files(self, *, remote: List[RemotePath], local: List[Path]) -> None:
         for r, l in zip(remote, local):
             self.download_file(remote=r, local=l)
 
@@ -57,10 +57,12 @@ class FakeUploadConnection:
 
     def upload_files(self, *files: File) -> List[File]:
         for file in files:
-            self._upload_file(remote=file.remote_path, local=file.local_path)
-        return files
+            self._upload_file(
+                remote=file.remote_path, local=file.local_path
+            )  # type: ignore[arg-type]
+        return list(files)
 
-    def revert_upload(self, *files: File):
+    def revert_upload(self, *files: File) -> None:
         for file in files:
             remote = self._remote_path(file.remote_path)
             self.reverted[remote] = self.files.pop(remote)
@@ -99,8 +101,8 @@ class FakeFileTransfer:
         self,
         *,
         fs: Optional[FakeFilesystem] = None,
-        files: Optional[Dict[str, bytes]] = None,
-        reverted: Optional[Dict[str, bytes]] = None,
+        files: Optional[Dict[Union[str, RemotePath], bytes]] = None,
+        reverted: Optional[Dict[Union[str, RemotePath], bytes]] = None,
     ):
         """Initialize a file transfer.
 
@@ -121,11 +123,11 @@ class FakeFileTransfer:
         self.reverted = _remote_path_dict(reverted)
 
     @contextmanager
-    def connect_for_download(self):
+    def connect_for_download(self) -> Iterator[FakeDownloadConnection]:
         yield FakeDownloadConnection(fs=self.fs, files=self.files)
 
     @contextmanager
-    def connect_for_upload(self, dataset_id: PID):
+    def connect_for_upload(self, dataset_id: PID) -> Iterator[FakeUploadConnection]:
         yield FakeUploadConnection(
             files=self.files, reverted=self.reverted, dataset_id=dataset_id
         )

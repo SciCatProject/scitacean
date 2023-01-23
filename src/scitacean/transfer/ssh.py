@@ -22,60 +22,22 @@ from ..filesystem import RemotePath
 from ..logging import get_logger
 from ..pid import PID
 
-
 # TODO process multiple files together
 # TODO pass pid in put/revert?
 #      downloading does not need a pid, so it should not be required in the constructor/
 # TODO cache download (maybe using pooch)
-class SSHFileTransfer:
-    """Upload / download files using SSH."""
-
-    def __init__(
-        self,
-        *,
-        remote_base_path: Optional[Union[str, RemotePath]] = None,
-        host: str,
-        port: Optional[int] = None,
-    ) -> None:
-        self._host = host
-        self._port = port
-        self._remote_base_path = (
-            RemotePath(remote_base_path) if remote_base_path is not None else None
-        )
-
-    @contextmanager
-    def connect_for_download(self) -> Iterator["SSHDownloadConnection"]:
-        con = _connect(self._host, self._port)
-        try:
-            yield SSHDownloadConnection(connection=con)
-        finally:
-            con.close()
-
-    @contextmanager
-    def connect_for_upload(self, dataset_id: PID) -> Iterator["SSHUploadConnection"]:
-        if self._remote_base_path is None:
-            raise ValueError("remote_base_path must be set when uploading files")
-        con = _connect(self._host, self._port)
-        try:
-            yield SSHUploadConnection(
-                connection=con,
-                dataset_id=dataset_id,
-                remote_base_path=self._remote_base_path,
-            )
-        finally:
-            con.close()
 
 
 class SSHDownloadConnection:
     def __init__(self, *, connection: Connection) -> None:
         self._connection = connection
 
-    def download_files(self, *, remote: List[str], local: List[Path]) -> None:
+    def download_files(self, *, remote: List[RemotePath], local: List[Path]) -> None:
         """Download files from the given remote path."""
         for (r, l) in zip(remote, local):
             self.download_file(remote=r, local=l)
 
-    def download_file(self, *, remote: str, local: Path) -> None:
+    def download_file(self, *, remote: RemotePath, local: Path) -> None:
         get_logger().info(
             "Downloading file %s from host %s to %s",
             remote,
@@ -231,6 +193,45 @@ class SSHUploadConnection:
                 "Error reverting file %s:\n%s", remote_path, exc.result
             )
             return
+
+
+class SSHFileTransfer:
+    """Upload / download files using SSH."""
+
+    def __init__(
+        self,
+        *,
+        remote_base_path: Optional[Union[str, RemotePath]] = None,
+        host: str,
+        port: Optional[int] = None,
+    ) -> None:
+        self._host = host
+        self._port = port
+        self._remote_base_path = (
+            RemotePath(remote_base_path) if remote_base_path is not None else None
+        )
+
+    @contextmanager
+    def connect_for_download(self) -> Iterator[SSHDownloadConnection]:
+        con = _connect(self._host, self._port)
+        try:
+            yield SSHDownloadConnection(connection=con)
+        finally:
+            con.close()
+
+    @contextmanager
+    def connect_for_upload(self, dataset_id: PID) -> Iterator[SSHUploadConnection]:
+        if self._remote_base_path is None:
+            raise ValueError("remote_base_path must be set when uploading files")
+        con = _connect(self._host, self._port)
+        try:
+            yield SSHUploadConnection(
+                connection=con,
+                dataset_id=dataset_id,
+                remote_base_path=self._remote_base_path,
+            )
+        finally:
+            con.close()
 
 
 def _ask_for_key_passphrase() -> str:

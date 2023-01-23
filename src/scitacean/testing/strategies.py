@@ -96,8 +96,8 @@ def datasets(
         if field.name in fixed:
             return make_fixed_arg(field.name)
         return _field_strategy(
-            field, dataset_type=dataset_type
-        )  # type: ignore[arg-type]
+            field, dataset_type=dataset_type  # type: ignore[arg-type]
+        )
 
     def make_args(read_only: bool) -> Dict[str, st.SearchStrategy[Any]]:
         return {

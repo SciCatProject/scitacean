@@ -13,13 +13,17 @@ from .client import FakeClient
 from .transfer import FakeFileTransfer
 
 
+def _add_file(client: FakeClient, name: str, content: bytes) -> None:
+    client.file_transfer.files[name] = content  # type: ignore [union-attr]
+
+
 def _create_raw_dataset(client: FakeClient) -> None:
     content1 = b"5 4 9 11 15 12 7 6 1"
     content2 = (
         b"INFO Starting measurement\nWARN Detector saturated\nINFO Measurement finished"
     )
-    client.file_transfer.files["/hex/ps/thaum/flux.dat"] = content1
-    client.file_transfer.files["/hex/ps/thaum/logs/measurement.log"] = content2
+    _add_file(client, "/hex/ps/thaum/flux.dat", content1)
+    _add_file(client, "/hex/ps/thaum/logs/measurement.log", content2)
 
     dataset_id = PID(prefix="20.500.12269", pid="72fe3ff6-105b-4c7f-b9d0-073b67c90ec3")
     client.datasets[dataset_id] = RawDataset(

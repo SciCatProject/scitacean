@@ -6,8 +6,9 @@ from __future__ import annotations
 
 import datetime
 import re
+from contextlib import contextmanager
 from pathlib import Path
-from typing import Callable, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple, Union
 from urllib.parse import quote_plus
 
 import requests
@@ -18,7 +19,7 @@ from .error import ScicatCommError, ScicatLoginError
 from .file import File
 from .logging import get_logger
 from .pid import PID
-from .typing import FileTransfer
+from .typing import DownloadConnection, FileTransfer, UploadConnection
 from .util.credentials import SecretStr, StrStorage
 
 
@@ -211,7 +212,7 @@ class Client:
         """
         base_pid = PID.generate()
         dset = dataset.replace(_read_only={"pid": base_pid})
-        with self.file_transfer.connect_for_upload(base_pid) as con:
+        with self._connect_for_file_upload(base_pid) as con:
             # TODO check if any remote file is out of date.
             #  if so, raise an error. We never overwrite remote files!
             uploaded_files = con.upload_files(*dset.files)
@@ -254,6 +255,16 @@ class Client:
                 "but are not linked with each other. Please fix the dataset manually!"
             ) from exc
 
+    @contextmanager
+    def _connect_for_file_upload(self, dataset_id: PID) -> Iterator[UploadConnection]:
+        if self.file_transfer is None:
+            raise ValueError(
+                "Cannot upload files because no file transfer is set. "
+                "Specify one when constructing a client."
+            )
+        with self.file_transfer.connect_for_upload(dataset_id) as con:
+            yield con
+
     @property
     def scicat(self) -> ScicatClient:
         """Low level client for SciCat.
@@ -263,7 +274,7 @@ class Client:
         return self._client
 
     @property
-    def file_transfer(self) -> FileTransfer:
+    def file_transfer(self) -> Optional[FileTransfer]:
         """Stored handler for file down-/uploads."""
         return self._file_transfer
 
@@ -330,14 +341,20 @@ class Client:
                 select=lambda file: file.remote_path.suffix == ".nxs"
             )
         """
+        if dataset.source_folder is None:
+            raise ValueError("Dataset has no source folder, cannot download files.")
         target = Path(target)
         # TODO undo if later fails but only if no files were written
         target.mkdir(parents=True, exist_ok=True)
         files = _select_files(select, dataset)
         local_paths = [target / f.remote_path for f in files]
-        with self.file_transfer.connect_for_download() as con:
+        with self._connect_for_file_download() as con:
             con.download_files(
-                remote=[f.remote_access_path(dataset.source_folder) for f in files],
+                remote=[
+                    p
+                    for f in files
+                    if (p := f.remote_access_path(dataset.source_folder)) is not None
+                ],
                 local=local_paths,
             )
         downloaded_files = tuple(
@@ -347,17 +364,27 @@ class Client:
             f.validate_after_download()
         return dataset.replace_files(*downloaded_files)
 
+    @contextmanager
+    def _connect_for_file_download(self) -> Iterator[DownloadConnection]:
+        if self.file_transfer is None:
+            raise ValueError(
+                "Cannot download files because no file transfer is set. "
+                "Specify one when constructing a client."
+            )
+        with self.file_transfer.connect_for_download() as con:
+            yield con
+
 
 class ScicatClient:
     def __init__(
         self,
         url: str,
         token: Optional[Union[str, StrStorage]],
-        timeout: Optional[datetime.timedelta] = None,
+        timeout: Optional[datetime.timedelta],
     ):
         # Need to add a final /
         self._base_url = url[:-1] if url.endswith("/") else url
-        self._timeout = timeout
+        self._timeout = datetime.timedelta(seconds=10) if timeout is None else timeout
         self._token: Optional[StrStorage] = (
             SecretStr(token) if isinstance(token, str) else token
         )
@@ -387,7 +414,10 @@ class ScicatClient:
             url=url,
             token=SecretStr(
                 _get_token(
-                    url=url, username=username, password=password, timeout=timeout
+                    url=url,
+                    username=username,
+                    password=password,
+                    timeout=timeout if timeout else datetime.timedelta(seconds=10),
                 )
             ),
             timeout=timeout,
@@ -435,7 +465,7 @@ class ScicatClient:
             else model.RawDataset,
             _strict_validation=strict_validation,
             **dset_json,
-        )
+        )  # type: ignore[return-value]
 
     def get_orig_datablocks(
         self, pid: PID, strict_validation: bool = False
@@ -565,7 +595,7 @@ class ScicatClient:
                 data=data.json(exclude_none=True) if data is not None else None,
                 params=params,
                 headers=headers,
-                timeout=self._timeout.seconds if self._timeout is not None else None,
+                timeout=self._timeout.seconds,
                 stream=False,
                 verify=True,
             )
@@ -580,7 +610,7 @@ class ScicatClient:
         url: str,
         data: Optional[model.BaseModel] = None,
         operation: str,
-    ) -> Optional[dict]:
+    ) -> Any:
         full_url = _url_concat(self._base_url, url)
         logger = get_logger()
         logger.info("Calling SciCat API at %s for operation '%s'", full_url, operation)
@@ -591,7 +621,12 @@ class ScicatClient:
             logger.error("API call failed, endpoint: %s, response: %s", full_url, err)
             raise ScicatCommError(f"Error in operation {operation}: {err}")
         logger.info("API call successful for operation '%s'", operation)
-        return response.json()
+        res = response.json()
+        if not res:
+            raise ScicatCommError(
+                f"{cmd} to {url} succeeded but di not return anything."
+            )
+        return res
 
 
 def _url_concat(a: str, b: str) -> str:
@@ -602,7 +637,9 @@ def _url_concat(a: str, b: str) -> str:
     return a + b
 
 
-def _make_orig_datablock(fields, strict_validation: bool):
+def _make_orig_datablock(
+    fields: Dict[str, Any], strict_validation: bool
+) -> model.OrigDatablock:
     files = [
         model.construct(
             model.DataFile, _strict_validation=strict_validation, **file_fields
@@ -625,7 +662,7 @@ def _log_in_via_users_login(
         json={"username": username.get_str(), "password": password.get_str()},
         stream=False,
         verify=True,
-        timeout=timeout.seconds if timeout is not None else None,
+        timeout=timeout.seconds,
     )
     if not response.ok:
         get_logger().info(
@@ -647,7 +684,7 @@ def _log_in_via_auth_msad(
         json={"username": username.get_str(), "password": password.get_str()},
         stream=False,
         verify=True,
-        timeout=timeout.seconds if timeout is not None else None,
+        timeout=timeout.seconds,
     )
     if not response.ok:
         get_logger().error(
@@ -672,13 +709,13 @@ def _get_token(
         url=url, username=username, password=password, timeout=timeout
     )
     if response.ok:
-        return response.json()["id"]  # not sure if semantically correct
+        return str(response.json()["id"])  # not sure if semantically correct
 
     response = _log_in_via_auth_msad(
         url=url, username=username, password=password, timeout=timeout
     )
     if response.ok:
-        return response.json()["access_token"]
+        return str(response.json()["access_token"])
 
     get_logger().error("Failed log in:  %s", response.json()["error"])
     raise ScicatLoginError(response.content)
@@ -697,9 +734,11 @@ def _file_selector(select: FileSelector) -> Callable[[File], bool]:
     if isinstance(select, str):
         return lambda f: f.remote_path == select
     if isinstance(select, (list, tuple)):
-        return lambda f: f.remote_path in select
+        return lambda f: f.remote_path in select  # type: ignore[operator]
     if isinstance(select, re.Pattern):
-        return lambda f: select.search(str(f.remote_path)) is not None
+        return lambda f: (
+            select.search(str(f.remote_path)) is not None  # type: ignore[union-attr]
+        )
     return select
 
 

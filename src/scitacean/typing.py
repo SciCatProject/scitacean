@@ -12,7 +12,7 @@ from .pid import PID
 class DownloadConnection(Protocol):
     """An open connection to the file server for downloads."""
 
-    def download_files(self, *, remote: List[str], local: List[Path]) -> None:
+    def download_files(self, *, remote: List[RemotePath], local: List[Path]) -> None:
         """Download files from the file server.
 
         Parameters
@@ -41,8 +41,9 @@ class UploadConnection(Protocol):
     """An open connection to the file server for uploads."""
 
     # TODO rename to source_folder (or remove?)
-    source_dir: RemotePath
-    """Files are uploaded to this directory / location."""
+    @property
+    def source_dir(self) -> RemotePath:
+        """Files are uploaded to this directory / location."""
 
     def upload_files(self, *files: File) -> List[File]:
         """Upload files to the file server.
@@ -90,5 +91,5 @@ class Uploader(Protocol):
         """
 
 
-class FileTransfer(Downloader, Uploader):
+class FileTransfer(Downloader, Uploader, Protocol):
     """Handler for file down-/uploads."""
