@@ -286,3 +286,51 @@ def test_validate_after_download_detects_size_mismatch(fake_file, caplog):
     with caplog.at_level("INFO", logger=logger_name()):
         downloaded.validate_after_download()
     assert "does not match size reported in dataset" in caplog.text
+
+
+@pytest.mark.parametrize("chk", ("sha256", None))
+def test_local_is_not_up_to_date_for_remote_file(chk):
+    file = File.from_scicat(DataFile(path="data.csv", size=65178, chk=chk))
+    assert not file.local_is_up_to_date()
+
+
+def test_local_is_up_to_date_for_local_file():
+    # Note that the file does not actually exist on disk but the test still works.
+    file = File.from_local(path="image.jpg")
+    assert file.local_is_up_to_date()
+
+
+def test_local_is_not_up_to_date_without_checksum_alg():
+    file = File.from_scicat(
+        DataFile(path="data.csv", size=65178, chk="sha256")
+    ).downloaded(local_path="data.csv")
+    with pytest.warns(UserWarning, match="checksum"):
+        assert not file.local_is_up_to_date()
+
+
+def test_local_is_up_to_date_matching_checksum(fake_file):
+    model = DataFile(
+        path=fake_file["path"].name,
+        size=fake_file["size"],
+        time=parse_date("2022-06-22T15:42:53.123Z"),
+        chk=fake_file["checksum"],
+    )
+    file = replace(
+        File.from_scicat(model).downloaded(local_path=fake_file["path"]),
+        checksum_algorithm="md5",
+    )
+    assert file.local_is_up_to_date()
+
+
+def test_local_is_not_up_to_date_differing_checksum(fake_file):
+    model = DataFile(
+        path=fake_file["path"].name,
+        size=fake_file["size"],
+        time=parse_date("2022-06-22T15:42:53.123Z"),
+        chk="a-different-checksum",
+    )
+    file = replace(
+        File.from_scicat(model).downloaded(local_path=fake_file["path"]),
+        checksum_algorithm="md5",
+    )
+    assert not file.local_is_up_to_date()
