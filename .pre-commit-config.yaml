@@ -9,12 +9,6 @@ repos:
     - id: detect-private-key
     - id: trailing-whitespace
       args: [--markdown-linebreak-ext=md]
-- repo: https://github.com/charliermarsh/ruff-pre-commit
-  rev: 'v0.0.225'
-  hooks:
-    - id: ruff
-      # Respect `exclude` and `extend-exclude` settings.
-      args: ["--force-exclude", "--fix"]
 - repo: https://github.com/psf/black
   rev: 22.10.0
   hooks:
@@ -26,6 +20,12 @@ repos:
       types: ["jupyter"]
       args: ["--drop-empty-cells",
              "--extra-keys 'metadata.language_info.version cell.metadata.jp-MarkdownHeadingCollapsed cell.metadata.pycharm'"]
+- repo: https://github.com/charliermarsh/ruff-pre-commit
+  rev: 'v0.0.225'
+  hooks:
+    - id: ruff
+      # Respect `exclude` and `extend-exclude` settings.
+      args: ["--force-exclude", "--fix"]
 - repo: https://github.com/codespell-project/codespell
   rev: v2.2.2
   hooks:
