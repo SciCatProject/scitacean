@@ -222,6 +222,14 @@ class File:
         return self.local_path is not None
 
     def local_is_up_to_date(self) -> bool:
+        """Check if the file on local is up-to-date.
+
+        Returns
+        -------
+        :
+            True if the file exists on local and its checksum
+            matches the stored checksum for the remote file.
+        """
         if not self.is_on_remote:
             return True
         if not self.is_on_local:
