@@ -212,6 +212,7 @@ class Client:
         """
         base_pid = PID.generate()
         dset = dataset.replace(_read_only={"pid": base_pid})
+        dset.replace(source_folder="dummy").validate()
         with self._connect_for_file_upload(base_pid) as con:
             # TODO check if any remote file is out of date.
             #  if so, raise an error. We never overwrite remote files!
