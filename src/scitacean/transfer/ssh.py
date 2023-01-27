@@ -193,15 +193,94 @@ class SSHUploadConnection:
 
 
 class SSHFileTransfer:
-    """Upload / download files using SSH."""
+    """Upload / download files using SSH.
+
+    Configuration & Authentication
+    ------------------------------
+    The file transfer connects to the server at address given as the
+    ``host`` constructor argument.
+    This may be
+
+    - a full url such as ``some.fileserver.edu``,
+    - an IP address like ``127.0.0.1``,
+    - or a host defined in the user's openSSH config file.
+
+    The file transfer can authenticate using username+password.
+    It will ask for those on the command line.
+    However, it is **highly recommended to set up a key and use an SSH agent!**
+    This increases security as Scitacean no longer has to handle credentials itself.
+    And it is required for automated programs where a user cannot enter credentials
+    on a command line.
+
+    Upload folder
+    -------------
+    The file transfer can take an optional ``source_folder`` as a constructor argument.
+    If it is given, ``SSHFileTransfer`` uploads all files to it and ignores the
+    source folder set in the dataset.
+    If it is not given, ``SSHFileTransfer`` uses the dataset's source folder.
+
+    The source folder argument to ``SSHFileTransfer`` may be a Python format string.
+    In that case, all format fields are replaced by the corresponding fields
+    of the dataset.
+    All non-ASCII characters and most special ASCII characters are replaced.
+    This should avoid broken paths from essentially random contents in datasets.
+
+    Examples
+    --------
+    Given
+
+    .. code-block:: python
+
+        dset = Dataset(type="raw",
+                       name="my-dataset",
+                       source_folder="/dataset/source",
+                       )
+
+    This uploads to ``/dataset/source``:
+
+    .. code-block:: python
+
+        file_transfer = SSHFileTransfer(host="fileserver")
+
+    This uploads to ``/transfer/folder``:
+
+    .. code-block:: python
+
+        file_transfer = SSHFileTransfer(host="fileserver",
+                                        source_folder="transfer/folder")
+
+    This uploads to ``/transfer/my-dataset``:
+    (Note that ``{name}`` is replaced by ``dset.name``.)
+
+    .. code-block:: python
+
+        file_transfer = SSHFileTransfer(host="fileserver",
+                                        source_folder="transfer/{name}")
+
+    A useful approach is to include the PID in the source folder, for example
+    ``/some/base/folder/{pid.pid}``, to avoid clashes between different datasets.
+    """
 
     def __init__(
         self,
         *,
-        source_folder: Optional[Union[str, Path]] = None,
         host: str,
         port: Optional[int] = None,
+        source_folder: Optional[Union[str, Path]] = None,
     ) -> None:
+        """Construct a new SSH file transfer.
+
+        Parameters
+        ----------
+        host:
+            URL or name of the server to connect to.
+        port:
+            Port of the server.
+        source_folder:
+            Upload files to this folder if set.
+            Otherwise, upload to the dataset's source_folder.
+            Ignored when downloading files.
+        """
         self._host = host
         self._port = port
         self._source_folder_pattern = (
@@ -209,6 +288,7 @@ class SSHFileTransfer:
         )
 
     def source_folder_for(self, dataset: Dataset) -> RemotePath:
+        """Return the surce folder used for the given dataset."""
         if self._source_folder_pattern is None:
             if dataset.source_folder is None:
                 raise ValueError(
@@ -224,6 +304,7 @@ class SSHFileTransfer:
 
     @contextmanager
     def connect_for_download(self) -> Iterator[SSHDownloadConnection]:
+        """Create a connection for downloads, use as a context manager."""
         con = _connect(self._host, self._port)
         try:
             yield SSHDownloadConnection(connection=con)
@@ -232,6 +313,7 @@ class SSHFileTransfer:
 
     @contextmanager
     def connect_for_upload(self, dataset: Dataset) -> Iterator[SSHUploadConnection]:
+        """Create a connection for uploads, use as a context manager."""
         source_folder = self.source_folder_for(dataset)
         con = _connect(self._host, self._port)
         try:
