@@ -19,7 +19,7 @@ from typing import Any, Callable, Generator, Optional, TypeVar, Union
 class RemotePath(os.PathLike):  # type: ignore[type-arg]
     """A path on the remote filesystem.
 
-    Remote paths need not correspond to a regular filesystem path like
+    Remote paths do not need to correspond to a regular filesystem path like
     :class:`pathlib.PosixPath` or :class:`pathlib.WindowsPath`.
     Instead, they can be any sequence of segments that are joined by forward slashes,
     e.g. a URL.
@@ -69,6 +69,34 @@ class RemotePath(os.PathLike):  # type: ignore[type-arg]
         if len(parts) == 1:
             return None
         return "." + parts[1]
+
+    def truncated(self, max_length: int = 255) -> RemotePath:
+        """Return a new remote path with all path segments truncated.
+
+        Parameters
+        ----------
+        max_length:
+            Maximum length of each segment.
+            The default value is the typical maximum length on Linux.
+
+        Returns
+        -------
+        :
+            A new remote path with truncated segments.
+        """
+
+        def trunc(seg: str) -> str:
+            # First, make sure that the name is short enough to fit the suffix
+            # such that the suffix does not get truncated.
+            # But keep at least one character of the namae.
+            # Then make sure the whole segment is short enough, potentially
+            # truncating the suffix.
+            parts = seg.rsplit(".", 1)
+            name = parts[0]
+            suffix = "." + parts[1] if len(parts) > 1 else ""
+            return (name[: max(1, max_length - len(suffix))] + suffix)[:max_length]
+
+        return RemotePath("/".join(map(trunc, self._path.split("/"))))
 
     @classmethod
     def __get_validators__(

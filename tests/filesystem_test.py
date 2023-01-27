@@ -93,6 +93,13 @@ def test_remote_path_suffix():
     assert RemotePath("source/file").suffix is None
 
 
+def test_remote_path_truncated():
+    assert RemotePath("something-long.txt").truncated(10) == "someth.txt"
+    assert RemotePath("longlonglong/short").truncated(5) == "longl/short"
+    assert RemotePath("a-long.data.dir/filename.csv").truncated(7) == "a-l.dir/fil.csv"
+    assert RemotePath("file.longextension").truncated(9) == "f.longext"
+
+
 @pytest.mark.parametrize("size", (0, 1, 57121))
 def test_file_size(fs, size):
     fs.create_file("image.tiff", st_size=size)
