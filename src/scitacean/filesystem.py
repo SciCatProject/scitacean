@@ -10,9 +10,10 @@ from __future__ import annotations
 
 import hashlib
 import os
+import re
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Callable, Generator, Optional, Union
+from typing import Any, Callable, Generator, Optional, TypeVar, Union
 
 
 class RemotePath(os.PathLike):  # type: ignore[type-arg]
@@ -129,3 +130,34 @@ def checksum_of_file(path: Union[str, Path], *, algorithm: str) -> str:
         for n in iter(lambda: file.readinto(buffer), 0):
             chk.update(buffer[:n])
     return chk.hexdigest()  # type: ignore[no-any-return]
+
+
+P = TypeVar("P", bound=Union[str, Path, RemotePath])
+
+
+def escape_path(path: P) -> P:
+    """Escape characters disallowed characters for file paths.
+
+    Replaces
+
+    - Unicode characters using ``"backslashreplace"``.
+      See the `Python docs <https://docs.python.org/3/library/codecs.html?highlight=unicode_escape#error-handlers>`_.
+    - Non-word characters by '_'. This includes backslashes
+      introduced by the above.
+
+    The result should be a valid path name on Linux, macOS, and Windows.
+
+    Parameters
+    ----------
+    path:
+        Input string or path.
+
+    Returns
+    -------
+    :
+        ``path`` with offending characters replaced.
+        Has the same type as ``path``.
+    """  # noqa: E501
+    s = os.fspath(path)
+    no_utf = s.encode("ascii", "backslashreplace").decode("ascii")
+    return type(path)(re.sub(r"[^\w .\-]", "_", no_utf))
