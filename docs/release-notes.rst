@@ -40,34 +40,15 @@ Features
 Breaking changes
 ~~~~~~~~~~~~~~~~
 
-Bugfixes
-~~~~~~~~
-
-Documentation
-~~~~~~~~~~~~~
-
-Deprecations
-~~~~~~~~~~~~
-
-Stability, Maintainability, and Testing
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-vYY.0M.MICRO (Unreleased)
--------------------------
-
-Features
-~~~~~~~~
-
-* Files are no longer downloaded if an up-to-date version exists on local.
-
-Breaking changes
-~~~~~~~~~~~~~~~~
+* The ``remote_base_path`` argument of ``SSHFileTransfer`` has been replaced with ``source_folder`` which may now contain format specifiers.
 
 Bugfixes
 ~~~~~~~~
 
 Documentation
 ~~~~~~~~~~~~~
+
+* Document how file transfers interact with source folders.
 
 Deprecations
 ~~~~~~~~~~~~
