@@ -211,16 +211,15 @@ class Client:
             and some files or a partial dataset are left on the servers.
             Note the error message if that happens.
         """
-        base_pid = PID.generate()
-        dset = dataset.replace(_read_only={"pid": base_pid})
-        dset.replace(source_folder="dummy").validate()
-        with self._connect_for_file_upload(base_pid) as con:
+        dset = dataset.replace(_read_only={"pid": PID.generate()})
+        dset = dset.replace(
+            source_folder=self._expect_file_transfer().source_folder_for(dset)
+        )
+        dset.validate()
+        with self._connect_for_file_upload(dset) as con:
             # TODO check if any remote file is out of date.
             #  if so, raise an error. We never overwrite remote files!
             uploaded_files = con.upload_files(*dset.files)
-            dset = dset.replace_files(*uploaded_files).replace(
-                source_folder=con.source_dir
-            )
             try:
                 finalized_model = self.scicat.create_dataset_model(dset.make_model())
             except ScicatCommError:
@@ -258,14 +257,17 @@ class Client:
             ) from exc
 
     @contextmanager
-    def _connect_for_file_upload(self, dataset_id: PID) -> Iterator[UploadConnection]:
+    def _connect_for_file_upload(self, dataset: Dataset) -> Iterator[UploadConnection]:
+        with self._expect_file_transfer().connect_for_upload(dataset) as con:
+            yield con
+
+    def _expect_file_transfer(self) -> FileTransfer:
         if self.file_transfer is None:
             raise ValueError(
-                "Cannot upload files because no file transfer is set. "
+                "Cannot upload/download files because no file transfer is set. "
                 "Specify one when constructing a client."
             )
-        with self.file_transfer.connect_for_upload(dataset_id) as con:
-            yield con
+        return self.file_transfer
 
     @property
     def scicat(self) -> ScicatClient:

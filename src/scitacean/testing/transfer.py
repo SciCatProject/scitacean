@@ -9,9 +9,9 @@ try:
 except ImportError:
     FakeFilesystem = Any
 
+from ..dataset import Dataset
 from ..file import File
 from ..filesystem import RemotePath
-from ..pid import PID
 
 
 class FakeDownloadConnection:
@@ -36,18 +36,14 @@ class FakeUploadConnection:
         self,
         files: Dict[RemotePath, bytes],
         reverted: Dict[RemotePath, bytes],
-        dataset_id: PID,
+        source_folder: RemotePath,
     ):
         self.files = files
         self.reverted = reverted
-        self._dataset_id = dataset_id
-
-    @property
-    def source_dir(self) -> RemotePath:
-        return RemotePath("/remote") / self._dataset_id.pid
+        self._source_folder = source_folder
 
     def _remote_path(self, filename: RemotePath) -> RemotePath:
-        return self.source_dir / filename
+        return self._source_folder / filename
 
     def _upload_file(self, *, remote: RemotePath, local: Path) -> RemotePath:
         remote = self._remote_path(remote)
@@ -122,14 +118,22 @@ class FakeFileTransfer:
         self.files = _remote_path_dict(files)
         self.reverted = _remote_path_dict(reverted)
 
+    @staticmethod
+    def source_folder_for(dataset: Dataset) -> RemotePath:
+        if dataset.source_folder is None:
+            raise ValueError("The dataset ha no source folder, cannot upload files.")
+        return dataset.source_folder
+
     @contextmanager
     def connect_for_download(self) -> Iterator[FakeDownloadConnection]:
         yield FakeDownloadConnection(fs=self.fs, files=self.files)
 
     @contextmanager
-    def connect_for_upload(self, dataset_id: PID) -> Iterator[FakeUploadConnection]:
+    def connect_for_upload(self, dataset: Dataset) -> Iterator[FakeUploadConnection]:
         yield FakeUploadConnection(
-            files=self.files, reverted=self.reverted, dataset_id=dataset_id
+            files=self.files,
+            reverted=self.reverted,
+            source_folder=self.source_folder_for(dataset),
         )
 
 

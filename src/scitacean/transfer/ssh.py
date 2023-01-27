@@ -16,16 +16,16 @@ from invoke.exceptions import UnexpectedExit
 from paramiko import SFTPClient
 from paramiko.ssh_exception import AuthenticationException, PasswordRequiredException
 
+from ..dataset import Dataset
 from ..error import FileUploadError
 from ..file import File
 from ..filesystem import RemotePath
 from ..logging import get_logger
-from ..pid import PID
+from ..util.formatter import DatasetPathFormatter
 
 # TODO process multiple files together
 # TODO pass pid in put/revert?
 #      downloading does not need a pid, so it should not be required in the constructor/
-# TODO cache download (maybe using pooch)
 
 
 class SSHDownloadConnection:
@@ -48,12 +48,9 @@ class SSHDownloadConnection:
 
 
 class SSHUploadConnection:
-    def __init__(
-        self, *, connection: Connection, dataset_id: PID, remote_base_path: RemotePath
-    ) -> None:
+    def __init__(self, *, connection: Connection, source_folder: RemotePath) -> None:
         self._connection = connection
-        self._dataset_id = dataset_id
-        self._remote_base_path = remote_base_path
+        self._source_folder = source_folder
         self._remote_timezone = self._get_remote_timezone()
 
     @property
@@ -61,18 +58,18 @@ class SSHUploadConnection:
         return self._connection.sftp()  # type: ignore[no-any-return]
 
     @property
-    def source_dir(self) -> RemotePath:
-        return self._remote_base_path / self._dataset_id.pid
+    def source_folder(self) -> RemotePath:
+        return self._source_folder
 
     def remote_path(self, filename: Union[str, RemotePath]) -> RemotePath:
-        return self.source_dir / filename
+        return self.source_folder / filename
 
     def _make_source_folder(self) -> None:
         try:
-            self._connection.run(f"mkdir -p {os.fspath(self.source_dir)}", hide=True)
+            self._connection.run(f"mkdir -p {os.fspath(self.source_folder)}", hide=True)
         except OSError as exc:
             raise FileUploadError(
-                f"Failed to create source folder {self.source_dir}: {exc.args}"
+                f"Failed to create source folder {self.source_folder}: {exc.args}"
             ) from None
 
     def upload_files(self, *files: File) -> List[File]:
@@ -161,18 +158,18 @@ class SSHUploadConnection:
                 remote=file.remote_path, local=file.local_path
             )  # type: ignore[arg-type]
 
-        if _folder_is_empty(self._connection, self.source_dir):
+        if _folder_is_empty(self._connection, self.source_folder):
             try:
                 get_logger().info(
                     "Removing empty remote directory %s on host %s",
-                    self.source_dir,
+                    self.source_folder,
                     self._connection.host,
                 )
-                self._sftp.rmdir(os.fspath(self.source_dir))
+                self._sftp.rmdir(os.fspath(self.source_folder))
             except UnexpectedExit as exc:
                 get_logger().warning(
                     "Failed to remove empty remote directory %s on host:\n%s",
-                    self.source_dir,
+                    self.source_folder,
                     self._connection.host,
                     exc.result,
                 )
@@ -201,14 +198,28 @@ class SSHFileTransfer:
     def __init__(
         self,
         *,
-        remote_base_path: Optional[Union[str, RemotePath]] = None,
+        source_folder: Optional[Union[str, Path]] = None,
         host: str,
         port: Optional[int] = None,
     ) -> None:
         self._host = host
         self._port = port
-        self._remote_base_path = (
-            RemotePath(remote_base_path) if remote_base_path is not None else None
+        self._source_folder_pattern = (
+            RemotePath(source_folder) if source_folder is not None else None
+        )
+
+    def source_folder_for(self, dataset: Dataset) -> RemotePath:
+        if self._source_folder_pattern is None:
+            if dataset.source_folder is None:
+                raise ValueError(
+                    "Cannot determine source_folder for dataset. "
+                    "Either the dataset's source_folder or the "
+                    "file transfer's source_folder must be set."
+                )
+            return dataset.source_folder
+
+        return RemotePath(
+            DatasetPathFormatter().format(str(self._source_folder_pattern), dataset)
         )
 
     @contextmanager
@@ -220,15 +231,13 @@ class SSHFileTransfer:
             con.close()
 
     @contextmanager
-    def connect_for_upload(self, dataset_id: PID) -> Iterator[SSHUploadConnection]:
-        if self._remote_base_path is None:
-            raise ValueError("remote_base_path must be set when uploading files")
+    def connect_for_upload(self, dataset: Dataset) -> Iterator[SSHUploadConnection]:
+        source_folder = self.source_folder_for(dataset)
         con = _connect(self._host, self._port)
         try:
             yield SSHUploadConnection(
                 connection=con,
-                dataset_id=dataset_id,
-                remote_base_path=self._remote_base_path,
+                source_folder=source_folder,
             )
         finally:
             con.close()
