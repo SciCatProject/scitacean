@@ -119,3 +119,17 @@ Testing
 
    testing.client.FakeClient
    testing.transfer.FakeFileTransfer
+
+Utilities
+~~~~~~~~~
+
+.. currentmodule:: scitacean
+
+.. autosummary::
+   :toctree: ../generated/functions
+   :recursive:
+
+   filesystem.checksum_of_file
+   filesystem.escape_path
+   filesystem.file_size
+   filesystem.file_modification_time
