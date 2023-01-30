@@ -12,6 +12,7 @@ except ImportError:
 from ..dataset import Dataset
 from ..file import File
 from ..filesystem import RemotePath
+from ..transfer.util import source_folder_for
 
 
 class FakeDownloadConnection:
@@ -99,6 +100,7 @@ class FakeFileTransfer:
         fs: Optional[FakeFilesystem] = None,
         files: Optional[Dict[Union[str, RemotePath], bytes]] = None,
         reverted: Optional[Dict[Union[str, RemotePath], bytes]] = None,
+        source_folder: Optional[Union[str, RemotePath]] = None,
     ):
         """Initialize a file transfer.
 
@@ -113,16 +115,18 @@ class FakeFileTransfer:
             Maps file names to contents.
         reverted:
             Files that have been uploaded and subsequently been removed.
+        source_folder:
+            Upload files to this folder if set.
+            Otherwise, upload to the dataset's source_folder.
+            Ignored when downloading files.
         """
         self.fs = fs
         self.files = _remote_path_dict(files)
         self.reverted = _remote_path_dict(reverted)
+        self._source_folder_pattern = source_folder
 
-    @staticmethod
-    def source_folder_for(dataset: Dataset) -> RemotePath:
-        if dataset.source_folder is None:
-            raise ValueError("The dataset ha no source folder, cannot upload files.")
-        return dataset.source_folder
+    def source_folder_for(self, dataset: Dataset) -> RemotePath:
+        return source_folder_for(dataset, self._source_folder_pattern)
 
     @contextmanager
     def connect_for_download(self) -> Iterator[FakeDownloadConnection]:

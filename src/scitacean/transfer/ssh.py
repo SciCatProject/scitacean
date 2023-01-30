@@ -21,7 +21,7 @@ from ..error import FileUploadError
 from ..file import File
 from ..filesystem import RemotePath
 from ..logging import get_logger
-from ..util.formatter import DatasetPathFormatter
+from .util import source_folder_for
 
 # TODO process multiple files together
 # TODO pass pid in put/revert?
@@ -288,19 +288,8 @@ class SSHFileTransfer:
         )
 
     def source_folder_for(self, dataset: Dataset) -> RemotePath:
-        """Return the surce folder used for the given dataset."""
-        if self._source_folder_pattern is None:
-            if dataset.source_folder is None:
-                raise ValueError(
-                    "Cannot determine source_folder for dataset. "
-                    "Either the dataset's source_folder or the "
-                    "file transfer's source_folder must be set."
-                )
-            return dataset.source_folder
-
-        return RemotePath(
-            DatasetPathFormatter().format(str(self._source_folder_pattern), dataset)
-        )
+        """Return the source folder used for the given dataset."""
+        return source_folder_for(dataset, self._source_folder_pattern)
 
     @contextmanager
     def connect_for_download(self) -> Iterator[SSHDownloadConnection]:
