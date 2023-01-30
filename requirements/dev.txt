@@ -57,7 +57,7 @@ jupyterlab==3.5.3
     # via -r requirements/dev.in
 jupyterlab-server==2.19.0
     # via jupyterlab
-nbclassic==0.4.8
+nbclassic==0.5.1
     # via
     #   jupyterlab
     #   notebook
