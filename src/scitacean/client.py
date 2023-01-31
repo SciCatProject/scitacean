@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import dataclasses
 import datetime
 import re
 from contextlib import contextmanager
@@ -33,7 +34,7 @@ class Client:
     a client instead of the constructor directly.
 
     See the user guide for typical usage patterns.
-    In particular `Downloading Datasets <../../user-guide/downloading.ipynb>`_
+    In particular, `Downloading Datasets <../../user-guide/downloading.ipynb>`_
     and `Uploading Datasets <../../user-guide/uploading.ipynb>`_.
     """
 
@@ -280,7 +281,12 @@ class Client:
         return self._file_transfer
 
     def download_files(
-        self, dataset: Dataset, *, target: Union[str, Path], select: FileSelector = True
+        self,
+        dataset: Dataset,
+        *,
+        target: Union[str, Path],
+        select: FileSelector = True,
+        checksum_algorithm: Optional[str] = None,
     ) -> Dataset:
         r"""Download files of a dataset.
 
@@ -304,6 +310,10 @@ class Client:
             - An **re.Pattern** as returned by :func:`re.compile`:
               if this pattern matches ``f.remote_path`` using :func:`re.search`
             - A **Callable[File]**: if this callable returns ``True`` for ``f``
+        checksum_algorithm:
+            Select an algorithm for computing file checksums.
+            This argument will be removed when the next SciCat version
+            has been released.
 
         Returns
         -------
@@ -348,19 +358,24 @@ class Client:
         # TODO undo if later fails but only if no files were written
         target.mkdir(parents=True, exist_ok=True)
         files = _select_files(select, dataset)
-        local_paths = [target / f.remote_path for f in files]
+        downloaded_files = [
+            f.downloaded(local_path=target / f.remote_path) for f in files
+        ]
+        downloaded_files = _remove_up_to_date_local_files(
+            downloaded_files, checksum_algorithm=checksum_algorithm
+        )
+        if not downloaded_files:
+            return dataset.replace()
+
         with self._connect_for_file_download() as con:
             con.download_files(
                 remote=[
                     p
-                    for f in files
+                    for f in downloaded_files
                     if (p := f.remote_access_path(dataset.source_folder)) is not None
                 ],
-                local=local_paths,
+                local=[f.local_path for f in downloaded_files],
             )
-        downloaded_files = tuple(
-            f.downloaded(local_path=l) for f, l in zip(files, local_paths)
-        )
         for f in downloaded_files:
             f.validate_after_download()
         return dataset.replace_files(*downloaded_files)
@@ -746,3 +761,18 @@ def _file_selector(select: FileSelector) -> Callable[[File], bool]:
 def _select_files(select: FileSelector, dataset: Dataset) -> List[File]:
     selector = _file_selector(select)
     return [f for f in dataset.files if selector(f)]
+
+
+def _remove_up_to_date_local_files(
+    files: List[File], checksum_algorithm: Optional[str]
+) -> List[File]:
+    return [
+        file
+        for file in files
+        if not (
+            file.local_path.exists()
+            and dataclasses.replace(
+                file, checksum_algorithm=checksum_algorithm
+            ).local_is_up_to_date()
+        )
+    ]

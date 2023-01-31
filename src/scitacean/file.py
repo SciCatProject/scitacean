@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import dataclasses
 import os
+import warnings
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import NoReturn, Optional, Union, cast
@@ -195,14 +196,14 @@ class File:
         :
             The checksum of the file.
         """
-        if self.is_on_local:
-            if self.checksum_algorithm is None:
-                return None
-            return self._checksum_cache.get(  # type: ignore[union-attr]
-                path=self.local_path,  # type: ignore[arg-type]
-                algorithm=self.checksum_algorithm,
-            )
-        return self._remote_checksum
+        if not self.is_on_local:
+            return self._remote_checksum
+        if self.checksum_algorithm is None:
+            return None
+        return self._checksum_cache.get(  # type: ignore[union-attr]
+            path=self.local_path,  # type: ignore[arg-type]
+            algorithm=self.checksum_algorithm,
+        )
 
     def remote_access_path(
         self, source_folder: Union[RemotePath, str]
@@ -219,6 +220,32 @@ class File:
     def is_on_local(self) -> bool:
         """True if the file is on local."""
         return self.local_path is not None
+
+    def local_is_up_to_date(self) -> bool:
+        """Check if the file on local is up-to-date.
+
+        Returns
+        -------
+        :
+            True if the file exists on local and its checksum
+            matches the stored checksum for the remote file.
+        """
+        if not self.is_on_remote:
+            return True
+        if not self.is_on_local:
+            return False
+        if self.checksum_algorithm is None:
+            warnings.warn(
+                f"Cannot check if local file {self.local_path} is up to date because "
+                "the checksum algorithm is not set. "
+                "Assuming the file needs to be updated."
+            )
+            return False
+        local_checksum = self._checksum_cache.get(  # type: ignore[union-attr]
+            path=self.local_path,  # type: ignore[arg-type]
+            algorithm=self.checksum_algorithm,
+        )
+        return self._remote_checksum == local_checksum
 
     def make_model(self, *, for_archive: bool = False) -> DataFile:
         """Build a pydantic model for this file.
