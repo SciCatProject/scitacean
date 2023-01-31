@@ -7,7 +7,7 @@ from __future__ import annotations
 import dataclasses
 import html
 from copy import deepcopy
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Generator, Iterable, List, Literal, Optional, Union
 
@@ -238,6 +238,25 @@ class Dataset(DatasetFields):
             ),
             _read_only=read_only,
             **kwargs,
+        )
+
+    def as_new(self) -> Dataset:
+        """Return a new dataset with lifecycle-related fields erased.
+
+        The returned dataset has the same fields as ``self``.
+        But fields that indicate when the dataset was created or
+        by who are set to ``None``.
+        This if, for example, ``created_at``, ``history``, and ``lifecycle``.
+
+        Returns
+        -------
+        :
+            A new dataset without lifecycle-related fields.
+        """
+        return self.replace(
+            _read_only={field.name: None for field in Dataset.fields(read_only=True)},
+            creation_time=datetime.now(tz=timezone.utc),
+            lifecycle=None,
         )
 
     def replace_files(self, *files: File) -> Dataset:

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
 
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
@@ -311,3 +311,22 @@ def test_replace_does_not_change_files_with_input_files(initial):
     assert replaced.number_of_files == 1
     assert replaced.size == 6163
     assert list(replaced.files) == list(initial.files)
+
+
+@given(sst.datasets())
+@settings(max_examples=5)
+def test_as_new(initial):
+    new = initial.as_new()
+    assert new.created_at is None
+    assert new.created_by is None
+    assert new.updated_at is None
+    assert new.updated_by is None
+    assert new.history == []
+    assert new.lifecycle is None
+    assert abs(new.creation_time - datetime.now(tz=timezone.utc)) < timedelta(seconds=1)
+
+    assert new.number_of_files == initial.number_of_files
+    assert new.size == initial.size
+    assert new.name == initial.name
+    assert new.input_datasets == initial.input_datasets
+    assert new.data_format == initial.data_format
