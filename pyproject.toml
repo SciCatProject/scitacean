@@ -56,6 +56,8 @@ addopts = """
 """
 filterwarnings = [
     "error",
+    # Many tests don't set a checksum, so File raises this warning.
+    "ignore:Cannot check if local file:UserWarning",
 ]
 
 [tool.mypy]

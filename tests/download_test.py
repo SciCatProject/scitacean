@@ -2,6 +2,7 @@
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
 import hashlib
 import re
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Union
 
@@ -15,6 +16,12 @@ from scitacean.model import DataFile, OrigDatablock, RawDataset
 from scitacean.testing.transfer import FakeFileTransfer
 
 
+def _checksum(data: bytes) -> str:
+    checksum = hashlib.new("md5")
+    checksum.update(data)
+    return checksum.hexdigest()
+
+
 @pytest.fixture
 def data_files():
     contents = {
@@ -23,7 +30,8 @@ def data_files():
         "thaum.dat": b"0 4 2 59 330 2314552",
     }
     files = [
-        DataFile(path=name, size=len(content)) for name, content in contents.items()
+        DataFile(path=name, size=len(content), chk=_checksum(content))
+        for name, content in contents.items()
     ]
     return files, contents
 
@@ -251,3 +259,56 @@ def test_download_files_detects_bad_size(fs, dataset_and_files, caplog):
         client.download_files(dataset, target="./download", select="file.txt")
     assert "does not match size reported in dataset" in caplog.text
     assert "89412" in caplog.text
+
+
+@pytest.mark.skip("Checksum algorithm not yet supported by datablocks")
+def test_download_does_not_download_up_to_date_file(fs, dataset_and_files):
+    # Ensure the file exists locally
+    dataset, contents = dataset_and_files
+    client = Client.without_login(
+        url="/", file_transfer=FakeFileTransfer(fs=fs, files=contents)
+    )
+    client.download_files(dataset, target="./download", select=True)
+
+    # Downloading the same files again should not call the downloader.
+    class RaisingDownloader(FakeFileTransfer):
+        source_dir = "/"
+
+        @contextmanager
+        def connect_for_download(self):
+            raise RuntimeError("Download disabled")
+
+    client = Client.without_login(
+        url="/",
+        file_transfer=RaisingDownloader(fs=fs),
+    )
+    # Does not raise
+    client.download_files(dataset, target="./download", select=True)
+
+
+def test_download_does_not_download_up_to_date_file_manual_checksum(
+    fs, dataset_and_files
+):
+    # Ensure the file exists locally
+    dataset, contents = dataset_and_files
+    client = Client.without_login(
+        url="/", file_transfer=FakeFileTransfer(fs=fs, files=contents)
+    )
+    client.download_files(dataset, target="./download", select=True)
+
+    # Downloading the same files again should not call the downloader.
+    class RaisingDownloader(FakeFileTransfer):
+        source_dir = "/"
+
+        @contextmanager
+        def connect_for_download(self):
+            raise RuntimeError("Download disabled")
+
+    client = Client.without_login(
+        url="/",
+        file_transfer=RaisingDownloader(fs=fs),
+    )
+    # Does not raise
+    client.download_files(
+        dataset, target="./download", select=True, checksum_algorithm="md5"
+    )
