@@ -40,7 +40,6 @@ extensions = [
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
-    "pyscicat": ("https://scicatproject.github.io/pyscicat/", None),
 }
 
 # autodocs includes everything, even irrelevant API internals. autosummary

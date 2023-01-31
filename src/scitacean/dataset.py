@@ -304,6 +304,14 @@ class Dataset(DatasetFields):
             return self._make_derived_model()
         return self._make_raw_model()
 
+    def validate(self) -> None:
+        """Validate the fields of the dataset.
+
+        Raises :class:`pydantic.ValidationError` if validation fails.
+        Returns normally if it passes.
+        """
+        self.make_model()
+
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Dataset):
             return False
