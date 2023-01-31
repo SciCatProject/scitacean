@@ -8,7 +8,7 @@ import pytest
 from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 
-from scitacean import Dataset, DatasetType, File, model
+from scitacean import PID, Dataset, DatasetType, File, model
 from scitacean.testing import strategies as sst
 
 from .common.files import make_file
@@ -330,3 +330,67 @@ def test_as_new(initial):
     assert new.name == initial.name
     assert new.input_datasets == initial.input_datasets
     assert new.data_format == initial.data_format
+
+
+@given(sst.datasets(pid=PID(pid="some-id")))
+@settings(max_examples=5)
+def test_derive_default(initial):
+    derived = initial.derive()
+    assert derived.type == "derived"
+    assert derived.input_datasets == [initial.pid]
+    assert derived.lifecycle is None
+    assert derived.history == []
+
+    assert derived.investigator == initial.investigator
+    assert derived.owner == initial.owner
+    assert derived.instrument_id == initial.instrument_id
+    assert derived.orcid_of_owner == initial.orcid_of_owner
+    assert derived.owner_email == initial.owner_email
+    assert derived.contact_email == initial.contact_email
+    assert derived.techniques == initial.techniques
+
+    assert derived.name is None
+    assert derived.used_software is None
+    assert derived.number_of_files == 0
+    assert derived.number_of_files_archived == 0
+
+
+@given(sst.datasets(pid=PID(pid="some-id")))
+@settings(max_examples=5)
+def test_derive_set_keep(initial):
+    derived = initial.derive(keep=("name", "used_software"))
+    assert derived.type == "derived"
+    assert derived.input_datasets == [initial.pid]
+    assert derived.lifecycle is None
+    assert derived.history == []
+
+    assert derived.name == initial.name
+    assert derived.used_software == initial.used_software
+
+    assert derived.number_of_files == 0
+    assert derived.number_of_files_archived == 0
+
+
+@given(sst.datasets(pid=PID(pid="some-id")))
+@settings(max_examples=5)
+def test_derive_keep_nothing(initial):
+    derived = initial.derive(keep=())
+    assert derived.type == "derived"
+    assert derived.input_datasets == [initial.pid]
+    assert derived.lifecycle is None
+    assert derived.history == []
+
+    assert derived.investigator is None
+    assert derived.owner is None
+    assert derived.instrument_id is None
+    assert derived.name is None
+    assert derived.used_software is None
+    assert derived.number_of_files == 0
+    assert derived.number_of_files_archived == 0
+
+
+@given(sst.datasets(pid=None))
+@settings(max_examples=5)
+def test_derive_requires_pid(initial):
+    with pytest.raises(ValueError):
+        initial.derive()

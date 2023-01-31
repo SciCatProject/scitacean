@@ -259,6 +259,52 @@ class Dataset(DatasetFields):
             lifecycle=None,
         )
 
+    def derive(
+        self,
+        *,
+        keep: Iterable[str] = (
+            "contact_email",
+            "instrument_id",
+            "investigator",
+            "orcid_of_owner",
+            "owner",
+            "owner_email",
+            "techniques",
+        ),
+    ) -> Dataset:
+        """Return a new dataset that is derived from self.
+
+        The returned dataset has most fields set to ``None``.
+        But a number of fields can be carried over from ``self``.
+        By default, this assumes that the owner of the derived dataset is the same
+        as the owner of the original.
+        This can be customized with the ``keep`` argument.
+
+        Parameters
+        ----------
+        keep:
+            Fields to copy over to the derived dataset.
+
+        Returns
+        -------
+        :
+            A new derived dataset.
+
+        Raises
+        ------
+        ValueError
+            If ``self`` has no PID.
+            The derived dataset requires a PID in order to link back to ``self``.
+        """
+        if self.pid is None:
+            raise ValueError("Cannot make a derived datasets because self.pid is None.")
+        return Dataset(
+            type=DatasetType.DERIVED,
+            input_datasets=[self.pid],
+            creation_time=datetime.now(tz=timezone.utc),
+            **{name: getattr(self, name) for name in keep},
+        )
+
     def replace_files(self, *files: File) -> Dataset:
         """Return a new dataset with replaced files.
 
