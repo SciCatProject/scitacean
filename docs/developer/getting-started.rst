@@ -55,7 +55,7 @@ Running tests
 
         .. code-block:: sh
 
-            python -m pytest
+            python -m pytest -n<number-of-threads>
 
         Or to run tests against a real backend (see setup above)
 
