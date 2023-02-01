@@ -6,10 +6,11 @@ from __future__ import annotations
 
 import dataclasses
 import html
+import itertools
 from copy import deepcopy
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Generator, Iterable, List, Literal, Optional, Union
+from typing import Any, Dict, Generator, List, Literal, Optional, Tuple, Union
 
 from ._dataset_fields import DatasetFields, fields_from_model
 from .datablock import OrigDatablockProxy
@@ -146,10 +147,13 @@ class Dataset(DatasetFields):
         return sum(file.size for file in self.files)
 
     @property
-    def files(self) -> Iterable[File]:
+    def files(self) -> Tuple[File, ...]:
         """Files linked with the dataset."""
-        for dblock in self._orig_datablocks:
-            yield from dblock.files
+        return tuple(
+            itertools.chain.from_iterable(
+                dblock.files for dblock in self._orig_datablocks
+            )
+        )
 
     def add_files(self, *files: File, datablock: Union[int, str, PID] = -1) -> None:
         """Add files to the dataset."""
