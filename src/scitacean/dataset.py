@@ -10,7 +10,7 @@ import itertools
 from copy import deepcopy
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Generator, List, Literal, Optional, Tuple, Union
+from typing import Any, Dict, Generator, Iterable, List, Literal, Optional, Tuple, Union
 
 from ._dataset_fields import DatasetFields, fields_from_model
 from .datablock import OrigDatablockProxy
