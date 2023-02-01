@@ -8,9 +8,9 @@ import dataclasses
 import html
 import itertools
 from copy import deepcopy
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Generator, List, Literal, Optional, Tuple, Union
+from typing import Any, Dict, Generator, Iterable, List, Literal, Optional, Tuple, Union
 
 from ._dataset_fields import DatasetFields, fields_from_model
 from .datablock import OrigDatablockProxy
@@ -242,6 +242,71 @@ class Dataset(DatasetFields):
             ),
             _read_only=read_only,
             **kwargs,
+        )
+
+    def as_new(self) -> Dataset:
+        """Return a new dataset with lifecycle-related fields erased.
+
+        The returned dataset has the same fields as ``self``.
+        But fields that indicate when the dataset was created or
+        by who are set to ``None``.
+        This if, for example, ``created_at``, ``history``, and ``lifecycle``.
+
+        Returns
+        -------
+        :
+            A new dataset without lifecycle-related fields.
+        """
+        return self.replace(
+            _read_only={field.name: None for field in Dataset.fields(read_only=True)},
+            creation_time=datetime.now(tz=timezone.utc),
+            lifecycle=None,
+        )
+
+    def derive(
+        self,
+        *,
+        keep: Iterable[str] = (
+            "contact_email",
+            "instrument_id",
+            "investigator",
+            "orcid_of_owner",
+            "owner",
+            "owner_email",
+            "techniques",
+        ),
+    ) -> Dataset:
+        """Return a new dataset that is derived from self.
+
+        The returned dataset has most fields set to ``None``.
+        But a number of fields can be carried over from ``self``.
+        By default, this assumes that the owner of the derived dataset is the same
+        as the owner of the original.
+        This can be customized with the ``keep`` argument.
+
+        Parameters
+        ----------
+        keep:
+            Fields to copy over to the derived dataset.
+
+        Returns
+        -------
+        :
+            A new derived dataset.
+
+        Raises
+        ------
+        ValueError
+            If ``self`` has no PID.
+            The derived dataset requires a PID in order to link back to ``self``.
+        """
+        if self.pid is None:
+            raise ValueError("Cannot make a derived datasets because self.pid is None.")
+        return Dataset(
+            type=DatasetType.DERIVED,
+            input_datasets=[self.pid],
+            creation_time=datetime.now(tz=timezone.utc),
+            **{name: getattr(self, name) for name in keep},
         )
 
     def replace_files(self, *files: File) -> Dataset:

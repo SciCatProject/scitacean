@@ -29,6 +29,28 @@ Release notes
    Stability, Maintainability, and Testing
    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+vYY.0M.MICRO (Unreleased)
+-------------------------
+
+Features
+~~~~~~~~
+
+* Added :func:`scitacean.Dataset.as_new` and :func:`scitacean.Dataset.derive`.
+
+Breaking changes
+~~~~~~~~~~~~~~~~
+
+Bugfixes
+~~~~~~~~
+
+Documentation
+~~~~~~~~~~~~~
+
+Deprecations
+~~~~~~~~~~~~
+
+Stability, Maintainability, and Testing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 vYY.0M.MICRO (Unreleased)
 -------------------------
