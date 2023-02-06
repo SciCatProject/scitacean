@@ -88,7 +88,7 @@ class RemotePath(os.PathLike):  # type: ignore[type-arg]
         def trunc(seg: str) -> str:
             # First, make sure that the name is short enough to fit the suffix
             # such that the suffix does not get truncated.
-            # But keep at least one character of the namae.
+            # But keep at least one character of the name.
             # Then make sure the whole segment is short enough, potentially
             # truncating the suffix.
             parts = seg.rsplit(".", 1)
@@ -164,7 +164,7 @@ P = TypeVar("P", bound=Union[str, Path, RemotePath])
 
 
 def escape_path(path: P) -> P:
-    """Escape characters disallowed characters for file paths.
+    """Escape disallowed characters for file paths.
 
     Replaces
 

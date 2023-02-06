@@ -197,8 +197,8 @@ class SSHFileTransfer:
 
     Configuration & Authentication
     ------------------------------
-    The file transfer connects to the server at address given as the
-    ``host`` constructor argument.
+    The file transfer connects to the server at the address given
+    as the ``host`` constructor argument.
     This may be
 
     - a full url such as ``some.fileserver.edu``,
