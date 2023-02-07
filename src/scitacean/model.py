@@ -136,7 +136,7 @@ class DerivedDataset(Ownable):
     validationStatus: Optional[str]
     version: Optional[str]
 
-    @pydantic.validator("contactEmail", "investigator", "ownerEmail")
+    @pydantic.validator("contactEmail", "ownerEmail")
     def _validate_emails(cls, value: Any) -> Any:
         return _validate_emails(value)
 
@@ -195,7 +195,7 @@ class RawDataset(Ownable):
     validationStatus: Optional[str]
     version: Optional[str]
 
-    @pydantic.validator("contactEmail", "principalInvestigator", "ownerEmail")
+    @pydantic.validator("contactEmail", "ownerEmail")
     def _validate_emails(cls, value: Any) -> Any:
         return _validate_emails(value)
 

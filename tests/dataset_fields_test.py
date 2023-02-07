@@ -411,7 +411,7 @@ def test_make_derived_model_raises_if_raw_field_set(field, data):
         dset.make_model()
 
 
-@pytest.mark.parametrize("field", ("contact_email", "investigator", "owner_email"))
+@pytest.mark.parametrize("field", ("contact_email", "owner_email"))
 def test_email_validation(field):
     dset = Dataset(
         type="raw",
