@@ -16,16 +16,16 @@ from invoke.exceptions import UnexpectedExit
 from paramiko import SFTPClient
 from paramiko.ssh_exception import AuthenticationException, PasswordRequiredException
 
+from ..dataset import Dataset
 from ..error import FileUploadError
 from ..file import File
 from ..filesystem import RemotePath
 from ..logging import get_logger
-from ..pid import PID
+from .util import source_folder_for
 
 # TODO process multiple files together
 # TODO pass pid in put/revert?
 #      downloading does not need a pid, so it should not be required in the constructor/
-# TODO cache download (maybe using pooch)
 
 
 class SSHDownloadConnection:
@@ -48,12 +48,9 @@ class SSHDownloadConnection:
 
 
 class SSHUploadConnection:
-    def __init__(
-        self, *, connection: Connection, dataset_id: PID, remote_base_path: RemotePath
-    ) -> None:
+    def __init__(self, *, connection: Connection, source_folder: RemotePath) -> None:
         self._connection = connection
-        self._dataset_id = dataset_id
-        self._remote_base_path = remote_base_path
+        self._source_folder = source_folder
         self._remote_timezone = self._get_remote_timezone()
 
     @property
@@ -61,18 +58,18 @@ class SSHUploadConnection:
         return self._connection.sftp()  # type: ignore[no-any-return]
 
     @property
-    def source_dir(self) -> RemotePath:
-        return self._remote_base_path / self._dataset_id.pid
+    def source_folder(self) -> RemotePath:
+        return self._source_folder
 
     def remote_path(self, filename: Union[str, RemotePath]) -> RemotePath:
-        return self.source_dir / filename
+        return self.source_folder / filename
 
     def _make_source_folder(self) -> None:
         try:
-            self._connection.run(f"mkdir -p {os.fspath(self.source_dir)}", hide=True)
+            self._connection.run(f"mkdir -p {os.fspath(self.source_folder)}", hide=True)
         except OSError as exc:
             raise FileUploadError(
-                f"Failed to create source folder {self.source_dir}: {exc.args}"
+                f"Failed to create source folder {self.source_folder}: {exc.args}"
             ) from None
 
     def upload_files(self, *files: File) -> List[File]:
@@ -161,18 +158,18 @@ class SSHUploadConnection:
                 remote=file.remote_path, local=file.local_path
             )  # type: ignore[arg-type]
 
-        if _folder_is_empty(self._connection, self.source_dir):
+        if _folder_is_empty(self._connection, self.source_folder):
             try:
                 get_logger().info(
                     "Removing empty remote directory %s on host %s",
-                    self.source_dir,
+                    self.source_folder,
                     self._connection.host,
                 )
-                self._sftp.rmdir(os.fspath(self.source_dir))
+                self._sftp.rmdir(os.fspath(self.source_folder))
             except UnexpectedExit as exc:
                 get_logger().warning(
                     "Failed to remove empty remote directory %s on host:\n%s",
-                    self.source_dir,
+                    self.source_folder,
                     self._connection.host,
                     exc.result,
                 )
@@ -196,23 +193,107 @@ class SSHUploadConnection:
 
 
 class SSHFileTransfer:
-    """Upload / download files using SSH."""
+    """Upload / download files using SSH.
+
+    Configuration & Authentication
+    ------------------------------
+    The file transfer connects to the server at the address given
+    as the ``host`` constructor argument.
+    This may be
+
+    - a full url such as ``some.fileserver.edu``,
+    - an IP address like ``127.0.0.1``,
+    - or a host defined in the user's openSSH config file.
+
+    The file transfer can authenticate using username+password.
+    It will ask for those on the command line.
+    However, it is **highly recommended to set up a key and use an SSH agent!**
+    This increases security as Scitacean no longer has to handle credentials itself.
+    And it is required for automated programs where a user cannot enter credentials
+    on a command line.
+
+    Upload folder
+    -------------
+    The file transfer can take an optional ``source_folder`` as a constructor argument.
+    If it is given, ``SSHFileTransfer`` uploads all files to it and ignores the
+    source folder set in the dataset.
+    If it is not given, ``SSHFileTransfer`` uses the dataset's source folder.
+
+    The source folder argument to ``SSHFileTransfer`` may be a Python format string.
+    In that case, all format fields are replaced by the corresponding fields
+    of the dataset.
+    All non-ASCII characters and most special ASCII characters are replaced.
+    This should avoid broken paths from essentially random contents in datasets.
+
+    Examples
+    --------
+    Given
+
+    .. code-block:: python
+
+        dset = Dataset(type="raw",
+                       name="my-dataset",
+                       source_folder="/dataset/source",
+                       )
+
+    This uploads to ``/dataset/source``:
+
+    .. code-block:: python
+
+        file_transfer = SSHFileTransfer(host="fileserver")
+
+    This uploads to ``/transfer/folder``:
+
+    .. code-block:: python
+
+        file_transfer = SSHFileTransfer(host="fileserver",
+                                        source_folder="transfer/folder")
+
+    This uploads to ``/transfer/my-dataset``:
+    (Note that ``{name}`` is replaced by ``dset.name``.)
+
+    .. code-block:: python
+
+        file_transfer = SSHFileTransfer(host="fileserver",
+                                        source_folder="transfer/{name}")
+
+    A useful approach is to include the PID in the source folder, for example
+    ``/some/base/folder/{pid.pid}``, to avoid clashes between different datasets.
+    """
 
     def __init__(
         self,
         *,
-        remote_base_path: Optional[Union[str, RemotePath]] = None,
         host: str,
         port: Optional[int] = None,
+        source_folder: Optional[Union[str, Path]] = None,
     ) -> None:
+        """Construct a new SSH file transfer.
+
+        Parameters
+        ----------
+        host:
+            URL or name of the server to connect to.
+        port:
+            Port of the server.
+        source_folder:
+            Upload files to this folder if set.
+            Otherwise, upload to the dataset's source_folder.
+            Ignored when downloading files.
+        """
         self._host = host
         self._port = port
-        self._remote_base_path = (
-            RemotePath(remote_base_path) if remote_base_path is not None else None
+        self._source_folder_pattern = (
+            RemotePath(source_folder) if source_folder is not None else None
         )
+
+    def source_folder_for(self, dataset: Dataset) -> RemotePath:
+        """Return the source folder used for the given dataset."""
+        return source_folder_for(dataset, self._source_folder_pattern)
 
     @contextmanager
     def connect_for_download(self) -> Iterator[SSHDownloadConnection]:
+        """Create a connection for downloads, use as a context manager."""
         con = _connect(self._host, self._port)
         try:
             yield SSHDownloadConnection(connection=con)
@@ -220,15 +301,14 @@ class SSHFileTransfer:
             con.close()
 
     @contextmanager
-    def connect_for_upload(self, dataset_id: PID) -> Iterator[SSHUploadConnection]:
-        if self._remote_base_path is None:
-            raise ValueError("remote_base_path must be set when uploading files")
+    def connect_for_upload(self, dataset: Dataset) -> Iterator[SSHUploadConnection]:
+        """Create a connection for uploads, use as a context manager."""
+        source_folder = self.source_folder_for(dataset)
         con = _connect(self._host, self._port)
         try:
             yield SSHUploadConnection(
                 connection=con,
-                dataset_id=dataset_id,
-                remote_base_path=self._remote_base_path,
+                source_folder=source_folder,
             )
         finally:
             con.close()

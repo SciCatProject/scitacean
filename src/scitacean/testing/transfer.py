@@ -9,9 +9,10 @@ try:
 except ImportError:
     FakeFilesystem = Any
 
+from ..dataset import Dataset
 from ..file import File
 from ..filesystem import RemotePath
-from ..pid import PID
+from ..transfer.util import source_folder_for
 
 
 class FakeDownloadConnection:
@@ -36,18 +37,14 @@ class FakeUploadConnection:
         self,
         files: Dict[RemotePath, bytes],
         reverted: Dict[RemotePath, bytes],
-        dataset_id: PID,
+        source_folder: RemotePath,
     ):
         self.files = files
         self.reverted = reverted
-        self._dataset_id = dataset_id
-
-    @property
-    def source_dir(self) -> RemotePath:
-        return RemotePath("/remote") / self._dataset_id.pid
+        self._source_folder = source_folder
 
     def _remote_path(self, filename: RemotePath) -> RemotePath:
-        return self.source_dir / filename
+        return self._source_folder / filename
 
     def _upload_file(self, *, remote: RemotePath, local: Path) -> RemotePath:
         remote = self._remote_path(remote)
@@ -103,6 +100,7 @@ class FakeFileTransfer:
         fs: Optional[FakeFilesystem] = None,
         files: Optional[Dict[Union[str, RemotePath], bytes]] = None,
         reverted: Optional[Dict[Union[str, RemotePath], bytes]] = None,
+        source_folder: Optional[Union[str, RemotePath]] = None,
     ):
         """Initialize a file transfer.
 
@@ -117,19 +115,29 @@ class FakeFileTransfer:
             Maps file names to contents.
         reverted:
             Files that have been uploaded and subsequently been removed.
+        source_folder:
+            Upload files to this folder if set.
+            Otherwise, upload to the dataset's source_folder.
+            Ignored when downloading files.
         """
         self.fs = fs
         self.files = _remote_path_dict(files)
         self.reverted = _remote_path_dict(reverted)
+        self._source_folder_pattern = source_folder
+
+    def source_folder_for(self, dataset: Dataset) -> RemotePath:
+        return source_folder_for(dataset, self._source_folder_pattern)
 
     @contextmanager
     def connect_for_download(self) -> Iterator[FakeDownloadConnection]:
         yield FakeDownloadConnection(fs=self.fs, files=self.files)
 
     @contextmanager
-    def connect_for_upload(self, dataset_id: PID) -> Iterator[FakeUploadConnection]:
+    def connect_for_upload(self, dataset: Dataset) -> Iterator[FakeUploadConnection]:
         yield FakeUploadConnection(
-            files=self.files, reverted=self.reverted, dataset_id=dataset_id
+            files=self.files,
+            reverted=self.reverted,
+            source_folder=self.source_folder_for(dataset),
         )
 
 

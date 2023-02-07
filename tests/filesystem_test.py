@@ -5,10 +5,13 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
+from hypothesis import given
+from hypothesis import strategies as st
 
 from scitacean.filesystem import (
     RemotePath,
     checksum_of_file,
+    escape_path,
     file_modification_time,
     file_size,
 )
@@ -90,6 +93,13 @@ def test_remote_path_suffix():
     assert RemotePath("source/file").suffix is None
 
 
+def test_remote_path_truncated():
+    assert RemotePath("something-long.txt").truncated(10) == "someth.txt"
+    assert RemotePath("longlonglong/short").truncated(5) == "longl/short"
+    assert RemotePath("a-long.data.dir/filename.csv").truncated(7) == "a-l.dir/fil.csv"
+    assert RemotePath("file.longextension").truncated(9) == "f.longext"
+
+
 @pytest.mark.parametrize("size", (0, 1, 57121))
 def test_file_size(fs, size):
     fs.create_file("image.tiff", st_size=size)
@@ -120,3 +130,22 @@ def test_checksum_of_file(fs, contents):
         checksum_of_file("file.txt", algorithm="sha256")
         == hashlib.sha256(contents).hexdigest()
     )
+
+
+@pytest.mark.parametrize("path_type", (str, Path, RemotePath))
+def test_escape_path_returns_same_type_as_input(path_type):
+    assert isinstance(escape_path(path_type("x")), path_type)
+
+
+@given(st.text())
+def test_escape_path_returns_ascii(path):
+    # does not raise
+    escape_path(path).encode("ascii", "strict")
+
+
+@given(st.text())
+def test_escape_path_returns_no_bad_character(path):
+    bad_linux = "/" + chr(0)
+    bad_windows = '<>:"\\/|?*' + "".join(map(chr, range(0, 31)))
+    escaped = escape_path(path)
+    assert not any(c in escaped for c in bad_linux + bad_windows)

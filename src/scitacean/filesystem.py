@@ -10,15 +10,16 @@ from __future__ import annotations
 
 import hashlib
 import os
+import re
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Callable, Generator, Optional, Union
+from typing import Any, Callable, Generator, Optional, TypeVar, Union
 
 
 class RemotePath(os.PathLike):  # type: ignore[type-arg]
     """A path on the remote filesystem.
 
-    Remote paths need not correspond to a regular filesystem path like
+    Remote paths do not need to correspond to a regular filesystem path like
     :class:`pathlib.PosixPath` or :class:`pathlib.WindowsPath`.
     Instead, they can be any sequence of segments that are joined by forward slashes,
     e.g. a URL.
@@ -69,6 +70,34 @@ class RemotePath(os.PathLike):  # type: ignore[type-arg]
             return None
         return "." + parts[1]
 
+    def truncated(self, max_length: int = 255) -> RemotePath:
+        """Return a new remote path with all path segments truncated.
+
+        Parameters
+        ----------
+        max_length:
+            Maximum length of each segment.
+            The default value is the typical maximum length on Linux.
+
+        Returns
+        -------
+        :
+            A new remote path with truncated segments.
+        """
+
+        def trunc(seg: str) -> str:
+            # First, make sure that the name is short enough to fit the suffix
+            # such that the suffix does not get truncated.
+            # But keep at least one character of the name.
+            # Then make sure the whole segment is short enough, potentially
+            # truncating the suffix.
+            parts = seg.rsplit(".", 1)
+            name = parts[0]
+            suffix = "." + parts[1] if len(parts) > 1 else ""
+            return (name[: max(1, max_length - len(suffix))] + suffix)[:max_length]
+
+        return RemotePath("/".join(map(trunc, self._path.split("/"))))
+
     @classmethod
     def __get_validators__(
         cls,
@@ -90,12 +119,12 @@ def _strip_leading_slash(s: str) -> str:
 
 
 def file_size(path: Path) -> int:
-    """Return the size of a file in bytes."""
+    """Return the size of a local file in bytes."""
     return path.stat().st_size
 
 
 def file_modification_time(path: Path) -> datetime:
-    """Return the time in UTC when a file was last modified."""
+    """Return the time in UTC when a local file was last modified."""
     return datetime.fromtimestamp(path.stat().st_mtime).astimezone(timezone.utc)
 
 
@@ -109,19 +138,19 @@ def _new_hash(algorithm: str) -> Any:
 
 # size based on http://git.savannah.gnu.org/gitweb/?p=coreutils.git;a=blob;f=src/ioblksize.h;h=ed2f4a9c4d77462f357353eb73ee4306c28b37f1;hb=HEAD#l23  # noqa: E501
 def checksum_of_file(path: Union[str, Path], *, algorithm: str) -> str:
-    """Compute the checksum of a file.
+    """Compute the checksum of a local file.
 
     Parameters
     ----------
     path:
-        Path of the file.
+        Path of the file on the local filesystem.
     algorithm:
         Hash algorithm to use. Can be any algorithm supported by :func:`hashlib.new`.
 
     Returns
     -------
     :
-        THe hex digest of the hash.
+        The hex digest of the hash.
     """
     chk = _new_hash(algorithm)
     buffer = memoryview(bytearray(128 * 1024))
@@ -129,3 +158,34 @@ def checksum_of_file(path: Union[str, Path], *, algorithm: str) -> str:
         for n in iter(lambda: file.readinto(buffer), 0):
             chk.update(buffer[:n])
     return chk.hexdigest()  # type: ignore[no-any-return]
+
+
+P = TypeVar("P", bound=Union[str, Path, RemotePath])
+
+
+def escape_path(path: P) -> P:
+    """Escape disallowed characters for file paths.
+
+    Replaces
+
+    - Unicode characters using ``"backslashreplace"``.
+      See the `Python docs <https://docs.python.org/3/library/codecs.html?highlight=unicode_escape#error-handlers>`_.
+    - Non-word characters by '_'. This includes backslashes
+      introduced by the above.
+
+    The result should be a valid path name on Linux, macOS, and Windows.
+
+    Parameters
+    ----------
+    path:
+        Input string or path.
+
+    Returns
+    -------
+    :
+        ``path`` with offending characters replaced.
+        Has the same type as ``path``.
+    """  # noqa: E501
+    s = os.fspath(path)
+    no_utf = s.encode("ascii", "backslashreplace").decode("ascii")
+    return type(path)(re.sub(r"[^\w .\-]", "_", no_utf))

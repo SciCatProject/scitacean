@@ -4,9 +4,9 @@
 from pathlib import Path
 from typing import ContextManager, List, Protocol
 
+from .dataset import Dataset
 from .file import File
 from .filesystem import RemotePath
-from .pid import PID
 
 
 class DownloadConnection(Protocol):
@@ -40,11 +40,6 @@ class Downloader(Protocol):
 class UploadConnection(Protocol):
     """An open connection to the file server for uploads."""
 
-    # TODO rename to source_folder (or remove?)
-    @property
-    def source_dir(self) -> RemotePath:
-        """Files are uploaded to this directory / location."""
-
     def upload_files(self, *files: File) -> List[File]:
         """Upload files to the file server.
 
@@ -76,13 +71,30 @@ class UploadConnection(Protocol):
 class Uploader(Protocol):
     """Handler for file uploads."""
 
-    def connect_for_upload(self, dataset_id: PID) -> ContextManager[UploadConnection]:
+    def source_folder_for(self, dataset: Dataset) -> RemotePath:
+        """Files are uploaded to this directory / location.
+
+        This method may derive the source_folder from the given dataset
+        or override it entirely and specify its own.
+
+        Parameters
+        ----------
+        dataset:
+            Determine the source folder for this dataset.
+
+        Returns
+        -------
+        :
+            The source folder for ``dataset``.
+        """
+
+    def connect_for_upload(self, dataset: Dataset) -> ContextManager[UploadConnection]:
         """Open a connection to the file server.
 
         Parameters
         ----------
-        dataset_id:
-            ID of the dataset whose file will be uploaded.
+        dataset:
+            Dataset whose files will be uploaded.
 
         Returns
         -------

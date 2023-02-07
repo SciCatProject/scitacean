@@ -103,15 +103,14 @@ def test_upload_creates_dataset_and_datablock(client, dataset):
 
 def test_upload_uploads_files_to_source_folder(client, dataset):
     finalized = client.upload_new_dataset_now(dataset)
-
-    with client.file_transfer.connect_for_upload(finalized.pid) as con:
-        source_dir = con.source_dir
+    source_folder = client.file_transfer.source_folder_for(finalized)
 
     assert (
-        client.file_transfer.files[source_dir / "file.nxs"] == b"contents of file.nxs"
+        client.file_transfer.files[source_folder / "file.nxs"]
+        == b"contents of file.nxs"
     )
     assert (
-        client.file_transfer.files[source_dir / "the_log_file.log"]
+        client.file_transfer.files[source_folder / "the_log_file.log"]
         == b"this is a log file"
     )
 
