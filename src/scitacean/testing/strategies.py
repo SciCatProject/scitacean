@@ -66,7 +66,6 @@ def _scientific_metadata_strategy(
 
 
 _SPECIAL_FIELDS = {
-    "investigator": _email_field_strategy,
     "contact_email": _email_field_strategy,
     "owner_email": _email_field_strategy,
     "orcid_of_owner": _orcid_field_strategy,
