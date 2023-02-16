@@ -1,6 +1,7 @@
 <div>
     ${style_sheet}
     <table class="scitacean dataset">
+        <div class="info-line">${dataset_type}Dataset ${number_of_files} Files; Total size: ${size}</div>
         <tr class="header">
             <th>Name</th><th></th><th>Type</th><th>Value</th><th>Description</th>
         </tr>

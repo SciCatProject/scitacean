@@ -8,7 +8,7 @@ from typing import Any, List
 
 from ..dataset import Dataset
 from ..filesystem import RemotePath
-from ..model import DatasetLifecycle, Technique
+from ..model import DatasetLifecycle, DatasetType, Technique
 from ..pid import PID
 from . import resources
 
@@ -18,9 +18,18 @@ def dataset_html_repr(dset: Dataset) -> str:
     style_sheet = resources.dataset_style()
     rows = "\n".join(
         _format_field(dset, field)
-        for field in sorted(Dataset.fields(), key=lambda f: not f.required(dset.type))
+        for field in sorted(
+            filter(lambda f: f.name not in _EXCLUDED_FIELDS, Dataset.fields()),
+            key=lambda f: not f.required(dset.type),
+        )
     )
-    return template.substitute(style_sheet=style_sheet, rows=rows)
+    return template.substitute(
+        style_sheet=style_sheet,
+        dataset_type=_format_dataset_type(dset.type),
+        number_of_files=dset.number_of_files,
+        size=_human_readable_size(dset.size),
+        rows=rows,
+    )
 
 
 def _format_field(dset: Dataset, field: Dataset.Field) -> str:
@@ -38,6 +47,13 @@ def _format_field(dset: Dataset, field: Dataset.Field) -> str:
     return template.substitute(
         name=name, required=required, type=typ, value=value, description=description
     )
+
+
+_EXCLUDED_FIELDS = (
+    "type",
+    "number_of_files",
+    "size",
+)
 
 
 _TYPE_NAME = {
@@ -61,3 +77,15 @@ def _format_type(typ: Any) -> str:
         return _TYPE_NAME[typ]
     except KeyError:
         return html.escape(str(typ))
+
+
+def _format_dataset_type(dataset_type: DatasetType) -> str:
+    return "Raw" if dataset_type == DatasetType.RAW else "Derived"
+
+
+def _human_readable_size(size_in_bytes: int) -> str:
+    for power, prefix in ((4, "T"), (3, "G"), (2, "M"), (1, "k")):
+        n = 1024**power
+        if size_in_bytes >= n:
+            return f"{size_in_bytes/n:.2f} {prefix}iB"
+    return f"{size_in_bytes} B"
