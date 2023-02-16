@@ -7,7 +7,8 @@ from datetime import datetime
 from typing import Any, List
 
 from ..dataset import Dataset
-from ..model import DatasetLifecycle
+from ..filesystem import RemotePath
+from ..model import DatasetLifecycle, Technique
 from ..pid import PID
 from . import resources
 
@@ -39,17 +40,24 @@ def _format_field(dset: Dataset, field: Dataset.Field) -> str:
     )
 
 
+_TYPE_NAME = {
+    str: "str",
+    int: "int",
+    bool: "bool",
+    datetime: "datetime",
+    PID: "PID",
+    DatasetLifecycle: "DatasetLifecycle",
+    RemotePath: "RemotePath",
+    List[str]: "list[str]",
+    List[PID]: "list[PID]",
+    List[Technique]: "list[Technique]",
+    List[dict]: "list[dict]",  # type: ignore[type-arg]
+    dict: "dict",
+}
+
+
 def _format_type(typ: Any) -> str:
     try:
-        return {
-            str: "str",
-            int: "int",
-            bool: "bool",
-            datetime: "datetime",
-            PID: "PID",
-            DatasetLifecycle: "DatasetLifecycle",
-            List[str]: "list[str]",
-            List[dict]: "list[dict]",  # type: ignore[type-arg]
-        }[typ]
+        return _TYPE_NAME[typ]
     except KeyError:
         return html.escape(str(typ))
