@@ -102,7 +102,7 @@ def construct(
             raise
         get_logger().warning(
             "Validation of metadata failed: %s\n"
-            "The returned object may be incomplete or broken."
+            "The returned object may be incomplete or broken. "
             "In particular, some fields may not have the correct type",
             str(e),
         )
