@@ -1,0 +1,3 @@
+<tr class="field">
+<td>${name}</td><td>${required}</td><td>${type}</td><td>${value}</td><td>${description}</td>
+</tr>

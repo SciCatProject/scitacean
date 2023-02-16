@@ -1,0 +1,9 @@
+<div>
+    ${style_sheet}
+    <table class="scitacean dataset">
+        <tr class="header">
+            <th>Name</th><th></th><th>Type</th><th>Value</th><th>Description</th>
+        </tr>
+        ${rows}
+    </table>
+</div>

@@ -9,20 +9,17 @@ from typing import Any, List
 from ..dataset import Dataset
 from ..model import DatasetLifecycle
 from ..pid import PID
+from . import resources
 
 
 def dataset_html_repr(dset: Dataset) -> str:
-
+    template = resources.dataset_repr_template()
+    style_sheet = resources.dataset_style()
     rows = "\n".join(
         _format_field(dset, field)
         for field in sorted(Dataset.fields(), key=lambda f: not f.required(dset.type))
     )
-    return f"""<table>
-        <tr>
-            <th>Name</th><th></th><th>Type</th><th>Value</th><th>Description</th>
-        </tr>
-        {rows}
-    </table>"""
+    return template.substitute(style_sheet=style_sheet, rows=rows)
 
 
 def _format_field(dset: Dataset, field: Dataset.Field) -> str:
@@ -35,10 +32,10 @@ def _format_field(dset: Dataset, field: Dataset.Field) -> str:
     value = html.escape(str(getattr(dset, field.name)))
     typ = _format_type(field.type)
     description = html.escape(field.description)
-    return (
-        "<tr><td>"
-        + "</td><td>".join((name, required, typ, value, description))
-        + "</tr></td>"
+
+    template = resources.dataset_field_repr_template()
+    return template.substitute(
+        name=name, required=required, type=typ, value=value, description=description
     )
 
 
