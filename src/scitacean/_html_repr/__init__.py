@@ -4,7 +4,7 @@
 
 import html
 from datetime import datetime
-from typing import Any, List
+from typing import Any, Generator, List
 
 from ..dataset import Dataset
 from ..filesystem import RemotePath
@@ -16,19 +16,19 @@ from . import resources
 def dataset_html_repr(dset: Dataset) -> str:
     template = resources.dataset_repr_template()
     style_sheet = resources.dataset_style()
-    rows = "\n".join(
-        _format_field(dset, field)
-        for field in sorted(
-            filter(lambda f: f.name not in _EXCLUDED_FIELDS, Dataset.fields()),
-            key=lambda f: not f.required(dset.type),
-        )
+    main_rows = "\n".join(
+        _format_field(dset, field) for field in _get_field_specs(dset, detail=False)
+    )
+    detail_rows = "\n".join(
+        _format_field(dset, field) for field in _get_field_specs(dset, detail=True)
     )
     return template.substitute(
         style_sheet=style_sheet,
         dataset_type=_format_dataset_type(dset.type),
         number_of_files=dset.number_of_files,
         size=_human_readable_size(dset.size),
-        rows=rows,
+        main_rows=main_rows,
+        detail_rows=detail_rows,
     )
 
 
@@ -54,6 +54,24 @@ _EXCLUDED_FIELDS = (
     "number_of_files",
     "size",
 )
+
+_DETAIL_FIELDS = (
+    "classification",
+    "creation_location",
+    "instrument_id",
+    "is_published",
+)
+
+
+def _get_field_specs(
+    dset: Dataset, detail: bool
+) -> Generator[Dataset.Field, None, None]:
+    it = filter(lambda f: f.name not in _EXCLUDED_FIELDS, Dataset.fields())
+    if detail:
+        it = filter(lambda f: f.name in _DETAIL_FIELDS, it)
+    else:
+        it = filter(lambda f: f.name not in _DETAIL_FIELDS, it)
+    yield from sorted(it, key=lambda f: not f.required(dset.type))
 
 
 _TYPE_NAME = {

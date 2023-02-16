@@ -1,0 +1,27 @@
+.header {
+    border-bottom: 2px solid var(--jp-layout-color3);
+}
+
+table.dataset {
+    /* make sure both tables have the same width */
+    /* TODO does not seem to be needed
+            but columns are not aligned */
+    /*width: 100%;*/
+    /* for debugging */
+    border: solid 1px black;
+    /* space between details marker and table
+       could also try to move summary ::marker*/
+    /* jupyter overwrites this */
+    margin-left: 1em !important;
+}
+
+/* Position the summary table directly under the regular table */
+details[open].dataset_details summary {
+    height: 0;
+    padding: 0;
+}
+
+/* hide the summary when the details are open */
+details[open].dataset_details summary span {
+    visibility: hidden;
+}
