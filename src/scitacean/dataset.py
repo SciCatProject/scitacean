@@ -56,7 +56,7 @@ class Dataset(DatasetFields):
         return cls(
             type=dataset_model.type,
             creation_time=dataset_model.creationTime,
-            _pid=dataset_model.pid,
+            pid=dataset_model.pid,
             _orig_datablocks=[]
             if not orig_datablock_models
             else [
@@ -226,7 +226,6 @@ class Dataset(DatasetFields):
                 field.name: get_val(replacements, field.name)
                 for field in Dataset.fields(read_only=False)
             },
-            "_pid": read_only.pop("pid"),
         }
         if replacements or _read_only:
             raise TypeError(

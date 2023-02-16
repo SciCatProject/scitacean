@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional
 from email_validator import EmailNotValidError, validate_email
 from hypothesis import strategies as st
 
-from scitacean import PID, Dataset, DatasetType
+from scitacean import Dataset, DatasetType
 from scitacean._internal.orcid import orcid_checksum
 
 
@@ -107,18 +107,11 @@ def datasets(
             if field.name != "type"
         }
 
-    try:
-        pid = make_fixed_arg("pid")
-        del fixed["pid"]
-    except KeyError:
-        pid = st.builds(PID)
-
     kwargs = make_args(read_only=False)
     read_only_arg = st.fixed_dictionaries(make_args(read_only=True))
     return st.builds(
         Dataset,
         type=st.just(dataset_type),
         _read_only=read_only_arg,
-        _pid=pid,
         **kwargs,
     )

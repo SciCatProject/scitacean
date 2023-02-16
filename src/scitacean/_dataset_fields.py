@@ -378,7 +378,7 @@ class DatasetFields:
         Field(
             name="pid",
             description="Persistent identifier for datasets.",
-            read_only=True,
+            read_only=False,
             required_by_derived=False,
             required_by_raw=False,
             type=PID,
@@ -522,6 +522,7 @@ class DatasetFields:
         *,
         type: Union[DatasetType, Literal["derived", "raw"]],
         creation_time: Optional[Union[datetime, str]] = None,
+        pid: Optional[Union[str, PID]] = None,
         access_groups: Optional[List[str]] = None,
         classification: Optional[str] = None,
         contact_email: Optional[str] = None,
@@ -554,7 +555,6 @@ class DatasetFields:
         used_software: Optional[List[str]] = None,
         validation_status: Optional[str] = None,
         checksum_algorithm: Optional[str] = "md5",
-        _pid: Optional[Union[str, PID]] = None,
         _read_only: Optional[Dict[str, Any]] = None,
         _orig_datablocks: Optional[List[OrigDatablockProxy]] = None,
     ):
@@ -571,7 +571,7 @@ class DatasetFields:
         self._fields = {
             "creation_time": _parse_datetime(creation_time),
             "history": _apply_default(_read_only.get("history"), None, list),
-            "pid": PID.parse(_pid) if isinstance(_pid, str) else _pid,
+            "pid": PID.parse(pid) if isinstance(pid, str) else pid,
             "type": DatasetType(type),
             "access_groups": _apply_default(access_groups, None, None),
             "classification": _apply_default(classification, None, None),
@@ -641,6 +641,11 @@ class DatasetFields:
     def pid(self) -> Optional[PID]:
         """Persistent identifier for datasets."""
         return self._fields["pid"]  # type: ignore[no-any-return]
+
+    @pid.setter
+    def pid(self, pid: Optional[Union[PID, str]]) -> None:
+        """Persistent identifier for datasets."""
+        self._fields["pid"] = None if pid is None else PID.parse(pid)
 
     @property
     def creation_time(self) -> datetime:
