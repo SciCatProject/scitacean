@@ -34,11 +34,7 @@ def dataset_html_repr(dset: Dataset) -> str:
 
 def _format_field(dset: Dataset, field: Dataset.Field) -> str:
     name = field.name
-    required = (
-        '<div style="color: var(--jp-error-color0)">*</div>'
-        if field.required(dset.type)
-        else ""
-    )
+    flag = _format_field_flag(field, dset)
     val = getattr(dset, field.name)
     value = (
         '<span class="cean-empty-field">None</span>'
@@ -50,7 +46,7 @@ def _format_field(dset: Dataset, field: Dataset.Field) -> str:
 
     template = resources.dataset_field_repr_template()
     return template.substitute(
-        name=name, flag=required, type=typ, value=value, description=description
+        name=name, flag=flag, type=typ, value=value, description=description
     )
 
 
@@ -112,6 +108,14 @@ def _format_type(typ: Any) -> str:
         return _TYPE_NAME[typ]
     except KeyError:
         return html.escape(str(typ))
+
+
+def _format_field_flag(field: Dataset.Field, dset: Dataset) -> str:
+    if field.required(dset.type):
+        return '<div style="color: var(--jp-error-color0)">*</div>'
+    if field.read_only:
+        return "🔒"
+    return ""
 
 
 def _format_dataset_type(dataset_type: DatasetType) -> str:
