@@ -42,6 +42,11 @@ def dataset_field_repr_template() -> Template:
 
 
 @lru_cache(maxsize=1)
+def files_repr_template() -> Template:
+    return Template(_read_text("files_repr.html.template", "templates"))
+
+
+@lru_cache(maxsize=1)
 def dataset_style() -> str:
     sheet = _preprocess_style(_read_text("dataset.css", "styles"))
     return f"<style>{sheet}</style>"

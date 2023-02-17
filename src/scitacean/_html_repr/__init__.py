@@ -29,6 +29,27 @@ def dataset_html_repr(dset: Dataset) -> str:
         archived_file_info=_format_file_info(dset, archived=True),
         main_rows=main_rows,
         detail_rows=detail_rows,
+        file_rows=_format_files(dset),
+    )
+
+
+def _format_files(dset: Dataset) -> str:
+    template = resources.files_repr_template()
+    return "\n".join(
+        template.substitute(
+            local_path=(
+                '<span class="cean-empty-field">None</span>'
+                if not file.is_on_local
+                else html.escape(str(file.local_path))
+            ),
+            remote_path=(
+                '<span class="cean-empty-field">None</span>'
+                if not file.is_on_remote
+                else html.escape(str(file.remote_path))
+            ),
+            size=_human_readable_size(file.size),
+        )
+        for file in dset.files
     )
 
 

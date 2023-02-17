@@ -21,4 +21,15 @@
             ${detail_rows}
         </table>
     </details>
+    <details class="cean-dataset-files">
+        <summary><span>Files</span></summary>
+        <table class="cean-files">
+            <tr class="cean-header">
+                <th class="cean-file-local-path">Local</th>
+                <th class="cean-file-remote-path">Remote</th>
+                <th class="cean-file-size">Size</th>
+            </tr>
+            ${file_rows}
+        </table>
+    </details>
 </div>

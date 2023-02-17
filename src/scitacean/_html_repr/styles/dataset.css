@@ -112,3 +112,20 @@ details[open].cean-dataset-details summary {
 details[open].cean-dataset-details summary span {
     visibility: hidden;
 }
+
+table.cean-files {
+    /* match spacing of dataset tables */
+    margin-left: 1em !important;
+    width: 100%;
+}
+
+.cean-file-local-path,
+.cean-file-remote-path {
+    width: 40%;
+    text-align: left !important;
+}
+
+.cean-file-size {
+    width: 10%;
+    text-align: left !important;
+}
