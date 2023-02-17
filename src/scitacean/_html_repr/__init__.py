@@ -43,10 +43,16 @@ def _format_field(dset: Dataset, field: Dataset.Field) -> str:
     )
     typ = _format_type(field.type)
     description = html.escape(field.description)
+    row_highlight = _row_highlight_classes(field, dset)
 
     template = resources.dataset_field_repr_template()
     return template.substitute(
-        name=name, flag=flag, type=typ, value=value, description=description
+        name=name,
+        flag=flag,
+        type=typ,
+        value=value,
+        description=description,
+        extra_classes=row_highlight,
     )
 
 
@@ -74,17 +80,26 @@ _MAIN_FIELDS = (
 def _get_field_specs(
     dset: Dataset, detail: bool
 ) -> Generator[Dataset.Field, None, None]:
+    def type_filter(field: Dataset.Field) -> bool:
+        if getattr(dset, field.name) is not None:
+            return True
+        if _used_by_dataset_type(field, dset):
+            return True
+        return False
+
     if detail:
         yield from sorted(
             filter(
-                lambda f: f.name not in _MAIN_FIELDS and f.name not in _EXCLUDED_FIELDS,
+                lambda f: f.name not in _MAIN_FIELDS
+                and f.name not in _EXCLUDED_FIELDS
+                and type_filter(f),
                 Dataset.fields(),
             ),
             key=lambda f: not f.required(dset.type),
         )
     else:
         all_fields = {f.name: f for f in Dataset.fields()}
-        yield from (all_fields[name] for name in _MAIN_FIELDS)
+        yield from filter(type_filter, (all_fields[name] for name in _MAIN_FIELDS))
 
 
 _TYPE_NAME = {
@@ -111,10 +126,12 @@ def _format_type(typ: Any) -> str:
 
 
 def _format_field_flag(field: Dataset.Field, dset: Dataset) -> str:
-    if field.required(dset.type):
-        return '<div style="color: var(--jp-error-color0)">*</div>'
+    if not _used_by_dataset_type(field, dset):
+        return "!"
     if field.read_only:
         return "🔒"
+    if field.required(dset.type):
+        return '<div style="color: var(--jp-error-color0)">*</div>'
     return ""
 
 
@@ -145,3 +162,16 @@ def _human_readable_size(size_in_bytes: int) -> str:
         if size_in_bytes >= n:
             return f"{size_in_bytes/n:.2f} {prefix}iB"
     return f"{size_in_bytes} B"
+
+
+def _row_highlight_classes(field: Dataset.Field, dset: Dataset) -> str:
+    value = getattr(dset, field.name)
+    if field.required(dset.type) and value is None:
+        return "cean-missing-value"
+    if value is not None and not _used_by_dataset_type(field, dset):
+        return "cean-forbidden-value"
+    return ""
+
+
+def _used_by_dataset_type(field: Dataset.Field, dset: Dataset) -> bool:
+    return field.used_by_raw if dset.type == DatasetType.RAW else field.used_by_derived
