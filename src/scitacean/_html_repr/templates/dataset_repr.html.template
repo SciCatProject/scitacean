@@ -32,4 +32,14 @@
             ${file_rows}
         </table>
     </details>
+    <details class="cean-dataset-metadata">
+        <summary><span>Scientific Metadata</span></summary>
+        <table class="cean-metadata">
+            <tr class="cean-header">
+                <th class="cean-metadata-name">Name</th>
+                <th class="cean-metadata-value">Value</th>
+            </tr>
+            ${metadata_rows}
+        </table>
+    </details>
 </div>

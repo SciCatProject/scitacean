@@ -113,7 +113,8 @@ details[open].cean-dataset-details summary span {
     visibility: hidden;
 }
 
-table.cean-files {
+table.cean-files,
+table.cean-metadata {
     /* match spacing of dataset tables */
     margin-left: 1em !important;
     width: 100%;
@@ -127,5 +128,11 @@ table.cean-files {
 
 .cean-file-size {
     width: 10%;
+    text-align: left !important;
+}
+
+.cean-metadata-name,
+.cean-metadata-value {
+    width: 50%;
     text-align: left !important;
 }

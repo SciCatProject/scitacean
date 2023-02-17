@@ -30,6 +30,7 @@ def dataset_html_repr(dset: Dataset) -> str:
         main_rows=main_rows,
         detail_rows=detail_rows,
         file_rows=_format_files(dset),
+        metadata_rows=_format_metadata(dset),
     )
 
 
@@ -50,6 +51,17 @@ def _format_files(dset: Dataset) -> str:
             size=_human_readable_size(file.size),
         )
         for file in dset.files
+    )
+
+
+def _format_metadata(dset: Dataset) -> str:
+    template = resources.metadata_template()
+    return "\n".join(
+        template.substitute(
+            name=html.escape(str(name)),
+            value=html.escape(str(value)),
+        )
+        for name, value in dset.meta.items()
     )
 
 
