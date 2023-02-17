@@ -1,19 +1,23 @@
 <div>
     ${style_sheet}
-    <table class="scitacean dataset main">
-        <div class="info-line">${dataset_type}Dataset ${number_of_files} Files; Total size: ${size}</div>
-        <tr class="header">
-            <th>Name</th>
-            <th></th>
-            <th>Type</th>
-            <th>Value</th>
-            <th>Description</th>
+    <div class="cean-info-line">
+        <span class="cean-dataset-type">${dataset_type}Dataset</span>
+        <span class="cean-file-info">${file_info}</span>
+        <span class="cean-archived-file-info">${archived_file_info}</span>
+    </div>
+    <table class="cean-dataset">
+        <tr class="cean-header">
+            <th class="cean-field-flag"></th>
+            <th class="cean-field-name">Name</th>
+            <th class="cean-field-type">Type</th>
+            <th class="cean-field-value">Value</th>
+            <th class="cean-field-description">Description</th>
         </tr>
         ${main_rows}
     </table>
-    <details class="dataset_details">
-        <summary><span>Details</span></summary>
-        <table class="scitacean dataset details">
+    <details class="cean-dataset-details">
+        <summary><span>Advanced fields</span></summary>
+        <table class="cean-dataset">
             ${detail_rows}
         </table>
     </details>

@@ -1,27 +1,104 @@
-.header {
+tr.cean-header {
     border-bottom: 2px solid var(--jp-layout-color3);
 }
 
-table.dataset {
+.cean-dataset-type {
+    font-weight: bold;
+}
+
+.cean-file-info,
+.cean-archived-file-info {
+    padding-left: 4ex;
+}
+
+.cean-dataset th {
+    text-align: left !important;
+}
+
+.cean-dataset td {
+    white-space: nowrap !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cean-field-flag {
+    width: 2%;
+}
+
+.cean-field-flag div {
+    font-weight: bold;
+}
+
+.cean-field-name {
+    width: 20%;
+    text-align: left !important;
+}
+
+.cean-field-type {
+    width: 10%;
+    text-align: left !important;
+}
+
+td.cean-field-type {
+    color: var(--jp-content-font-color2);
+}
+
+.cean-field-value {
+    width: 40%;
+    text-align: left !important;
+}
+
+.cean-field-description {
+    width: 28%;
+    text-align: left !important;
+}
+
+td.cean-field-description {
+    color: var(--jp-content-font-color1);
+}
+
+.cean-field-value:hover span,
+.cean-field-description:hover span {
+    white-space: normal;
+    overflow: visible;
+}
+
+.cean-empty-field {
+    color: var(--jp-content-font-color2);
+}
+
+
+table.cean-dataset {
     /* make sure both tables have the same width */
     /* TODO does not seem to be needed
             but columns are not aligned */
     /*width: 100%;*/
-    /* for debugging */
-    border: solid 1px black;
     /* space between details marker and table
        could also try to move summary ::marker*/
     /* jupyter overwrites this */
     margin-left: 1em !important;
+    /* remove space between tables */
+    margin-bottom: 0;
+
+    /* needed to ensure consistent column sizes between tables */
+    table-layout: fixed;
+    width: 100%;
+}
+
+.cean-dataset-details table.cean-dataset {
+    /* Jupyter's default space after a table */
+    margin-bottom: 1em;
+
+    border-top: 2px solid var(--jp-layout-color3);
 }
 
 /* Position the summary table directly under the regular table */
-details[open].dataset_details summary {
+details[open].cean-dataset-details summary {
     height: 0;
     padding: 0;
 }
 
 /* hide the summary when the details are open */
-details[open].dataset_details summary span {
+details[open].cean-dataset-details summary span {
     visibility: hidden;
 }
