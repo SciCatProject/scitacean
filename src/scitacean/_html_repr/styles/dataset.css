@@ -136,3 +136,14 @@ table.cean-metadata {
     width: 50%;
     text-align: left !important;
 }
+
+.cean-lock {
+    width: 1.4ch;
+    height: auto;
+}
+
+.cean-lock path {
+    /* Override the color used in the SVG.
+       This requires there to be only a single fill color. */
+    fill: var(--jp-content-font-color2) !important;
+}

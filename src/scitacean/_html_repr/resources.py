@@ -55,3 +55,8 @@ def metadata_template() -> Template:
 def dataset_style() -> str:
     sheet = _preprocess_style(_read_text("dataset.css", "styles"))
     return f"<style>{sheet}</style>"
+
+
+@lru_cache()
+def image(name: str) -> str:
+    return _read_text(name, "images")

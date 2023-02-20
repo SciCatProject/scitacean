@@ -162,7 +162,7 @@ def _format_field_flag(field: Dataset.Field, dset: Dataset) -> str:
     if not _used_by_dataset_type(field, dset):
         return "!"
     if field.read_only:
-        return "🔒"
+        return f'<div class="cean-lock">{resources.image("lock.svg")}</div>'
     if field.required(dset.type):
         return '<div style="color: var(--jp-error-color0)">*</div>'
     return ""
