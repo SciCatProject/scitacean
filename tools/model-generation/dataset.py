@@ -75,21 +75,28 @@ def _format_properties(field: Field) -> str:
 
 
 def _format_make_model(typ: str, fields: List[Field]) -> str:
-    checks = "\n".join(
-        f"""    if self.{field.name} is not None:
-        raise ValueError("'{field.name}' must not be set in {typ} datasets")"""
+    extra_names = "\n".join(
+        " " * 12 + quote(field.name) + ","
         for field in fields
         if typ not in field.extra.get("used", ())
     )
+    extra_fields = f"""    extra_fields = {{
+        name: None
+        for name in (
+{extra_names}
+        )
+        if getattr(self, name, None) is not None
+    }}"""
     construction = "\n        ".join(
         f"{get_model_name(field, typ)}=self.{field.name},"
         for field in fields
         if typ in field.extra.get("used", ())
     )
     formatted = f"""def _make_{typ}_model(self) -> {typ.capitalize()}Dataset:
-{checks}
+{extra_fields}
     return {("Derived" if typ == "derived" else "Raw")}Dataset(
         {construction}
+        **extra_fields
     )"""
     return "    " + formatted.replace("\n", "\n    ")
 
