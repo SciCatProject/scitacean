@@ -2,13 +2,13 @@ tr.cean-header {
     border-bottom: 2px solid var(--jp-layout-color3);
 }
 
-.cean-dataset-type {
-    font-weight: bold;
+.jp-RenderedHTMLCommon tbody tr.cean-header:hover {
+    /* disable hover color in table header */
+    background: var(--jp-layout-color0);
 }
 
-.cean-file-info,
-.cean-archived-file-info {
-    padding-left: 4ex;
+.cean-dataset-type {
+    font-weight: bold;
 }
 
 .cean-dataset th {
@@ -67,18 +67,18 @@ td.cean-field-description {
     color: var(--jp-content-font-color2);
 }
 
-.cean-missing-value ,
+.cean-missing-value,
 .cean-forbidden-value {
     background: var(--jp-error-color2) !important;
     color: var(--jp-ui-inverse-font-color0);
 }
 
-.cean-missing-value td ,
+.cean-missing-value td,
 .cean-forbidden-value td {
     color: var(--jp-ui-inverse-font-color0);
 }
 
-.cean-missing-value .cean-empty-field ,
+.cean-missing-value .cean-empty-field,
 .cean-forbidden-value .cean-empty-field {
     color: var(--jp-ui-inverse-font-color0);
     font-weight: bold;
@@ -111,6 +111,18 @@ details[open].cean-dataset-details summary {
 /* hide the summary when the details are open */
 details[open].cean-dataset-details summary span {
     visibility: hidden;
+}
+
+.cean-file-info {
+    padding-left: 1em;
+}
+
+.cean-archived-file-info {
+    padding-left: 4em;
+}
+
+.cean-file-info-size {
+    color: var(--jp-content-font-color1);
 }
 
 table.cean-files,

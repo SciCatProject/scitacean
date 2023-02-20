@@ -180,13 +180,16 @@ def _format_file_info(dset: Dataset, archived: bool) -> str:
             # But always show regular files.
             return ""
         size = dset.packed_size
-        name = "archived files"
+        name = "archived: "
     else:
         n_files = dset.number_of_files
         size = dset.size
-        name = "files"
+        name = ""
 
-    return f"{n_files} {name} {_human_readable_size(size)}"
+    return (
+        f'{name} {n_files} <span class="cean-file-info-size">'
+        f"({_human_readable_size(size)})</span>"
+    )
 
 
 def _human_readable_size(size_in_bytes: int) -> str:

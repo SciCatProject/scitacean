@@ -2,8 +2,6 @@
     ${style_sheet}
     <div class="cean-info-line">
         <span class="cean-dataset-type">${dataset_type}Dataset</span>
-        <span class="cean-file-info">${file_info}</span>
-        <span class="cean-archived-file-info">${archived_file_info}</span>
     </div>
     <table class="cean-dataset">
         <tr class="cean-header">
@@ -22,7 +20,10 @@
         </table>
     </details>
     <details class="cean-dataset-files">
-        <summary><span>Files</span></summary>
+        <summary><span>Files:</span>
+            <span class="cean-file-info">${file_info}</span>
+            <span class="cean-archived-file-info">${archived_file_info}</span>
+        </summary>
         <table class="cean-files">
             <tr class="cean-header">
                 <th class="cean-file-local-path">Local</th>
