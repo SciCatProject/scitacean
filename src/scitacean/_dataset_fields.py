@@ -216,11 +216,21 @@ class DatasetFields:
             used_by_raw=True,
         ),
         Field(
+            name="principalInvestigator",
+            description="Name(s) of the principal investigator(s). The string may contain a list of names, which should then be separated by semicolons.",
+            read_only=False,
+            required_by_derived=False,
+            required_by_raw=True,
+            type=str,
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
             name="investigator",
-            description="(Principal) investigator. Can be one or more names or emails separated by semicolons.",
+            description="Name(s) of the investigator(s). The string may contain a list of names, which should then be separated by semicolons.",
             read_only=False,
             required_by_derived=True,
-            required_by_raw=True,
+            required_by_raw=False,
             type=str,
             used_by_derived=True,
             used_by_raw=True,
@@ -534,6 +544,7 @@ class DatasetFields:
         instrument_group: Optional[str] = None,
         instrument_id: Optional[str] = None,
         investigator: Optional[str] = None,
+        principalInvestigator: Optional[str] = None,
         is_published: Optional[bool] = None,
         job_log_data: Optional[str] = None,
         job_parameters: Optional[dict] = None,
@@ -586,6 +597,7 @@ class DatasetFields:
             "instrument_group": _apply_default(instrument_group, None, None),
             "instrument_id": _apply_default(instrument_id, None, None),
             "investigator": _apply_default(investigator, None, None),
+            "principalInvestigator": _apply_default(principalInvestigator, None, None),
             "is_published": _apply_default(is_published, False, None),
             "job_log_data": _apply_default(job_log_data, None, None),
             "job_parameters": _apply_default(job_parameters, None, None),
@@ -763,12 +775,21 @@ class DatasetFields:
 
     @property
     def investigator(self) -> Optional[str]:
-        """(Principal) investigator. Can be one or more names or emails separated by semicolons."""
+        """Name(s) of the investigator(s). The string may contain a list of names, which should then be separated by semicolons."""
         return self._fields["investigator"]  # type: ignore[no-any-return]
 
     @investigator.setter
     def investigator(self, val: Optional[str]) -> None:
         self._fields["investigator"] = val
+
+    @property
+    def principalInvestigator(self) -> Optional[str]:
+        """Names of the principal investigator(s). The string may contain a list of names, which should then be separated by semicolons."""
+        return self._fields["principalInvestigator"]  # type: ignore[no-any-return]
+
+    @principalInvestigator.setter
+    def principalInvestigator(self, val: Optional[str]) -> None:
+        self._fields["principalInvestigator"] = val
 
     @property
     def is_published(self) -> Optional[bool]:
