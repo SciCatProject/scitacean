@@ -1161,7 +1161,7 @@ def _fields_from_raw_model(model) -> dict:
         end_time=model.endTime,
         instrument_group=model.instrumentGroup,
         instrument_id=model.instrumentId,
-        investigator=model.principalInvestigator,
+        principalInvestigator=model.principalInvestigator,
         is_published=model.isPublished,
         keywords=model.keywords,
         license=model.license,

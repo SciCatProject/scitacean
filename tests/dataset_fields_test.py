@@ -299,7 +299,7 @@ def test_make_raw_model():
         creation_time="2142-04-02T16:44:56",
         owner="Ponder Stibbons;Mustrum Ridcully",
         owner_group="faculty",
-        investigator="p.stibbons@uu.am",
+        principalInvestigator="p.stibbons@uu.am",
         source_folder=RemotePath("/hex/source62"),
         creation_location="ANK/UU",
         shared_with=["librarian", "hicks"],
