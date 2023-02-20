@@ -597,7 +597,9 @@ class DatasetFields:
             "instrument_group": _apply_default(instrument_group, None, None),
             "instrument_id": _apply_default(instrument_id, None, None),
             "investigator": _apply_default(investigator, None, None),
-            "principal_investigator": _apply_default(principal_investigator, None, None),
+            "principal_investigator": _apply_default(
+                principal_investigator, None, None
+            ),
             "is_published": _apply_default(is_published, False, None),
             "job_log_data": _apply_default(job_log_data, None, None),
             "job_parameters": _apply_default(job_parameters, None, None),
