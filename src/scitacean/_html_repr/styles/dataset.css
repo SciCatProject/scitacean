@@ -68,20 +68,9 @@ td.cean-field-description {
 }
 
 .cean-missing-value,
-.cean-forbidden-value {
-    background: var(--jp-error-color2) !important;
-    color: var(--jp-ui-inverse-font-color0);
-}
-
-.cean-missing-value td,
-.cean-forbidden-value td {
-    color: var(--jp-ui-inverse-font-color0);
-}
-
-.cean-missing-value .cean-empty-field,
-.cean-forbidden-value .cean-empty-field {
-    color: var(--jp-ui-inverse-font-color0);
-    font-weight: bold;
+.cean-error {
+    border-left: var(--jp-error-color1) 4px solid !important;
+    border-right: var(--jp-error-color1) 4px solid !important;
 }
 
 table.cean-dataset {

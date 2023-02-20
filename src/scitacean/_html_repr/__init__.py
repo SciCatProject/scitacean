@@ -3,8 +3,11 @@
 """HTML representations for Jupyter."""
 
 import html
+from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Generator, List
+from typing import Any, Dict, List, Optional
+
+import pydantic
 
 from ..dataset import Dataset
 from ..filesystem import RemotePath
@@ -16,11 +19,10 @@ from . import resources
 def dataset_html_repr(dset: Dataset) -> str:
     template = resources.dataset_repr_template()
     style_sheet = resources.dataset_style()
-    main_rows = "\n".join(
-        _format_field(dset, field) for field in _get_field_specs(dset, detail=False)
-    )
+    fields = _get_fields(dset)
+    main_rows = "\n".join(_format_field(dset, field) for field in fields if field.main)
     detail_rows = "\n".join(
-        _format_field(dset, field) for field in _get_field_specs(dset, detail=True)
+        _format_field(dset, field) for field in fields if not field.main
     )
     return template.substitute(
         style_sheet=style_sheet,
@@ -65,18 +67,29 @@ def _format_metadata(dset: Dataset) -> str:
     )
 
 
-def _format_field(dset: Dataset, field: Dataset.Field) -> str:
+@dataclass
+class Field:
+    name: str
+    value: Any
+    type: type
+    description: str
+    read_only: bool
+    required: bool
+    error: Optional[str]
+    main: bool
+
+
+def _format_field(dset: Dataset, field: Field) -> str:
     name = field.name
-    flag = _format_field_flag(field, dset)
-    val = getattr(dset, field.name)
+    flag = _format_field_flag(field)
     value = (
         '<span class="cean-empty-field">None</span>'
-        if val is None
-        else html.escape(str(val))
+        if field.value is None
+        else html.escape(str(field.value))
     )
     typ = _format_type(field.type)
     description = html.escape(field.description)
-    row_highlight = _row_highlight_classes(field, dset)
+    row_highlight = _row_highlight_classes(field)
 
     template = resources.dataset_field_repr_template()
     return template.substitute(
@@ -95,7 +108,7 @@ _EXCLUDED_FIELDS = {
     "number_of_files_archived",
     "size",
     "packed_size",
-    "meta",  # TODO separate listing
+    "meta",
     "source_folder",  # TODO show with files
 }
 
@@ -110,29 +123,42 @@ _MAIN_FIELDS = (
 )
 
 
-def _get_field_specs(
-    dset: Dataset, detail: bool
-) -> Generator[Dataset.Field, None, None]:
-    def type_filter(field: Dataset.Field) -> bool:
-        if getattr(dset, field.name) is not None:
-            return True
-        if _used_by_dataset_type(field, dset):
-            return True
-        return False
-
-    if detail:
-        yield from sorted(
-            filter(
-                lambda f: f.name not in _MAIN_FIELDS
-                and f.name not in _EXCLUDED_FIELDS
-                and type_filter(f),
-                Dataset.fields(),
-            ),
-            key=lambda f: not f.required(dset.type),
+def _get_fields(dset: Dataset) -> List[Field]:
+    validation = _validate(dset)
+    return [
+        Field(
+            name=field.name,
+            value=getattr(dset, field.name, None),
+            type=field.type,
+            description=field.description,
+            read_only=field.read_only,
+            required=field.required(dset.type),
+            error=_check_error(field, validation),
+            main=field.name in _MAIN_FIELDS,
         )
-    else:
-        all_fields = {f.name: f for f in Dataset.fields()}
-        yield from filter(type_filter, (all_fields[name] for name in _MAIN_FIELDS))
+        for field in dset.fields()
+        if field.name not in _EXCLUDED_FIELDS
+        and (field.used_by(dset.type) or getattr(dset, field.name, None) is not None)
+    ]
+
+
+def _check_error(field: Field, validation: Dict[str, str]) -> Optional[str]:
+    if field.name in validation:
+        # TODO validation uses model names (camelCase)
+        return validation[field.name]
+    return None
+
+
+def _validate(dset: Dataset) -> Dict[str, str]:
+    def single_elem(xs):
+        (x,) = xs
+        return x
+
+    try:
+        dset.validate()
+        return {}
+    except pydantic.ValidationError as e:
+        return {single_elem(error["loc"]): error["msg"] for error in e.errors()}
 
 
 _TYPE_NAME = {
@@ -158,14 +184,13 @@ def _format_type(typ: Any) -> str:
         return html.escape(str(typ))
 
 
-def _format_field_flag(field: Dataset.Field, dset: Dataset) -> str:
-    if not _used_by_dataset_type(field, dset):
-        return "!"
+def _format_field_flag(field: Field) -> str:
+    flags = ""
     if field.read_only:
-        return f'<div class="cean-lock">{resources.image("lock.svg")}</div>'
-    if field.required(dset.type):
-        return '<div style="color: var(--jp-error-color0)">*</div>'
-    return ""
+        flags += f'<div class="cean-lock">{resources.image("lock.svg")}</div>'
+    if field.required:
+        flags += '<div style="color: var(--jp-error-color0)">*</div>'
+    return flags
 
 
 def _format_dataset_type(dataset_type: DatasetType) -> str:
@@ -200,14 +225,9 @@ def _human_readable_size(size_in_bytes: int) -> str:
     return f"{size_in_bytes} B"
 
 
-def _row_highlight_classes(field: Dataset.Field, dset: Dataset) -> str:
-    value = getattr(dset, field.name)
-    if field.required(dset.type) and value is None:
+def _row_highlight_classes(field: Field) -> str:
+    if field.required and field.value is None:
         return "cean-missing-value"
-    if value is not None and not _used_by_dataset_type(field, dset):
-        return "cean-forbidden-value"
+    if field.error:
+        return "cean-error"
     return ""
-
-
-def _used_by_dataset_type(field: Dataset.Field, dset: Dataset) -> bool:
-    return field.used_by_raw if dset.type == DatasetType.RAW else field.used_by_derived

@@ -67,6 +67,13 @@ class DatasetFields:
                 else self.required_by_derived
             )
 
+        def used_by(self, dataset_type: DatasetType) -> bool:
+            return (
+                self.used_by_raw
+                if dataset_type == DatasetType.RAW
+                else self.used_by_derived
+            )
+
     _FIELD_SPEC = [
         Field(
             name="access_groups",
