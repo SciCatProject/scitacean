@@ -113,6 +113,10 @@ details[open].cean-dataset-details summary span {
     visibility: hidden;
 }
 
+details summary {
+    cursor: pointer;
+}
+
 .cean-file-info {
     padding-left: 1em;
 }
