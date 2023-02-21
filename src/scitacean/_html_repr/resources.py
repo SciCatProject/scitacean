@@ -16,6 +16,7 @@ def _read_text(filename: str, group: str) -> str:
             .read_text()
         )
     # Old API, deprecated as of Python 3.11
+    # When this is removed, also remove the __init__.py files in the resource folders.
     return importlib.resources.read_text(f"scitacean._html_repr.{group}", filename)
 
 
