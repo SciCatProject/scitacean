@@ -7,6 +7,11 @@ tr.cean-header {
     background: var(--jp-layout-color0);
 }
 
+.cean-info-line {
+    /* match the margin of the tables */
+    margin-left: 1em;
+}
+
 .cean-dataset-type {
     font-weight: bold;
 }
@@ -35,7 +40,7 @@ tr.cean-header {
 }
 
 .cean-field-type {
-    width: 10%;
+    width: 12%;
     text-align: left !important;
 }
 
@@ -44,12 +49,12 @@ td.cean-field-type {
 }
 
 .cean-field-value {
-    width: 40%;
+    width: 39%;
     text-align: left !important;
 }
 
 .cean-field-description {
-    width: 28%;
+    width: 27%;
     text-align: left !important;
 }
 

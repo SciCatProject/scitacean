@@ -20,10 +20,8 @@ def dataset_html_repr(dset: Dataset) -> str:
     template = resources.dataset_repr_template()
     style_sheet = resources.dataset_style()
     fields = _get_fields(dset)
-    main_rows = "\n".join(_format_field(dset, field) for field in fields if field.main)
-    detail_rows = "\n".join(
-        _format_field(dset, field) for field in fields if not field.main
-    )
+    main_rows = "\n".join(_format_field(field) for field in fields if field.main)
+    detail_rows = "\n".join(_format_field(field) for field in fields if not field.main)
     return template.substitute(
         style_sheet=style_sheet,
         dataset_type=_format_dataset_type(dset.type),
@@ -79,13 +77,18 @@ class Field:
     main: bool
 
 
-def _format_field(dset: Dataset, field: Field) -> str:
+def _format_field(field: Field) -> str:
+    def format_value(val) -> str:
+        if isinstance(val, datetime):
+            return val.strftime("%Y-%m-%d %H:%M:%S%z")
+        return html.escape(str(val))
+
     name = field.name
     flag = _format_field_flag(field)
     value = (
         '<span class="cean-empty-field">None</span>'
         if field.value is None
-        else html.escape(str(field.value))
+        else format_value(field.value)
     )
     typ = _format_type(field.type)
     description = html.escape(field.description)
@@ -109,23 +112,23 @@ _EXCLUDED_FIELDS = {
     "size",
     "packed_size",
     "meta",
-    "source_folder",  # TODO show with files
 }
 
-_MAIN_FIELDS = (
+_MAIN_FIELDS = {
     "pid",
+    "source_folder",
     "name",
     "description",
     "creation_time",
     "proposal_id",
     "sample_id",
     "input_datasets",
-)
+}
 
 
 def _get_fields(dset: Dataset) -> List[Field]:
     validation = _validate(dset)
-    return [
+    fields = [
         Field(
             name=field.name,
             value=getattr(dset, field.name, None),
@@ -140,6 +143,10 @@ def _get_fields(dset: Dataset) -> List[Field]:
         if field.name not in _EXCLUDED_FIELDS
         and (field.used_by(dset.type) or getattr(dset, field.name, None) is not None)
     ]
+    return sorted(
+        sorted(fields, key=lambda field: field.name),
+        key=lambda field: not field.required,
+    )
 
 
 def _check_error(field: Field, validation: Dict[str, str]) -> Optional[str]:
