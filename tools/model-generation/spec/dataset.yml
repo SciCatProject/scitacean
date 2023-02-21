@@ -50,11 +50,10 @@ fields:
     type: List[PID]
     used: [ derived ]
   - name: investigator
-    description: Email of the (principal) investigator. The string may contain a list of emails, which should then be separated by semicolons.
+    description: (Principal) investigator. Can be one or more names or emails separated by semicolons.
     model_name: { derived: investigator, raw: principalInvestigator }
     required: true
     type: str
-    validation: emails
   - name: is_published
     default: false
     description: Indicate whether the dataset is publicly available.

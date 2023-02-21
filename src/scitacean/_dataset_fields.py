@@ -210,7 +210,7 @@ class DatasetFields:
         ),
         Field(
             name="investigator",
-            description="Email of the (principal) investigator. The string may contain a list of emails, which should then be separated by semicolons.",
+            description="(Principal) investigator. Can be one or more names or emails separated by semicolons.",
             read_only=False,
             required_by_derived=True,
             required_by_raw=True,
@@ -751,7 +751,7 @@ class DatasetFields:
 
     @property
     def investigator(self) -> Optional[str]:
-        """Email of the (principal) investigator. The string may contain a list of emails, which should then be separated by semicolons."""
+        """(Principal) investigator. Can be one or more names or emails separated by semicolons."""
         return self._fields["investigator"]  # type: ignore[no-any-return]
 
     @investigator.setter
