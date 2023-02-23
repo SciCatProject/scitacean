@@ -5,6 +5,8 @@ html[data-theme="light"] {
 
     --cean-color-header-text: #2c2c2c;
     --cean-color-header-text-highlight: black;
+    /* match cean-color-header-text */
+    --cean-filter-header-icon: saturate(0) brightness(0.32);
     --cean-color-table-odd: #f4f4f4;
 }
 
@@ -16,6 +18,8 @@ html[data-theme="dark"] {
 
     --cean-color-header-text: #d4d4d4;
     --cean-color-header-text-highlight: #e5e5e5;
+    /* match cean-color-header-text */
+    --cean-filter-header-icon: saturate(0) brightness(1.56);
     --cean-color-table-odd: var(--pst-color-on-background);
 }
 
@@ -43,6 +47,15 @@ code.literal {
 
 .bd-header .navbar-nav li a.nav-link {
     color: var(--cean-color-header-text);
+}
+
+.bd-header .navbar-nav li a.nav-link .icon-link-image {
+    filter: var(--cean-filter-header-icon);
+}
+
+.bd-header .navbar-nav li a.nav-link .icon-link-image:hover {
+    /* match primary color */
+    filter: hue-rotate(-112deg) saturate(0.724) brightness(1);
 }
 
 .bd-header .navbar-nav > .active > .nav-link {

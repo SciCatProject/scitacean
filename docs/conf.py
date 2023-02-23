@@ -126,6 +126,12 @@ html_theme_options = {
             "icon": "fa-brands fa-python",
             "type": "fontawesome",
         },
+        {
+            "name": "Conda",
+            "url": "https://anaconda.org/conda-forge/scitacean",
+            "icon": "_static/anaconda-logo.svg",
+            "type": "local",
+        },
     ],
 }
 html_context = {
