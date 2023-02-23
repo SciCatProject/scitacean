@@ -97,7 +97,7 @@ jupyter-core==5.1.5
     #   nbformat
 jupyterlab-pygments==0.2.2
     # via nbconvert
-markdown-it-py==2.1.0
+markdown-it-py==2.2.0
     # via
     #   mdit-py-plugins
     #   myst-parser
