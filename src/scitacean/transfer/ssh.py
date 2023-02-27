@@ -34,7 +34,7 @@ class SSHDownloadConnection:
 
     def download_files(self, *, remote: List[RemotePath], local: List[Path]) -> None:
         """Download files from the given remote path."""
-        for (r, l) in zip(remote, local):
+        for r, l in zip(remote, local):
             self.download_file(remote=r, local=l)
 
     def download_file(self, *, remote: RemotePath, local: Path) -> None:
