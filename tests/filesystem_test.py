@@ -26,9 +26,9 @@ def test_remote_path_creation_and_str():
 
 def test_remote_path_init_requires_path_like():
     with pytest.raises(TypeError):
-        RemotePath(6133)  # type: ignore
+        RemotePath(6133)  # type: ignore[arg-type]
     with pytest.raises(TypeError):
-        RemotePath(["folder", "file.dat"])  # type: ignore
+        RemotePath(["folder", "file.dat"])  # type: ignore[arg-type]
 
 
 @pytest.mark.parametrize(

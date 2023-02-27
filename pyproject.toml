@@ -75,7 +75,7 @@ warn_unreachable = true
 
 [tool.ruff]
 line-length = 88
-select = ["B", "D", "E", "F", "I", "S", "T", "FBT003", "RUF100"]
+select = ["B", "D", "E", "F", "I", "S", "T", "PGH", "FBT003", "RUF100"]
 ignore = ["B905",  # `zip()` without an explicit `strict=` parameter
           "S324",  # insecure hsh function; we don't use hashing for security
           "E741", "E742", "E743",  # do not use names ‘l’, ‘O’, or ‘I’; they are not a problem with a proper font

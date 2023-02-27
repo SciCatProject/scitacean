@@ -32,12 +32,12 @@ def test_init_dataset_accepted_types(typ):
 
 def test_init_dataset_raises_for_bad_type():
     with pytest.raises(ValueError):
-        Dataset(type="bad-type")  # type: ignore
+        Dataset(type="bad-type")  # type: ignore[arg-type]
 
 
 def test_init_dataset_needs_type():
     with pytest.raises(TypeError):
-        Dataset()  # type: ignore
+        Dataset()  # type: ignore[call-arg]
 
 
 def test_init_dataset_sets_creation_time():
