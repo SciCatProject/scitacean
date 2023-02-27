@@ -77,7 +77,7 @@ class Dataset(DatasetFields):
         dataset_type: Optional[Union[DatasetType, Literal["derived", "raw"]]] = None,
         read_only: Optional[bool] = None,
     ) -> Generator[Dataset.Field, None, None]:
-        """Iterator over dataset fields.
+        """Iterate over dataset fields.
 
         This is similar to :func:`dataclasses.fields`.
 

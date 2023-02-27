@@ -47,7 +47,7 @@ def derived_dataset_model(ownable):
 def client(fs):
     return FakeClient.from_token(
         url="",
-        token="",  # noqa: S106
+        token="",
         file_transfer=FakeFileTransfer(fs=fs, files={}, reverted={}),
     )
 
