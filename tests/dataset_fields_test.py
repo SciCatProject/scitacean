@@ -419,7 +419,7 @@ def test_email_validation(field):
         creation_time="2142-04-02T16:44:56",
         owner="Mustrum Ridcully",
         owner_group="faculty",
-        investigator="p.stibbons@uu.am",
+        principal_investigator="p.stibbons@uu.am",
         source_folder=RemotePath("/hex/source62"),
     )
     setattr(dset, field, "not-an-email")
@@ -442,7 +442,7 @@ def test_orcid_validation_valid(good_orcid):
         creation_time="2142-04-02T16:44:56",
         owner="Jan-Lukas Wynen",
         owner_group="ess",
-        investigator="jan-lukas.wynen@ess.eu",
+        principal_investigator="jan-lukas.wynen@ess.eu",
         source_folder=RemotePath("/hex/source62"),
         orcid_of_owner=good_orcid,
     )
@@ -465,7 +465,7 @@ def test_orcid_validation_missing_url(bad_orcid):
         creation_time="2142-04-02T16:44:56",
         owner="Jan-Lukas Wynen",
         owner_group="ess",
-        investigator="jan-lukas.wynen@ess.eu",
+        principal_investigator="jan-lukas.wynen@ess.eu",
         source_folder=RemotePath("/hex/source62"),
         orcid_of_owner=bad_orcid,
     )
