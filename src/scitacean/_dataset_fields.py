@@ -995,6 +995,8 @@ class DatasetFields:
                 "creation_location",
                 "data_format",
                 "end_time",
+                "instrument_id",
+                "principal_investigator",
                 "proposal_id",
                 "sample_id",
             )
@@ -1047,6 +1049,7 @@ class DatasetFields:
             name: None
             for name in (
                 "input_datasets",
+                "investigator",
                 "job_log_data",
                 "job_parameters",
                 "used_software",
