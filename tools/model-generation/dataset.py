@@ -9,7 +9,7 @@ from typing import Dict, List
 
 from spec import Field, Spec
 from templates import BANNER, load_template
-from util import get_model_name, quote
+from util import quote
 
 
 def _write_dataset(target: Path, dataset: str):
@@ -88,7 +88,7 @@ def _format_make_model(typ: str, fields: List[Field]) -> str:
         if getattr(self, name, None) is not None
     }}"""
     construction = "\n        ".join(
-        f"{get_model_name(field, typ)}=self.{field.name},"
+        f"{field.model_name}=self.{field.name},"
         for field in fields
         if typ in field.extra.get("used", ())
     )
@@ -96,7 +96,7 @@ def _format_make_model(typ: str, fields: List[Field]) -> str:
 {extra_fields}
     return {("Derived" if typ == "derived" else "Raw")}Dataset(
         {construction}
-        **extra_fields
+        **extra_fields,
     )"""
     return "    " + formatted.replace("\n", "\n    ")
 
@@ -104,7 +104,7 @@ def _format_make_model(typ: str, fields: List[Field]) -> str:
 def _format_fields_from_model(typ: str, fields: List[Field]) -> str:
     def format_assignments(read_only, indent):
         return ("\n" + " " * indent).join(
-            f"{field.name}=model.{get_model_name(field, typ)},"
+            f"{field.name}=model.{field.model_name},"
             for field in fields
             if typ in field.extra.get("used", ())
             and field.read_only == read_only

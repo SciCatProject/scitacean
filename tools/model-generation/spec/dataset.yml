@@ -56,12 +56,6 @@ fields:
     required: true
     type: str
     used: [ derived ]
-  - name: principal_investigator
-    description: Name(s) of the principal investigator(s). The string may contain a list of names, which should then be separated by semicolons.
-    model_name: principalInvestigator
-    required: true
-    type: str
-    used: [ raw ]
   - name: is_published
     default: false
     description: Indicate whether the dataset is publicly available.
@@ -135,6 +129,12 @@ fields:
     description: Persistent identifier for datasets.
     manual: true
     type: PID
+  - name: principal_investigator
+    description: Name(s) of the principal investigator(s). The string may contain a list of names, which should then be separated by semicolons.
+    model_name: principalInvestigator
+    required: true
+    type: str
+    used: [ raw ]
   - name: proposal_id
     description: Identifier for the proposal that the dataset was produced for.
     model_name: proposalId
