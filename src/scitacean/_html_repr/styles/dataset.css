@@ -1,0 +1,159 @@
+tr.cean-header {
+    border-bottom: 2px solid var(--jp-layout-color3);
+}
+
+.jp-RenderedHTMLCommon tbody tr.cean-header:hover {
+    /* disable hover color in table header */
+    background: var(--jp-layout-color0);
+}
+
+.cean-info-line {
+    /* match the margin of the tables */
+    margin-left: 1em;
+}
+
+.cean-dataset-type {
+    font-weight: bold;
+}
+
+.cean-dataset th {
+    text-align: left !important;
+}
+
+.cean-dataset td {
+    white-space: nowrap !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cean-field-flag {
+    width: 2%;
+}
+
+.cean-field-flag div {
+    font-weight: bold;
+}
+
+.cean-field-name {
+    width: 20%;
+    text-align: left !important;
+}
+
+.cean-field-type {
+    width: 12%;
+    text-align: left !important;
+}
+
+td.cean-field-type {
+    color: var(--jp-content-font-color2);
+}
+
+.cean-field-value {
+    width: 39%;
+    text-align: left !important;
+}
+
+.cean-field-description {
+    width: 27%;
+    text-align: left !important;
+}
+
+td.cean-field-description {
+    color: var(--jp-content-font-color1);
+}
+
+.cean-field-value:hover span,
+.cean-field-description:hover span {
+    white-space: normal;
+    overflow: visible;
+}
+
+.cean-empty-field {
+    color: var(--jp-content-font-color2);
+}
+
+.cean-missing-value,
+.cean-error {
+    border-left: var(--jp-error-color1) 4px solid !important;
+    border-right: var(--jp-error-color1) 4px solid !important;
+}
+
+table.cean-dataset {
+    /* space between details marker and table */
+    margin-left: 1em !important;
+    /* remove space between tables */
+    margin-bottom: 0;
+
+    /* needed to ensure consistent column sizes between tables */
+    table-layout: fixed;
+    width: 100%;
+}
+
+.cean-dataset-details table.cean-dataset {
+    /* Jupyter's default space after a table */
+    margin-bottom: 1em;
+
+    border-top: 2px solid var(--jp-layout-color3);
+}
+
+/* Position the summary table directly under the regular table */
+details[open].cean-dataset-details summary {
+    height: 0;
+    padding: 0;
+}
+
+/* hide the summary when the details are open */
+details[open].cean-dataset-details summary span {
+    visibility: hidden;
+}
+
+details summary {
+    cursor: pointer;
+}
+
+.cean-file-info {
+    padding-left: 1em;
+}
+
+.cean-archived-file-info {
+    padding-left: 4em;
+}
+
+.cean-file-info-size {
+    color: var(--jp-content-font-color1);
+}
+
+table.cean-files,
+table.cean-metadata {
+    /* match spacing of dataset tables */
+    margin-left: 1em !important;
+    width: 100%;
+}
+
+.cean-file-local-path,
+.cean-file-remote-path {
+    width: 40%;
+    text-align: left !important;
+}
+
+.cean-file-size {
+    width: 10%;
+    text-align: left !important;
+}
+
+.cean-metadata-name,
+.cean-metadata-value {
+    width: 50%;
+    text-align: left !important;
+}
+
+.cean-lock {
+    width: 1.4ch;
+    height: auto;
+}
+
+.cean-lock path {
+    /* Override the color used in the SVG.
+       This requires there to be only a single fill color. */
+    fill: var(--jp-content-font-color2) !important;
+}

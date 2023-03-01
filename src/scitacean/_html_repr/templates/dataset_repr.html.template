@@ -1,0 +1,46 @@
+<div>
+    ${style_sheet}
+    <div class="cean-info-line">
+        <span class="cean-dataset-type">${dataset_type}Dataset</span>
+    </div>
+    <table class="cean-dataset">
+        <tr class="cean-header">
+            <th class="cean-field-flag"></th>
+            <th class="cean-field-name">Name</th>
+            <th class="cean-field-type">Type</th>
+            <th class="cean-field-value">Value</th>
+            <th class="cean-field-description">Description</th>
+        </tr>
+        ${main_rows}
+    </table>
+    <details class="cean-dataset-details">
+        <summary><span>Advanced fields</span></summary>
+        <table class="cean-dataset">
+            ${detail_rows}
+        </table>
+    </details>
+    <details class="cean-dataset-files">
+        <summary><span>Files:</span>
+            <span class="cean-file-info">${file_info}</span>
+            <span class="cean-archived-file-info">${archived_file_info}</span>
+        </summary>
+        <table class="cean-files">
+            <tr class="cean-header">
+                <th class="cean-file-local-path">Local</th>
+                <th class="cean-file-remote-path">Remote</th>
+                <th class="cean-file-size">Size</th>
+            </tr>
+            ${file_rows}
+        </table>
+    </details>
+    <details class="cean-dataset-metadata">
+        <summary><span>Scientific Metadata</span></summary>
+        <table class="cean-metadata">
+            <tr class="cean-header">
+                <th class="cean-metadata-name">Name</th>
+                <th class="cean-metadata-value">Value</th>
+            </tr>
+            ${metadata_rows}
+        </table>
+    </details>
+</div>

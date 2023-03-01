@@ -1,0 +1,5 @@
+<tr class="file">
+    <td class="cean-file-local-path">${local_path}</td>
+    <td class="cean-file-remote-path">${remote_path}</td>
+    <td class="cean-file-size">${size}</td>
+</tr>

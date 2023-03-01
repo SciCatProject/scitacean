@@ -1,0 +1,4 @@
+<tr class="metadata">
+    <td class="cean-metadata-name">${name}</td>
+    <td class="cean-metadata-value">${value}</td>
+</tr>

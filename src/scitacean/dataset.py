@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 import dataclasses
-import html
 import itertools
 from copy import deepcopy
 from datetime import datetime, timezone
@@ -16,7 +15,6 @@ from ._dataset_fields import DatasetFields, fields_from_model
 from .datablock import OrigDatablockProxy
 from .file import File
 from .model import (
-    DatasetLifecycle,
     DatasetType,
     DerivedDataset,
     OrigDatablock,
@@ -439,51 +437,10 @@ class Dataset(DatasetFields):
         return f"Dataset({args})"
 
     def _repr_html_(self) -> str:
-        rows = "\n".join(
-            _format_field(self, field)
-            for field in sorted(
-                Dataset.fields(), key=lambda f: not f.required(self.type)
-            )
-        )
-        return f"""<table>
-        <tr>
-            <th>Name</th><th></th><th>Type</th><th>Value</th><th>Description</th>
-        </tr>
-        {rows}
-    </table>"""
+        # Import here to prevent cycle.
+        from ._html_repr import dataset_html_repr
 
-
-def _format_field(dset: Dataset, field: Dataset.Field) -> str:
-    name = field.name
-    required = (
-        '<div style="color: var(--jp-error-color0)">*</div>'
-        if field.required(dset.type)
-        else ""
-    )
-    value = html.escape(str(getattr(dset, field.name)))
-    typ = _format_type(field.type)
-    description = html.escape(field.description)
-    return (
-        "<tr><td>"
-        + "</td><td>".join((name, required, typ, value, description))
-        + "</tr></td>"
-    )
-
-
-def _format_type(typ: Any) -> str:
-    try:
-        return {
-            str: "str",
-            int: "int",
-            bool: "bool",
-            datetime: "datetime",
-            PID: "PID",
-            DatasetLifecycle: "DatasetLifecycle",
-            List[str]: "list[str]",
-            List[dict]: "list[dict]",  # type: ignore[type-arg]
-        }[typ]
-    except KeyError:
-        return html.escape(str(typ))
+        return dataset_html_repr(self)
 
 
 @dataclasses.dataclass

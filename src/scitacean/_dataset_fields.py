@@ -67,6 +67,13 @@ class DatasetFields:
                 else self.required_by_derived
             )
 
+        def used_by(self, dataset_type: DatasetType) -> bool:
+            return (
+                self.used_by_raw
+                if dataset_type == DatasetType.RAW
+                else self.used_by_derived
+            )
+
     _FIELD_SPEC = [
         Field(
             name="access_groups",
@@ -954,16 +961,17 @@ class DatasetFields:
         return self._fields["version"]  # type: ignore[no-any-return]
 
     def _make_derived_model(self) -> DerivedDataset:
-        if self.creation_location is not None:
-            raise ValueError("'creation_location' must not be set in derived datasets")
-        if self.data_format is not None:
-            raise ValueError("'data_format' must not be set in derived datasets")
-        if self.end_time is not None:
-            raise ValueError("'end_time' must not be set in derived datasets")
-        if self.proposal_id is not None:
-            raise ValueError("'proposal_id' must not be set in derived datasets")
-        if self.sample_id is not None:
-            raise ValueError("'sample_id' must not be set in derived datasets")
+        extra_fields = {
+            name: None
+            for name in (
+                "creation_location",
+                "data_format",
+                "end_time",
+                "proposal_id",
+                "sample_id",
+            )
+            if getattr(self, name, None) is not None
+        }
         return DerivedDataset(
             accessGroups=self.access_groups,
             classification=self.classification,
@@ -1004,17 +1012,20 @@ class DatasetFields:
             usedSoftware=self.used_software,
             validationStatus=self.validation_status,
             version=self.version,
+            **extra_fields,
         )
 
     def _make_raw_model(self) -> RawDataset:
-        if self.input_datasets is not None:
-            raise ValueError("'input_datasets' must not be set in raw datasets")
-        if self.job_log_data is not None:
-            raise ValueError("'job_log_data' must not be set in raw datasets")
-        if self.job_parameters is not None:
-            raise ValueError("'job_parameters' must not be set in raw datasets")
-        if self.used_software is not None:
-            raise ValueError("'used_software' must not be set in raw datasets")
+        extra_fields = {
+            name: None
+            for name in (
+                "input_datasets",
+                "job_log_data",
+                "job_parameters",
+                "used_software",
+            )
+            if getattr(self, name, None) is not None
+        }
         return RawDataset(
             accessGroups=self.access_groups,
             classification=self.classification,
@@ -1056,6 +1067,7 @@ class DatasetFields:
             updatedBy=self.updated_by,
             validationStatus=self.validation_status,
             version=self.version,
+            **extra_fields,
         )
 
 
