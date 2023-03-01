@@ -114,7 +114,6 @@ class DerivedDataset(Ownable):
     classification: Optional[str]
     description: Optional[str]
     history: Optional[List[dict]]
-    instrumentId: Optional[str]
     isPublished: Optional[bool]
     jobLogData: Optional[str]
     jobParameters: Optional[dict]
@@ -163,8 +162,8 @@ class OrigDatablock(Ownable):
 class RawDataset(Ownable):
     contactEmail: str
     creationTime: datetime
-    principalInvestigator: str
     owner: str
+    principalInvestigator: str
     sourceFolder: RemotePath
     type: DatasetType
     classification: Optional[str]
