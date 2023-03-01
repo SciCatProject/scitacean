@@ -16,7 +16,7 @@ exceptiongroup==1.1.0
     #   pytest
 execnet==1.9.0
     # via pytest-xdist
-hypothesis==6.65.1
+hypothesis==6.68.2
     # via -r requirements/test.in
 iniconfig==2.0.0
     # via pytest
@@ -33,7 +33,7 @@ pytest==7.2.1
     #   pytest-xdist
 pytest-randomly==3.12.0
     # via -r requirements/test.in
-pytest-xdist==3.1.0
+pytest-xdist==3.2.0
     # via -r requirements/test.in
 pyyaml==6.0
     # via -r requirements/test.in

@@ -4,7 +4,7 @@
 -r static.in
 -r test.in
 -r wheels.in
-jupyterlab
+jupyterlab == 3.5.3  # newer has broken dependency on y-py
 pip-compile-multi
 pre-commit
 pyyaml
