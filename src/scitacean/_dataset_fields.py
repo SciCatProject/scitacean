@@ -212,18 +212,18 @@ class DatasetFields:
             required_by_derived=False,
             required_by_raw=False,
             type=str,
-            used_by_derived=True,
+            used_by_derived=False,
             used_by_raw=True,
         ),
         Field(
             name="investigator",
-            description="(Principal) investigator. Can be one or more names or emails separated by semicolons.",
+            description="Name(s) of the investigator(s). The string may contain a list of names, which should then be separated by semicolons.",
             read_only=False,
             required_by_derived=True,
             required_by_raw=True,
             type=str,
             used_by_derived=True,
-            used_by_raw=True,
+            used_by_raw=False,
         ),
         Field(
             name="is_published",
@@ -383,6 +383,16 @@ class DatasetFields:
             required_by_raw=False,
             type=PID,
             used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="principal_investigator",
+            description="Name(s) of the principal investigator(s). The string may contain a list of names, which should then be separated by semicolons.",
+            read_only=False,
+            required_by_derived=True,
+            required_by_raw=True,
+            type=str,
+            used_by_derived=False,
             used_by_raw=True,
         ),
         Field(
@@ -546,6 +556,7 @@ class DatasetFields:
         owner: Optional[str] = None,
         owner_email: Optional[str] = None,
         owner_group: Optional[str] = None,
+        principal_investigator: Optional[str] = None,
         proposal_id: Optional[str] = None,
         sample_id: Optional[str] = None,
         shared_with: Optional[List[str]] = None,
@@ -598,6 +609,9 @@ class DatasetFields:
             "owner": _apply_default(owner, None, None),
             "owner_email": _apply_default(owner_email, None, None),
             "owner_group": _apply_default(owner_group, None, None),
+            "principal_investigator": _apply_default(
+                principal_investigator, None, None
+            ),
             "proposal_id": _apply_default(proposal_id, None, None),
             "sample_id": _apply_default(sample_id, None, None),
             "shared_with": _apply_default(shared_with, None, None),
@@ -763,7 +777,7 @@ class DatasetFields:
 
     @property
     def investigator(self) -> Optional[str]:
-        """(Principal) investigator. Can be one or more names or emails separated by semicolons."""
+        """Name(s) of the investigator(s). The string may contain a list of names, which should then be separated by semicolons."""
         return self._fields["investigator"]  # type: ignore[no-any-return]
 
     @investigator.setter
@@ -879,6 +893,15 @@ class DatasetFields:
         self._fields["owner_group"] = val
 
     @property
+    def principal_investigator(self) -> Optional[str]:
+        """Name(s) of the principal investigator(s). The string may contain a list of names, which should then be separated by semicolons."""
+        return self._fields["principal_investigator"]  # type: ignore[no-any-return]
+
+    @principal_investigator.setter
+    def principal_investigator(self, val: Optional[str]) -> None:
+        self._fields["principal_investigator"] = val
+
+    @property
     def proposal_id(self) -> Optional[str]:
         """Identifier for the proposal that the dataset was produced for."""
         return self._fields["proposal_id"]  # type: ignore[no-any-return]
@@ -972,6 +995,8 @@ class DatasetFields:
                 "creation_location",
                 "data_format",
                 "end_time",
+                "instrument_id",
+                "principal_investigator",
                 "proposal_id",
                 "sample_id",
             )
@@ -988,7 +1013,6 @@ class DatasetFields:
             history=self.history,
             inputDatasets=self.input_datasets,
             instrumentGroup=self.instrument_group,
-            instrumentId=self.instrument_id,
             investigator=self.investigator,
             isPublished=self.is_published,
             jobLogData=self.job_log_data,
@@ -1025,6 +1049,7 @@ class DatasetFields:
             name: None
             for name in (
                 "input_datasets",
+                "investigator",
                 "job_log_data",
                 "job_parameters",
                 "used_software",
@@ -1045,7 +1070,6 @@ class DatasetFields:
             history=self.history,
             instrumentGroup=self.instrument_group,
             instrumentId=self.instrument_id,
-            principalInvestigator=self.investigator,
             isPublished=self.is_published,
             keywords=self.keywords,
             license=self.license,
@@ -1060,6 +1084,7 @@ class DatasetFields:
             ownerGroup=self.owner_group,
             packedSize=self.packed_size,
             pid=self.pid,
+            principalInvestigator=self.principal_investigator,
             proposalId=self.proposal_id,
             sampleId=self.sample_id,
             sharedWith=self.shared_with,
@@ -1099,7 +1124,6 @@ def _fields_from_derived_model(model) -> dict:
         description=model.description,
         input_datasets=model.inputDatasets,
         instrument_group=model.instrumentGroup,
-        instrument_id=model.instrumentId,
         investigator=model.investigator,
         is_published=model.isPublished,
         job_log_data=model.jobLogData,
@@ -1140,7 +1164,6 @@ def _fields_from_raw_model(model) -> dict:
         end_time=model.endTime,
         instrument_group=model.instrumentGroup,
         instrument_id=model.instrumentId,
-        investigator=model.principalInvestigator,
         is_published=model.isPublished,
         keywords=model.keywords,
         license=model.license,
@@ -1151,6 +1174,7 @@ def _fields_from_raw_model(model) -> dict:
         owner=model.owner,
         owner_email=model.ownerEmail,
         owner_group=model.ownerGroup,
+        principal_investigator=model.principalInvestigator,
         proposal_id=model.proposalId,
         sample_id=model.sampleId,
         shared_with=model.sharedWith,

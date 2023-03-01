@@ -224,7 +224,6 @@ def test_get_broken_dataset(request, scicat_access, scicat_backend):
     assert dset.source_folder == "/remote/source"
 
     # Broken fields loaded
-    assert dset.investigator == "stibbons"
     assert isinstance(dset.end_time, str)
     assert dset.end_time == "yesterday"
 

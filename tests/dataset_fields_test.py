@@ -124,7 +124,7 @@ def test_init_from_models_sets_metadata():
         dataset_model=RawDataset(
             contactEmail="p.stibbons@uu.am",
             creationTime=dateutil.parser.parse("2022-01-10T11:14:52+02:00"),
-            principalInvestigator="librarian@uu.am",
+            principalInvestigator="my principal investigator",
             owner="PonderStibbons",
             sourceFolder=RemotePath("/hex/source91"),
             type=DatasetType.RAW,
@@ -143,7 +143,7 @@ def test_init_from_models_sets_metadata():
 
     assert dset.contact_email == "p.stibbons@uu.am"
     assert dset.creation_time == dateutil.parser.parse("2022-01-10T11:14:52+02:00")
-    assert dset.investigator == "librarian@uu.am"
+    assert dset.principal_investigator == "my principal investigator"
     assert dset.owner == "PonderStibbons"
     assert dset.source_folder == "/hex/source91"
     assert dset.type == DatasetType.RAW
@@ -299,7 +299,7 @@ def test_make_raw_model():
         creation_time="2142-04-02T16:44:56",
         owner="Ponder Stibbons;Mustrum Ridcully",
         owner_group="faculty",
-        investigator="p.stibbons@uu.am",
+        principal_investigator="my principal investigator",
         source_folder=RemotePath("/hex/source62"),
         creation_location="ANK/UU",
         shared_with=["librarian", "hicks"],
@@ -309,7 +309,7 @@ def test_make_raw_model():
         creationTime=dateutil.parser.parse("2142-04-02T16:44:56"),
         owner="Ponder Stibbons;Mustrum Ridcully",
         ownerGroup="faculty",
-        principalInvestigator="p.stibbons@uu.am",
+        principalInvestigator="my principal investigator",
         sourceFolder=RemotePath("/hex/source62"),
         type=DatasetType.RAW,
         history=[],
@@ -419,7 +419,7 @@ def test_email_validation(field):
         creation_time="2142-04-02T16:44:56",
         owner="Mustrum Ridcully",
         owner_group="faculty",
-        investigator="p.stibbons@uu.am",
+        principal_investigator="p.stibbons@uu.am",
         source_folder=RemotePath("/hex/source62"),
     )
     setattr(dset, field, "not-an-email")
@@ -442,7 +442,7 @@ def test_orcid_validation_valid(good_orcid):
         creation_time="2142-04-02T16:44:56",
         owner="Jan-Lukas Wynen",
         owner_group="ess",
-        investigator="jan-lukas.wynen@ess.eu",
+        principal_investigator="jan-lukas.wynen@ess.eu",
         source_folder=RemotePath("/hex/source62"),
         orcid_of_owner=good_orcid,
     )
@@ -465,7 +465,7 @@ def test_orcid_validation_missing_url(bad_orcid):
         creation_time="2142-04-02T16:44:56",
         owner="Jan-Lukas Wynen",
         owner_group="ess",
-        investigator="jan-lukas.wynen@ess.eu",
+        principal_investigator="jan-lukas.wynen@ess.eu",
         source_folder=RemotePath("/hex/source62"),
         orcid_of_owner=bad_orcid,
     )

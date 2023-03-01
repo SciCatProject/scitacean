@@ -43,6 +43,7 @@ fields:
     description: SciCat ID of the instrument used to measure the data.
     model_name: instrumentId
     type: str
+    used: [ raw ]
   - name: input_datasets
     description: Array of input dataset identifiers used in producing the derived dataset. Ideally these are the global identifier to existing datasets inside this or federated data catalogs.
     model_name: inputDatasets
@@ -50,10 +51,11 @@ fields:
     type: List[PID]
     used: [ derived ]
   - name: investigator
-    description: (Principal) investigator. Can be one or more names or emails separated by semicolons.
-    model_name: { derived: investigator, raw: principalInvestigator }
+    description: Name(s) of the investigator(s). The string may contain a list of names, which should then be separated by semicolons.
+    model_name: investigator
     required: true
     type: str
+    used: [ derived ]
   - name: is_published
     default: false
     description: Indicate whether the dataset is publicly available.
@@ -127,6 +129,12 @@ fields:
     description: Persistent identifier for datasets.
     manual: true
     type: PID
+  - name: principal_investigator
+    description: Name(s) of the principal investigator(s). The string may contain a list of names, which should then be separated by semicolons.
+    model_name: principalInvestigator
+    required: true
+    type: str
+    used: [ raw ]
   - name: proposal_id
     description: Identifier for the proposal that the dataset was produced for.
     model_name: proposalId

@@ -42,9 +42,12 @@ Breaking changes
 
 * The ``remote_base_path`` argument of ``SSHFileTransfer`` has been replaced with ``source_folder`` which may now contain format specifiers.
 * ``Dataset.investigator`` is no longer required to be an email address as this does not match common usage.
+* For raw datasets, ``Dataset.investigator`` has been replaced with ``Dataset.principal_investigator`` to match the names in SciCat.
 
 Bugfixes
 ~~~~~~~~
+
+* Removed ``Dataset.instrument_id`` for derived datasets.
 
 Documentation
 ~~~~~~~~~~~~~
