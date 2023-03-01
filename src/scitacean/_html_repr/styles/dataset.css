@@ -152,6 +152,11 @@ table.cean-metadata {
     height: auto;
 }
 
+.cean-lock svg {
+  max-width: 100%;
+  height: auto;
+}
+
 .cean-lock path {
     /* Override the color used in the SVG.
        This requires there to be only a single fill color. */
