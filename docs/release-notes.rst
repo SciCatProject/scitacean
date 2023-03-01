@@ -47,6 +47,8 @@ Breaking changes
 Bugfixes
 ~~~~~~~~
 
+* Removed ``Dataset.instrument_id`` for derived datasets.
+
 Documentation
 ~~~~~~~~~~~~~
 
