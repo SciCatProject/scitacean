@@ -211,22 +211,23 @@ class Client:
             and some files or a partial dataset are left on the servers.
             Note the error message if that happens.
         """
-        dset = dataset.replace(_read_only={"pid": PID.generate()})
-        dset = dset.replace(
-            source_folder=self._expect_file_transfer().source_folder_for(dset)
+        if dataset.pid is None:
+            dataset = dataset.replace(pid=PID.generate())
+        dataset = dataset.replace(
+            source_folder=self._expect_file_transfer().source_folder_for(dataset)
         )
-        dset.validate()
-        with self._connect_for_file_upload(dset) as con:
+        dataset.validate()
+        with self._connect_for_file_upload(dataset) as con:
             # TODO check if any remote file is out of date.
             #  if so, raise an error. We never overwrite remote files!
-            uploaded_files = con.upload_files(*dset.files)
+            uploaded_files = con.upload_files(*dataset.files)
             try:
-                finalized_model = self.scicat.create_dataset_model(dset.make_model())
+                finalized_model = self.scicat.create_dataset_model(dataset.make_model())
             except ScicatCommError:
                 con.revert_upload(*uploaded_files)
                 raise
 
-        with_new_pid = dset.replace(_read_only={"pid": finalized_model.pid})
+        with_new_pid = dataset.replace(pid=finalized_model.pid)
         datablock_models = with_new_pid.make_datablock_models()
         finalized_orig_datablocks = self._upload_orig_datablocks(
             datablock_models.orig_datablocks
