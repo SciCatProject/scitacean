@@ -64,7 +64,6 @@ def test_derived_dataset_default_values(client):
 
     # Left empty
     assert finalized.description is None is None
-    assert finalized.instrumentId is None
     assert finalized.jobParameters is None
     assert finalized.jobLogData is None
     assert finalized.keywords is None
@@ -163,7 +162,6 @@ def test_derived_dataset_overwritten_values(client):
             ).dict()
         ],
         inputDatasets=[PID(prefix="PID.SAMPLE.PREFIX", pid="abcd")],
-        instrumentId="instrument-id",
         investigator="inv@esti.gator",
         isPublished=True,
         jobParameters={"tiredness": "great"},
@@ -201,7 +199,6 @@ def test_derived_dataset_overwritten_values(client):
         "datasetName",
         "description",
         "inputDatasets",
-        "instrumentId",
         "investigator",
         "isPublished",
         "jobParameters",
