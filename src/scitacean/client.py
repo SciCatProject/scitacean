@@ -674,7 +674,7 @@ def _make_orig_datablock(
 def _log_in_via_users_login(
     url: str, username: StrStorage, password: StrStorage, timeout: datetime.timedelta
 ) -> requests.Response:
-    """Currently only used for functional accounts."""
+    # Currently only used for functional accounts.
     response = requests.post(
         _url_concat(url, "Users/login"),
         json={"username": username.get_str(), "password": password.get_str()},
@@ -692,7 +692,7 @@ def _log_in_via_users_login(
 def _log_in_via_auth_msad(
     url: str, username: StrStorage, password: StrStorage, timeout: datetime.timedelta
 ) -> requests.Response:
-    """Used for user accounts."""
+    # Used for user accounts.
     import re
 
     # Strip the api/vn suffix
@@ -714,7 +714,7 @@ def _log_in_via_auth_msad(
 def _get_token(
     url: str, username: StrStorage, password: StrStorage, timeout: datetime.timedelta
 ) -> str:
-    """Logs in using the provided username + password.
+    """Log in using the provided username + password.
 
     Returns a token for the given user.
     """

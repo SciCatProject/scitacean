@@ -14,7 +14,7 @@ from .transfer import FakeFileTransfer
 
 
 def _add_file(client: FakeClient, name: str, content: bytes) -> None:
-    client.file_transfer.files[name] = content  # type: ignore [union-attr]
+    client.file_transfer.files[name] = content  # type: ignore[union-attr]
 
 
 def _create_raw_dataset(client: FakeClient) -> None:
