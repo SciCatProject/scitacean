@@ -108,6 +108,10 @@ html_theme_options = {
     "header_links_before_dropdown": 4,
     "pygment_light_style": "github-light-high-contrast",
     "pygment_dark_style": "github-dark-high-contrast",
+    "logo": {
+        "image_light": "_static/logo.svg",
+        "image_dark": "_static/logo-dark.svg",
+    },
     "external_links": [
         {"name": "SciCat", "url": "https://scicatproject.github.io/"},
         {
