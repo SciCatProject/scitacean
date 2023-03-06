@@ -1,7 +1,7 @@
-[![PyPI badge](http://img.shields.io/pypi/v/scitacean.svg)](https://pypi.python.org/pypi/scitacean)
-[![Anaconda-Server Badge](https://anaconda.org/conda-forge/scitacean/badges/version.svg)](https://anaconda.org/conda-forge/scitacean)
+[![PyPI badge](https://img.shields.io/pypi/v/scitacean.svg?style=flat-square&color=green)](https://pypi.python.org/pypi/scitacean)
+[![Anaconda-Server Badge](https://img.shields.io/conda/vn/conda-forge/scitacean?style=flat-square&color=green)](https://anaconda.org/conda-forge/scitacean)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7554718.svg)](https://doi.org/10.5281/zenodo.7554718)
-[![License: BSD 3-Clause](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](LICENSE)
+[![License: BSD 3-Clause](https://img.shields.io/github/license/SciCatProject/scitacean?style=flat-square&color=yellowgreen)](LICENSE)
 
 # Scitacean
 
