@@ -29,8 +29,8 @@ Release notes
    Stability, Maintainability, and Testing
    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-vYY.0M.MICRO (Unreleased)
--------------------------
+v23.03.0 (2023-03-08)
+---------------------
 
 Features
 ~~~~~~~~
@@ -53,12 +53,6 @@ Documentation
 ~~~~~~~~~~~~~
 
 * Document how file transfers interact with source folders.
-
-Deprecations
-~~~~~~~~~~~~
-
-Stability, Maintainability, and Testing
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 v23.01.1 (2023-01-20)
 ---------------------
