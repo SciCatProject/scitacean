@@ -28,7 +28,7 @@ classifiers = [
 requires-python = ">=3.8"
 dependencies = [
     "email-validator",
-    "pydantic",
+    "pydantic >= 1.9",
     "python-dateutil",
     "requests",
 ]
