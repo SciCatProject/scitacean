@@ -254,3 +254,17 @@ def test_cannot_pickle_client_credentials_login(request, scicat_access, scicat_b
     )
     with pytest.raises(TypeError):
         pickle.dumps(client)
+
+
+def test_connection_error_does_not_contain_token():
+    client = Client.from_token(
+        url="https://not-actually-a_server",
+        token="the token/which_must-be.kept secret",  # noqa: S106
+    )
+    try:
+        client.get_dataset("does not exist")
+        assert False, "There must be an exception"  # noqa: B011
+    except Exception as exc:
+        assert "the token/which_must-be.kept secret" not in str(exc)
+        for arg in exc.args:
+            assert "the token/which_must-be.kept secret" not in str(arg)

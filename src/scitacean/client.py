@@ -601,6 +601,7 @@ class ScicatClient:
             params = {"access_token": token}
             headers = {"Authorization": "Bearer {}".format(token)}
         else:
+            token = ""
             params = {}
             headers = {}
 
@@ -619,8 +620,14 @@ class ScicatClient:
                 verify=True,
             )
         except Exception as exc:
-            # Remove concrete request function call from backtrace.
-            raise type(exc)(exc.args) from None
+            # Remove concrete request function call from backtrace to hide the token.
+            # Also modify the error message to strip out the token.
+            # It shows up, e.g. in urllib3.exceptions.NewConnectionError.
+            # This turns the exception args into strings.
+            # But we have little use of more structured errors, so that should be fine.
+            raise type(exc)(
+                tuple(_strip_token(arg, token) for arg in exc.args)
+            ) from None
 
     def _call_endpoint(
         self,
@@ -654,6 +661,13 @@ def _url_concat(a: str, b: str) -> str:
     a = a if a.endswith("/") else (a + "/")
     b = b[1:] if b.endswith("/") else b
     return a + b
+
+
+def _strip_token(error: Any, token: str) -> str:
+    error = str(error)
+    error = re.sub(r"token=[\w\-./]+", "token=<HIDDEN>", error)
+    error = error.replace(token, "<HIDDEN>")
+    return error
 
 
 def _make_orig_datablock(
