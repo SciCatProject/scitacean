@@ -49,10 +49,13 @@ Bugfixes
 
 * Removed ``Dataset.instrument_id`` for derived datasets.
 
-Documentation
-~~~~~~~~~~~~~
+v23.03.1 (2023-03-15)
+---------------------
 
-* Document how file transfers interact with source folders.
+Security
+~~~~~~~~
+
+* Remove user token from error messages.
 
 v23.01.1 (2023-01-20)
 ---------------------
