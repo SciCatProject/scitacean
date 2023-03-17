@@ -343,7 +343,6 @@ def test_derive_default(initial):
 
     assert derived.investigator == initial.investigator
     assert derived.owner == initial.owner
-    assert derived.instrument_id == initial.instrument_id
     assert derived.orcid_of_owner == initial.orcid_of_owner
     assert derived.owner_email == initial.owner_email
     assert derived.contact_email == initial.contact_email
@@ -382,7 +381,6 @@ def test_derive_keep_nothing(initial):
 
     assert derived.investigator is None
     assert derived.owner is None
-    assert derived.instrument_id is None
     assert derived.name is None
     assert derived.used_software is None
     assert derived.number_of_files == 0

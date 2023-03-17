@@ -11,6 +11,9 @@ Release notes
    vYY.0M.MICRO (Unreleased)
    -------------------------
 
+   Security
+   ~~~~~~~~
+
    Features
    ~~~~~~~~
 
@@ -28,6 +31,23 @@ Release notes
 
    Stability, Maintainability, and Testing
    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+v23.03.2 (2023-03-17)
+---------------------
+
+Bugfixes
+~~~~~~~~
+
+* Remove ``instrument_id`` from ``keep`` argument of :func:`scitacean.Dataset.derive`.
+  The instrument id is not allowed in derived datasets.
+
+v23.03.1 (2023-03-16)
+---------------------
+
+Security
+~~~~~~~~
+
+* Hide user tokens in exceptions raised on HTTP connection failures.
 
 v23.03.0 (2023-03-08)
 ---------------------
