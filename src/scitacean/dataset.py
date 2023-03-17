@@ -265,7 +265,6 @@ class Dataset(DatasetFields):
         *,
         keep: Iterable[str] = (
             "contact_email",
-            "instrument_id",
             "investigator",
             "orcid_of_owner",
             "owner",
