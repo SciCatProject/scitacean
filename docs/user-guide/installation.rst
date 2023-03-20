@@ -16,4 +16,3 @@ Installation
         .. code-block:: sh
 
             conda install -c conda-forge scitacean
-
