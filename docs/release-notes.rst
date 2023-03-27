@@ -43,6 +43,7 @@ Features
 
 * Better HTML formatting of ESS-style scientific metadata.
 * Added the ``force`` argument to :func:`scitacean.Client.download_files`.
+* Try the default checksum algorithm if the dataset has no algorithm set to check if a local
 
 Breaking changes
 ~~~~~~~~~~~~~~~~
