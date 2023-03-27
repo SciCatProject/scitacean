@@ -42,6 +42,7 @@ Features
 ~~~~~~~~
 
 * Better HTML formatting of ESS-style scientific metadata.
+* Added the ``force`` argument to :func:`scitacean.Client.download_files`.
 
 Breaking changes
 ~~~~~~~~~~~~~~~~
