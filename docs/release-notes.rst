@@ -47,6 +47,8 @@ Features
 Breaking changes
 ~~~~~~~~~~~~~~~~
 
+* Changed default checksum algorithm from md5 to blake2b.
+
 Bugfixes
 ~~~~~~~~
 
