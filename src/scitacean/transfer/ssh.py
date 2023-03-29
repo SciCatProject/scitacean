@@ -8,7 +8,7 @@ from getpass import getpass
 from pathlib import Path
 from typing import Any, Iterator, List, Optional, Tuple, Union
 
-from dateutil.tz import gettz
+from dateutil.tz import gettz, tzlocal
 
 # Note that invoke and paramiko are dependencies of fabric.
 from fabric import Connection
@@ -145,6 +145,9 @@ class SSHUploadConnection:
         tz_str = self._connection.run(cmd, hide=True).stdout.strip()
         if (tz := gettz(tz_str)) is not None:
             return tz
+        if tz_str == datetime.now(tzlocal()).tzname():
+            # On Windows, gettz returns None when given the local timezone.
+            return tzlocal()
         raise RuntimeError(
             "Failed to get timezone of remote fileserver. "
             f"Command {cmd} returned '{tz_str}' which "
