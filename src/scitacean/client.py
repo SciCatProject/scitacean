@@ -221,6 +221,7 @@ class Client:
             # TODO check if any remote file is out of date.
             #  if so, raise an error. We never overwrite remote files!
             uploaded_files = con.upload_files(*dataset.files)
+            dataset = dataset.replace_files(*uploaded_files)
             try:
                 finalized_model = self.scicat.create_dataset_model(dataset.make_model())
             except ScicatCommError:
