@@ -399,9 +399,18 @@ def _coreutils_checksum_for(file: File) -> Optional[str]:
     return supported[algorithm]
 
 
+# Using `date +"%Z"` returns a timezone abbreviation like CET or EST.
+# dateutil.tz.gettz can parse this abbreviation and return a tzinfo object.
+# However, on Windows, it returns `None` if the string refers to the local timezone.
+# This is indistinguishable from an unrecognised timezone,
+# where gettz also returns `None`.
+# To avoid this, use an explicit offset obtained from `date +"%::z"`.
+# The timezone name is only used for debugging and not interpreted by
+# dateutil or datetime.
 def _parse_remote_timezone(tz_str: str) -> tzoffset:
     # tz_str is expected to be of the form
     # <tzname>|<hours>:<minutes>:<seconds>
+    # as produced by `date +"%Z|%::z"`
     name, offset = tz_str.split("|")
     hours, minutes, seconds = map(int, offset.split(":"))
     return tzoffset(name, timedelta(hours=hours, minutes=minutes, seconds=seconds))
