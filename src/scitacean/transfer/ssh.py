@@ -3,12 +3,12 @@
 
 import os
 from contextlib import contextmanager
-from datetime import datetime, tzinfo
+from datetime import datetime, timedelta
 from getpass import getpass
 from pathlib import Path
 from typing import Any, Iterator, List, Optional, Tuple, Union
 
-from dateutil.tz import gettz, tzlocal
+from dateutil.tz import tzoffset
 
 # Note that invoke and paramiko are dependencies of fabric.
 from fabric import Connection
@@ -140,19 +140,17 @@ class SSHUploadConnection:
             raise
         return res.stdout.split(" ", 1)[0]  # type: ignore[no-any-return]
 
-    def _get_remote_timezone(self) -> tzinfo:
-        cmd = 'date +"%Z"'
-        tz_str = self._connection.run(cmd, hide=True).stdout.strip()
-        if (tz := gettz(tz_str)) is not None:
-            return tz
-        if tz_str == datetime.now(tzlocal()).tzname():
-            # On Windows, gettz returns None when given the local timezone.
-            return tzlocal()
-        raise RuntimeError(
-            "Failed to get timezone of remote fileserver. "
-            f"Command {cmd} returned '{tz_str}' which "
-            "cannot be parsed as a timezone."
-        )
+    def _get_remote_timezone(self) -> tzoffset:
+        cmd = 'date +"%Z|%::z"'
+        try:
+            tz_str = self._connection.run(cmd, hide=True).stdout.strip()
+        except UnexpectedExit as exc:
+            raise FileUploadError(
+                f"Failed to get timezone of fileserver: {exc.args}"
+            ) from None
+        tz = _parse_remote_timezone(tz_str)
+        get_logger().info("Detected timezone of fileserver: %s", tz)
+        return tz
 
     def revert_upload(self, *files: File) -> None:
         """Remove uploaded files from the remote folder."""
@@ -399,3 +397,11 @@ def _coreutils_checksum_for(file: File) -> Optional[str]:
         )
         return None
     return supported[algorithm]
+
+
+def _parse_remote_timezone(tz_str: str) -> tzoffset:
+    # tz_str is expected to be of the form
+    # <tzname>|<hours>:<minutes>:<seconds>
+    name, offset = tz_str.split("|")
+    hours, minutes, seconds = map(int, offset.split(":"))
+    return tzoffset(name, timedelta(hours=hours, minutes=minutes, seconds=seconds))
