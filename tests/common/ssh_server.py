@@ -1,5 +1,30 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
+"""Helpers for running tests with an SSH server.
+
+This is primarily meant for testing ``SSHFileTransfer``.
+
+Use the ``ssh_fileserver`` fixture to manage the server and use ``ssh_access`` to
+get all required access parameters.
+When the server fixture is first used, it initializes the server using these steps:
+
+1. Create a temporary directory with contents
+   tmpdir |
+          |- docker-compose-ssh-server.yaml
+          |- data |       (read-write)
+                  |- seed (symlink to data/ssh_server_seed; read-only)
+2. Modify the docker-compose config file to mount data and data/seed as volumes.
+3. Start docker.
+
+The docker container, its volumes, and the temporary directory are removed at the
+end of the tests.
+
+Use the seed directory (``ssh_data_dir/"seed"``) to test downloads.
+Corresponds to ``/data/seed`` on the server.
+
+Use the base data directory (``ssh_data_dir``) to test uploads.
+Corresponds to ``/data`` on the server.
+"""
 
 import tempfile
 import time
