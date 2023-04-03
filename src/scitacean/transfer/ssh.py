@@ -6,7 +6,7 @@ from contextlib import contextmanager
 from datetime import datetime, timedelta
 from getpass import getpass
 from pathlib import Path
-from typing import Any, Iterator, List, Optional, Tuple, Union
+from typing import Any, Callable, Iterator, List, Optional, Tuple, Union
 
 from dateutil.tz import tzoffset
 
@@ -66,7 +66,9 @@ class SSHUploadConnection:
 
     def _make_source_folder(self) -> None:
         try:
-            self._connection.run(f"mkdir -p {os.fspath(self.source_folder)}", hide=True)
+            self._connection.run(
+                f"mkdir -p {os.fspath(self.source_folder)}", hide=True, in_stream=False
+            )
         except OSError as exc:
             raise FileUploadError(
                 f"Failed to create source folder {self.source_folder}: {exc.args}"
@@ -126,7 +128,9 @@ class SSHUploadConnection:
             return None
         try:
             res = self._connection.run(
-                f"{hash_exe} {self.remote_path(file.remote_path)}", hide=True
+                f"{hash_exe} {self.remote_path(file.remote_path)}",
+                hide=True,
+                in_stream=False,
             )
         except UnexpectedExit as exc:
             if exc.result.return_code == 127:
@@ -143,7 +147,7 @@ class SSHUploadConnection:
     def _get_remote_timezone(self) -> tzoffset:
         cmd = 'date +"%Z|%::z"'
         try:
-            tz_str = self._connection.run(cmd, hide=True).stdout.strip()
+            tz_str = self._connection.run(cmd, hide=True, in_stream=False).stdout.strip()
         except UnexpectedExit as exc:
             raise FileUploadError(
                 f"Failed to get timezone of fileserver: {exc.args}"
@@ -293,19 +297,55 @@ class SSHFileTransfer:
         return source_folder_for(dataset, self._source_folder_pattern)
 
     @contextmanager
-    def connect_for_download(self) -> Iterator[SSHDownloadConnection]:
-        """Create a connection for downloads, use as a context manager."""
-        con = _connect(self._host, self._port)
+    def connect_for_download(
+        self, connect: Optional[Callable[..., Connection]] = None
+    ) -> Iterator[SSHDownloadConnection]:
+        """Create a connection for downloads, use as a context manager.
+
+        Parameters
+        ----------
+        connect:
+            A function that creates and returns a :class:`fabric.connection.Connection`
+            object.
+            Will first be called with only ``host`` and ``port``.
+            If this fails (by raising
+            :class:`paramiko.ssh_exception.AuthenticationException`), the function is
+            called with ``host``, ``port``, and, optionally, ``user`` and
+            ``connection_kwargs`` depending on the authentication method.
+            Raising :class:`paramiko.ssh_exception.AuthenticationException` in the 2nd
+            call or any other exception in the 1st signals failure of
+            ``connect_for_download``.
+        """
+        con = _connect(self._host, self._port, connect=connect)
         try:
             yield SSHDownloadConnection(connection=con)
         finally:
             con.close()
 
     @contextmanager
-    def connect_for_upload(self, dataset: Dataset) -> Iterator[SSHUploadConnection]:
-        """Create a connection for uploads, use as a context manager."""
+    def connect_for_upload(
+        self, dataset: Dataset, connect: Optional[Callable[..., Connection]] = None
+    ) -> Iterator[SSHUploadConnection]:
+        """Create a connection for uploads, use as a context manager.
+
+        Parameters
+        ----------
+        dataset:
+            The connection will be used to upload files of this dataset.
+        connect:
+            A function that creates and returns a :class:`fabric.connection.Connection`
+            object.
+            Will first be called with only ``host`` and ``port``.
+            If this fails (by raising
+            :class:`paramiko.ssh_exception.AuthenticationException`), the function is
+            called with ``host``, ``port``, and, optionally, ``user`` and
+            ``connection_kwargs`` depending on the authentication method.
+            Raising :class:`paramiko.ssh_exception.AuthenticationException` in the 2nd
+            call or any other exception in the 1st signals failure of
+            ``connect_for_upload``.
+        """
         source_folder = self.source_folder_for(dataset)
-        con = _connect(self._host, self._port)
+        con = _connect(self._host, self._port, connect=connect)
         try:
             yield SSHUploadConnection(
                 connection=con,
@@ -326,18 +366,31 @@ def _ask_for_credentials(host: str) -> Tuple[str, str]:
     return username, password
 
 
-def _generic_connect(host: str, port: Optional[int], **kwargs: Any) -> Connection:
-    con = Connection(host=host, port=port, **kwargs)
+def _generic_connect(
+    host: str,
+    port: Optional[int],
+    connect: Optional[Callable[..., Connection]],
+    **kwargs: Any,
+) -> Connection:
+    if connect is None:
+        con = Connection(host=host, port=port, **kwargs)
+    else:
+        con = connect(host=host, port=port, **kwargs)
     con.open()
     return con
 
 
-def _unauthenticated_connect(host: str, port: Optional[int]) -> Connection:
-    return _generic_connect(host=host, port=port)
+def _unauthenticated_connect(
+    host: str, port: Optional[int], connect: Optional[Callable[..., Connection]]
+) -> Connection:
+    return _generic_connect(host=host, port=port, connect=connect)
 
 
 def _authenticated_connect(
-    host: str, port: Optional[int], exc: AuthenticationException
+    host: str,
+    port: Optional[int],
+    connect: Optional[Callable[..., Connection]],
+    exc: AuthenticationException,
 ) -> Connection:
     # TODO fail fast if output going to file
     if isinstance(exc, PasswordRequiredException) and "encrypted" in exc.args[0]:
@@ -345,23 +398,30 @@ def _authenticated_connect(
         return _generic_connect(
             host=host,
             port=port,
+            connect=connect,
             connect_kwargs={"passphrase": _ask_for_key_passphrase()},
         )
     else:
         username, password = _ask_for_credentials(host)
         return _generic_connect(
-            host=host, port=port, user=username, connect_kwargs={"password": password}
+            host=host,
+            port=port,
+            connect=connect,
+            user=username,
+            connect_kwargs={"password": password},
         )
 
 
-def _connect(host: str, port: Optional[int]) -> Connection:
+def _connect(
+    host: str, port: Optional[int], connect: Optional[Callable[..., Connection]]
+) -> Connection:
     try:
         try:
-            return _unauthenticated_connect(host, port)
+            return _unauthenticated_connect(host, port, connect)
         except AuthenticationException as exc:
-            return _authenticated_connect(host, port, exc)
+            return _authenticated_connect(host, port, connect, exc)
     except Exception as exc:
-        # We pass secrets as arguments to functions called in this block and those
+        # We pass secrets as arguments to functions called in this block, and those
         # can be leaked through exception handlers. So catch all exceptions
         # and strip the backtrace up to this point to hide those secrets.
         raise type(exc)(exc.args) from None
