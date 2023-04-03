@@ -23,7 +23,6 @@ from ..filesystem import RemotePath
 from ..logging import get_logger
 from .util import source_folder_for
 
-# TODO process multiple files together
 # TODO pass pid in put/revert?
 #      downloading does not need a pid, so it should not be required in the constructor/
 
@@ -80,13 +79,16 @@ class SSHUploadConnection:
         uploaded = []
         try:
             for file in files:
-                uploaded.append(self._upload_file(file))
+                up, exc = self._upload_file(file)
+                uploaded.append(up)  # need to add this file in order to revert it
+                if exc is not None:
+                    raise exc
         except Exception:
             self.revert_upload(*uploaded)
             raise
         return uploaded
 
-    def _upload_file(self, file: File) -> File:
+    def _upload_file(self, file: File) -> Tuple[File, Optional[Exception]]:
         remote_path = self.remote_path(file.remote_path)
         get_logger().info(
             "Uploading file %s to %s on host %s",
@@ -94,29 +96,32 @@ class SSHUploadConnection:
             remote_path,
             self._connection.host,
         )
-        self._sftp.put(
+        st = self._sftp.put(
             remotepath=os.fspath(remote_path), localpath=os.fspath(file.local_path)
         )
-        st = self._sftp.stat(os.fspath(remote_path))
-        self._validate_upload(file)
+        if (exc := self._validate_upload(file)) is not None:
+            return file, exc
         creation_time = (
             datetime.fromtimestamp(st.st_mtime, tz=self._remote_timezone)
             if st.st_mtime
             else None
         )
-        return file.uploaded(
-            remote_gid=str(st.st_gid),
-            remote_uid=str(st.st_uid),
-            remote_creation_time=creation_time,
-            remote_perm=str(st.st_mode),
-            remote_size=st.st_size,
+        return (
+            file.uploaded(
+                remote_gid=str(st.st_gid),
+                remote_uid=str(st.st_uid),
+                remote_creation_time=creation_time,
+                remote_perm=str(st.st_mode),
+                remote_size=st.st_size,
+            ),
+            None,
         )
 
-    def _validate_upload(self, file: File) -> None:
+    def _validate_upload(self, file: File) -> Optional[Exception]:
         if (checksum := self._compute_checksum(file)) is None:
-            return
+            return None
         if checksum != file.checksum():
-            raise FileUploadError(
+            return FileUploadError(
                 f"Upload of file {file.remote_path} failed: "
                 f"Checksum of uploaded file ({checksum}) does not "
                 f"match checksum of local file ({file.checksum()}) "
@@ -332,6 +337,7 @@ class SSHFileTransfer:
         ----------
         dataset:
             The connection will be used to upload files of this dataset.
+            Used to determine the target folder.
         connect:
             A function that creates and returns a :class:`fabric.connection.Connection`
             object.
