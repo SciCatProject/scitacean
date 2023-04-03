@@ -101,23 +101,26 @@ def make_client(ssh_access: SSHAccess) -> paramiko.SSHClient:
         port=ssh_access.port,
         username=ssh_access.username,
         password=ssh_access.password,
+        allow_agent=False,
+        look_for_keys=False,
     )
     return client
 
 
 @pytest.fixture()
-def connection_config():
+def ssh_connection_config():
     """Return configuration for fabric.Connection."""
     config = fabric.config.Config()
     config["load_ssh_configs"] = False
     config["connect_kwargs"] = {
+        "allow_agent": False,
         "look_for_keys": False,
     }
     return config
 
 
 @pytest.fixture()
-def connect_with_username_password(ssh_access, connection_config):
+def ssh_connect_with_username_password(ssh_access, ssh_connection_config):
     """Return a function to create a connection to the testing SSH server.
 
     Uses username+password and rejects any other authentication attempt.
@@ -133,8 +136,11 @@ def connect_with_username_password(ssh_access, connection_config):
             host=host,
             port=port,
             user=ssh_access.username,
-            config=connection_config,
-            connect_kwargs={"password": ssh_access.password},
+            config=ssh_connection_config,
+            connect_kwargs={
+                "password": ssh_access.password,
+                **ssh_connection_config.connect_kwargs,
+            },
         )
         connection.client.set_missing_host_key_policy(IgnorePolicy())
         return connection
