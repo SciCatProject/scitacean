@@ -5,7 +5,12 @@ import hypothesis
 import pytest
 
 from .common.backend import scicat_access, scicat_backend  # noqa: F401
-from .common.ssh_server import ssh_access, ssh_fileserver  # noqa: F401
+from .common.ssh_server import (  # noqa: F401
+    connect_with_username_password,
+    connection_config,
+    ssh_access,
+    ssh_fileserver,
+)
 
 # The datasets strategy requires a large amount of memory and time.
 # This is not good but hard to avoid.
