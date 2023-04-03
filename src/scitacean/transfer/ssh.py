@@ -431,7 +431,7 @@ def _connect(
 
 def _folder_is_empty(con: Connection, path: RemotePath) -> bool:
     try:
-        ls: str = con.run(f"ls {path}", hide=True).stdout
+        ls: str = con.run(f"ls {path}", hide=True, in_stream=False).stdout
         return ls == ""
     except UnexpectedExit:
         return False  # no further processing is needed in this case
