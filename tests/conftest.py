@@ -6,9 +6,11 @@ import pytest
 
 from .common.backend import scicat_access, scicat_backend  # noqa: F401
 from .common.ssh_server import (  # noqa: F401
-    connect_with_username_password,
-    connection_config,
     ssh_access,
+    ssh_config_dir,
+    ssh_connect_with_username_password,
+    ssh_connection_config,
+    ssh_data_dir,
     ssh_fileserver,
 )
 
