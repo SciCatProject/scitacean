@@ -152,7 +152,9 @@ class SSHUploadConnection:
     def _get_remote_timezone(self) -> tzoffset:
         cmd = 'date +"%Z|%::z"'
         try:
-            tz_str = self._connection.run(cmd, hide=True, in_stream=False).stdout.strip()
+            tz_str = self._connection.run(
+                cmd, hide=True, in_stream=False
+            ).stdout.strip()
         except UnexpectedExit as exc:
             raise FileUploadError(
                 f"Failed to get timezone of fileserver: {exc.args}"
