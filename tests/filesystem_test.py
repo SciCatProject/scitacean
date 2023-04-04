@@ -24,6 +24,14 @@ def test_remote_path_creation_and_posix():
     assert RemotePath(RemotePath("source/events.h5")).posix == "source/events.h5"
 
 
+def test_remote_path_from_segments():
+    assert RemotePath("/mnt", "dir", "file.csv") == RemotePath("/mnt/dir/file.csv")
+    assert RemotePath("folder", "file") == RemotePath("folder/file")
+    assert RemotePath("", "folder", "file.csv") == RemotePath("folder/file.csv")
+    assert RemotePath("folder", "", "file.csv") == RemotePath("folder/file.csv")
+    assert RemotePath("folder", "file.csv", "") == RemotePath("folder/file.csv")
+
+
 def test_remote_path_init_requires_path_like():
     with pytest.raises(TypeError):
         RemotePath(6133)  # type: ignore[arg-type]

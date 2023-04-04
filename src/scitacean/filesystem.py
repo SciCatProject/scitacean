@@ -33,16 +33,19 @@ class RemotePath:
     the two should almost never be mixed.
     """
 
-    def __init__(self, path: Union[str, RemotePath]):
-        """Initialize from a given path."""
-        if isinstance(path, (PurePath, Path)):
-            raise TypeError(
-                "OS paths are not supported by RemotePath.__init__. "
-                "use RemotePath.from_local instead."
-            )
-        if not isinstance(path, (str, RemotePath)):
-            raise TypeError(f"Expected str or RemotePath, got {type(path).__name__}")
-        self._path = _posix(path)
+    def __init__(self, *path_segments: Union[str, RemotePath]):
+        """Initialize from given path segments."""
+        for segment in path_segments:
+            if isinstance(segment, (PurePath, Path)):
+                raise TypeError(
+                    "OS paths are not supported by RemotePath.__init__. "
+                    "use RemotePath.from_local instead."
+                )
+            if not isinstance(segment, (str, RemotePath)):
+                raise TypeError(
+                    "Expected str or RemotePath, " f"got {type(segment).__name__}"
+                )
+        self._path = "/".join(s for segment in path_segments if (s := _posix(segment)))
 
     @classmethod
     def from_local(cls, path: PurePath) -> RemotePath:
