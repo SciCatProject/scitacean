@@ -114,7 +114,6 @@ def configure(target_dir: Union[Path, str]) -> Path:
     target_seed_dir = target_dir / "data" / "seed"
     target_seed_dir.parent.mkdir()
     target_seed_dir.symlink_to(_SEED_DIR)
-    # (target_dir/"data"/"asd").mkdir()
 
     with open(_SSH_SERVER_DOCKER_CONFIG, "r") as f:
         config = yaml.safe_load(f)
@@ -124,7 +123,7 @@ def configure(target_dir: Union[Path, str]) -> Path:
     service.setdefault("volumes", []).append(f"{target_dir / 'data'}:/data")
     # Mount the initial data via the symlink created above.
     # This gives the user read access.
-    service.setdefault("volumes", []).append(f"{target_seed_dir}:/data/seed")
+    service["volumes"].append(f"{target_seed_dir}:/data/seed")
 
     target = target_dir / _SSH_SERVER_DOCKER_CONFIG.name
     with open(target, "w") as f:
