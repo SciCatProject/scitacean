@@ -26,6 +26,7 @@ Use the base data directory (``ssh_data_dir``) to test uploads.
 Corresponds to ``/data`` on the server.
 """
 
+import shutil
 import tempfile
 import time
 from dataclasses import dataclass
@@ -115,20 +116,16 @@ def configure(target_dir: Union[Path, str]) -> Path:
     target_seed_dir.parent.mkdir()
     target_seed_dir.symlink_to(_SEED_DIR)
 
-    with open(_SSH_SERVER_DOCKER_CONFIG, "r") as f:
-        config = yaml.safe_load(f)
-    service = config["services"]["scitacean-test-ssh-server"]
+    config_target = target_dir / _SSH_SERVER_DOCKER_CONFIG.name
+    shutil.copyfile(_SSH_SERVER_DOCKER_CONFIG, config_target)
 
-    # Mount the base data dir. This gives the user write access.
-    service.setdefault("volumes", []).append(f"{target_dir / 'data'}:/data")
-    # Mount the initial data via the symlink created above.
-    # This gives the user read access.
-    service["volumes"].append(f"{target_seed_dir}:/data/seed")
+    with open(target_dir / ".env", "w") as f:
+        f.write(
+            f"""DATA_DIR={target_dir / 'data'}
+SEED_DIR={target_seed_dir}"""
+        )
 
-    target = target_dir / _SSH_SERVER_DOCKER_CONFIG.name
-    with open(target, "w") as f:
-        yaml.dump(config, f)
-    return target
+    return config_target
 
 
 def can_connect(ssh_access: SSHAccess) -> bool:

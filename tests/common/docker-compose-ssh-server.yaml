@@ -16,8 +16,9 @@ services:
       - PASSWORD_ACCESS=true
       - USER_NAME=the-scitacean
       - USER_PASSWORD=sup3r-str0ng
-#    volumes:
-#      - /path/to/appdata/config:/config
+    volumes:
+      - ${DATA_DIR}:/data
+      - ${SEED_DIR}:/data/seed
     ports:
       - "2222:2222"
     restart: unless-stopped
