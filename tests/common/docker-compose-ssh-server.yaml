@@ -1,7 +1,7 @@
 version: "2.1"
 services:
   scitacean-test-ssh-server:
-    image: lscr.io/linuxserver/openssh-server:latest
+    image: linuxserver/openssh-server:latest
     container_name: openssh-server
     hostname: scitacean-test-ssh-server
     environment:
