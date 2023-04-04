@@ -8,7 +8,12 @@
 
 """Pydantic models to encode data for communication with SciCat."""
 
-import enum
+try:
+    # Python 3.11+
+    from enum import StrEnum as _StrEnum
+except ImportError:
+    from enum import Enum as _StrEnum
+
 import os
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Type, TypeVar
@@ -21,8 +26,7 @@ from .logging import get_logger
 from .pid import PID
 
 
-# This can be replaced by StrEnum in Python 3.11+
-class DatasetType(str, enum.Enum):
+class DatasetType(str, _StrEnum):
     """Type of Dataset"""
 
     RAW = "raw"
