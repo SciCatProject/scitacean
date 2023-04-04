@@ -33,3 +33,9 @@ def docker_compose(config_file: Path, *services: str):
         yield
     finally:
         docker_compose_down(config_file)
+
+
+def docker_compose_run(config_file: Path, service: str, *cmd: str):
+    subprocess.check_call(
+        ["docker", "compose", "--file", str(config_file), "run", service, *cmd]
+    )
