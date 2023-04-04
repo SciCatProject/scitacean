@@ -18,7 +18,7 @@ from .common.files import make_file
 
 @pytest.fixture
 def fake_file(fs):
-    return make_file(fs, path="local/dir/events.nxs")
+    return make_file(fs, path=Path("local", "dir", "events.nxs"))
 
 
 def test_file_from_local(fake_file):
@@ -35,7 +35,7 @@ def test_file_from_local(fake_file):
 
 
 def test_file_from_local_with_base_path(fake_file):
-    assert fake_file["path"] == Path("local") / "dir" / "events.nxs"  # used below
+    assert fake_file["path"] == Path("local", "dir", "events.nxs")  # used below
 
     file = replace(
         File.from_local(fake_file["path"], base_path="local"), checksum_algorithm="md5"
@@ -95,6 +95,24 @@ def test_file_from_local_select_checksum_algorithm(fake_file, alg):
     assert file.checksum() == expected
 
 
+def test_file_from_local_remote_path_uses_forward_slash(fs):
+    fs.create_file(Path("data", "subdir", "file.dat"))
+
+    file = File.from_local(Path("data", "subdir", "file.dat"))
+    assert file.remote_path == RemotePath("data/subdir/file.dat")
+    assert file.make_model().path == "data/subdir/file.dat"
+
+    file = File.from_local(Path("data", "subdir", "file.dat"), base_path=Path("data"))
+    assert file.remote_path == RemotePath("subdir/file.dat")
+    assert file.make_model().path == "subdir/file.dat"
+
+    file = File.from_local(
+        Path("data", "subdir", "file.dat"), base_path=Path("data") / "subdir"
+    )
+    assert file.remote_path == RemotePath("file.dat")
+    assert file.make_model().path == "file.dat"
+
+
 def test_file_from_scicat():
     model = DataFile(
         path="dir/image.jpg", size=12345, time=parse_date("2022-06-22T15:42:53.123Z")
@@ -106,6 +124,28 @@ def test_file_from_scicat():
     assert file.checksum() is None
     assert file.size == 12345
     assert file.creation_time == parse_date("2022-06-22T15:42:53.123Z")
+
+
+def test_file_from_scicat_remote_path_uses_forward_slash():
+    file = File.from_scicat(
+        DataFile(
+            path="data/subdir/file.dat",
+            size=0,
+            time=parse_date("2022-06-22T15:42:53.123Z"),
+        ),
+        local_path=None,
+    )
+    assert file.remote_path == RemotePath("data/subdir/file.dat")
+
+    file = File.from_scicat(
+        DataFile(
+            path="data/subdir/file.dat",
+            size=0,
+            time=parse_date("2022-06-22T15:42:53.123Z"),
+        ),
+        local_path=Path("data") / "subdir",
+    )
+    assert file.remote_path == RemotePath("data/subdir/file.dat")
 
 
 def test_make_model_local_file(fake_file):
