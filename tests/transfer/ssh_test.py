@@ -24,13 +24,13 @@ def test_download_one_file(ssh_access, ssh_connect_with_username_password, tmp_p
     ssh = SSHFileTransfer(host=ssh_access.host, port=ssh_access.port)
     with ssh.connect_for_download(connect=ssh_connect_with_username_password) as con:
         con.download_files(
-            remote=["/data/seed/text.txt"], local=[tmp_path / "text.txt"]
+            remote=[RemotePath("/data/seed/text.txt")], local=[tmp_path / "text.txt"]
         )
     with open(tmp_path / "text.txt", "r") as f:
         assert f.read() == "This is some text for testing.\n"
 
 
-def test_download_two_file(ssh_access, ssh_connect_with_username_password, tmp_path):
+def test_download_two_files(ssh_access, ssh_connect_with_username_password, tmp_path):
     ssh = SSHFileTransfer(host=ssh_access.host, port=ssh_access.port)
     with ssh.connect_for_download(connect=ssh_connect_with_username_password) as con:
         con.download_files(
@@ -83,7 +83,9 @@ def test_upload_one_file_source_folder_in_transfer(
     ) as con:
         assert con.source_folder == RemotePath("/data/upload/abcd-12")
         con.upload_files(
-            File.from_local(path=tmp_path / "file1.txt", remote_path="upload_1.txt")
+            File.from_local(
+                path=tmp_path / "file1.txt", remote_path=RemotePath("upload_1.txt")
+            )
         )
 
     with open(ssh_data_dir / "upload" / "abcd-12" / "upload_1.txt", "r") as f:
@@ -266,7 +268,7 @@ def test_upload_file_detects_checksum_mismatch(
                 dataclasses.replace(
                     File.from_local(
                         path=tmp_path / "file7.txt",
-                        remote_path="upload_7.txt",
+                        remote_path=RemotePath("upload_7.txt"),
                     ),
                     checksum_algorithm="blake2b",
                 )
@@ -323,7 +325,7 @@ def test_upload_file_reverts_if_upload_fails(
             con.upload_files(
                 File.from_local(
                     path=tmp_path / "file8.txt",
-                    remote_path="upload_8.txt",
+                    remote_path=RemotePath("upload_8.txt"),
                 )
             )
 

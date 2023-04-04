@@ -43,7 +43,7 @@ class SSHDownloadConnection:
             self._connection.host,
             local,
         )
-        self._connection.get(remote=str(remote), local=str(local))
+        self._connection.get(remote=remote.posix, local=os.fspath(local))
 
 
 class SSHUploadConnection:
@@ -66,7 +66,7 @@ class SSHUploadConnection:
     def _make_source_folder(self) -> None:
         try:
             self._connection.run(
-                f"mkdir -p {os.fspath(self.source_folder)}", hide=True, in_stream=False
+                f"mkdir -p {self.source_folder.posix}", hide=True, in_stream=False
             )
         except OSError as exc:
             raise FileUploadError(
@@ -97,7 +97,7 @@ class SSHUploadConnection:
             self._connection.host,
         )
         st = self._sftp.put(
-            remotepath=os.fspath(remote_path), localpath=os.fspath(file.local_path)
+            remotepath=remote_path.posix, localpath=os.fspath(file.local_path)
         )
         if (exc := self._validate_upload(file)) is not None:
             return file, exc
@@ -133,7 +133,7 @@ class SSHUploadConnection:
             return None
         try:
             res = self._connection.run(
-                f"{hash_exe} {self.remote_path(file.remote_path)}",
+                f"{hash_exe} {self.remote_path(file.remote_path).posix}",
                 hide=True,
                 in_stream=False,
             )
@@ -177,7 +177,7 @@ class SSHUploadConnection:
                     self.source_folder,
                     self._connection.host,
                 )
-                self._sftp.rmdir(os.fspath(self.source_folder))
+                self._sftp.rmdir(self.source_folder.posix)
             except UnexpectedExit as exc:
                 get_logger().warning(
                     "Failed to remove empty remote directory %s on host:\n%s",
@@ -196,7 +196,7 @@ class SSHUploadConnection:
         )
 
         try:
-            self._sftp.remove(os.fspath(remote_path))
+            self._sftp.remove(remote_path.posix)
         except UnexpectedExit as exc:
             get_logger().warning(
                 "Error reverting file %s:\n%s", remote_path, exc.result
@@ -296,7 +296,9 @@ class SSHFileTransfer:
         self._host = host
         self._port = port
         self._source_folder_pattern = (
-            RemotePath(source_folder) if source_folder is not None else None
+            RemotePath(source_folder)
+            if isinstance(source_folder, str)
+            else source_folder
         )
 
     def source_folder_for(self, dataset: Dataset) -> RemotePath:
@@ -439,7 +441,7 @@ def _connect(
 
 def _folder_is_empty(con: Connection, path: RemotePath) -> bool:
     try:
-        ls: str = con.run(f"ls {path}", hide=True, in_stream=False).stdout
+        ls: str = con.run(f"ls {path.posix}", hide=True, in_stream=False).stdout
         return ls == ""
     except UnexpectedExit:
         return False  # no further processing is needed in this case
