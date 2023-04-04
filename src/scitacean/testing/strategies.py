@@ -1,12 +1,13 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
+import string
 from functools import partial
 from typing import Any, Dict, Optional
 
 from email_validator import EmailNotValidError, validate_email
 from hypothesis import strategies as st
 
-from scitacean import Dataset, DatasetType
+from scitacean import Dataset, DatasetType, RemotePath
 from scitacean._internal.orcid import orcid_checksum
 
 
@@ -71,6 +72,13 @@ _SPECIAL_FIELDS = {
     "orcid_of_owner": _orcid_field_strategy,
     "meta": _scientific_metadata_strategy,
 }
+
+st.register_type_strategy(
+    RemotePath,
+    st.text(
+        alphabet=string.ascii_lowercase + string.ascii_uppercase + string.digits + "/."
+    ).map(RemotePath),
+)
 
 
 def _field_strategy(

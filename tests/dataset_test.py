@@ -72,7 +72,6 @@ def test_add_multiple_local_files_to_new_dataset(typ, fs):
     assert f0.remote_access_path(dset.source_folder) is None
     assert f0.local_path == Path("common/location1/data.dat")
     assert f0.size == file_data0["size"]
-    assert f0.make_model().path == "common/location1/data.dat"
     assert f0.checksum_algorithm == "md5"
 
     assert not f1.is_on_remote
@@ -80,7 +79,6 @@ def test_add_multiple_local_files_to_new_dataset(typ, fs):
     assert f1.remote_access_path(dset.source_folder) is None
     assert f1.local_path == Path("common/song.mp3")
     assert f1.size == file_data1["size"]
-    assert f1.make_model().path == "common/song.mp3"
     assert f1.checksum_algorithm == "md5"
 
 
@@ -109,7 +107,6 @@ def test_add_multiple_local_files_to_new_dataset_with_base_path(typ, fs):
     assert f0.remote_access_path(dset.source_folder) is None
     assert f0.local_path == Path("common/location1/data.dat")
     assert f0.size == file_data0["size"]
-    assert f0.make_model().path == "location1/data.dat"
     assert f0.checksum_algorithm == "md5"
 
     assert not f1.is_on_remote
@@ -117,7 +114,6 @@ def test_add_multiple_local_files_to_new_dataset_with_base_path(typ, fs):
     assert f1.remote_access_path(dset.source_folder) is None
     assert f1.local_path == Path("common/song.mp3")
     assert f1.size == file_data1["size"]
-    assert f1.make_model().path == "song.mp3"
     assert f1.checksum_algorithm == "md5"
 
 

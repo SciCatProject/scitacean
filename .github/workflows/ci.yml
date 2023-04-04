@@ -28,7 +28,7 @@ jobs:
   tests:
     name: Tests py${{ matrix.python }} ${{ matrix.os }}
     needs: formatting
-    runs-on: ubuntu-20.04
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         include:

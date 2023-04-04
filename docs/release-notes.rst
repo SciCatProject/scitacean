@@ -58,6 +58,8 @@ Deprecations
 Stability, Maintainability, and Testing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+* Fixed bug in CI setup that meant that all tests were running on Ubuntu.
+
 v23.03.2 (2023-03-17)
 ---------------------
 

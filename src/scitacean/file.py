@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 import dataclasses
-import os
 import warnings
 from datetime import datetime, timezone
 from pathlib import Path
@@ -115,7 +114,7 @@ class File:
         """
         path = Path(path)
         if not remote_path:
-            remote_path = str(path.relative_to(base_path))
+            remote_path = RemotePath.from_local(path.relative_to(base_path))
         return File(
             local_path=path,
             remote_path=RemotePath(remote_path),
@@ -264,7 +263,7 @@ class File:
         chk = self.checksum()
         # TODO if for_archive: ensure not out of date
         return DataFile(
-            path=os.fspath(self.remote_path),
+            path=self.remote_path.posix,
             size=self.size,
             chk=chk,
             gid=self.remote_gid,
