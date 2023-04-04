@@ -363,7 +363,7 @@ class Client:
         target.mkdir(parents=True, exist_ok=True)
         files = _select_files(select, dataset)
         downloaded_files = [
-            f.downloaded(local_path=target / f.remote_path) for f in files
+            f.downloaded(local_path=target / f.remote_path.to_local()) for f in files
         ]
         downloaded_files = _remove_up_to_date_local_files(
             downloaded_files, checksum_algorithm=checksum_algorithm
@@ -771,7 +771,7 @@ def _file_selector(select: FileSelector) -> Callable[[File], bool]:
         return lambda f: f.remote_path in select  # type: ignore[operator]
     if isinstance(select, re.Pattern):
         return lambda f: (
-            select.search(str(f.remote_path)) is not None  # type: ignore[union-attr]
+            select.search(f.remote_path.posix) is not None  # type: ignore[union-attr]
         )
     return select
 

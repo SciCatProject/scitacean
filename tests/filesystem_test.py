@@ -2,7 +2,7 @@
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
 import hashlib
 from datetime import datetime, timedelta, timezone
-from pathlib import Path
+from pathlib import Path, PurePath, PurePosixPath, PureWindowsPath
 
 import pytest
 from hypothesis import given
@@ -17,11 +17,11 @@ from scitacean.filesystem import (
 )
 
 
-def test_remote_path_creation_and_str():
-    assert str(RemotePath("/mnt/data/folder/file.txt")) == "/mnt/data/folder/file.txt"
-    assert str(RemotePath("dir/image.png")) == "dir/image.png"
-    assert str(RemotePath("data.nxs")) == "data.nxs"
-    assert str(RemotePath(RemotePath("source/events.h5"))) == "source/events.h5"
+def test_remote_path_creation_and_posix():
+    assert RemotePath("/mnt/data/folder/file.txt").posix == "/mnt/data/folder/file.txt"
+    assert RemotePath("dir/image.png").posix == "dir/image.png"
+    assert RemotePath("data.nxs").posix == "data.nxs"
+    assert RemotePath(RemotePath("source/events.h5")).posix == "source/events.h5"
 
 
 def test_remote_path_init_requires_path_like():
@@ -29,6 +29,41 @@ def test_remote_path_init_requires_path_like():
         RemotePath(6133)  # type: ignore[arg-type]
     with pytest.raises(TypeError):
         RemotePath(["folder", "file.dat"])  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize("local_type", (PurePath, Path))
+def test_remote_path_rejects_os_path(local_type):
+    with pytest.raises(TypeError):
+        RemotePath(local_type("dir", "file.csv"))  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize("local_type", (PurePath, PurePosixPath, PureWindowsPath))
+def test_remote_path_from_local(local_type):
+    local_path = local_type("dir", "folder", "file.csv")
+    remote_path = RemotePath.from_local(local_path)
+    assert remote_path == RemotePath("dir/folder/file.csv")
+
+
+@pytest.mark.parametrize("local_type", (PurePath, PurePosixPath, PureWindowsPath))
+def test_remote_path_posix_uses_forward_slashes(local_type):
+    local_path = local_type("dir", "folder", "file.csv")
+    remote_path = RemotePath.from_local(local_path)
+    assert remote_path.posix == "dir/folder/file.csv"
+
+
+def test_remote_path_str():
+    assert str(RemotePath("folder/file.dat")) == "RemotePath('folder/file.dat')"
+
+
+def test_remote_path_repr():
+    assert repr(RemotePath("folder/file.dat")) == "RemotePath('folder/file.dat')"
+
+
+def test_remote_path_to_local():
+    assert RemotePath("folder/file.dat").to_local() == PurePath("folder", "file.dat")
+    assert RemotePath("/folder/file.dat").to_local() == PurePath("/folder", "file.dat")
+    assert RemotePath("folder//file.dat").to_local() == PurePath("folder", "file.dat")
+    assert RemotePath("folder/file.dat/").to_local() == PurePath("folder", "file.dat")
 
 
 @pytest.mark.parametrize(
@@ -75,6 +110,13 @@ def test_remote_path_join_url(types):
     assert ta("https://server.eu/") / tb("/1234-abcd/data.txt") == RemotePath(
         "https://server.eu/1234-abcd/data.txt"
     )
+
+
+def test_remote_path_join_rejects_os_path():
+    with pytest.raises(TypeError):
+        RemotePath("asd") / Path("qwe")  # type: ignore[arg-type]
+    with pytest.raises(TypeError):
+        Path("qwe") / RemotePath("asd")  # type: ignore[arg-type]
 
 
 def test_remote_path_name():
