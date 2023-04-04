@@ -114,7 +114,7 @@ class File:
         """
         path = Path(path)
         if not remote_path:
-            remote_path = str(path.relative_to(base_path))
+            remote_path = RemotePath.from_local(path.relative_to(base_path))
         return File(
             local_path=path,
             remote_path=RemotePath(remote_path),
