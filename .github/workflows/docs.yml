@@ -18,7 +18,7 @@ on:
 jobs:
   docs:
     name: Build documentation
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - run: sudo apt install --yes pandoc
       - uses: actions/checkout@v3

@@ -10,7 +10,7 @@ on:
 jobs:
   formatting:
     name: Formatting and static analysis
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
         with:
@@ -32,12 +32,12 @@ jobs:
     strategy:
       matrix:
         include:
-          - {python: '3.11', os: ubuntu-20.04, tox: py311-backend}
-          - {python: '3.10', os: ubuntu-20.04, tox: py310-backend}
-          - {python: '3.9', os: ubuntu-20.04, tox: py39-backend}
-          - {python: '3.8', os: ubuntu-20.04, tox: py38-backend}
-          - {python: '3.8', os: macos-11, tox: py38}
-          - {python: '3.8', os: windows-2019, tox: py38}
+          - {python: '3.11', os: ubuntu-22.04, tox: py311-backend}
+          - {python: '3.10', os: ubuntu-22.04, tox: py310-backend}
+          - {python: '3.9', os: ubuntu-22.04, tox: py39-backend}
+          - {python: '3.8', os: ubuntu-22.04, tox: py38-backend}
+          - {python: '3.8', os: macos-12, tox: py38}
+          - {python: '3.8', os: windows-2022, tox: py38}
     steps:
       - run: sudo apt install --yes docker-compose
         if: ${{ contains(matrix.variant.os, 'ubuntu') }}
