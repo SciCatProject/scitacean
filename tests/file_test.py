@@ -25,7 +25,7 @@ def test_file_from_local(fake_file):
     file = replace(File.from_local(fake_file["path"]), checksum_algorithm="md5")
     assert file.remote_access_path("/remote") is None
     assert file.local_path == fake_file["path"]
-    assert file.remote_path == str(fake_file["path"])
+    assert file.remote_path == fake_file["path"].as_posix()
     assert file.checksum() == fake_file["checksum"]
     assert file.size == fake_file["size"]
     assert file.remote_uid is None
@@ -159,7 +159,7 @@ def test_make_model_local_file(fake_file):
         checksum_algorithm="blake2s",
     )
     model = file.make_model()
-    assert model.path == str(fake_file["path"])
+    assert model.path == fake_file["path"].as_posix()
     assert model.size == fake_file["size"]
     assert model.chk == checksum_of_file(fake_file["path"], algorithm="blake2s")
     assert model.gid == "groupy-group"
@@ -183,7 +183,7 @@ def test_uploaded(fake_file):
     assert uploaded.is_on_local
     assert uploaded.is_on_remote
 
-    assert uploaded.remote_path == str(fake_file["path"])
+    assert uploaded.remote_path == fake_file["path"].as_posix()
     assert uploaded.local_path == fake_file["path"]
     assert uploaded.checksum() == checksum_of_file(
         fake_file["path"], algorithm="sha256"
