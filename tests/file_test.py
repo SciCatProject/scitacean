@@ -35,7 +35,7 @@ def test_file_from_local(fake_file):
 
 
 def test_file_from_local_with_base_path(fake_file):
-    assert str(fake_file["path"]) == "local/dir/events.nxs"  # used below
+    assert fake_file["path"] == Path("local") / "dir" / "events.nxs"  # used below
 
     file = replace(
         File.from_local(fake_file["path"], base_path="local"), checksum_algorithm="md5"
