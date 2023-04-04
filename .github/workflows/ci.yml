@@ -36,8 +36,8 @@ jobs:
           - {python: '3.10', os: ubuntu-22.04, tox: py310-full}
           - {python: '3.9', os: ubuntu-22.04, tox: py39-full}
           - {python: '3.8', os: ubuntu-22.04, tox: py38-full}
-          - {python: '3.8', os: macos-12, tox: py38}
-          - {python: '3.8', os: windows-2022, tox: py38}
+          - {python: '3.8', os: macos-12, tox: py38-full}
+          - {python: '3.8', os: windows-2022, tox: py38-full}
     steps:
       - run: sudo apt install --yes docker-compose
         if: ${{ contains(matrix.variant.os, 'ubuntu') }}
