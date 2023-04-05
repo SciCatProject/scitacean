@@ -68,7 +68,7 @@ def _format_metadata(dset: Dataset) -> str:
 def _format_metadata_value(value: Any) -> str:
     if _has_value_unit_encoding(value):
         if (unit := value.get("unit")) is not None:
-            return f"{html.escape(value['value'])} [{html.escape(unit)}]"
+            return f"{html.escape(str(value['value']))} [{html.escape(str(unit))}]"
         else:
             return html.escape(str(value["value"]))
 
