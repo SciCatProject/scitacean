@@ -32,11 +32,8 @@ Release notes
    Stability, Maintainability, and Testing
    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-vYY.0M.MICRO (Unreleased)
--------------------------
-
-Security
-~~~~~~~~
+v23.04.0 (2023-04-05)
+---------------------
 
 Features
 ~~~~~~~~
@@ -54,12 +51,6 @@ Bugfixes
 ~~~~~~~~
 
 * Fixed getting the timezone of a file server on Windows if it is the local timezone.
-
-Documentation
-~~~~~~~~~~~~~
-
-Deprecations
-~~~~~~~~~~~~
 
 Stability, Maintainability, and Testing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
