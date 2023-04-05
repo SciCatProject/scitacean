@@ -77,7 +77,8 @@ def _load_config() -> SSHAccess:
 
 
 @pytest.fixture(scope="session")
-def ssh_access():
+def ssh_access(request):
+    skip_if_not_ssh(request)
     return _load_config()
 
 
