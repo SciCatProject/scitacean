@@ -47,7 +47,7 @@ Breaking changes
 Bugfixes
 ~~~~~~~~
 
-* Fix getting the timezone of a file server on Windows if it is the local timezone.
+* Fixed getting the timezone of a file server on Windows if it is the local timezone.
 
 Documentation
 ~~~~~~~~~~~~~
@@ -58,6 +58,7 @@ Deprecations
 Stability, Maintainability, and Testing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+* Added testing for ``SSHFileTransfer``.
 * Fixed bug in CI setup that meant that all tests were running on Ubuntu.
 
 v23.03.2 (2023-03-17)

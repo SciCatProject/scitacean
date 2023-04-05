@@ -24,3 +24,19 @@ But to (mostly) avoid the downsides stated in the beginning, the real client is 
 See ``tests/common/backend.py`` and ``tests/conftest.py`` for the concrete setup.
 The backend is launched in a docker container based on the images provided by `scicatlive <https://github.com/SciCatProject/scicatlive>`_.
 Tests in ``tests/client_tests.py`` are then run with both the fake and the real client to ensure that both produce the same results.
+
+Use ``--backend-tests`` with ``pytest`` to run these tests.
+
+SSH file transfer
+-----------------
+
+Testing :class:`scitacean.transfer.ssh.SSHFileTransfer` requires an SSH server.
+``tests/common/ssh_server.py`` contains helpers for managing one via Docker.
+Tests can use it by depending on the ``ssh_fileserver`` fixture.
+See the documentation in ``tests/common/ssh_server.py`` for how it works.
+
+Note that those tests may leave a small directory behind.
+This is an issue with file ownership and permissions caused by making the Docker volumes writable.
+It should not be a problem in practice as those files will only be in temporary directories which should get cleaned up at reboot.
+
+Use ``--ssh-tests`` with ``pytest`` to run these tests.

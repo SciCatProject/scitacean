@@ -20,6 +20,7 @@ _SCICAT_DOCKER_CONFIG = _TEST_BASE / "scicatlive/docker-compose.yaml"
 _SCICAT_DATASET_SEED_FILE = Path("seed_db/seed/Dataset.json")
 _SCICAT_ORIG_DATABLOCK_SEED_FILE = Path("seed_db/seed/OrigDatablock.json")
 
+_COMMAND_LINE_OPTION = "--backend-tests"
 
 # List of required services for tests.
 # We only need the backend and API to run tests.
@@ -46,7 +47,7 @@ def scicat_backend(request, scicat_access):
 
     Does nothing unless the --backend-tests command line option is set.
     """
-    if not request.config.getoption("--backend-tests"):
+    if not request.config.getoption(_COMMAND_LINE_OPTION):
         yield False
         return
 
@@ -100,9 +101,9 @@ def configure(target_dir: Path) -> Path:
 
 
 def skip_if_not_backend(request):
-    if not request.config.getoption("--backend-tests"):
+    if not request.config.getoption(_COMMAND_LINE_OPTION):
         # The backend only exists if this option is set.
         pytest.skip(
             "Tests against a real backend are disabled, "
-            "use --backend-tests to enable them"
+            f"use {_COMMAND_LINE_OPTION} to enable them"
         )

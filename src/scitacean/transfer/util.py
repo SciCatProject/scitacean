@@ -36,4 +36,6 @@ def source_folder_for(
             )
         return dataset.source_folder
 
-    return RemotePath(DatasetPathFormatter().format(str(pattern), dataset))
+    if isinstance(pattern, RemotePath):
+        pattern = pattern.posix
+    return RemotePath(DatasetPathFormatter().format(pattern, dataset))
