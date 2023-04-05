@@ -235,14 +235,20 @@ class File:
             return False
         if self.checksum_algorithm is None:
             warnings.warn(
-                f"Cannot check if local file {self.local_path} is up to date because "
-                "the checksum algorithm is not set. "
-                "Assuming the file needs to be updated."
+                "No checksum algorithm has been set, using the default 'blake2b' "
+                f"to check if local file '{self.local_path}' is up to date. "
+                "There is a very low chance that this yields a false positive "
+                "and the file is incorrect. Set an algorithm manually to avoid this."
             )
-            return False
+            return self._local_is_up_to_date_with_checksum_algorithm("blake2b")
+        return self._local_is_up_to_date_with_checksum_algorithm(
+            self.checksum_algorithm
+        )
+
+    def _local_is_up_to_date_with_checksum_algorithm(self, algorithm: str) -> bool:
         local_checksum = self._checksum_cache.get(  # type: ignore[union-attr]
             path=self.local_path,  # type: ignore[arg-type]
-            algorithm=self.checksum_algorithm,
+            algorithm=algorithm,
         )
         return self._remote_checksum == local_checksum
 

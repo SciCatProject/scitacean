@@ -565,7 +565,7 @@ class DatasetFields:
         techniques: Optional[List[Technique]] = None,
         used_software: Optional[List[str]] = None,
         validation_status: Optional[str] = None,
-        checksum_algorithm: Optional[str] = "md5",
+        checksum_algorithm: Optional[str] = "blake2b",
         _read_only: Optional[Dict[str, Any]] = None,
         _orig_datablocks: Optional[List[OrigDatablockProxy]] = None,
     ):

@@ -75,7 +75,7 @@ class DatasetFields:
         creation_time: Optional[Union[datetime, str]] = None,
         pid: Optional[Union[str, PID]] = None,
         $field_init_args,
-        checksum_algorithm: Optional[str] = "md5",
+        checksum_algorithm: Optional[str] = "blake2b",
         _read_only: Optional[Dict[str, Any]] = None,
         _orig_datablocks: Optional[List[OrigDatablockProxy]] = None,
     ):

@@ -340,12 +340,18 @@ def test_local_is_up_to_date_for_local_file():
     assert file.local_is_up_to_date()
 
 
-def test_local_is_not_up_to_date_without_checksum_alg():
+def test_local_is_up_to_date_default_checksum_alg(fs):
+    contents = b"some file content"
+    checksum = hashlib.new("blake2b")
+    checksum.update(contents)
+    checksum = checksum.hexdigest()
+    fs.create_file("data.csv", contents=contents)
+
     file = File.from_scicat(
-        DataFile(path="data.csv", size=65178, chk="sha256")
+        DataFile(path="data.csv", size=65178, chk=checksum)
     ).downloaded(local_path="data.csv")
-    with pytest.warns(UserWarning, match="checksum"):
-        assert not file.local_is_up_to_date()
+    with pytest.warns(UserWarning):
+        assert file.local_is_up_to_date()
 
 
 def test_local_is_up_to_date_matching_checksum(fake_file):
