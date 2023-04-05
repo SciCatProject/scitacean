@@ -59,10 +59,36 @@ def _format_metadata(dset: Dataset) -> str:
     return "\n".join(
         template.substitute(
             name=html.escape(str(name)),
-            value=html.escape(str(value)),
+            value=_format_metadata_value(value),
         )
         for name, value in dset.meta.items()
     )
+
+
+def _format_metadata_value(value: Any) -> str:
+    if _has_value_unit_encoding(value):
+        if (unit := value.get("unit")) is not None:
+            return f"{html.escape(str(value['value']))} [{html.escape(str(unit))}]"
+        else:
+            return html.escape(str(value["value"]))
+
+    return html.escape(str(value))
+
+
+# ESS uses these keys for all scientific metadata.
+# If the metadata uses only these keys, format it more nicely.
+# Otherwise, fall back to showing the item's str.
+_VALUE_UNIT_KEYS = {"value", "unit", "valueSI", "unitSI"}
+
+
+def _has_value_unit_encoding(meta_value: Any):
+    if (
+        isinstance(meta_value, dict)
+        and "value" in meta_value
+        and not (meta_value.keys() - _VALUE_UNIT_KEYS)
+    ):
+        return True
+    return False
 
 
 @dataclass

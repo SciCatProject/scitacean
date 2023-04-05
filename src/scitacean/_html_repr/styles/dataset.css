@@ -141,9 +141,13 @@ table.cean-metadata {
     text-align: left !important;
 }
 
-.cean-metadata-name,
+.cean-metadata-name {
+    width: 30%;
+    text-align: left !important;
+}
+
 .cean-metadata-value {
-    width: 50%;
+    width: 70%;
     text-align: left !important;
 }
 

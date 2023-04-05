@@ -41,6 +41,8 @@ Security
 Features
 ~~~~~~~~
 
+* Better HTML formatting of ESS-style scientific metadata.
+
 Breaking changes
 ~~~~~~~~~~~~~~~~
 
