@@ -312,3 +312,33 @@ def test_download_does_not_download_up_to_date_file_manual_checksum(
     client.download_files(
         dataset, target="./download", select=True, checksum_algorithm="md5"
     )
+
+
+def test_force_file_download(fs, dataset_and_files):
+    # Ensure the file exists locally
+    dataset, contents = dataset_and_files
+    client = Client.without_login(
+        url="/", file_transfer=FakeFileTransfer(fs=fs, files=contents)
+    )
+    client.download_files(dataset, target="./download", select=True)
+
+    # Downloads the same file again with force=True.
+    class RaisingDownloader(FakeFileTransfer):
+        source_dir = "/"
+
+        @contextmanager
+        def connect_for_download(self):
+            raise RuntimeError("Download disabled")
+
+    client = Client.without_login(
+        url="/",
+        file_transfer=RaisingDownloader(fs=fs),
+    )
+    with pytest.raises(RuntimeError, match="Download disabled"):
+        client.download_files(
+            dataset,
+            target="./download",
+            select=True,
+            checksum_algorithm="md5",
+            force=True,
+        )

@@ -291,6 +291,7 @@ class Client:
         target: Union[str, Path],
         select: FileSelector = True,
         checksum_algorithm: Optional[str] = None,
+        force: bool = False,
     ) -> Dataset:
         r"""Download files of a dataset.
 
@@ -318,6 +319,10 @@ class Client:
             Select an algorithm for computing file checksums.
             This argument will be removed when the next SciCat version
             has been released.
+        force:
+            If ``True``, download files regardless of whether they already exist
+            locally.
+            This bypasses the chekcsum computation of pre-existing local files.
 
         Returns
         -------
@@ -365,9 +370,10 @@ class Client:
         downloaded_files = [
             f.downloaded(local_path=target / f.remote_path.to_local()) for f in files
         ]
-        downloaded_files = _remove_up_to_date_local_files(
-            downloaded_files, checksum_algorithm=checksum_algorithm
-        )
+        if not force:
+            downloaded_files = _remove_up_to_date_local_files(
+                downloaded_files, checksum_algorithm=checksum_algorithm
+            )
         if not downloaded_files:
             return dataset.replace()
 
