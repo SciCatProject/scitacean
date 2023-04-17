@@ -673,7 +673,8 @@ def _url_concat(a: str, b: str) -> str:
 def _strip_token(error: Any, token: str) -> str:
     error = str(error)
     error = re.sub(r"token=[\w\-./]+", "token=<HIDDEN>", error)
-    error = error.replace(token, "<HIDDEN>")
+    if token:  # token can be ""
+        error = error.replace(token, "<HIDDEN>")
     return error
 
 
