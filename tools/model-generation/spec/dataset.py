@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
 """Process and merge dataset specs."""
-
 import dataclasses
 import sys
+from copy import deepcopy
 from typing import Dict, Optional
 
 from .schemas import Schema, SchemaField
@@ -26,6 +26,7 @@ class DatasetField:
     used_by_derived: bool
     used_by_raw: bool
     readonly: bool
+    validation: Optional[str] = None
 
 
 @dataclasses.dataclass
@@ -111,3 +112,35 @@ def merged_dataset_spec(schemas: DatasetSchemas) -> DatasetSpec:
             )
 
     return DatasetSpec(fields=fields)
+
+
+def postprocess_field_types(spec: DatasetSpec) -> DatasetSpec:
+    spec = deepcopy(spec)
+
+    typ = spec.fields["type"]
+    if typ.type.lower() != "enum[raw, derived]":
+        raise ValueError(f"Dataset type field has incorrect type: {typ.type}")
+    typ.type = "DatasetType"
+
+    spec.fields["sourceFolder"].type = "RemotePath"
+
+    return spec
+
+
+def assign_validations(spec: DatasetSpec) -> DatasetSpec:
+    spec = deepcopy(spec)
+
+    for name in ("contactEmail", "ownerEmail"):
+        spec.fields[name].validation = "emails"
+    for name in ("numberOfFiles", "numberOfFilesArchived", "packedSize", "size"):
+        spec.fields[name].validation = "size"
+    spec.fields["orcidOfOwner"].validation = "orcids"
+
+    return spec
+
+
+def build_dataset_spec(schemas: Dict[str, Schema]) -> DatasetSpec:
+    spec = merged_dataset_spec(get_dataset_schemas(schemas))
+    spec = postprocess_field_types(spec)
+    spec = assign_validations(spec)
+    return spec
