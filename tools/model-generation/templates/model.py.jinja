@@ -7,7 +7,15 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from ._base_model import BaseModel, DatasetType, validate_emails, validate_orcid, validate_size
+import pydantic
+
+from ._base_model import (
+    BaseModel,
+    DatasetType,
+    validate_emails,
+    validate_orcids,
+    validate_size
+)
 from .filesystem import RemotePath
 from .pid import PID
 
@@ -17,6 +25,15 @@ class {{ name }}(BaseModel):
 {%- for field in model.fields.values()|sort(attribute="required,name") %}
     {{ field.name }}: {% if field.required %}{{ field.type }}{% else %}Optional[{{ field.type }}]{% endif %}
 {%- endfor %}
+{%- for validation in ("emails", "size", "orcids") %}
+{%- set fields = model.fields.values()|selectattr("validation", "eq", validation)|list -%}
+{% if fields %}
+
+    @pydantic.validator({{ fields|map("attr", "name")|map("quote")|join(", ") }})
+    def _validate_{{ validation }}(cls, value: Any) -> Any:
+        return validate_{{ validation }}(value)
+{%- endif %}
+{%- endfor %}
 
 
-{%  endfor %}
+{% endfor -%}

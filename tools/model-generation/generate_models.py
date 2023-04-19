@@ -16,10 +16,15 @@ class _UpDownSpec:
     download: Spec
 
 
+def quote(x):
+    return f'"{x}"'
+
+
 def _template() -> Template:
     environment = Environment(  # noqa: S701
-        loader=FileSystemLoader(Path(__file__).resolve().parent / "templates/")
+        loader=FileSystemLoader(Path(__file__).resolve().parent / "templates/"),
     )
+    environment.filters["quote"] = quote
     return environment.get_template("model.py.jinja")
 
 
@@ -50,5 +55,6 @@ def _collect_models(specs: Dict[str, Spec]) -> Dict[str, Spec]:
 def generate_models(specs: Dict[str, Spec]) -> str:
     # TODO special case dataset
     # TODO model names in fields (might need to be changed in spec package)
+    # TODO validations
     model_specs = _collect_models(specs)
     return _template().render(banner=BANNER, models=model_specs)
