@@ -1,0 +1,20 @@
+Dataset:
+  contactEmail: emails
+  ownerEmail: emails
+
+  numberOfFiles: size
+  numberOfFilesArchived: size
+  packedSize: size
+  size: size
+
+  orcidOfOwner: orcids
+
+DataFile:
+  size: size
+
+Datablock:
+  packedSize: size
+  size: size
+
+OrigDatablock:
+  size: size

@@ -219,6 +219,23 @@ def _postprocess_field_types(spec: Spec) -> Spec:
     return spec
 
 
+@lru_cache
+def _field_validations() -> Dict[str, Dict[str, str]]:
+    with open(Path(__file__).resolve().parent / "field-validations.yml", "r") as f:
+        return yaml.safe_load(f)
+
+
+def _assign_validations(spec: Spec) -> Spec:
+    validations = _field_validations()
+    if spec.name not in validations:
+        return spec
+
+    spec = deepcopy(spec)
+    for field_name, validation in validations[spec.name].items():
+        spec.fields[field_name].validation = validation
+    return spec
+
+
 def load_specs(schema_url: str) -> Dict[str, Any]:
     schemas = _collect_schemas(load_schemas(schema_url))
     dataset_schema = schemas.pop("Dataset")
@@ -226,4 +243,7 @@ def load_specs(schema_url: str) -> Dict[str, Any]:
         "Dataset": _build_dataset_spec("Dataset", dataset_schema),
         **{name: _build_spec(name, updown) for name, updown in schemas.items()},
     }
-    return {name: _postprocess_field_types(spec) for name, spec in specs.items()}
+    return {
+        name: _assign_validations(_postprocess_field_types(spec))
+        for name, spec in specs.items()
+    }
