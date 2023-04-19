@@ -1,0 +1,22 @@
+{{ banner }}
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
+"""Pydantic models for encoding data for communication with SciCat."""
+
+from __future__ import annotations
+from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+from ._base_model import BaseModel, DatasetType, validate_emails, validate_orcid, validate_size
+from .filesystem import RemotePath
+from .pid import PID
+
+
+{%  for name, model in models.items() -%}
+class {{ name }}(BaseModel):
+{%- for field in model.fields.values()|sort(attribute="required,name") %}
+    {{ field.name }}: {% if field.required %}{{ field.type }}{% else %}Optional[{{ field.type }}]{% endif %}
+{%- endfor %}
+
+
+{%  endfor %}
