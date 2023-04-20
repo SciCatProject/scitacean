@@ -2,6 +2,7 @@
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
 """Load model specifications."""
 import dataclasses
+import re
 import sys
 from copy import deepcopy
 from functools import lru_cache
@@ -236,6 +237,24 @@ def _assign_validations(spec: Spec) -> Spec:
     return spec
 
 
+def _camel_case_to_snake_case(string: str) -> str:
+    """Convert a string from camelCase to snake_case."""
+
+    def repl(match):
+        return "_" + match[1].lower()
+
+    return re.sub(r"([A-Z])", repl, string)
+
+
+def _convert_field_names(spec: Spec) -> Spec:
+    out = Spec(name=spec.name, fields={})
+    for field_name, field in spec.fields.items():
+        out.fields[_camel_case_to_snake_case(field_name)] = dataclasses.replace(
+            field, name=_camel_case_to_snake_case(field.name)
+        )
+    return out
+
+
 def load_specs(schema_url: str) -> Dict[str, Any]:
     schemas = _collect_schemas(load_schemas(schema_url))
     dataset_schema = schemas.pop("Dataset")
@@ -244,6 +263,6 @@ def load_specs(schema_url: str) -> Dict[str, Any]:
         **{name: _build_spec(name, updown) for name, updown in schemas.items()},
     }
     return {
-        name: _assign_validations(_postprocess_field_types(spec))
+        name: _convert_field_names(_assign_validations(_postprocess_field_types(spec)))
         for name, spec in specs.items()
     }
