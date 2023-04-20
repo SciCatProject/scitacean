@@ -210,12 +210,16 @@ def _field_type_overrides() -> Dict[str, Dict[str, str]]:
 
 
 def _postprocess_field_types(spec: Spec) -> Spec:
-    overrides = _field_type_overrides()
-    if spec.name not in overrides:
-        return spec
-
     spec = deepcopy(spec)
-    for field_name, override in overrides[spec.name].items():
+
+    # Convert type names in the schema to Scitacean class names.
+    for field in spec.fields.values():
+        for class_name, model_names in _SCHEMA_GROUPS.items():
+            if field.type in model_names:
+                field.type = class_name
+
+    overrides = _field_type_overrides()
+    for field_name, override in overrides.get(spec.name, {}).items():
         spec.fields[field_name].type = override
     return spec
 
