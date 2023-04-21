@@ -310,7 +310,7 @@ def test_download_does_not_download_up_to_date_file_manual_checksum(
         file_transfer=RaisingDownloader(fs=fs),
     )
     # Does not raise
-    downloaded =client.download_files(
+    downloaded = client.download_files(
         dataset, target="./download", select=True, checksum_algorithm="md5"
     )
     assert all(file.local_path is not None for file in downloaded.files)
