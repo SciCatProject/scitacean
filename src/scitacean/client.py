@@ -371,22 +371,25 @@ class Client:
             f.downloaded(local_path=target / f.remote_path.to_local()) for f in files
         ]
         if not force:
-            downloaded_files = _remove_up_to_date_local_files(
+            to_download = _remove_up_to_date_local_files(
                 downloaded_files, checksum_algorithm=checksum_algorithm
             )
-        if not downloaded_files:
-            return dataset.replace()
+        else:
+            to_download = downloaded_files
+
+        if not to_download:
+            return dataset.replace_files(*downloaded_files)
 
         with self._connect_for_file_download() as con:
             con.download_files(
                 remote=[
                     p
-                    for f in downloaded_files
+                    for f in to_download
                     if (p := f.remote_access_path(dataset.source_folder)) is not None
                 ],
-                local=[f.local_path for f in downloaded_files],
+                local=[f.local_path for f in to_download],
             )
-        for f in downloaded_files:
+        for f in to_download:
             f.validate_after_download()
         return dataset.replace_files(*downloaded_files)
 
