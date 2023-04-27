@@ -42,7 +42,8 @@ class DatasetType(*_DatasetTypeBases):
 
 class BaseModel(pydantic.BaseModel):
     class Config:
-        extra = pydantic.Extra.forbid
+        # TODO allowing extra for now until full migration to API v4
+        # extra = pydantic.Extra.forbid
         json_encoders = {
             PID: lambda v: str(v),
             RemotePath: lambda v: v.posix,

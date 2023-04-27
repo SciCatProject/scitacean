@@ -581,7 +581,7 @@ class DatasetFields:
         _read_only = _read_only or {}
         self._fields = {
             "creation_time": _parse_datetime(creation_time),
-            "history": _apply_default(_read_only.get("history"), None, list),
+            "history": _apply_default(_read_only.get("history"), None, None),
             "pid": PID.parse(pid) if isinstance(pid, str) else pid,
             "type": DatasetType(type),
             "access_groups": _apply_default(access_groups, None, None),
