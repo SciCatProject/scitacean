@@ -128,6 +128,7 @@ fields:
   - name: pid
     description: Persistent identifier for datasets.
     manual: true
+    read_only: true
     type: PID
   - name: principal_investigator
     description: Name(s) of the principal investigator(s). The string may contain a list of names, which should then be separated by semicolons.

@@ -211,8 +211,11 @@ class Client:
             and some files or a partial dataset are left on the servers.
             Note the error message if that happens.
         """
-        if dataset.pid is None:
-            dataset = dataset.replace(pid=PID.generate())
+        if dataset.pid is not None:
+            raise ValueError(
+                "Cannot upload the dataset because it has a PID. "
+                "Set the PID to None, the server will assign one for you."
+            )
         dataset = dataset.replace(
             source_folder=self._expect_file_transfer().source_folder_for(dataset)
         )
