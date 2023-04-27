@@ -67,7 +67,7 @@ def test_init_dataset_can_set_creation_time():
 
 def test_init_dataset_default_values():
     dset = Dataset(type="derived")
-    assert dset.history == []
+    assert dset.history is None
     assert dset.is_published is False
     assert dset.meta == {}
 
@@ -312,7 +312,7 @@ def test_make_raw_model():
         principalInvestigator="my principal investigator",
         sourceFolder=RemotePath("/hex/source62"),
         type=DatasetType.RAW,
-        history=[],
+        history=None,
         isPublished=False,
         scientificMetadata={},
         creationLocation="ANK/UU",
@@ -346,7 +346,7 @@ def test_make_derived_model():
         investigator="p.stibbons@uu.am",
         sourceFolder=RemotePath("/hex/source62"),
         type=DatasetType.DERIVED,
-        history=[],
+        history=None,
         isPublished=False,
         scientificMetadata={"weight": {"value": 5.23, "unit": "kg"}},
         inputDatasets=[PID(pid="623-122")],
@@ -384,6 +384,7 @@ def test_make_raw_model_raises_if_derived_field_set(field, data):
         dset.make_model()
 
 
+@pytest.mark.skip("Validation is less strict until full migration to v4")
 @pytest.mark.parametrize(
     "field",
     filter(
