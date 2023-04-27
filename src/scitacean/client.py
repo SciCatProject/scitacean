@@ -653,7 +653,7 @@ class ScicatClient:
 
         response = self._send_to_scicat(cmd=cmd, url=full_url, data=data)
         if not response.ok:
-            err = response.json().get("error", {})
+            err = response.json().get("message", {})
             logger.error("API call failed, endpoint: %s, response: %s", full_url, err)
             raise ScicatCommError(f"Error in operation {operation}: {err}")
         logger.info("API call successful for operation '%s'", operation)
