@@ -488,7 +488,7 @@ class ScicatClient:
         """
         dset_json = self._call_endpoint(
             cmd="get",
-            url=f"Datasets/{quote_plus(str(pid))}",
+            url=f"datasets/{quote_plus(str(pid))}",
             operation="get_dataset_model",
         )
         return model.construct(
@@ -542,13 +542,13 @@ class ScicatClient:
 
         The dataset PID must be either
 
-        - ``None``, in which case SciCat assigns an ID.
-        - An unused id, in which case SciCat uses it for the new dataset.
+        - ``None``, in which case SciCat assigns an ID,
+        - an unused id, in which case SciCat uses it for the new dataset.
 
         If the ID already exists, creation will fail without
         modification to the database.
         Unless the new dataset is identical to the existing one,
-        in which case nothing happens.
+        in which case, nothing happens.
 
         Parameters
         ----------
@@ -567,7 +567,7 @@ class ScicatClient:
             fails for some other reason.
         """
         uploaded = self._call_endpoint(
-            cmd="post", url="Datasets", data=dset, operation="create_dataset_model"
+            cmd="post", url="datasets", data=dset, operation="create_dataset_model"
         )
         return (
             model.DerivedDataset(**uploaded)
@@ -600,7 +600,7 @@ class ScicatClient:
         return model.OrigDatablock(
             **self._call_endpoint(
                 cmd="post",
-                url=f"Datasets/{quote_plus(str(dblock.datasetId))}/origdatablocks",
+                url="origdatablocks",
                 data=dblock,
                 operation="create_orig_datablock",
             )
