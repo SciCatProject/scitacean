@@ -378,7 +378,7 @@ class DatasetFields:
         Field(
             name="pid",
             description="Persistent identifier for datasets.",
-            read_only=True,
+            read_only=False,
             required_by_derived=False,
             required_by_raw=False,
             type=PID,
