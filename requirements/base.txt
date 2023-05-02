@@ -19,15 +19,15 @@ cryptography==40.0.2
     # via paramiko
 dnspython==2.3.0
     # via email-validator
-email-validator==2.0.0.post1
+email-validator==2.0.0.post2
     # via -r requirements/base.in
-fabric==3.0.0
+fabric==3.0.1
     # via -r requirements/base.in
 idna==3.4
     # via
     #   email-validator
     #   requests
-invoke==2.0.0
+invoke==2.1.1
     # via fabric
 paramiko==3.1.0
     # via fabric
@@ -39,7 +39,7 @@ pynacl==1.5.0
     # via paramiko
 python-dateutil==2.8.2
     # via -r requirements/base.in
-requests==2.28.2
+requests==2.29.0
     # via -r requirements/base.in
 six==1.16.0
     # via python-dateutil
