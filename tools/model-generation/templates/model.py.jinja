@@ -32,15 +32,34 @@ from ._base_model import (
 from .filesystem import RemotePath
 from .pid import PID
 
-{% for spec in specs.values() -%}
-{% for name, kind in ((spec.download_name, "download"), (spec.upload_name, "upload")) %}
-class {{ name }}(BaseModel):
-{%- set fields = spec.fields_for(kind) -%}
+{% set fields = dset_spec.fields_for("download") -%}
+class DownloadDataset(BaseModel):
 {%- for field in fields %}
-    {{ field.scicat_name }}: {{ field.full_type }}
+    {{ field.scicat_name }}: {{ field.full_type_for("download") }}
 {%- endfor %}
 {{- validations(fields) }}
 
+{% for dset_type in ("derived", "raw") %}
+{%- set fields = dset_spec.dset_fields_for("upload", dset_type) -%}
+class Upload{{ dset_type|capitalize }}Dataset(BaseModel):
+{%- for field in fields %}
+    {{ field.scicat_name }}: {{ field.full_type_for("upload") }}
+{%- endfor %}
+{{- validations(fields) }}
+
+{% endfor -%}
+
+{% for spec in specs.values() -%}
+{% for name, kind in ((spec.download_name, "download"), (spec.upload_name, "upload")) %}
+{%- set fields = spec.fields_for(kind) -%}
+{%- if fields -%}
+class {{ name }}(BaseModel):
+{%- for field in fields %}
+    {{ field.scicat_name }}: {{ field.full_type_for(kind) }}
+{%- endfor %}
+{{- validations(fields) }}
+
+{% endif -%}
 {% endfor -%}
 {% endfor -%}
 
@@ -48,19 +67,21 @@ class {{ name }}(BaseModel):
 class {{ spec.name }}(UserBaseModel):
 {%- set fields = spec.fields_for("user")|sort(attribute="upload", reverse=True) -%}
 {%- for field in fields %}
-    {% if field.upload %}{{ field.name }}{% else %}_{{ field.scicat_name }}{% endif %}: {{ field.full_type }}
+    {% if field.upload %}{{ field.name }}{% else %}_{{ field.scicat_name }}{% endif %}: {{ field.full_type_for("user") }}
 {%- endfor %}
 {% for field in fields|rejectattr("upload") %}
     @property
-    def {{ field.name }}(self) -> {{ field.full_type }}:
+    def {{ field.name }}(self) -> {{ field.full_type_for("user") }}:
         return self._{{ field.name }}
 {% endfor %}
     @classmethod
     def from_download_model(cls, download_model: {{ spec.download_name }}) -> {{ spec.name }}:
+        """Construct an instance from an associated SciCat download model."""
         return cls(**cls._download_model_dict(download_model))
-
+{% if spec.upload_name %}
     def make_upload_model(self) -> {{ spec.upload_name }}:
+        """Construct a SciCat upload model from self."""
         return {{ spec.upload_name }}(**self._upload_model_dict())
-
+{% endif %}
 
 {% endfor -%}

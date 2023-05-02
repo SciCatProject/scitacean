@@ -29,7 +29,8 @@ def _template() -> Template:
 
 
 def generate_models(specs: Dict[str, Spec]) -> str:
-    # TODO special case dataset
-    # TODO model names in fields (might need to be changed in spec package)
     # TODO pid fields
-    return _template().render(banner=BANNER, specs=specs)
+    # TODO ignored extra fields
+    specs = dict(specs)
+    dset_spec = specs.pop("Dataset")
+    return _template().render(banner=BANNER, specs=specs, dset_spec=dset_spec)

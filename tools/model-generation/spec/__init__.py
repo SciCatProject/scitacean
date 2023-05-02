@@ -39,17 +39,34 @@ class SpecField:
     download: bool = False
     validation: Optional[str] = None
 
-    @property
-    def full_type(self) -> str:
-        return self.type if self.required else f"Optional[{self.type}]"
+    def full_type_for(self, kind: Literal["download", "upload", "user"]) -> str:
+        return (
+            self.type_for(kind) if self.required else f"Optional[{self.type_for(kind)}]"
+        )
+
+    def type_for(self, kind: Literal["download", "upload", "user"]) -> str:
+        """Translate SciCat schema/DTO names into Scitacean model names."""
+        for spec_name in _SCHEMA_GROUPS:
+            if spec_name in self.type:
+                if kind == "user":
+                    name = _SCHEMA_GROUPS[spec_name][0] or _SCHEMA_GROUPS[spec_name][1]
+                    return re.sub(str(name), f"{spec_name}", self.type)
+                name = _SCHEMA_GROUPS[spec_name][0 if kind == "upload" else 1]
+                return re.sub(str(name), f"{kind.capitalize()}{spec_name}", self.type)
+        return self.type
 
 
 @dataclasses.dataclass
 class Spec:
     name: str
-    download_name: str
-    upload_name: Optional[str]
+    download_name: str = dataclasses.field(init=False)
+    upload_name: Optional[str] = dataclasses.field(init=False)
     fields: Dict[str, SpecField]
+
+    def __post_init__(self) -> None:
+        if _SCHEMA_GROUPS.get(self.name, (None, None))[0]:
+            self.upload_name = f"Upload{self.name}"
+        self.download_name = f"Download{self.name}"
 
     def fields_for(
         self, kind: Literal["download", "upload", "user"]
@@ -76,7 +93,21 @@ class DatasetField(SpecField):
 
 @dataclasses.dataclass
 class DatasetSpec(Spec):
+    download_name: str = dataclasses.field(default="DownloadDataset", init=False)
+    upload_name: Optional[str] = dataclasses.field(default="UploadDataset", init=False)
     fields: Dict[str, DatasetField]
+
+    def dset_fields_for(
+        self,
+        kind: Literal["download", "upload", "user"],
+        dset_type: Literal["derived", "raw"],
+    ) -> List[DatasetField]:
+        return filter(
+            lambda field: field.used_by_derived
+            if dset_type == "derived"
+            else field.used_by_raw,
+            self.fields_for(kind),
+        )
 
 
 _SCHEMA_GROUPS = {
@@ -84,7 +115,7 @@ _SCHEMA_GROUPS = {
     "OrigDatablock": ("CreateDatasetOrigDatablockDto", "OrigDatablock"),
     "Datablock": ("CreateDatasetDatablockDto", "Datablock"),
     "Lifecycle": (None, "LifecycleClass"),
-    "Technique": (None, "TechniqueClass"),
+    "Technique": ("TechniqueClass", "TechniqueClass"),
     "Relationship": ("RelationshipClass", "RelationshipClass"),
     "History": (None, "HistoryClass"),
     "DataFile": ("DataFile", "DataFile"),  # TODO everything marked as optional
@@ -188,8 +219,6 @@ def _build_spec(name: str, schemas: _UpDownSchemas) -> Spec:
     return Spec(
         name=name,
         fields=fields,
-        download_name=f"Download{name}",
-        upload_name=f"Upload{name}",
     )
 
 
@@ -246,8 +275,6 @@ def _build_dataset_spec(name: str, schemas: _DatasetSchemas) -> DatasetSpec:
     return DatasetSpec(
         name=name,
         fields=fields,
-        download_name="DownloadDataset",
-        upload_name="UploadDataset",
     )
 
 
