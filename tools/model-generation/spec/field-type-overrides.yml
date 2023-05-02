@@ -6,3 +6,5 @@ Datablock:
   datasetId: PID
 OrigDatablock:
   datasetId: PID
+Relationship:
+  pid: PID

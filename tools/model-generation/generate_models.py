@@ -29,7 +29,6 @@ def _template() -> Template:
 
 
 def generate_models(specs: Dict[str, Spec]) -> str:
-    # TODO pid fields
     # TODO ignored extra fields
     specs = dict(specs)
     dset_spec = specs.pop("Dataset")
