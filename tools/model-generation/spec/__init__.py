@@ -7,7 +7,7 @@ import sys
 from copy import deepcopy
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, Union
 
 import yaml
 
@@ -30,6 +30,7 @@ class _DatasetSchemas:
 @dataclasses.dataclass
 class SpecField:
     name: str
+    scicat_name: str
     description: str
     type: str
     required: bool  # Required in upload.
@@ -38,11 +39,33 @@ class SpecField:
     download: bool = False
     validation: Optional[str] = None
 
+    @property
+    def full_type(self) -> str:
+        return self.type if self.required else f"Optional[{self.type}]"
+
 
 @dataclasses.dataclass
 class Spec:
     name: str
+    download_name: str
+    upload_name: Optional[str]
     fields: Dict[str, SpecField]
+
+    def fields_for(
+        self, kind: Literal["download", "upload", "user"]
+    ) -> List[SpecField]:
+        return sorted(
+            sorted(
+                filter(
+                    lambda field: (kind == "download" and field.download)
+                    or (kind == "upload" and field.upload)
+                    or (kind == "user"),
+                    self.fields.values(),
+                ),
+                key=lambda field: field.name,
+            ),
+            key=lambda field: not field.required,
+        )
 
 
 @dataclasses.dataclass
@@ -64,7 +87,7 @@ _SCHEMA_GROUPS = {
     "Technique": (None, "TechniqueClass"),
     "Relationship": ("RelationshipClass", "RelationshipClass"),
     "History": (None, "HistoryClass"),
-    "DataFile": ("DataFile", "DataFile"),
+    "DataFile": ("DataFile", "DataFile"),  # TODO everything marked as optional
     "Instrument": (None, "Instrument"),
     "Sample": ("CreateSampleDto", "SampleClass"),
 }
@@ -89,6 +112,15 @@ def _collect_schemas(
     }
 
 
+def _camel_case_to_snake_case(string: str) -> str:
+    """Convert a string from camelCase to snake_case."""
+
+    def repl(match):
+        return "_" + match[1].lower()
+
+    return re.sub(r"([A-Z])", repl, string)
+
+
 def _merge_upload_and_download_field(
     spec_name: str, download_field: SpecField, upload_field: SchemaField
 ) -> SpecField:
@@ -103,6 +135,7 @@ def _merge_upload_and_download_field(
         download_field,
         description=upload_field.description or download_field.description,
         upload=True,
+        required=upload_field.required,
     )
 
 
@@ -127,7 +160,8 @@ def _merge_derived_and_raw_field(
 def _build_spec(name: str, schemas: _UpDownSchemas) -> Spec:
     fields = {
         n: SpecField(
-            name=n,
+            name=_camel_case_to_snake_case(n),
+            scicat_name=n,
             description=field.description,
             type=field.type,
             required=False,  # required is only for fields that users have to set.
@@ -142,7 +176,8 @@ def _build_spec(name: str, schemas: _UpDownSchemas) -> Spec:
                 fields[n] = _merge_upload_and_download_field(name, fields[n], field)
             else:
                 fields[n] = SpecField(
-                    name=field.name,
+                    name=_camel_case_to_snake_case(field.name),
+                    scicat_name=field.name,
                     description=field.description,
                     type=field.type,
                     required=field.required,
@@ -150,13 +185,19 @@ def _build_spec(name: str, schemas: _UpDownSchemas) -> Spec:
                     upload=True,
                 )
 
-    return Spec(name=name, fields=fields)
+    return Spec(
+        name=name,
+        fields=fields,
+        download_name=f"Download{name}",
+        upload_name=f"Upload{name}",
+    )
 
 
 def _build_dataset_spec(name: str, schemas: _DatasetSchemas) -> DatasetSpec:
     fields = {
         n: DatasetField(
-            name=n,
+            name=_camel_case_to_snake_case(n),
+            scicat_name=n,
             description=field.description,
             type=field.type,
             required=False,  # required is only for fields that users have to set.
@@ -177,7 +218,8 @@ def _build_dataset_spec(name: str, schemas: _DatasetSchemas) -> DatasetSpec:
             )
         else:
             fields[n] = DatasetField(
-                name=field.name,
+                name=_camel_case_to_snake_case(field.name),
+                scicat_name=field.name,
                 description=field.description,
                 type=field.type,
                 required=field.required,
@@ -191,7 +233,8 @@ def _build_dataset_spec(name: str, schemas: _DatasetSchemas) -> DatasetSpec:
             fields[n] = _merge_derived_and_raw_field(fields[n], field)
         else:
             fields[n] = DatasetField(
-                name=field.name,
+                name=_camel_case_to_snake_case(field.name),
+                scicat_name=field.name,
                 description=field.description,
                 type=field.type,
                 required=field.required,
@@ -200,7 +243,12 @@ def _build_dataset_spec(name: str, schemas: _DatasetSchemas) -> DatasetSpec:
                 used_by_raw=True,
             )
 
-    return DatasetSpec(name=name, fields=fields)
+    return DatasetSpec(
+        name=name,
+        fields=fields,
+        download_name="DownloadDataset",
+        upload_name="UploadDataset",
+    )
 
 
 @lru_cache
@@ -244,24 +292,6 @@ def _assign_validations(spec: Spec) -> Spec:
     return spec
 
 
-def _camel_case_to_snake_case(string: str) -> str:
-    """Convert a string from camelCase to snake_case."""
-
-    def repl(match):
-        return "_" + match[1].lower()
-
-    return re.sub(r"([A-Z])", repl, string)
-
-
-def _convert_field_names(spec: Spec) -> Spec:
-    out = Spec(name=spec.name, fields={})
-    for field_name, field in spec.fields.items():
-        out.fields[_camel_case_to_snake_case(field_name)] = dataclasses.replace(
-            field, name=_camel_case_to_snake_case(field.name)
-        )
-    return out
-
-
 def load_specs(schema_url: str) -> Dict[str, Any]:
     schemas = _collect_schemas(load_schemas(schema_url))
     dataset_schema = schemas.pop("Dataset")
@@ -270,6 +300,6 @@ def load_specs(schema_url: str) -> Dict[str, Any]:
         **{name: _build_spec(name, updown) for name, updown in schemas.items()},
     }
     return {
-        name: _convert_field_names(_assign_validations(_postprocess_field_types(spec)))
+        name: _assign_validations(_postprocess_field_types(spec))
         for name, spec in specs.items()
     }

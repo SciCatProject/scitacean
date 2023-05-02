@@ -1,3 +1,15 @@
+{%- macro validations(fields) %}
+{%- for validation in ("emails", "orcids") %}
+{%- set fields = fields|selectattr("validation", "eq", validation)|list -%}
+{% if fields %}
+
+    @pydantic.validator({{ fields|map("attr", "name")|map("quote")|join(", ") }})
+    def _validate_{{ validation }}(cls, value: Any) -> Any:
+        return validate_{{ validation }}(value)
+{%- endif %}
+{%- endfor %}
+{% endmacro -%}
+
 {{ banner }}
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
@@ -13,27 +25,42 @@ import pydantic
 from ._base_model import (
     BaseModel,
     DatasetType,
+    UserBaseModel,
     validate_emails,
     validate_orcids,
 )
 from .filesystem import RemotePath
 from .pid import PID
 
-
-{%  for name, model in models.items() -%}
+{% for spec in specs.values() -%}
+{% for name, kind in ((spec.download_name, "download"), (spec.upload_name, "upload")) %}
 class {{ name }}(BaseModel):
-{%- for field in model.fields.values()|sort(attribute="required,name") %}
-    {{ field.name }}: {% if field.required %}{{ field.type }}{% else %}Optional[{{ field.type }}]{% endif %}
+{%- set fields = spec.fields_for(kind) -%}
+{%- for field in fields %}
+    {{ field.scicat_name }}: {{ field.full_type }}
 {%- endfor %}
-{%- for validation in ("emails", "orcids") %}
-{%- set fields = model.fields.values()|selectattr("validation", "eq", validation)|list -%}
-{% if fields %}
+{{- validations(fields) }}
 
-    @pydantic.validator({{ fields|map("attr", "name")|map("quote")|join(", ") }})
-    def _validate_{{ validation }}(cls, value: Any) -> Any:
-        return validate_{{ validation }}(value)
-{%- endif %}
+{% endfor -%}
+{% endfor -%}
+
+{% for spec in specs.values() -%}
+class {{ spec.name }}(UserBaseModel):
+{%- set fields = spec.fields_for("user")|sort(attribute="upload", reverse=True) -%}
+{%- for field in fields %}
+    {% if field.upload %}{{ field.name }}{% else %}_{{ field.scicat_name }}{% endif %}: {{ field.full_type }}
 {%- endfor %}
+{% for field in fields|rejectattr("upload") %}
+    @property
+    def {{ field.name }}(self) -> {{ field.full_type }}:
+        return self._{{ field.name }}
+{% endfor %}
+    @classmethod
+    def from_download_model(cls, download_model: {{ spec.download_name }}) -> {{ spec.name }}:
+        return cls(**cls._download_model_dict(download_model))
+
+    def make_upload_model(self) -> {{ spec.upload_name }}:
+        return {{ spec.upload_name }}(**self._upload_model_dict())
 
 
 {% endfor -%}
