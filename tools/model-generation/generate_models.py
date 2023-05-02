@@ -29,7 +29,6 @@ def _template() -> Template:
 
 
 def generate_models(specs: Dict[str, Spec]) -> str:
-    # TODO ignored extra fields
     specs = dict(specs)
     dset_spec = specs.pop("Dataset")
     return _template().render(banner=BANNER, specs=specs, dset_spec=dset_spec)
