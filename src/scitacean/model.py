@@ -2,57 +2,259 @@
 # This file was automatically generated. #
 # Do not modify it directly!             #
 ##########################################
+
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
-# flake8: noqa
+"""Models for communication with SciCat and user facing dataclasses."""
 
-"""Pydantic models to encode data for communication with SciCat."""
+from __future__ import annotations
 
-try:
-    # Python 3.11+
-    from enum import StrEnum as _StrEnum
-
-    _DatasetTypeBases = (_StrEnum,)
-except ImportError:
-    from enum import Enum as _Enum
-
-    _DatasetTypeBases = (
-        str,
-        _Enum,
-    )
-
-import os
+import dataclasses
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Type, TypeVar
+from typing import Any, Dict, List, Optional
 
 import pydantic
+from pydantic import NonNegativeInt
 
-from ._internal.orcid import is_valid_orcid
+from ._base_model import (
+    BaseModel,
+    BaseUserModel,
+    DatasetType,
+    validate_emails,
+    validate_orcids,
+)
 from .filesystem import RemotePath
-from .logging import get_logger
 from .pid import PID
 
 
-class DatasetType(*_DatasetTypeBases):
-    """Type of Dataset"""
+class DownloadDataset(BaseModel):
+    contactEmail: str
+    creationLocation: str
+    creationTime: datetime
+    inputDatasets: List[str]
+    investigator: str
+    numberOfFilesArchived: NonNegativeInt
+    owner: str
+    ownerGroup: str
+    principalInvestigator: str
+    sourceFolder: RemotePath
+    type: DatasetType
+    usedSoftware: List[str]
+    accessGroups: Optional[List[str]]
+    attachments: Optional[List[DownloadAttachment]]
+    classification: Optional[str]
+    createdAt: Optional[datetime]
+    createdBy: Optional[str]
+    dataFormat: Optional[str]
+    datablocks: Optional[List[DownloadDatablock]]
+    datasetName: Optional[str]
+    datasetlifecycle: Optional[Lifecycle]
+    description: Optional[str]
+    endTime: Optional[datetime]
+    history: Optional[History]
+    instrumentGroup: Optional[str]
+    instrumentId: Optional[str]
+    isPublished: Optional[bool]
+    jobLogData: Optional[str]
+    jobParameters: Optional[Dict[str, Any]]
+    keywords: Optional[List[str]]
+    license: Optional[str]
+    numberOfFiles: Optional[NonNegativeInt]
+    orcidOfOwner: Optional[str]
+    origdatablocks: Optional[List[DownloadOrigDatablock]]
+    ownerEmail: Optional[str]
+    packedSize: Optional[NonNegativeInt]
+    pid: Optional[PID]
+    proposalId: Optional[str]
+    relationships: Optional[List[DownloadRelationship]]
+    sampleId: Optional[str]
+    scientificMetadata: Optional[Dict[str, Any]]
+    sharedWith: Optional[List[str]]
+    size: Optional[NonNegativeInt]
+    sourceFolderHost: Optional[str]
+    techniques: Optional[List[DownloadTechnique]]
+    updatedAt: Optional[datetime]
+    updatedBy: Optional[str]
+    validationStatus: Optional[str]
+    version: Optional[str]
 
-    RAW = "raw"
-    DERIVED = "derived"
+    @pydantic.validator("contactEmail", "ownerEmail")
+    def _validate_emails(cls, value: Any) -> Any:
+        return validate_emails(value)
+
+    @pydantic.validator("orcidOfOwner")
+    def _validate_orcids(cls, value: Any) -> Any:
+        return validate_orcids(value)
 
 
-class BaseModel(pydantic.BaseModel):
-    class Config:
-        extra = pydantic.Extra.forbid
-        json_encoders = {
-            PID: lambda v: str(v),
-            RemotePath: lambda v: v.posix,
-        }
+class UploadDerivedDataset(BaseModel):
+    contactEmail: str
+    creationTime: datetime
+    inputDatasets: List[str]
+    investigator: str
+    numberOfFilesArchived: NonNegativeInt
+    owner: str
+    ownerGroup: str
+    sourceFolder: RemotePath
+    type: DatasetType
+    usedSoftware: List[str]
+    accessGroups: Optional[List[str]]
+    classification: Optional[str]
+    datasetName: Optional[str]
+    datasetlifecycle: Optional[Lifecycle]
+    description: Optional[str]
+    instrumentGroup: Optional[str]
+    isPublished: Optional[bool]
+    jobLogData: Optional[str]
+    jobParameters: Optional[Dict[str, Any]]
+    keywords: Optional[List[str]]
+    license: Optional[str]
+    numberOfFiles: Optional[NonNegativeInt]
+    orcidOfOwner: Optional[str]
+    ownerEmail: Optional[str]
+    packedSize: Optional[NonNegativeInt]
+    relationships: Optional[List[UploadRelationship]]
+    scientificMetadata: Optional[Dict[str, Any]]
+    sharedWith: Optional[List[str]]
+    size: Optional[NonNegativeInt]
+    sourceFolderHost: Optional[str]
+    techniques: Optional[List[UploadTechnique]]
+    validationStatus: Optional[str]
+    version: Optional[str]
+
+    @pydantic.validator("contactEmail", "ownerEmail")
+    def _validate_emails(cls, value: Any) -> Any:
+        return validate_emails(value)
+
+    @pydantic.validator("orcidOfOwner")
+    def _validate_orcids(cls, value: Any) -> Any:
+        return validate_orcids(value)
 
 
-class DatasetLifecycle(BaseModel):
+class UploadRawDataset(BaseModel):
+    contactEmail: str
+    creationLocation: str
+    creationTime: datetime
+    numberOfFilesArchived: NonNegativeInt
+    owner: str
+    ownerGroup: str
+    principalInvestigator: str
+    sourceFolder: RemotePath
+    type: DatasetType
+    accessGroups: Optional[List[str]]
+    classification: Optional[str]
+    dataFormat: Optional[str]
+    datasetName: Optional[str]
+    datasetlifecycle: Optional[Lifecycle]
+    description: Optional[str]
+    endTime: Optional[datetime]
+    instrumentGroup: Optional[str]
+    instrumentId: Optional[str]
+    isPublished: Optional[bool]
+    keywords: Optional[List[str]]
+    license: Optional[str]
+    numberOfFiles: Optional[NonNegativeInt]
+    orcidOfOwner: Optional[str]
+    ownerEmail: Optional[str]
+    packedSize: Optional[NonNegativeInt]
+    proposalId: Optional[str]
+    relationships: Optional[List[UploadRelationship]]
+    sampleId: Optional[str]
+    scientificMetadata: Optional[Dict[str, Any]]
+    sharedWith: Optional[List[str]]
+    size: Optional[NonNegativeInt]
+    sourceFolderHost: Optional[str]
+    techniques: Optional[List[UploadTechnique]]
+    validationStatus: Optional[str]
+    version: Optional[str]
+
+    @pydantic.validator("contactEmail", "ownerEmail")
+    def _validate_emails(cls, value: Any) -> Any:
+        return validate_emails(value)
+
+    @pydantic.validator("orcidOfOwner")
+    def _validate_orcids(cls, value: Any) -> Any:
+        return validate_orcids(value)
+
+
+class DownloadAttachment(BaseModel):
+    caption: str
+    ownerGroup: str
+    accessGroups: Optional[List[str]]
+    createdAt: Optional[datetime]
+    createdBy: Optional[str]
+    datasetId: Optional[str]
+    id: Optional[str]
+    instrumentGroup: Optional[str]
+    proposalId: Optional[str]
+    sampleId: Optional[str]
+    thumbnail: Optional[str]
+    updatedAt: Optional[datetime]
+    updatedBy: Optional[str]
+
+
+class UploadAttachment(BaseModel):
+    caption: str
+    ownerGroup: str
+    accessGroups: Optional[List[str]]
+    datasetId: Optional[str]
+    id: Optional[str]
+    instrumentGroup: Optional[str]
+    proposalId: Optional[str]
+    sampleId: Optional[str]
+    thumbnail: Optional[str]
+
+
+class DownloadOrigDatablock(BaseModel):
+    chkAlg: str
+    dataFileList: List[str]
+    size: NonNegativeInt
+    accessGroups: Optional[List[str]]
+    createdAt: Optional[datetime]
+    createdBy: Optional[str]
+    datasetId: Optional[PID]
+    instrumentGroup: Optional[str]
+    ownerGroup: Optional[str]
+    updatedAt: Optional[datetime]
+    updatedBy: Optional[str]
+
+
+class UploadOrigDatablock(BaseModel):
+    chkAlg: str
+    dataFileList: List[str]
+    size: NonNegativeInt
+
+
+class DownloadDatablock(BaseModel):
+    archiveId: str
+    chkAlg: str
+    dataFileList: List[str]
+    packedSize: NonNegativeInt
+    size: NonNegativeInt
+    version: str
+    accessGroups: Optional[List[str]]
+    createdAt: Optional[datetime]
+    createdBy: Optional[str]
+    datasetId: Optional[PID]
+    instrumentGroup: Optional[str]
+    ownerGroup: Optional[str]
+    updatedAt: Optional[datetime]
+    updatedBy: Optional[str]
+
+
+class UploadDatablock(BaseModel):
+    archiveId: str
+    chkAlg: str
+    dataFileList: List[str]
+    packedSize: NonNegativeInt
+    size: NonNegativeInt
+    version: str
+
+
+class DownloadLifecycle(BaseModel):
     archivable: Optional[bool]
     archiveRetentionTime: Optional[datetime]
-    archiveReturnMessage: Optional[str]
+    archiveReturnMessage: Optional[Dict[str, Any]]
     archiveStatusMessage: Optional[str]
     dateOfDiskPurging: Optional[datetime]
     dateOfPublishing: Optional[datetime]
@@ -62,229 +264,460 @@ class DatasetLifecycle(BaseModel):
     publishedOn: Optional[datetime]
     retrievable: Optional[bool]
     retrieveIntegrityCheck: Optional[bool]
-    retrieveReturnMessage: Optional[str]
+    retrieveReturnMessage: Optional[Dict[str, Any]]
     retrieveStatusMessage: Optional[str]
 
 
-class MongoQueryable(BaseModel):
-    createdAt: Optional[datetime]
-    createdBy: Optional[str]
-    updatedAt: Optional[datetime]
-    updatedBy: Optional[str]
-
-
-class Technique(BaseModel):
+class DownloadTechnique(BaseModel):
     name: str
     pid: str
 
 
-class DataFile(MongoQueryable):
+class UploadTechnique(BaseModel):
+    name: str
+    pid: str
+
+
+class DownloadRelationship(BaseModel):
+    pid: PID
+    relationship: str
+
+
+class UploadRelationship(BaseModel):
+    pid: PID
+    relationship: str
+
+
+class DownloadHistory(BaseModel):
+    updatedAt: Optional[datetime]
+    updatedBy: Optional[datetime]
+
+
+class DownloadDataFile(BaseModel):
+    chk: str
+    gid: str
     path: str
-    size: int
-    chk: Optional[str]
-    gid: Optional[str]
-    perm: Optional[str]
-    time: Optional[datetime]
-    uid: Optional[str]
-
-    @pydantic.validator("size")
-    def _validate_size(cls, value: Any) -> Any:
-        return _validate_size(value)
+    perm: str
+    size: NonNegativeInt
+    time: datetime
+    uid: str
 
 
-class Ownable(MongoQueryable):
+class UploadDataFile(BaseModel):
+    chk: str
+    gid: str
+    path: str
+    perm: str
+    size: NonNegativeInt
+    time: datetime
+    uid: str
+
+
+class DownloadInstrument(BaseModel):
+    customMetadata: Optional[Dict[str, Any]]
+    name: Optional[str]
+    pid: Optional[str]
+    uniqueName: Optional[str]
+
+
+class DownloadSample(BaseModel):
     ownerGroup: str
     accessGroups: Optional[List[str]]
+    createdAt: Optional[datetime]
+    createdBy: Optional[str]
+    description: Optional[str]
     instrumentGroup: Optional[str]
-
-
-class Datablock(Ownable):
-    archiveId: str
-    dataFileList: List[DataFile]
-    size: int
-    version: str
-    chkAlg: Optional[str]
-    datasetId: Optional[str]
-    packedSize: Optional[int]
-    id: Optional[str]
-
-    @pydantic.validator("size", "packedSize")
-    def _validate_size(cls, value: Any) -> Any:
-        return _validate_size(value)
-
-
-class DerivedDataset(Ownable):
-    contactEmail: str
-    creationTime: datetime
-    inputDatasets: List[PID]
-    investigator: str
-    owner: str
-    sourceFolder: RemotePath
-    type: DatasetType
-    usedSoftware: List[str]
-    classification: Optional[str]
-    description: Optional[str]
-    history: Optional[List[dict]]
     isPublished: Optional[bool]
-    jobLogData: Optional[str]
-    jobParameters: Optional[dict]
-    keywords: Optional[List[str]]
-    license: Optional[str]
-    datasetlifecycle: Optional[DatasetLifecycle]
-    scientificMetadata: Optional[Dict]
-    datasetName: Optional[str]
-    numberOfFiles: Optional[int]
-    numberOfFilesArchived: Optional[int]
-    orcidOfOwner: Optional[str]
-    ownerEmail: Optional[str]
-    packedSize: Optional[int]
-    pid: Optional[PID]
-    sharedWith: Optional[List[str]]
-    size: Optional[int]
-    sourceFolderHost: Optional[str]
-    techniques: Optional[List[Technique]]
-    validationStatus: Optional[str]
-    version: Optional[str]
-
-    @pydantic.validator("contactEmail", "ownerEmail")
-    def _validate_emails(cls, value: Any) -> Any:
-        return _validate_emails(value)
-
-    @pydantic.validator("numberOfFiles", "numberOfFilesArchived", "packedSize", "size")
-    def _validate_size(cls, value: Any) -> Any:
-        return _validate_size(value)
-
-    @pydantic.validator("orcidOfOwner")
-    def _validate_orcid(cls, value: Any) -> Any:
-        return _validate_orcid(value)
-
-
-class OrigDatablock(Ownable):
-    dataFileList: List[DataFile]
-    size: int
-    datasetId: Optional[PID]
-    id: Optional[PID]
-
-    @pydantic.validator("size")
-    def _validate_size(cls, value: Any) -> Any:
-        return _validate_size(value)
-
-
-class RawDataset(Ownable):
-    contactEmail: str
-    creationTime: datetime
-    owner: str
-    principalInvestigator: str
-    sourceFolder: RemotePath
-    type: DatasetType
-    classification: Optional[str]
-    creationLocation: Optional[str]
-    dataFormat: Optional[str]
-    description: Optional[str]
-    endTime: Optional[datetime]
-    history: Optional[List[dict]]
-    instrumentId: Optional[str]
-    isPublished: Optional[bool]
-    keywords: Optional[List[str]]
-    license: Optional[str]
-    datasetlifecycle: Optional[DatasetLifecycle]
-    scientificMetadata: Optional[Dict]
-    datasetName: Optional[str]
-    numberOfFiles: Optional[int]
-    numberOfFilesArchived: Optional[int]
-    orcidOfOwner: Optional[str]
-    ownerEmail: Optional[str]
-    packedSize: Optional[int]
-    pid: Optional[PID]
-    proposalId: Optional[str]
+    owner: Optional[str]
+    sampleCharacteristics: Optional[Dict[str, Any]]
     sampleId: Optional[str]
-    sharedWith: Optional[List[str]]
-    size: Optional[int]
-    sourceFolderHost: Optional[str]
-    techniques: Optional[List[Technique]]
-    validationStatus: Optional[str]
-    version: Optional[str]
-
-    @pydantic.validator("contactEmail", "ownerEmail")
-    def _validate_emails(cls, value: Any) -> Any:
-        return _validate_emails(value)
-
-    @pydantic.validator("numberOfFiles", "numberOfFilesArchived", "packedSize", "size")
-    def _validate_size(cls, value: Any) -> Any:
-        return _validate_size(value)
-
-    @pydantic.validator("orcidOfOwner")
-    def _validate_orcid(cls, value: Any) -> Any:
-        return _validate_orcid(value)
+    updatedAt: Optional[datetime]
+    updatedBy: Optional[str]
 
 
-def _validate_emails(value: Optional[str]) -> Optional[str]:
-    if value is None:
-        return value
-    return ";".join(pydantic.EmailStr.validate(item) for item in value.split(";"))
+class UploadSample(BaseModel):
+    ownerGroup: str
+    accessGroups: Optional[List[str]]
+    description: Optional[str]
+    instrumentGroup: Optional[str]
+    isPublished: Optional[bool]
+    owner: Optional[str]
+    sampleCharacteristics: Optional[Dict[str, Any]]
+    sampleId: Optional[str]
 
 
-def _validate_size(value: Optional[int]) -> Optional[int]:
-    if value is None:
-        return value
-    if value < 0:
-        raise ValueError("Must be > 0")
-    return value
+@dataclasses.dataclass
+class Attachment(BaseUserModel):
+    caption: str
+    owner_group: str
+    access_groups: Optional[List[str]]
+    dataset_id: Optional[str]
+    id: Optional[str]
+    instrument_group: Optional[str]
+    proposal_id: Optional[str]
+    sample_id: Optional[str]
+    thumbnail: Optional[str]
+    _created_at: Optional[datetime]
+    _created_by: Optional[str]
+    _updated_at: Optional[datetime]
+    _updated_by: Optional[str]
+
+    @property
+    def created_at(self) -> Optional[datetime]:
+        return self._created_at
+
+    @property
+    def created_by(self) -> Optional[str]:
+        return self._created_by
+
+    @property
+    def updated_at(self) -> Optional[datetime]:
+        return self._updated_at
+
+    @property
+    def updated_by(self) -> Optional[str]:
+        return self._updated_by
+
+    @classmethod
+    def from_download_model(cls, download_model: DownloadAttachment) -> Attachment:
+        """Construct an instance from an associated SciCat download model."""
+        return cls(**cls._download_model_dict(download_model))
+
+    def make_upload_model(self) -> UploadAttachment:
+        """Construct a SciCat upload model from self."""
+        return UploadAttachment(**self._upload_model_dict())
 
 
-def _validate_orcid(value: Optional[str]) -> Optional[str]:
-    if value is None:
-        return value
-    try:
-        if is_valid_orcid(value):
-            return value
-    except (RuntimeError, ValueError, TypeError):
-        pass
-    raise ValueError(
-        "value is not a valid ORCID, "
-        "note that ORCIDs must be prefixed with 'https://orcid.org'."
-    )
+@dataclasses.dataclass
+class OrigDatablock(BaseUserModel):
+    chk_alg: str
+    data_file_list: List[str]
+    size: NonNegativeInt
+    _access_groups: Optional[List[str]]
+    _created_at: Optional[datetime]
+    _created_by: Optional[str]
+    _dataset_id: Optional[PID]
+    _instrument_group: Optional[str]
+    _owner_group: Optional[str]
+    _updated_at: Optional[datetime]
+    _updated_by: Optional[str]
+
+    @property
+    def access_groups(self) -> Optional[List[str]]:
+        return self._access_groups
+
+    @property
+    def created_at(self) -> Optional[datetime]:
+        return self._created_at
+
+    @property
+    def created_by(self) -> Optional[str]:
+        return self._created_by
+
+    @property
+    def dataset_id(self) -> Optional[PID]:
+        return self._dataset_id
+
+    @property
+    def instrument_group(self) -> Optional[str]:
+        return self._instrument_group
+
+    @property
+    def owner_group(self) -> Optional[str]:
+        return self._owner_group
+
+    @property
+    def updated_at(self) -> Optional[datetime]:
+        return self._updated_at
+
+    @property
+    def updated_by(self) -> Optional[str]:
+        return self._updated_by
+
+    @classmethod
+    def from_download_model(
+        cls, download_model: DownloadOrigDatablock
+    ) -> OrigDatablock:
+        """Construct an instance from an associated SciCat download model."""
+        return cls(**cls._download_model_dict(download_model))
+
+    def make_upload_model(self) -> UploadOrigDatablock:
+        """Construct a SciCat upload model from self."""
+        return UploadOrigDatablock(**self._upload_model_dict())
 
 
-ModelType = TypeVar("ModelType", bound=pydantic.BaseModel)
+@dataclasses.dataclass
+class Datablock(BaseUserModel):
+    archive_id: str
+    chk_alg: str
+    data_file_list: List[str]
+    packed_size: NonNegativeInt
+    size: NonNegativeInt
+    version: str
+    _access_groups: Optional[List[str]]
+    _created_at: Optional[datetime]
+    _created_by: Optional[str]
+    _dataset_id: Optional[PID]
+    _instrument_group: Optional[str]
+    _owner_group: Optional[str]
+    _updated_at: Optional[datetime]
+    _updated_by: Optional[str]
+
+    @property
+    def access_groups(self) -> Optional[List[str]]:
+        return self._access_groups
+
+    @property
+    def created_at(self) -> Optional[datetime]:
+        return self._created_at
+
+    @property
+    def created_by(self) -> Optional[str]:
+        return self._created_by
+
+    @property
+    def dataset_id(self) -> Optional[PID]:
+        return self._dataset_id
+
+    @property
+    def instrument_group(self) -> Optional[str]:
+        return self._instrument_group
+
+    @property
+    def owner_group(self) -> Optional[str]:
+        return self._owner_group
+
+    @property
+    def updated_at(self) -> Optional[datetime]:
+        return self._updated_at
+
+    @property
+    def updated_by(self) -> Optional[str]:
+        return self._updated_by
+
+    @classmethod
+    def from_download_model(cls, download_model: DownloadDatablock) -> Datablock:
+        """Construct an instance from an associated SciCat download model."""
+        return cls(**cls._download_model_dict(download_model))
+
+    def make_upload_model(self) -> UploadDatablock:
+        """Construct a SciCat upload model from self."""
+        return UploadDatablock(**self._upload_model_dict())
 
 
-def construct(
-    model: Type[ModelType], *, _strict_validation: bool = True, **fields: Any
-) -> ModelType:
-    """Instantiates a model.
+@dataclasses.dataclass
+class Lifecycle(BaseUserModel):
+    _archivable: Optional[bool]
+    _archive_retention_time: Optional[datetime]
+    _archive_return_message: Optional[Dict[str, Any]]
+    _archive_status_message: Optional[str]
+    _date_of_disk_purging: Optional[datetime]
+    _date_of_publishing: Optional[datetime]
+    _exported_to: Optional[str]
+    _is_on_central_disk: Optional[bool]
+    _publishable: Optional[bool]
+    _published_on: Optional[datetime]
+    _retrievable: Optional[bool]
+    _retrieve_integrity_check: Optional[bool]
+    _retrieve_return_message: Optional[Dict[str, Any]]
+    _retrieve_status_message: Optional[str]
 
-    Warning
-    -------
-    If the model is created without validation, no fields will be converted
-    to their proper type but will simply be whatever arguments are passed.
+    @property
+    def archivable(self) -> Optional[bool]:
+        return self._archivable
 
-    A warning will be emitted in this case.
+    @property
+    def archive_retention_time(self) -> Optional[datetime]:
+        return self._archive_retention_time
 
-    Parameters
-    ----------
-    model:
-        Class of the model to create.
-    _strict_validation:
-        If ``True``, the model must pass validation.
-        If ``False``, a model is still returned if validation fails.
-    fields:
-        Field values to pass to the model initializer.
+    @property
+    def archive_return_message(self) -> Optional[Dict[str, Any]]:
+        return self._archive_return_message
 
-    Returns
-    -------
-    :
-        An initialized model.
-    """
-    try:
-        return model(**fields)
-    except pydantic.ValidationError as e:
-        if _strict_validation:
-            raise
-        get_logger().warning(
-            "Validation of metadata failed: %s\n"
-            "The returned object may be incomplete or broken. "
-            "In particular, some fields may not have the correct type",
-            str(e),
-        )
-        return model.construct(**fields)
+    @property
+    def archive_status_message(self) -> Optional[str]:
+        return self._archive_status_message
+
+    @property
+    def date_of_disk_purging(self) -> Optional[datetime]:
+        return self._date_of_disk_purging
+
+    @property
+    def date_of_publishing(self) -> Optional[datetime]:
+        return self._date_of_publishing
+
+    @property
+    def exported_to(self) -> Optional[str]:
+        return self._exported_to
+
+    @property
+    def is_on_central_disk(self) -> Optional[bool]:
+        return self._is_on_central_disk
+
+    @property
+    def publishable(self) -> Optional[bool]:
+        return self._publishable
+
+    @property
+    def published_on(self) -> Optional[datetime]:
+        return self._published_on
+
+    @property
+    def retrievable(self) -> Optional[bool]:
+        return self._retrievable
+
+    @property
+    def retrieve_integrity_check(self) -> Optional[bool]:
+        return self._retrieve_integrity_check
+
+    @property
+    def retrieve_return_message(self) -> Optional[Dict[str, Any]]:
+        return self._retrieve_return_message
+
+    @property
+    def retrieve_status_message(self) -> Optional[str]:
+        return self._retrieve_status_message
+
+    @classmethod
+    def from_download_model(cls, download_model: DownloadLifecycle) -> Lifecycle:
+        """Construct an instance from an associated SciCat download model."""
+        return cls(**cls._download_model_dict(download_model))
+
+
+@dataclasses.dataclass
+class Technique(BaseUserModel):
+    name: str
+    pid: str
+
+    @classmethod
+    def from_download_model(cls, download_model: DownloadTechnique) -> Technique:
+        """Construct an instance from an associated SciCat download model."""
+        return cls(**cls._download_model_dict(download_model))
+
+    def make_upload_model(self) -> UploadTechnique:
+        """Construct a SciCat upload model from self."""
+        return UploadTechnique(**self._upload_model_dict())
+
+
+@dataclasses.dataclass
+class Relationship(BaseUserModel):
+    pid: PID
+    relationship: str
+
+    @classmethod
+    def from_download_model(cls, download_model: DownloadRelationship) -> Relationship:
+        """Construct an instance from an associated SciCat download model."""
+        return cls(**cls._download_model_dict(download_model))
+
+    def make_upload_model(self) -> UploadRelationship:
+        """Construct a SciCat upload model from self."""
+        return UploadRelationship(**self._upload_model_dict())
+
+
+@dataclasses.dataclass
+class History(BaseUserModel):
+    _updated_at: Optional[datetime]
+    _updated_by: Optional[datetime]
+
+    @property
+    def updated_at(self) -> Optional[datetime]:
+        return self._updated_at
+
+    @property
+    def updated_by(self) -> Optional[datetime]:
+        return self._updated_by
+
+    @classmethod
+    def from_download_model(cls, download_model: DownloadHistory) -> History:
+        """Construct an instance from an associated SciCat download model."""
+        return cls(**cls._download_model_dict(download_model))
+
+
+@dataclasses.dataclass
+class DataFile(BaseUserModel):
+    chk: str
+    gid: str
+    path: str
+    perm: str
+    size: NonNegativeInt
+    time: datetime
+    uid: str
+
+    @classmethod
+    def from_download_model(cls, download_model: DownloadDataFile) -> DataFile:
+        """Construct an instance from an associated SciCat download model."""
+        return cls(**cls._download_model_dict(download_model))
+
+    def make_upload_model(self) -> UploadDataFile:
+        """Construct a SciCat upload model from self."""
+        return UploadDataFile(**self._upload_model_dict())
+
+
+@dataclasses.dataclass
+class Instrument(BaseUserModel):
+    _custom_metadata: Optional[Dict[str, Any]]
+    _name: Optional[str]
+    _pid: Optional[str]
+    _unique_name: Optional[str]
+
+    @property
+    def custom_metadata(self) -> Optional[Dict[str, Any]]:
+        return self._custom_metadata
+
+    @property
+    def name(self) -> Optional[str]:
+        return self._name
+
+    @property
+    def pid(self) -> Optional[str]:
+        return self._pid
+
+    @property
+    def unique_name(self) -> Optional[str]:
+        return self._unique_name
+
+    @classmethod
+    def from_download_model(cls, download_model: DownloadInstrument) -> Instrument:
+        """Construct an instance from an associated SciCat download model."""
+        return cls(**cls._download_model_dict(download_model))
+
+
+@dataclasses.dataclass
+class Sample(BaseUserModel):
+    owner_group: str
+    access_groups: Optional[List[str]]
+    description: Optional[str]
+    instrument_group: Optional[str]
+    is_published: Optional[bool]
+    owner: Optional[str]
+    sample_characteristics: Optional[Dict[str, Any]]
+    sample_id: Optional[str]
+    _created_at: Optional[datetime]
+    _created_by: Optional[str]
+    _updated_at: Optional[datetime]
+    _updated_by: Optional[str]
+
+    @property
+    def created_at(self) -> Optional[datetime]:
+        return self._created_at
+
+    @property
+    def created_by(self) -> Optional[str]:
+        return self._created_by
+
+    @property
+    def updated_at(self) -> Optional[datetime]:
+        return self._updated_at
+
+    @property
+    def updated_by(self) -> Optional[str]:
+        return self._updated_by
+
+    @classmethod
+    def from_download_model(cls, download_model: DownloadSample) -> Sample:
+        """Construct an instance from an associated SciCat download model."""
+        return cls(**cls._download_model_dict(download_model))
+
+    def make_upload_model(self) -> UploadSample:
+        """Construct a SciCat upload model from self."""
+        return UploadSample(**self._upload_model_dict())
