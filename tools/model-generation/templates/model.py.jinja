@@ -3,7 +3,7 @@
 {%- set fields = fields|selectattr("validation", "eq", validation)|list -%}
 {% if fields %}
 
-    @pydantic.validator({{ fields|map("attr", "name")|map("quote")|join(", ") }})
+    @pydantic.validator({{ fields|map("attr", "scicat_name")|map("quote")|join(", ") }})
     def _validate_{{ validation }}(cls, value: Any) -> Any:
         return validate_{{ validation }}(value)
 {%- endif %}
@@ -13,10 +13,11 @@
 {{ banner }}
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
-"""Pydantic models for encoding data for communication with SciCat."""
+"""Models for communication with SciCat and user facing dataclasses."""
 
 from __future__ import annotations
 
+import dataclasses
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
@@ -25,8 +26,8 @@ import pydantic
 
 from ._base_model import (
     BaseModel,
+    BaseUserModel,
     DatasetType,
-    UserBaseModel,
     validate_emails,
     validate_orcids,
 )
@@ -65,10 +66,11 @@ class {{ name }}(BaseModel):
 {% endfor -%}
 
 {% for spec in specs.values() -%}
-class {{ spec.name }}(UserBaseModel):
+@dataclasses.dataclass
+class {{ spec.name }}(BaseUserModel):
 {%- set fields = spec.fields_for("user")|sort(attribute="upload", reverse=True) -%}
 {%- for field in fields %}
-    {% if field.upload %}{{ field.name }}{% else %}_{{ field.scicat_name }}{% endif %}: {{ field.full_type_for("user") }}
+    {% if field.upload %}{{ field.name }}{% else %}_{{ field.name }}{% endif %}: {{ field.full_type_for("user") }}
 {%- endfor %}
 {% for field in fields|rejectattr("upload") %}
     @property

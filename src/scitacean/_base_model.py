@@ -123,7 +123,7 @@ def validate_emails(value: Optional[str]) -> Optional[str]:
     return ";".join(pydantic.EmailStr.validate(item) for item in value.split(";"))
 
 
-def validate_orcid(value: Optional[str]) -> Optional[str]:
+def validate_orcids(value: Optional[str]) -> Optional[str]:
     if value is None:
         return value
     try:

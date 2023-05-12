@@ -102,11 +102,13 @@ class DatasetSpec(Spec):
         kind: Literal["download", "upload", "user"],
         dset_type: Literal["derived", "raw"],
     ) -> List[DatasetField]:
-        return filter(
-            lambda field: field.used_by_derived
-            if dset_type == "derived"
-            else field.used_by_raw,
-            self.fields_for(kind),
+        return list(
+            filter(
+                lambda field: field.used_by_derived
+                if dset_type == "derived"
+                else field.used_by_raw,
+                self.fields_for(kind),
+            )
         )
 
 
