@@ -317,7 +317,7 @@ def test_as_new(initial):
     assert new.created_by is None
     assert new.updated_at is None
     assert new.updated_by is None
-    assert new.history == []
+    assert new.history is None
     assert new.lifecycle is None
     assert abs(new.creation_time - datetime.now(tz=timezone.utc)) < timedelta(seconds=1)
 
@@ -335,7 +335,7 @@ def test_derive_default(initial):
     assert derived.type == "derived"
     assert derived.input_datasets == [initial.pid]
     assert derived.lifecycle is None
-    assert derived.history == []
+    assert derived.history is None
 
     assert derived.investigator == initial.investigator
     assert derived.owner == initial.owner
@@ -357,7 +357,7 @@ def test_derive_set_keep(initial):
     assert derived.type == "derived"
     assert derived.input_datasets == [initial.pid]
     assert derived.lifecycle is None
-    assert derived.history == []
+    assert derived.history is None
 
     assert derived.name == initial.name
     assert derived.used_software == initial.used_software
@@ -373,7 +373,7 @@ def test_derive_keep_nothing(initial):
     assert derived.type == "derived"
     assert derived.input_datasets == [initial.pid]
     assert derived.lifecycle is None
-    assert derived.history == []
+    assert derived.history is None
 
     assert derived.investigator is None
     assert derived.owner is None

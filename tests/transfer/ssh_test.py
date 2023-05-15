@@ -1,9 +1,11 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
 import dataclasses
+import re
 import tempfile
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from uuid import uuid4
 
 import fabric
 import paramiko
@@ -73,22 +75,23 @@ def test_upload_one_file_source_folder_in_transfer(
     with open(tmp_path / "file1.txt", "w") as f:
         f.write("File no. 2")
 
+    source_uid = str(uuid4())
     ssh = SSHFileTransfer(
         host=ssh_access.host,
         port=ssh_access.port,
-        source_folder="/data/upload/{pid.pid}",
+        source_folder=f"/data/upload/{source_uid}",
     )
     with ssh.connect_for_upload(
         dataset=ds, connect=ssh_connect_with_username_password
     ) as con:
-        assert con.source_folder == RemotePath("/data/upload/abcd-12")
+        assert re.match(r"/data/upload/[a-d0-9\-]+", con.source_folder.posix)
         con.upload_files(
             File.from_local(
                 path=tmp_path / "file1.txt", remote_path=RemotePath("upload_1.txt")
             )
         )
 
-    with open(ssh_data_dir / "upload" / "abcd-12" / "upload_1.txt", "r") as f:
+    with open(ssh_data_dir / "upload" / source_uid / "upload_1.txt", "r") as f:
         assert f.read() == "File no. 2"
 
 

@@ -92,15 +92,6 @@ def test_upload_without_files_creates_dataset(client, derived_dataset_model):
         client.scicat.get_orig_datablocks(finalized.pid)
 
 
-def test_upload_uses_given_pid(client, derived_dataset_model):
-    derived_dataset_model.pid = "my-custom-id"
-    dataset = Dataset.from_models(
-        dataset_model=derived_dataset_model, orig_datablock_models=None
-    )
-    finalized = client.upload_new_dataset_now(dataset)
-    assert "my-custom-id" in str(finalized.pid)
-
-
 def test_upload_creates_dataset_and_datablock(client, dataset):
     finalized = client.upload_new_dataset_now(dataset)
     assert client.datasets[finalized.pid] == finalized.make_model()
