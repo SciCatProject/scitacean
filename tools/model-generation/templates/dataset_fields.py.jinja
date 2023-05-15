@@ -1,0 +1,124 @@
+{% macro init_arg_type(field) %}
+{%- if field.conversion is none -%}
+    Optional[{{ field.type_for("user")|replace("NonNegativeInt", "int") }}]
+{%- else -%}
+    Optional[{{ field.conversion.arg_type }}]
+{%- endif -%}
+{% endmacro %}
+
+{% macro field_assignment(field) %}
+{%- if field.conversion is none -%}
+    self._{{ field.name }} = {{ field.name }}
+{%- else -%}
+    self._{{ field.name }} = {{ field.conversion.func }}({{ field.name }})
+{%- endif -%}
+{% endmacro %}
+
+{{ banner }}
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
+# flake8: noqa
+
+"""Base class for Dataset."""
+
+from __future__ import annotations
+
+import dataclasses
+from datetime import datetime, timezone
+from typing import Any, Callable, Dict, List, Literal, Optional, Union
+
+import dateutil.parser
+
+from .filesystem import RemotePath
+from .model import (
+    Attachment,
+    Datablock,
+    DatasetType,
+    Lifecycle,
+    History,
+    OrigDatablock,
+    Relationship,
+    Technique,
+)
+from .pid import PID
+
+
+def _parse_datetime(x: Optional[Union[datetime, str]]) -> datetime:
+    if isinstance(x, datetime):
+        return x
+    if isinstance(x, str):
+        if x != "now":
+            return dateutil.parser.parse(x)
+    return datetime.now(tz=timezone.utc)
+
+
+def _dataclass(**kwargs):
+    try:
+        # Python 3.10+
+        return dataclasses.dataclass(kw_only=True, slots=True, **kwargs)
+    except TypeError:
+        # Fallback for older Python
+        return dataclasses.dataclass(**kwargs)
+
+
+class DatasetBase:
+    @_dataclass(frozen=True)
+    class Field:
+        name: str
+        description: str
+        read_only: bool
+        required: bool
+        type: type
+        used_by_derived: bool
+        used_by_raw: bool
+
+        def used_by(self, dataset_type: DatasetType) -> bool:
+            return (
+                self.used_by_raw
+                if dataset_type == DatasetType.RAW
+                else self.used_by_derived
+            )
+
+    _FIELD_SPEC = [
+{%- for field in spec.user_dset_fields(manual=False)|sort(attribute="name") -%}
+        Field(
+            name="{{ field.name }}",
+            description="{{ field.description }}",
+            read_only={{ not field.upload }},
+            required={{ field.required }},
+            type={{ field.full_type_for("user")|replace("NonNegativeInt", "int") }},
+            used_by_derived={{ field.used_by_derived or not field.upload }},
+            used_by_raw={{ field.used_by_raw or not field.upload }},
+        ),
+{%- endfor -%}
+    ]
+
+    __slots__ = (
+{% for field in spec.user_dset_fields()|sort(attribute="name") %}
+        "_{{ field.name }}",
+{% endfor %}
+    )
+
+    def __init__(self,
+        type: Union[DatasetType, str],
+{%- for field in spec.user_dset_fields(manual=False)|sort(attribute="name")|rejectattr("name", "eq", "type") %}
+        {{ field.name }}: {{ init_arg_type(field) }} = {{ field.default }},
+{%- endfor %}
+    ) -> None:
+        self._type = DatasetType(type)
+{%- for field in spec.user_dset_fields(manual=False)|sort(attribute="name")|rejectattr("name", "eq", "type") %}
+        {{ field_assignment(field) }}
+{%- endfor -%}
+
+{%- for field in spec.user_dset_fields(manual=False)|sort(attribute="name") %}
+    @property
+    def {{ field.name }}(self) -> Optional[{{ field.type_for("user") }}]:
+        """{{ field.description }}"""
+        return self._{{ field.name }}
+{% if field.upload %}
+    @{{ field.name }}.setter
+    def {{ field.name }}(self, {{ field.name }}: {{ init_arg_type(field) }}) -> None:
+        """{{ field.description }}"""
+        {{ field_assignment(field) }}
+{% endif %}
+{%- endfor -%}

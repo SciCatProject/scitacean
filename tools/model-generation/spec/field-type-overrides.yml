@@ -1,7 +1,8 @@
 Dataset:
-  type: DatasetType
-  sourceFolder: RemotePath
+  inputDatasets: List[PID]
   pid: PID
+  sourceFolder: RemotePath
+  type: DatasetType
 Datablock:
   datasetId: PID
 OrigDatablock:

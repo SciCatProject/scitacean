@@ -86,7 +86,19 @@ class Spec:
 
 
 @dataclasses.dataclass
+class DatasetFieldConversion:
+    func: str
+    arg_type: str
+
+
+@dataclasses.dataclass
 class DatasetField(SpecField):
+    conversion: Optional[DatasetFieldConversion] = None
+    default: Optional[Any] = None
+    manual: bool = False
+
+    # These are only used for upload models.
+    # For downloads, all fields should be considered as used.
     used_by_derived: bool = False
     used_by_raw: bool = False
 
@@ -111,6 +123,11 @@ class DatasetSpec(Spec):
             )
         )
 
+    def user_dset_fields(self, manual: Optional[bool] = None) -> List[DatasetField]:
+        if manual is None:
+            return list(self.fields.values())
+        return [field for field in self.fields.values() if field.manual == manual]
+
 
 _SCHEMA_GROUPS = {
     "Attachment": ("CreateAttachmentDto", "Attachment"),
@@ -120,7 +137,7 @@ _SCHEMA_GROUPS = {
     "Technique": ("TechniqueClass", "TechniqueClass"),
     "Relationship": ("RelationshipClass", "RelationshipClass"),
     "History": (None, "HistoryClass"),
-    "DataFile": ("DataFile", "DataFile"),  # TODO everything marked as optional
+    "DataFile": ("DataFile", "DataFile"),  # TODO everything marked as required
     "Instrument": (None, "Instrument"),
     "Sample": ("CreateSampleDto", "SampleClass"),
 }
@@ -321,11 +338,31 @@ def _assign_validations(spec: Spec) -> Spec:
     return spec
 
 
+@lru_cache
+def _dataset_field_customizations() -> Dict[str, Any]:
+    with open(Path(__file__).resolve().parent / "dataset-fields.yml", "r") as f:
+        return yaml.safe_load(f)
+
+
+def _extend_dataset_fields(spec: DatasetSpec) -> DatasetSpec:
+    customizations = _dataset_field_customizations()
+    spec = deepcopy(spec)
+
+    for name, field in spec.fields.items():
+        field.manual = name in customizations["manual"]
+        field.default = customizations["defaults"].get(name)
+        if (conv := customizations["conversions"].get(name)) is not None:
+            field.conversion = DatasetFieldConversion(**conv)
+    return spec
+
+
 def load_specs(schema_url: str) -> Dict[str, Any]:
     schemas = _collect_schemas(load_schemas(schema_url))
     dataset_schema = schemas.pop("Dataset")
     specs = {
-        "Dataset": _build_dataset_spec("Dataset", dataset_schema),
+        "Dataset": _extend_dataset_fields(
+            _build_dataset_spec("Dataset", dataset_schema)
+        ),
         **{name: _build_spec(name, updown) for name, updown in schemas.items()},
     }
     return {

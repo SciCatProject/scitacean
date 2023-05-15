@@ -1,0 +1,21 @@
+manual:
+  - numberOfFiles
+  - numberOfFilesArchived
+  - origdatablocks
+  - packedSize
+  - scientificMetadata
+  - size
+
+defaults:
+  creationTime: '"now"'
+
+conversions:
+  creationTime:
+    func: _parse_datetime
+    arg_type: Union[str, datetime]
+  pid:
+    func: "(lambda _pid: PID.parse(_pid) if _pid is not None else None)"
+    arg_type: Union[PID, str]
+  sourceFolder:
+    func: "(lambda _path: RemotePath(_path) if _path is not None else None)"
+    arg_type: Union[RemotePath, str]
