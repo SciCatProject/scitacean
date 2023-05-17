@@ -23,12 +23,12 @@
 
 from __future__ import annotations
 
-import dataclasses
 from datetime import datetime, timezone
 from typing import Any, Callable, Dict, List, Literal, Optional, Union
 
 import dateutil.parser
 
+from ._internal.dataclass_wrapper import dataclass_optional_args
 from .filesystem import RemotePath
 from .model import (
     Attachment,
@@ -52,17 +52,8 @@ def _parse_datetime(x: Optional[Union[datetime, str]]) -> datetime:
     return datetime.now(tz=timezone.utc)
 
 
-def _dataclass(**kwargs):
-    try:
-        # Python 3.10+
-        return dataclasses.dataclass(kw_only=True, slots=True, **kwargs)
-    except TypeError:
-        # Fallback for older Python
-        return dataclasses.dataclass(**kwargs)
-
-
 class DatasetBase:
-    @_dataclass(frozen=True)
+    @dataclass_optional_args(frozen=True, kw_only=True, slots=True)
     class Field:
         name: str
         description: str

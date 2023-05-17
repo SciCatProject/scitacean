@@ -17,7 +17,6 @@
 
 from __future__ import annotations
 
-import dataclasses
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
@@ -31,6 +30,7 @@ from ._base_model import (
     validate_emails,
     validate_orcids,
 )
+from ._internal.dataclass_wrapper import dataclass_optional_args
 from .filesystem import RemotePath
 from .pid import PID
 
@@ -66,7 +66,7 @@ class {{ name }}(BaseModel):
 {% endfor -%}
 
 {% for spec in specs.values() -%}
-@dataclasses.dataclass
+@dataclass_optional_args(kw_only=True, slots=True)
 class {{ spec.name }}(BaseUserModel):
 {%- set fields = spec.fields_for("user")|sort(attribute="upload", reverse=True) -%}
 {%- for field in fields %}

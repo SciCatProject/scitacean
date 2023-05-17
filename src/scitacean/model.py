@@ -9,7 +9,6 @@
 
 from __future__ import annotations
 
-import dataclasses
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
@@ -23,6 +22,7 @@ from ._base_model import (
     validate_emails,
     validate_orcids,
 )
+from ._internal.dataclass_wrapper import dataclass_optional_args
 from .filesystem import RemotePath
 from .pid import PID
 
@@ -31,7 +31,7 @@ class DownloadDataset(BaseModel):
     contactEmail: str
     creationLocation: str
     creationTime: datetime
-    inputDatasets: List[str]
+    inputDatasets: List[PID]
     investigator: str
     numberOfFilesArchived: NonNegativeInt
     owner: str
@@ -41,14 +41,13 @@ class DownloadDataset(BaseModel):
     type: DatasetType
     usedSoftware: List[str]
     accessGroups: Optional[List[str]]
+    version: Optional[str]
     attachments: Optional[List[DownloadAttachment]]
     classification: Optional[str]
     createdAt: Optional[datetime]
     createdBy: Optional[str]
     dataFormat: Optional[str]
     datablocks: Optional[List[DownloadDatablock]]
-    datasetName: Optional[str]
-    datasetlifecycle: Optional[Lifecycle]
     description: Optional[str]
     endTime: Optional[datetime]
     history: Optional[History]
@@ -59,6 +58,8 @@ class DownloadDataset(BaseModel):
     jobParameters: Optional[Dict[str, Any]]
     keywords: Optional[List[str]]
     license: Optional[str]
+    datasetlifecycle: Optional[Lifecycle]
+    datasetName: Optional[str]
     numberOfFiles: Optional[NonNegativeInt]
     orcidOfOwner: Optional[str]
     origdatablocks: Optional[List[DownloadOrigDatablock]]
@@ -76,7 +77,6 @@ class DownloadDataset(BaseModel):
     updatedAt: Optional[datetime]
     updatedBy: Optional[str]
     validationStatus: Optional[str]
-    version: Optional[str]
 
     @pydantic.validator("contactEmail", "ownerEmail")
     def _validate_emails(cls, value: Any) -> Any:
@@ -90,7 +90,7 @@ class DownloadDataset(BaseModel):
 class UploadDerivedDataset(BaseModel):
     contactEmail: str
     creationTime: datetime
-    inputDatasets: List[str]
+    inputDatasets: List[PID]
     investigator: str
     numberOfFilesArchived: NonNegativeInt
     owner: str
@@ -99,9 +99,8 @@ class UploadDerivedDataset(BaseModel):
     type: DatasetType
     usedSoftware: List[str]
     accessGroups: Optional[List[str]]
+    version: Optional[str]
     classification: Optional[str]
-    datasetName: Optional[str]
-    datasetlifecycle: Optional[Lifecycle]
     description: Optional[str]
     instrumentGroup: Optional[str]
     isPublished: Optional[bool]
@@ -109,6 +108,8 @@ class UploadDerivedDataset(BaseModel):
     jobParameters: Optional[Dict[str, Any]]
     keywords: Optional[List[str]]
     license: Optional[str]
+    datasetlifecycle: Optional[Lifecycle]
+    datasetName: Optional[str]
     numberOfFiles: Optional[NonNegativeInt]
     orcidOfOwner: Optional[str]
     ownerEmail: Optional[str]
@@ -120,7 +121,6 @@ class UploadDerivedDataset(BaseModel):
     sourceFolderHost: Optional[str]
     techniques: Optional[List[UploadTechnique]]
     validationStatus: Optional[str]
-    version: Optional[str]
 
     @pydantic.validator("contactEmail", "ownerEmail")
     def _validate_emails(cls, value: Any) -> Any:
@@ -142,10 +142,9 @@ class UploadRawDataset(BaseModel):
     sourceFolder: RemotePath
     type: DatasetType
     accessGroups: Optional[List[str]]
+    version: Optional[str]
     classification: Optional[str]
     dataFormat: Optional[str]
-    datasetName: Optional[str]
-    datasetlifecycle: Optional[Lifecycle]
     description: Optional[str]
     endTime: Optional[datetime]
     instrumentGroup: Optional[str]
@@ -153,6 +152,8 @@ class UploadRawDataset(BaseModel):
     isPublished: Optional[bool]
     keywords: Optional[List[str]]
     license: Optional[str]
+    datasetlifecycle: Optional[Lifecycle]
+    datasetName: Optional[str]
     numberOfFiles: Optional[NonNegativeInt]
     orcidOfOwner: Optional[str]
     ownerEmail: Optional[str]
@@ -166,7 +167,6 @@ class UploadRawDataset(BaseModel):
     sourceFolderHost: Optional[str]
     techniques: Optional[List[UploadTechnique]]
     validationStatus: Optional[str]
-    version: Optional[str]
 
     @pydantic.validator("contactEmail", "ownerEmail")
     def _validate_emails(cls, value: Any) -> Any:
@@ -346,7 +346,7 @@ class UploadSample(BaseModel):
     sampleId: Optional[str]
 
 
-@dataclasses.dataclass
+@dataclass_optional_args(kw_only=True, slots=True)
 class Attachment(BaseUserModel):
     caption: str
     owner_group: str
@@ -388,7 +388,7 @@ class Attachment(BaseUserModel):
         return UploadAttachment(**self._upload_model_dict())
 
 
-@dataclasses.dataclass
+@dataclass_optional_args(kw_only=True, slots=True)
 class OrigDatablock(BaseUserModel):
     chk_alg: str
     data_file_list: List[str]
@@ -446,7 +446,7 @@ class OrigDatablock(BaseUserModel):
         return UploadOrigDatablock(**self._upload_model_dict())
 
 
-@dataclasses.dataclass
+@dataclass_optional_args(kw_only=True, slots=True)
 class Datablock(BaseUserModel):
     archive_id: str
     chk_alg: str
@@ -505,7 +505,7 @@ class Datablock(BaseUserModel):
         return UploadDatablock(**self._upload_model_dict())
 
 
-@dataclasses.dataclass
+@dataclass_optional_args(kw_only=True, slots=True)
 class Lifecycle(BaseUserModel):
     _archivable: Optional[bool]
     _archive_retention_time: Optional[datetime]
@@ -584,7 +584,7 @@ class Lifecycle(BaseUserModel):
         return cls(**cls._download_model_dict(download_model))
 
 
-@dataclasses.dataclass
+@dataclass_optional_args(kw_only=True, slots=True)
 class Technique(BaseUserModel):
     name: str
     pid: str
@@ -599,7 +599,7 @@ class Technique(BaseUserModel):
         return UploadTechnique(**self._upload_model_dict())
 
 
-@dataclasses.dataclass
+@dataclass_optional_args(kw_only=True, slots=True)
 class Relationship(BaseUserModel):
     pid: PID
     relationship: str
@@ -614,7 +614,7 @@ class Relationship(BaseUserModel):
         return UploadRelationship(**self._upload_model_dict())
 
 
-@dataclasses.dataclass
+@dataclass_optional_args(kw_only=True, slots=True)
 class History(BaseUserModel):
     _updated_at: Optional[datetime]
     _updated_by: Optional[datetime]
@@ -633,7 +633,7 @@ class History(BaseUserModel):
         return cls(**cls._download_model_dict(download_model))
 
 
-@dataclasses.dataclass
+@dataclass_optional_args(kw_only=True, slots=True)
 class DataFile(BaseUserModel):
     chk: str
     gid: str
@@ -653,7 +653,7 @@ class DataFile(BaseUserModel):
         return UploadDataFile(**self._upload_model_dict())
 
 
-@dataclasses.dataclass
+@dataclass_optional_args(kw_only=True, slots=True)
 class Instrument(BaseUserModel):
     _custom_metadata: Optional[Dict[str, Any]]
     _name: Optional[str]
@@ -682,7 +682,7 @@ class Instrument(BaseUserModel):
         return cls(**cls._download_model_dict(download_model))
 
 
-@dataclasses.dataclass
+@dataclass_optional_args(kw_only=True, slots=True)
 class Sample(BaseUserModel):
     owner_group: str
     access_groups: Optional[List[str]]
