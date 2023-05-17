@@ -298,6 +298,20 @@ def _build_dataset_spec(name: str, schemas: _DatasetSchemas) -> DatasetSpec:
 
 
 @lru_cache
+def _field_name_overrides() -> Dict[str, Dict[str, str]]:
+    with open(Path(__file__).resolve().parent / "field-name-overrides.yml", "r") as f:
+        return yaml.safe_load(f)
+
+
+def _postprocess_field_names(spec: Spec) -> Spec:
+    spec = deepcopy(spec)
+    overrides = _field_name_overrides()
+    for field_name, override in overrides.get(spec.name, {}).items():
+        spec.fields[field_name].name = override
+    return spec
+
+
+@lru_cache
 def _field_type_overrides() -> Dict[str, Dict[str, str]]:
     with open(Path(__file__).resolve().parent / "field-type-overrides.yml", "r") as f:
         return yaml.safe_load(f)
@@ -366,6 +380,8 @@ def load_specs(schema_url: str) -> Dict[str, Any]:
         **{name: _build_spec(name, updown) for name, updown in schemas.items()},
     }
     return {
-        name: _assign_validations(_postprocess_field_types(spec))
+        name: _assign_validations(
+            _postprocess_field_types(_postprocess_field_names(spec))
+        )
         for name, spec in specs.items()
     }
