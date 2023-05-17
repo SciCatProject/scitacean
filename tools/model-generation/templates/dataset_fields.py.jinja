@@ -24,7 +24,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Any, Callable, Dict, List, Literal, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, Union
 
 import dateutil.parser
 
@@ -32,11 +32,9 @@ from ._internal.dataclass_wrapper import dataclass_optional_args
 from .filesystem import RemotePath
 from .model import (
     Attachment,
-    Datablock,
     DatasetType,
     Lifecycle,
     History,
-    OrigDatablock,
     Relationship,
     Technique,
 )
@@ -52,6 +50,16 @@ def _parse_datetime(x: Optional[Union[datetime, str]]) -> datetime:
     return datetime.now(tz=timezone.utc)
 
 
+def _validate_checksum_algorithm(algorithm: Optional[str]) -> Optional[str]:
+    if algorithm is None:
+        return algorithm
+    import hashlib
+
+    if algorithm not in hashlib.algorithms_available:
+        raise ValueError(f"Checksum algorithm not recognized: {algorithm}")
+    return algorithm
+
+
 class DatasetBase:
     @dataclass_optional_args(frozen=True, kw_only=True, slots=True)
     class Field:
@@ -59,6 +67,7 @@ class DatasetBase:
         description: str
         read_only: bool
         required: bool
+        scicat_name: str
         type: type
         used_by_derived: bool
         used_by_raw: bool
@@ -77,6 +86,7 @@ class DatasetBase:
             description="{{ field.description }}",
             read_only={{ not field.upload }},
             required={{ field.required }},
+            scicat_name="{{ field.scicat_name }}",
             type={{ field.full_type_for("user")|replace("NonNegativeInt", "int") }},
             used_by_derived={{ field.used_by_derived or not field.upload }},
             used_by_raw={{ field.used_by_raw or not field.upload }},
@@ -85,21 +95,26 @@ class DatasetBase:
     ]
 
     __slots__ = (
-{% for field in spec.user_dset_fields()|sort(attribute="name") %}
+{% for field in spec.user_dset_fields(manual=False)|sort(attribute="name") %}
         "_{{ field.name }}",
 {% endfor %}
+        "_default_checksum_algorithm",
     )
 
     def __init__(self,
-        type: Union[DatasetType, str],
-{%- for field in spec.user_dset_fields(manual=False)|sort(attribute="name")|rejectattr("name", "eq", "type") %}
+        type: Union[DatasetType, Literal["raw", "derived"]],
+{%- for field in spec.user_dset_fields(manual=False)|sort(attribute="name")|rejectattr("name", "eq", "type")|selectattr("upload") %}
         {{ field.name }}: {{ init_arg_type(field) }} = {{ field.default }},
 {%- endfor %}
+        checksum_algorithm: Optional[str] = "blake2b",
     ) -> None:
         self._type = DatasetType(type)
-{%- for field in spec.user_dset_fields(manual=False)|sort(attribute="name")|rejectattr("name", "eq", "type") %}
+{%- for field in spec.user_dset_fields(manual=False)|sort(attribute="name")|rejectattr("name", "eq", "type")|selectattr("upload") %}
         {{ field_assignment(field) }}
-{%- endfor -%}
+{%- endfor %}
+        self._default_checksum_algorithm = _validate_checksum_algorithm(
+            checksum_algorithm
+        )
 
 {%- for field in spec.user_dset_fields(manual=False)|sort(attribute="name") %}
     @property
@@ -112,4 +127,4 @@ class DatasetBase:
         """{{ field.description }}"""
         {{ field_assignment(field) }}
 {% endif %}
-{%- endfor -%}
+{%- endfor %}

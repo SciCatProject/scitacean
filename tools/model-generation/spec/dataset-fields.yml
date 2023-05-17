@@ -1,4 +1,5 @@
 manual:
+  - datablocks
   - numberOfFiles
   - numberOfFilesArchived
   - origdatablocks
