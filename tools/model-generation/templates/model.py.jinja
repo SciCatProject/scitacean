@@ -88,3 +88,18 @@ class {{ spec.name }}(BaseUserModel):
 {% endif %}
 
 {% endfor -%}
+
+# Some models contain fields that are other models which are defined
+# further down in the file.
+# Instead of ordering models according to their dependencies, resolve
+# references once all classes have been defined.
+{% for spec in specs.values() -%}
+{%- for name, kind in ((spec.download_name, "download"), (spec.upload_name, "upload")) -%}
+{%- if name -%}
+{{ name }}.update_forward_refs()
+{% endif -%}
+{%- endfor -%}
+{%- endfor -%}
+DownloadDataset.update_forward_refs()
+UploadDerivedDataset.update_forward_refs()
+UploadRawDataset.update_forward_refs()

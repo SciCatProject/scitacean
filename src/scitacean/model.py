@@ -44,9 +44,11 @@ class DownloadDataset(BaseModel):
     version: Optional[str]
     attachments: Optional[List[DownloadAttachment]]
     classification: Optional[str]
+    comment: Optional[str]
     createdAt: Optional[datetime]
     createdBy: Optional[str]
     dataFormat: Optional[str]
+    dataQualityMetrics: Optional[int]
     datablocks: Optional[List[DownloadDatablock]]
     description: Optional[str]
     endTime: Optional[datetime]
@@ -101,6 +103,8 @@ class UploadDerivedDataset(BaseModel):
     accessGroups: Optional[List[str]]
     version: Optional[str]
     classification: Optional[str]
+    comment: Optional[str]
+    dataQualityMetrics: Optional[int]
     description: Optional[str]
     instrumentGroup: Optional[str]
     isPublished: Optional[bool]
@@ -144,7 +148,9 @@ class UploadRawDataset(BaseModel):
     accessGroups: Optional[List[str]]
     version: Optional[str]
     classification: Optional[str]
+    comment: Optional[str]
     dataFormat: Optional[str]
+    dataQualityMetrics: Optional[int]
     description: Optional[str]
     endTime: Optional[datetime]
     instrumentGroup: Optional[str]
@@ -721,3 +727,29 @@ class Sample(BaseUserModel):
     def make_upload_model(self) -> UploadSample:
         """Construct a SciCat upload model from self."""
         return UploadSample(**self._upload_model_dict())
+
+
+# Some models contain fields that are other models which are defined
+# further down in the file.
+# Instead of ordering models according to their dependencies, simply resolve
+# references once all classes have been defined.
+DownloadAttachment.update_forward_refs()
+UploadAttachment.update_forward_refs()
+DownloadOrigDatablock.update_forward_refs()
+UploadOrigDatablock.update_forward_refs()
+DownloadDatablock.update_forward_refs()
+UploadDatablock.update_forward_refs()
+DownloadLifecycle.update_forward_refs()
+DownloadTechnique.update_forward_refs()
+UploadTechnique.update_forward_refs()
+DownloadRelationship.update_forward_refs()
+UploadRelationship.update_forward_refs()
+DownloadHistory.update_forward_refs()
+DownloadDataFile.update_forward_refs()
+UploadDataFile.update_forward_refs()
+DownloadInstrument.update_forward_refs()
+DownloadSample.update_forward_refs()
+UploadSample.update_forward_refs()
+DownloadDataset.update_forward_refs()
+UploadDerivedDataset.update_forward_refs()
+UploadRawDataset.update_forward_refs()
