@@ -46,13 +46,16 @@ class SpecField:
 
     def type_for(self, kind: Literal["download", "upload", "user"]) -> str:
         """Translate SciCat schema/DTO names into Scitacean model names."""
+        if kind == "upload":
+            prefix = "Upload"
+        elif kind == "download":
+            prefix = "Download"
+        else:
+            prefix = ""
+
         for spec_name in _SCHEMA_GROUPS:
             if spec_name in self.type:
-                if kind == "user":
-                    name = _SCHEMA_GROUPS[spec_name][0] or _SCHEMA_GROUPS[spec_name][1]
-                    return re.sub(str(name), f"{spec_name}", self.type)
-                name = _SCHEMA_GROUPS[spec_name][0 if kind == "upload" else 1]
-                return re.sub(str(name), f"{kind.capitalize()}{spec_name}", self.type)
+                return re.sub(str(spec_name), f"{prefix}{spec_name}", self.type)
         return self.type
 
 
@@ -66,6 +69,8 @@ class Spec:
     def __post_init__(self) -> None:
         if _SCHEMA_GROUPS.get(self.name, (None, None))[0]:
             self.upload_name = f"Upload{self.name}"
+        else:
+            self.upload_name = None
         self.download_name = f"Download{self.name}"
 
     def fields_for(
@@ -323,8 +328,9 @@ def _postprocess_field_types(spec: Spec) -> Spec:
     # Convert type names in the schema to Scitacean class names.
     for field in spec.fields.values():
         for class_name, model_names in _SCHEMA_GROUPS.items():
-            if field.type in model_names:
-                field.type = class_name
+            for name in model_names:
+                if name and name in field.type:
+                    field.type = re.sub(name, class_name, field.type)
 
     overrides = _field_type_overrides()
     for field_name, override in overrides.get(spec.name, {}).items():
