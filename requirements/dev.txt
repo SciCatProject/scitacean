@@ -34,7 +34,7 @@ ipython-genutils==0.2.0
     #   notebook
 isoduration==20.11.0
     # via jsonschema
-json5==0.9.11
+json5==0.9.14
     # via jupyterlab-server
 jsonpointer==2.3
     # via jsonschema
@@ -45,7 +45,7 @@ jsonschema[format-nongpl]==4.17.3
     #   nbformat
 jupyter-events==0.6.3
     # via jupyter-server
-jupyter-server==2.3.0
+jupyter-server==2.6.0
     # via
     #   jupyterlab
     #   jupyterlab-server
@@ -55,21 +55,23 @@ jupyter-server-terminals==0.4.4
     # via jupyter-server
 jupyterlab==3.5.3
     # via -r requirements/dev.in
-jupyterlab-server==2.19.0
+jupyterlab-server==2.22.1
     # via jupyterlab
-nbclassic==0.5.2
+nbclassic==1.0.0
     # via
     #   jupyterlab
     #   notebook
-notebook==6.5.2
+notebook==6.5.4
     # via jupyterlab
-notebook-shim==0.2.2
+notebook-shim==0.2.3
     # via nbclassic
-pip-compile-multi==2.6.2
+overrides==7.3.1
+    # via jupyter-server
+pip-compile-multi==2.6.3
     # via -r requirements/dev.in
-pip-tools==6.12.3
+pip-tools==6.13.0
     # via pip-compile-multi
-prometheus-client==0.16.0
+prometheus-client==0.17.0
     # via
     #   jupyter-server
     #   nbclassic
@@ -84,7 +86,7 @@ rfc3986-validator==0.1.1
     # via
     #   jsonschema
     #   jupyter-events
-send2trash==1.8.0
+send2trash==1.8.2
     # via
     #   jupyter-server
     #   nbclassic
@@ -99,25 +101,25 @@ terminado==0.17.1
     #   notebook
 toposort==1.10
     # via pip-compile-multi
-types-docutils==0.19.1.6
+types-docutils==0.20.0.1
     # via -r requirements/dev.in
-types-paramiko==3.0.0.4
+types-paramiko==3.0.0.10
     # via -r requirements/dev.in
-types-python-dateutil==2.8.19.9
+types-python-dateutil==2.8.19.13
     # via -r requirements/dev.in
-types-pyyaml==6.0.12.8
+types-pyyaml==6.0.12.10
     # via -r requirements/dev.in
-types-requests==2.28.11.15
+types-requests==2.31.0.0
     # via -r requirements/dev.in
-types-urllib3==1.26.25.8
+types-urllib3==1.26.25.13
     # via types-requests
 uri-template==1.2.0
     # via jsonschema
-webcolors==1.12
+webcolors==1.13
     # via jsonschema
-websocket-client==1.5.1
+websocket-client==1.5.2
     # via jupyter-server
-wheel==0.38.4
+wheel==0.40.0
     # via pip-tools
 
 # The following packages are considered to be unsafe in a requirements file:
