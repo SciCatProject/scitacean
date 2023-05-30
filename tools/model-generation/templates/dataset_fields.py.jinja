@@ -158,9 +158,9 @@ class DatasetBase:
                 init_args["_"+field.name] = getattr(download_model, field.scicat_name)
 
 {% for field in spec.user_dset_fields(manual=False)|sort(attribute="name")|selectattr("conversion") %}
-        {% if field.read_only -%}
+        {%- if not field.upload %}
         read_only[{{ field.name|quote }}] = {{ field.conversion.func }}(read_only[{{ field.name|quote }}])
-        {%- endif %}
+        {%- endif -%}
 {%- endfor %}
 
         return init_args, read_only
