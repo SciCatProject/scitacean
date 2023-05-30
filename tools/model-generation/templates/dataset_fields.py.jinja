@@ -160,10 +160,15 @@ class DatasetBase:
             else:
                 init_args["_"+field.name] = getattr(download_model, field.scicat_name)
 
+        DatasetBase._convert_readonly_fields_in_place(read_only)
+
+        return init_args, read_only
+
+    @staticmethod
+    def _convert_readonly_fields_in_place(read_only: Dict[str, Any]) -> Dict[str, Any]:
 {% for field in spec.user_dset_fields(manual=False)|sort(attribute="name")|selectattr("conversion") %}
         {%- if not field.upload %}
         read_only[{{ field.name|quote }}] = {{ field.conversion.func }}(read_only[{{ field.name|quote }}])
         {%- endif -%}
 {%- endfor %}
-
-        return init_args, read_only
+        return read_only

@@ -6,68 +6,53 @@ from __future__ import annotations
 
 import dataclasses
 import itertools
-from copy import deepcopy
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Generator, Iterable, List, Literal, Optional, Tuple, Union
 
-from ._dataset_fields import DatasetFields, fields_from_model
-from .datablock import OrigDatablockProxy
+from ._dataset_fields import DatasetBase
+from .datablock import OrigDatablock
 from .file import File
 from .model import (
     DatasetType,
-    DerivedDataset,
-    OrigDatablock,
-    RawDataset,
+    DownloadDataset,
+    DownloadOrigDatablock,
+    UploadDerivedDataset,
+    UploadRawDataset,
 )
 from .pid import PID
 
 
-class Dataset(DatasetFields):
+class Dataset(DatasetBase):
     @classmethod
-    def from_models(
+    def from_download_models(
         cls,
-        *,
-        dataset_model: Union[DerivedDataset, RawDataset],
-        orig_datablock_models: Optional[List[OrigDatablock]],
+        download_model: DownloadDataset,
+        orig_datablock_models: List[DownloadOrigDatablock],
     ) -> Dataset:
-        """Create a new dataset from pydantic models.
-
-        This function is mainly meant to be used with
-        models that were downloaded from SciCat.
-        :meth:`Dataset.__init__` should be preferred for other use cases.
+        """Construct a new dataset from SciCat download models.
 
         Parameters
         ----------
-        dataset_model:
-            Fields, including scientific metadata are filled from this model.
+        download_model:
+            Model of the dataset.
         orig_datablock_models:
-            File links are populated from this model.
-            All files are initialized to be on remote but not local.
+            List of all associated original datablock models for the dataset.
 
         Returns
         -------
         :
-            A new dataset.
+            A new Dataset instance.
         """
-        args = fields_from_model(dataset_model)
-        read_only_args = args.pop("_read_only")
-        read_only_args["history"] = dataset_model.history
-        return cls(
-            type=dataset_model.type,
-            creation_time=dataset_model.creationTime,
-            pid=dataset_model.pid,
-            _orig_datablocks=[]
-            if not orig_datablock_models
-            else [
-                OrigDatablockProxy.from_model(
-                    dataset_model=dataset_model, orig_datablock_model=dblock
-                )
-                for dblock in orig_datablock_models
-            ],
-            _read_only=read_only_args,
-            **args,
+        init_args, read_only = DatasetBase._prepare_fields_from_download(download_model)
+        dset = cls(**init_args)
+        for key, val in read_only:
+            setattr(dset, key, val)
+        dset._orig_datablocks.extend(
+            map(OrigDatablock.from_download_model, orig_datablock_models)
         )
+        # TODO other special fields
+        return dset
 
     @classmethod
     def fields(
@@ -94,7 +79,7 @@ class Dataset(DatasetFields):
         :
             Iterable over the fields of datasets.
         """
-        it = iter(DatasetFields._FIELD_SPEC)
+        it = iter(DatasetBase._FIELD_SPEC)
         if dataset_type is not None:
             attr = (
                 "used_by_derived"
@@ -106,10 +91,28 @@ class Dataset(DatasetFields):
             it = filter(lambda field: field.read_only == read_only, it)
         yield from it
 
-    @property
-    def history(self) -> List[Dataset]:
-        # TODO convert elements to Dataset
-        return self._fields["history"]
+    def __str__(self) -> str:
+        args = ", ".join(
+            f"{field.name}={value}"
+            for field in self.fields()
+            if (value := getattr(self, field.name)) is not None
+        )
+        return f"Dataset({args})"
+
+    def _repr_html_(self) -> str:
+        # Import here to prevent cycle.
+        from ._html_repr import dataset_html_repr
+
+        return dataset_html_repr(self)
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Dataset):
+            return False
+        eq = all(
+            getattr(self, field.name) == getattr(other, field.name)
+            for field in Dataset.fields()
+        )
+        return eq
 
     @property
     def number_of_files(self) -> int:
@@ -119,7 +122,7 @@ class Dataset(DatasetFields):
 
         Corresponds to OrigDatablocks.
         """
-        return sum(map(lambda dblock: len(tuple(dblock.files)), self._orig_datablocks))
+        return sum(len(tuple(dblock.files)) for dblock in self._orig_datablocks)
 
     @property
     def number_of_files_archived(self) -> int:
@@ -161,7 +164,7 @@ class Dataset(DatasetFields):
         self,
         *paths: Union[str, Path],
         base_path: Union[str, Path] = "",
-        datablock: Union[int, str, PID] = -1,
+        datablock: Union[int, str, PID] = -1,  # TODO PID for datablock?
     ) -> None:
         """Add files on the local file system to the dataset.
 
@@ -190,7 +193,7 @@ class Dataset(DatasetFields):
         self,
         *,
         _read_only: Optional[Dict[str, Any]] = None,
-        _orig_datablocks: Optional[List[OrigDatablockProxy]] = None,
+        _orig_datablocks: Optional[List[OrigDatablock]] = None,
         **replacements: Any,
     ) -> Dataset:
         """Return a new dataset with replaced fields.
@@ -221,6 +224,7 @@ class Dataset(DatasetFields):
             field.name: get_val(_read_only, field.name)
             for field in Dataset.fields(read_only=True)
         }
+        DatasetBase._convert_readonly_fields_in_place(read_only)
         kwargs = {
             **{
                 field.name: get_val(replacements, field.name)
@@ -231,15 +235,15 @@ class Dataset(DatasetFields):
             raise TypeError(
                 f"Invalid arguments: {', '.join((*replacements, *_read_only))}"
             )
-        return Dataset(
-            _orig_datablocks=deepcopy(
-                _orig_datablocks
-                if _orig_datablocks is not None
-                else self._orig_datablocks
-            ),
-            _read_only=read_only,
+        dset = Dataset(
             **kwargs,
         )
+        dset._orig_datablocks.extend(
+            _orig_datablocks if _orig_datablocks is not None else self._orig_datablocks
+        )
+        for key, val in read_only.items():
+            setattr(dset, key, val)
+        return dset
 
     def as_new(self) -> Dataset:
         """Return a new dataset with lifecycle-related fields erased.
@@ -337,58 +341,7 @@ class Dataset(DatasetFields):
             ]
         )
 
-    def make_datablock_models(self) -> DatablockModels:
-        """Build models for all contained (orig) datablocks.
-
-        Returns
-        -------
-        :
-            Structure with datablock and orig datablock models.
-        """
-        if self.number_of_files == 0:
-            return DatablockModels(orig_datablocks=None)
-        return DatablockModels(
-            orig_datablocks=[
-                dblock.make_model(self) for dblock in self._orig_datablocks
-            ]
-        )
-
-    def make_model(self) -> Union[DerivedDataset, RawDataset]:
-        """Build a dataset model to send to SciCat.
-
-        This triggers validation of the dataset.
-        All fields must therefore be properly initialized for a dataset of type
-        ``self.type`` before calling ``make_model``.
-
-        Returns
-        -------
-        :
-            Created model.
-        """
-        if self.type == DatasetType.DERIVED:
-            return self._make_derived_model()
-        return self._make_raw_model()
-
-    def validate(self) -> None:
-        """Validate the fields of the dataset.
-
-        Raises :class:`pydantic.ValidationError` if validation fails.
-        Returns normally if it passes.
-        """
-        self.make_model()
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Dataset):
-            return False
-        eq = all(
-            getattr(self, field.name) == getattr(other, field.name)
-            for field in Dataset.fields()
-        )
-        return eq
-
-    def add_orig_datablock(
-        self, *, checksum_algorithm: Optional[str]
-    ) -> OrigDatablockProxy:
+    def add_orig_datablock(self, *, checksum_algorithm: Optional[str]) -> OrigDatablock:
         """Append a new orig datablock to the list of orig datablocks.
 
         Parameters
@@ -402,43 +355,66 @@ class Dataset(DatasetFields):
         :
             The newly added datablock.
         """
-        dblock = OrigDatablockProxy(checksum_algorithm=checksum_algorithm)
+        dblock = OrigDatablock(
+            checksum_algorithm=checksum_algorithm, _dataset_id=self.pid
+        )
         self._orig_datablocks.append(dblock)
         return dblock
 
-    def _lookup_orig_datablock(self, pid: PID) -> OrigDatablockProxy:
+    def _lookup_orig_datablock(self, id_: str) -> OrigDatablock:
         try:
-            return next(db for db in self._orig_datablocks if db.pid == pid)
+            return next(db for db in self._orig_datablocks if db.id_ == id_)
         except StopIteration:
-            raise KeyError(f"No OrigDatablock with id {PID}") from None
+            raise KeyError(f"No OrigDatablock with id {id_}") from None
 
-    def _get_or_add_orig_datablock(
-        self, key: Union[int, str, PID]
-    ) -> OrigDatablockProxy:
-        if isinstance(key, (str, PID)):
-            return self._lookup_orig_datablock(PID.parse(key))
-        # The oth datablock is implicitly always there and created on demand.
+    def _get_or_add_orig_datablock(self, key: Union[int, str]) -> OrigDatablock:
+        if isinstance(key, str):
+            return self._lookup_orig_datablock(key)
+        # The 0th datablock is implicitly always there and created on demand.
         if key in (0, -1) and not self._orig_datablocks:
             return self.add_orig_datablock(
                 checksum_algorithm=self._default_checksum_algorithm
             )
         return self._orig_datablocks[key]
 
-    def __str__(self) -> str:
-        args = ", ".join(
-            f"{name}={value}"
-            for name, value in (
-                (field.name, getattr(self, field.name)) for field in self.fields()
-            )
-            if value is not None
+    def make_upload_model(self) -> Union[UploadDerivedDataset, UploadRawDataset]:
+        """Construct a SciCat upload model from self."""
+        # TODO datablocks
+        # TODO special fields?
+        model = (
+            UploadRawDataset if self.type == DatasetType.RAW else UploadDerivedDataset
         )
-        return f"Dataset({args})"
+        return model(
+            **{
+                field.scicat_name: value
+                for field in self.fields()
+                if (value := getattr(self, field.name)) is not None
+            }
+        )
 
-    def _repr_html_(self) -> str:
-        # Import here to prevent cycle.
-        from ._html_repr import dataset_html_repr
+    def make_datablock_upload_models(self) -> DatablockModels:
+        """Build models for all contained (orig) datablocks.
 
-        return dataset_html_repr(self)
+        Returns
+        -------
+        :
+            Structure with datablock and orig datablock models.
+        """
+        if self.number_of_files == 0:
+            return DatablockModels(orig_datablocks=None)
+        return DatablockModels(
+            orig_datablocks=[
+                dblock.make_upload_model(self) for dblock in self._orig_datablocks
+            ]
+        )
+
+    def validate(self) -> None:
+        """Validate the fields of the dataset.
+
+        Raises :class:`pydantic.ValidationError` if validation fails.
+        Returns normally if it passes.
+        """
+        self.make_upload_model()
 
 
 @dataclasses.dataclass

@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import dataclasses
 from datetime import datetime
-from typing import TYPE_CHECKING, Iterator, List, Optional
+from typing import TYPE_CHECKING, Iterable, Iterator, List, Optional
 
 from .file import File
 from .model import DownloadOrigDatablock, UploadOrigDatablock
@@ -30,18 +30,18 @@ class OrigDatablock:
     """
 
     _files: List[File] = dataclasses.field(init=False)
-    _dataset_id: PID
     checksum_algorithm: Optional[str] = None
     access_groups: Optional[List[str]] = None
     instrument_group: Optional[str] = None
     owner_group: Optional[str] = None
-    init_files: dataclasses.InitVar[Optional[List[File]]] = None
+    init_files: dataclasses.InitVar[Optional[Iterable[File]]] = None
     _created_at: Optional[datetime] = None
     _created_by: Optional[str] = None
+    _dataset_id: Optional[PID] = None
     _updated_at: Optional[datetime] = None
     _updated_by: Optional[str] = None
 
-    def __post_init__(self, init_files: Optional[List[File]]) -> None:
+    def __post_init__(self, init_files: Optional[Iterable[File]]) -> None:
         self._files = list(init_files) if init_files is not None else []
 
     @classmethod
@@ -143,7 +143,7 @@ class OrigDatablock:
             chkAlg=self.checksum_algorithm,
             size=self.size,
             dataFileList=[file.make_model(for_archive=False) for file in self.files],
-            datasetId=self.dataset_id,
+            datasetId=dataset.pid,
             ownerGroup=self.owner_group or dataset.owner_group,
             accessGroups=self.access_groups or dataset.access_groups,
             instrumentGroup=self.instrument_group or dataset.instrument_group,

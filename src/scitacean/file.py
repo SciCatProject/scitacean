@@ -13,7 +13,7 @@ from typing import NoReturn, Optional, Union, cast
 from .error import IntegrityError
 from .filesystem import RemotePath, checksum_of_file, file_modification_time, file_size
 from .logging import get_logger
-from .model import DataFile
+from .model import DataFile, DownloadDataFile
 
 
 @dataclasses.dataclass(frozen=True)
@@ -127,8 +127,9 @@ class File:
     @classmethod
     def from_scicat(
         cls,
-        model: DataFile,
+        model: DownloadDataFile,
         *,
+        checksum_algorithm: Optional[str] = None,
         local_path: Optional[Union[str, Path]] = None,
     ) -> File:
         """Construct a new file object from SciCat models.
@@ -146,6 +147,7 @@ class File:
             A new file object.
         """
         return File(
+            checksum_algorithm=checksum_algorithm,
             local_path=Path(local_path) if isinstance(local_path, str) else local_path,
             remote_path=RemotePath(model.path),
             remote_gid=model.gid,
