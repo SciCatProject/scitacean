@@ -11,9 +11,6 @@ defaults:
   creationTime: '"now"'
 
 conversions:
-  attachments:
-    func: "(lambda x: tuple(x) if x is not None else None)"
-    arg_type: Optional[List[DownloadAttachment]]
   creationTime:
     func: _parse_datetime
     arg_type: Union[str, datetime]
