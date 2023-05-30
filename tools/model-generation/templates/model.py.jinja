@@ -10,6 +10,12 @@
 {%- endfor %}
 {% endmacro -%}
 
+{% macro mask_keyword(spec, kind) %}
+{% if kind == "download" and spec.masked_fields_download %}
+    , masked=({{ spec.masked_fields_download|map("quote")|join(", ") }})
+{% endif %}
+{% endmacro %}
+
 {{ banner }}
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
@@ -35,7 +41,7 @@ from .filesystem import RemotePath
 from .pid import PID
 
 {% set fields = dset_spec.fields_for("download") -%}
-class DownloadDataset(BaseModel):
+class DownloadDataset(BaseModel{{ mask_keyword(dset_spec, "download") }}):
 {%- for field in fields %}
     {{ field.scicat_name }}: {{ field.full_type_for("download") }}
 {%- endfor %}
@@ -43,7 +49,7 @@ class DownloadDataset(BaseModel):
 
 {% for dset_type in ("derived", "raw") %}
 {%- set fields = dset_spec.dset_fields_for("upload", dset_type) -%}
-class Upload{{ dset_type|capitalize }}Dataset(BaseModel):
+class Upload{{ dset_type|capitalize }}Dataset(BaseModel{{ mask_keyword(dset_spec, "upload") }}):
 {%- for field in fields %}
     {{ field.scicat_name }}: {{ field.full_type_for("upload") }}
 {%- endfor %}
@@ -55,7 +61,7 @@ class Upload{{ dset_type|capitalize }}Dataset(BaseModel):
 {% for name, kind in ((spec.download_name, "download"), (spec.upload_name, "upload")) %}
 {%- set fields = spec.fields_for(kind) -%}
 {%- if fields -%}
-class {{ name }}(BaseModel):
+class {{ name }}(BaseModel{{ mask_keyword(spec, kind) }}):
 {%- for field in fields %}
     {{ field.scicat_name }}: {{ field.full_type_for(kind) }}
 {%- endfor %}

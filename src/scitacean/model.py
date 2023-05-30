@@ -27,7 +27,9 @@ from .filesystem import RemotePath
 from .pid import PID
 
 
-class DownloadDataset(BaseModel):
+class DownloadDataset(
+    BaseModel, masked=("attachments", "datablocks", "origdatablocks")
+):
     contactEmail: str
     creationLocation: str
     creationTime: datetime
@@ -42,17 +44,15 @@ class DownloadDataset(BaseModel):
     usedSoftware: List[str]
     accessGroups: Optional[List[str]]
     version: Optional[str]
-    attachments: Optional[List[DownloadAttachment]]
     classification: Optional[str]
     comment: Optional[str]
     createdAt: Optional[datetime]
     createdBy: Optional[str]
     dataFormat: Optional[str]
     dataQualityMetrics: Optional[int]
-    datablocks: Optional[List[DownloadDatablock]]
     description: Optional[str]
     endTime: Optional[datetime]
-    history: Optional[History]
+    history: Optional[DownloadHistory]
     instrumentGroup: Optional[str]
     instrumentId: Optional[str]
     isPublished: Optional[bool]
@@ -60,11 +60,10 @@ class DownloadDataset(BaseModel):
     jobParameters: Optional[Dict[str, Any]]
     keywords: Optional[List[str]]
     license: Optional[str]
-    datasetlifecycle: Optional[Lifecycle]
+    datasetlifecycle: Optional[DownloadLifecycle]
     datasetName: Optional[str]
     numberOfFiles: Optional[NonNegativeInt]
     orcidOfOwner: Optional[str]
-    origdatablocks: Optional[List[DownloadOrigDatablock]]
     ownerEmail: Optional[str]
     packedSize: Optional[NonNegativeInt]
     pid: Optional[PID]
@@ -112,7 +111,6 @@ class UploadDerivedDataset(BaseModel):
     jobParameters: Optional[Dict[str, Any]]
     keywords: Optional[List[str]]
     license: Optional[str]
-    datasetlifecycle: Optional[Lifecycle]
     datasetName: Optional[str]
     numberOfFiles: Optional[NonNegativeInt]
     orcidOfOwner: Optional[str]
@@ -158,7 +156,6 @@ class UploadRawDataset(BaseModel):
     isPublished: Optional[bool]
     keywords: Optional[List[str]]
     license: Optional[str]
-    datasetlifecycle: Optional[Lifecycle]
     datasetName: Optional[str]
     numberOfFiles: Optional[NonNegativeInt]
     orcidOfOwner: Optional[str]
@@ -213,7 +210,7 @@ class UploadAttachment(BaseModel):
 
 class DownloadOrigDatablock(BaseModel):
     chkAlg: str
-    dataFileList: List[str]
+    dataFileList: List[DownloadDataFile]
     size: NonNegativeInt
     accessGroups: Optional[List[str]]
     createdAt: Optional[datetime]
@@ -227,14 +224,14 @@ class DownloadOrigDatablock(BaseModel):
 
 class UploadOrigDatablock(BaseModel):
     chkAlg: str
-    dataFileList: List[str]
+    dataFileList: List[UploadDataFile]
     size: NonNegativeInt
 
 
 class DownloadDatablock(BaseModel):
     archiveId: str
     chkAlg: str
-    dataFileList: List[str]
+    dataFileList: List[DownloadDataFile]
     packedSize: NonNegativeInt
     size: NonNegativeInt
     version: str
@@ -251,7 +248,7 @@ class DownloadDatablock(BaseModel):
 class UploadDatablock(BaseModel):
     archiveId: str
     chkAlg: str
-    dataFileList: List[str]
+    dataFileList: List[UploadDataFile]
     packedSize: NonNegativeInt
     size: NonNegativeInt
     version: str
@@ -395,68 +392,10 @@ class Attachment(BaseUserModel):
 
 
 @dataclass_optional_args(kw_only=True, slots=True)
-class OrigDatablock(BaseUserModel):
-    chk_alg: str
-    data_file_list: List[str]
-    size: NonNegativeInt
-    _access_groups: Optional[List[str]]
-    _created_at: Optional[datetime]
-    _created_by: Optional[str]
-    _dataset_id: Optional[PID]
-    _instrument_group: Optional[str]
-    _owner_group: Optional[str]
-    _updated_at: Optional[datetime]
-    _updated_by: Optional[str]
-
-    @property
-    def access_groups(self) -> Optional[List[str]]:
-        return self._access_groups
-
-    @property
-    def created_at(self) -> Optional[datetime]:
-        return self._created_at
-
-    @property
-    def created_by(self) -> Optional[str]:
-        return self._created_by
-
-    @property
-    def dataset_id(self) -> Optional[PID]:
-        return self._dataset_id
-
-    @property
-    def instrument_group(self) -> Optional[str]:
-        return self._instrument_group
-
-    @property
-    def owner_group(self) -> Optional[str]:
-        return self._owner_group
-
-    @property
-    def updated_at(self) -> Optional[datetime]:
-        return self._updated_at
-
-    @property
-    def updated_by(self) -> Optional[str]:
-        return self._updated_by
-
-    @classmethod
-    def from_download_model(
-        cls, download_model: DownloadOrigDatablock
-    ) -> OrigDatablock:
-        """Construct an instance from an associated SciCat download model."""
-        return cls(**cls._download_model_dict(download_model))
-
-    def make_upload_model(self) -> UploadOrigDatablock:
-        """Construct a SciCat upload model from self."""
-        return UploadOrigDatablock(**self._upload_model_dict())
-
-
-@dataclass_optional_args(kw_only=True, slots=True)
 class Datablock(BaseUserModel):
     archive_id: str
     chk_alg: str
-    data_file_list: List[str]
+    data_file_list: List[DataFile]
     packed_size: NonNegativeInt
     size: NonNegativeInt
     version: str
@@ -731,7 +670,7 @@ class Sample(BaseUserModel):
 
 # Some models contain fields that are other models which are defined
 # further down in the file.
-# Instead of ordering models according to their dependencies, simply resolve
+# Instead of ordering models according to their dependencies, resolve
 # references once all classes have been defined.
 DownloadAttachment.update_forward_refs()
 UploadAttachment.update_forward_refs()

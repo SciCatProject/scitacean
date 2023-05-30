@@ -65,6 +65,8 @@ class Spec:
     download_name: str = dataclasses.field(init=False)
     upload_name: Optional[str] = dataclasses.field(init=False)
     fields: Dict[str, SpecField]
+    masked_fields_download: Dict[str, SpecField] = dataclasses.field(init=False)
+    masked_fields_upload: Dict[str, SpecField] = dataclasses.field(init=False)
 
     def __post_init__(self) -> None:
         if _SCHEMA_GROUPS.get(self.name, (None, None))[0]:
@@ -72,6 +74,8 @@ class Spec:
         else:
             self.upload_name = None
         self.download_name = f"Download{self.name}"
+        self.masked_fields_download = {}
+        self.masked_fields_upload = {}
 
     def fields_for(
         self, kind: Literal["download", "upload", "user"]
@@ -303,6 +307,31 @@ def _build_dataset_spec(name: str, schemas: _DatasetSchemas) -> DatasetSpec:
 
 
 @lru_cache
+def _masked_fields() -> Dict[str, List[str]]:
+    with open(Path(__file__).resolve().parent / "masked-fields.yml", "r") as f:
+        return yaml.safe_load(f)
+
+
+def _mask_fields(spec: Spec) -> Spec:
+    spec = deepcopy(spec)
+    masked = _masked_fields()
+    for field_name in masked.get(spec.name, []):
+        if isinstance(field_name, dict):
+            ((field_name, updown),) = field_name.items()
+            if updown == "upload":
+                spec.fields[field_name].upload = False
+                spec.masked_fields_upload[field_name] = spec.fields[field_name]
+            elif updown == "download":
+                spec.masked_fields_download[field_name] = spec.fields[field_name]
+            else:
+                raise ValueError("Invalid mask value")
+        else:
+            spec.masked_fields_upload[field_name] = spec.fields[field_name]
+            spec.masked_fields_download[field_name] = spec.fields.pop(field_name)
+    return spec
+
+
+@lru_cache
 def _field_name_overrides() -> Dict[str, Dict[str, str]]:
     with open(Path(__file__).resolve().parent / "field-name-overrides.yml", "r") as f:
         return yaml.safe_load(f)
@@ -387,7 +416,7 @@ def load_specs(schema_url: str) -> Dict[str, Any]:
     }
     return {
         name: _assign_validations(
-            _postprocess_field_types(_postprocess_field_names(spec))
+            _postprocess_field_types(_postprocess_field_names(_mask_fields(spec)))
         )
         for name, spec in specs.items()
     }

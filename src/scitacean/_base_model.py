@@ -17,7 +17,7 @@ except ImportError:
     )
 
 import dataclasses
-from typing import Any, Dict, Optional, Type, TypeVar, Union
+from typing import Any, Dict, Optional, Tuple, Type, TypeVar
 
 import pydantic
 
@@ -46,9 +46,30 @@ class BaseModel(pydantic.BaseModel):
             RemotePath: lambda v: v.posix,
         }
 
+    # Some schemas contain fields that we don't want to use in Scitacean.
+    # Normally, omitting them from the model would result in an error when
+    # building a model from the JSON returned by SciCat.
+    # The following subclass hook allows models to mark fields as masked.
+    # Those will be silently dropped by __init__.
+    # Note also the comment for _IGNORED_KWARGS below.
+    def __init_subclass__(
+        cls, /, masked: Optional[Tuple[str, ...]] = None, **kwargs: Any
+    ) -> None:
+        super().__init_subclass__(**kwargs)
+        if masked is not None:
+            cls._masked_fields = masked
+
     def __init__(self, **kwargs: Any) -> None:
-        _drop_ignored_args(self, kwargs)
+        self._delete_ignored_args(kwargs)
         super().__init__(**kwargs)
+
+    def _delete_ignored_args(self, args: Dict[str, Any]) -> None:
+        for key in _IGNORED_KWARGS:
+            if key not in self.__fields__:
+                args.pop(key, None)
+        if hasattr(self, "_masked_fields"):
+            for key in self._masked_fields:
+                args.pop(key, None)
 
 
 class BaseUserModel:
@@ -171,11 +192,3 @@ def _check_ready_for_upload(user_model: BaseUserModel) -> None:
 #   (Should be the same as id/pid where applicable.)
 # - _v is some version added by Mongoose.
 _IGNORED_KWARGS = ("id", "_id", "_v")
-
-
-def _drop_ignored_args(
-    model: Union[BaseModel, Type[BaseModel]], args: Dict[str, Any]
-) -> None:
-    for key in _IGNORED_KWARGS:
-        if key not in model.__fields__:
-            args.pop(key, None)
