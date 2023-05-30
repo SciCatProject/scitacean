@@ -65,7 +65,7 @@ class {{ name }}(BaseModel):
 {% endfor -%}
 {% endfor -%}
 
-{% for spec in specs.values() -%}
+{% for spec in specs.values()|rejectattr("name", "eq", "OrigDatablock") -%}
 @dataclass_optional_args(kw_only=True, slots=True)
 class {{ spec.name }}(BaseUserModel):
 {%- set fields = spec.fields_for("user")|sort(attribute="upload", reverse=True) -%}

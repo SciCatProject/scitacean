@@ -29,6 +29,7 @@ from typing import Any, Dict, List, Literal, Optional, Tuple, Union
 import dateutil.parser
 
 from ._internal.dataclass_wrapper import dataclass_optional_args
+from .datablock import OrigDatablockProxy
 from .filesystem import RemotePath
 from .model import (
     Attachment,
@@ -112,6 +113,7 @@ class DatasetBase:
         "_{{ field.name }}",
 {% endfor %}
         "_default_checksum_algorithm",
+        "_orig_datablocks",
     )
 
     def __init__(self,
@@ -131,6 +133,7 @@ class DatasetBase:
         self._default_checksum_algorithm = _validate_checksum_algorithm(
             checksum_algorithm
         )
+        self._orig_datablocks: List[OrigDatablockProxy] = []
 
 {%- for field in spec.user_dset_fields(manual=False)|sort(attribute="name") %}
     @property
