@@ -1,5 +1,5 @@
 Dataset:
-  attachments: Tuple[Attachment]
+  attachments: Tuple[Attachment, ...]
   inputDatasets: List[PID]
   pid: PID
   sourceFolder: RemotePath
