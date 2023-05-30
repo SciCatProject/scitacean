@@ -9,7 +9,7 @@ except importlib.metadata.PackageNotFoundError:
     __version__ = "0.0.0"
 
 from .client import Client
-from .datablock import OrigDatablockProxy
+from .datablock import OrigDatablock
 from .dataset import Dataset
 from .error import FileUploadError, IntegrityError, ScicatCommError, ScicatLoginError
 from .file import File
@@ -24,7 +24,7 @@ __all__ = (
     "File",
     "FileUploadError",
     "IntegrityError",
-    "OrigDatablockProxy",
+    "OrigDatablock",
     "PID",
     "RemotePath",
     "ScicatCommError",
