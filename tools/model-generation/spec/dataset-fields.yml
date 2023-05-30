@@ -15,8 +15,8 @@ conversions:
     func: _parse_datetime
     arg_type: Union[str, datetime]
   pid:
-    func: "(lambda _pid: PID.parse(_pid) if _pid is not None else None)"
+    func: _parse_pid
     arg_type: Union[PID, str]
   sourceFolder:
-    func: "(lambda _path: RemotePath(_path) if _path is not None else None)"
+    func: _parse_remote_path
     arg_type: Union[RemotePath, str]

@@ -24,7 +24,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, Tuple, Union
 
 import dateutil.parser
 
@@ -33,6 +33,7 @@ from .filesystem import RemotePath
 from .model import (
     Attachment,
     DatasetType,
+    DownloadDataset,
     Lifecycle,
     History,
     Relationship,
@@ -48,6 +49,18 @@ def _parse_datetime(x: Optional[Union[datetime, str]]) -> datetime:
         if x != "now":
             return dateutil.parser.parse(x)
     return datetime.now(tz=timezone.utc)
+
+
+def _parse_pid(pid: Optional[Union[str, PID]]) -> Optional[PID]:
+    if pid is None:
+        return pid
+    return PID.parse(pid)
+
+
+def _parse_remote_path(path: Optional[Union[str, RemotePath]]) -> Optional[RemotePath]:
+    if path is None:
+        return path
+    return RemotePath(path)
 
 
 def _validate_checksum_algorithm(algorithm: Optional[str]) -> Optional[str]:
@@ -128,3 +141,23 @@ class DatasetBase:
         {{ field_assignment(field) }}
 {% endif %}
 {%- endfor %}
+
+    @staticmethod
+    def _prepare_fields_from_download(
+        download_model: DownloadDataset
+    ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+        init_args = {}
+        read_only = {}
+        for field in DatasetBase._FIELD_SPEC:
+            if field.read_only:
+                read_only["_"+field.name] = getattr(download_model, field.scicat_name)
+            else:
+                init_args["_"+field.name] = getattr(download_model, field.scicat_name)
+
+{% for field in spec.user_dset_fields(manual=False)|sort(attribute="name")|selectattr("conversion") %}
+        {% if field.read_only -%}
+        read_only[{{ field.name|quote }}] = {{ field.conversion.func }}(read_only[{{ field.name|quote }}])
+        {%- endif %}
+{%- endfor %}
+
+        return init_args, read_only
