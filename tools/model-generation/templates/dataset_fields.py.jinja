@@ -125,6 +125,9 @@ class DatasetBase:
 {%- for field in spec.user_dset_fields(manual=False)|sort(attribute="name")|rejectattr("name", "eq", "type")|selectattr("upload") %}
         {{ field_assignment(field) }}
 {%- endfor %}
+{%- for field in spec.user_dset_fields(manual=False)|sort(attribute="name")|rejectattr("upload") %}
+        self._{{ field.name }} = None
+{%- endfor %}
         self._default_checksum_algorithm = _validate_checksum_algorithm(
             checksum_algorithm
         )
