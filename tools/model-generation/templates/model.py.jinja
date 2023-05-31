@@ -12,8 +12,14 @@
 
 {% macro mask_keyword(spec, kind) %}
 {% if kind == "download" and spec.masked_fields_download %}
-    , masked=({{ spec.masked_fields_download|map("quote")|join(", ") }})
+, masked=({{ spec.masked_fields_download|map("quote")|join(", ") }})
 {% endif %}
+{% endmacro %}
+
+{% macro field_default(field) %}
+{%- if not field.required -%}
+ = None
+{%- endif -%}
 {% endmacro %}
 
 {{ banner }}
@@ -76,7 +82,7 @@ class {{ name }}(BaseModel{{ mask_keyword(spec, kind) }}):
 class {{ spec.name }}(BaseUserModel):
 {%- set fields = spec.fields_for("user")|sort(attribute="upload", reverse=True) -%}
 {%- for field in fields %}
-    {% if field.upload %}{{ field.name }}{% else %}_{{ field.name }}{% endif %}: {{ field.full_type_for("user") }}
+    {% if field.upload %}{{ field.name }}{% else %}_{{ field.name }}{% endif %}: {{ field.full_type_for("user") }}{{ field_default(field) }}
 {%- endfor %}
 {% for field in fields|rejectattr("upload") %}
     @property

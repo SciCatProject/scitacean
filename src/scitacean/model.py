@@ -353,17 +353,17 @@ class UploadSample(BaseModel):
 class Attachment(BaseUserModel):
     caption: str
     owner_group: str
-    access_groups: Optional[List[str]]
-    dataset_id: Optional[str]
-    id: Optional[str]
-    instrument_group: Optional[str]
-    proposal_id: Optional[str]
-    sample_id: Optional[str]
-    thumbnail: Optional[str]
-    _created_at: Optional[datetime]
-    _created_by: Optional[str]
-    _updated_at: Optional[datetime]
-    _updated_by: Optional[str]
+    access_groups: Optional[List[str]] = None
+    dataset_id: Optional[str] = None
+    id: Optional[str] = None
+    instrument_group: Optional[str] = None
+    proposal_id: Optional[str] = None
+    sample_id: Optional[str] = None
+    thumbnail: Optional[str] = None
+    _created_at: Optional[datetime] = None
+    _created_by: Optional[str] = None
+    _updated_at: Optional[datetime] = None
+    _updated_by: Optional[str] = None
 
     @property
     def created_at(self) -> Optional[datetime]:
@@ -399,14 +399,14 @@ class Datablock(BaseUserModel):
     packed_size: NonNegativeInt
     size: NonNegativeInt
     version: str
-    _access_groups: Optional[List[str]]
-    _created_at: Optional[datetime]
-    _created_by: Optional[str]
-    _dataset_id: Optional[PID]
-    _instrument_group: Optional[str]
-    _owner_group: Optional[str]
-    _updated_at: Optional[datetime]
-    _updated_by: Optional[str]
+    _access_groups: Optional[List[str]] = None
+    _created_at: Optional[datetime] = None
+    _created_by: Optional[str] = None
+    _dataset_id: Optional[PID] = None
+    _instrument_group: Optional[str] = None
+    _owner_group: Optional[str] = None
+    _updated_at: Optional[datetime] = None
+    _updated_by: Optional[str] = None
 
     @property
     def access_groups(self) -> Optional[List[str]]:
@@ -452,20 +452,20 @@ class Datablock(BaseUserModel):
 
 @dataclass_optional_args(kw_only=True, slots=True)
 class Lifecycle(BaseUserModel):
-    _archivable: Optional[bool]
-    _archive_retention_time: Optional[datetime]
-    _archive_return_message: Optional[Dict[str, Any]]
-    _archive_status_message: Optional[str]
-    _date_of_disk_purging: Optional[datetime]
-    _date_of_publishing: Optional[datetime]
-    _exported_to: Optional[str]
-    _is_on_central_disk: Optional[bool]
-    _publishable: Optional[bool]
-    _published_on: Optional[datetime]
-    _retrievable: Optional[bool]
-    _retrieve_integrity_check: Optional[bool]
-    _retrieve_return_message: Optional[Dict[str, Any]]
-    _retrieve_status_message: Optional[str]
+    _archivable: Optional[bool] = None
+    _archive_retention_time: Optional[datetime] = None
+    _archive_return_message: Optional[Dict[str, Any]] = None
+    _archive_status_message: Optional[str] = None
+    _date_of_disk_purging: Optional[datetime] = None
+    _date_of_publishing: Optional[datetime] = None
+    _exported_to: Optional[str] = None
+    _is_on_central_disk: Optional[bool] = None
+    _publishable: Optional[bool] = None
+    _published_on: Optional[datetime] = None
+    _retrievable: Optional[bool] = None
+    _retrieve_integrity_check: Optional[bool] = None
+    _retrieve_return_message: Optional[Dict[str, Any]] = None
+    _retrieve_status_message: Optional[str] = None
 
     @property
     def archivable(self) -> Optional[bool]:
@@ -561,8 +561,8 @@ class Relationship(BaseUserModel):
 
 @dataclass_optional_args(kw_only=True, slots=True)
 class History(BaseUserModel):
-    _updated_at: Optional[datetime]
-    _updated_by: Optional[datetime]
+    _updated_at: Optional[datetime] = None
+    _updated_by: Optional[datetime] = None
 
     @property
     def updated_at(self) -> Optional[datetime]:
@@ -600,10 +600,10 @@ class DataFile(BaseUserModel):
 
 @dataclass_optional_args(kw_only=True, slots=True)
 class Instrument(BaseUserModel):
-    _custom_metadata: Optional[Dict[str, Any]]
-    _name: Optional[str]
-    _pid: Optional[str]
-    _unique_name: Optional[str]
+    _custom_metadata: Optional[Dict[str, Any]] = None
+    _name: Optional[str] = None
+    _pid: Optional[str] = None
+    _unique_name: Optional[str] = None
 
     @property
     def custom_metadata(self) -> Optional[Dict[str, Any]]:
@@ -630,17 +630,17 @@ class Instrument(BaseUserModel):
 @dataclass_optional_args(kw_only=True, slots=True)
 class Sample(BaseUserModel):
     owner_group: str
-    access_groups: Optional[List[str]]
-    description: Optional[str]
-    instrument_group: Optional[str]
-    is_published: Optional[bool]
-    owner: Optional[str]
-    sample_characteristics: Optional[Dict[str, Any]]
-    sample_id: Optional[str]
-    _created_at: Optional[datetime]
-    _created_by: Optional[str]
-    _updated_at: Optional[datetime]
-    _updated_by: Optional[str]
+    access_groups: Optional[List[str]] = None
+    description: Optional[str] = None
+    instrument_group: Optional[str] = None
+    is_published: Optional[bool] = None
+    owner: Optional[str] = None
+    sample_characteristics: Optional[Dict[str, Any]] = None
+    sample_id: Optional[str] = None
+    _created_at: Optional[datetime] = None
+    _created_by: Optional[str] = None
+    _updated_at: Optional[datetime] = None
+    _updated_by: Optional[str] = None
 
     @property
     def created_at(self) -> Optional[datetime]:
