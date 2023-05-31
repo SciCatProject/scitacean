@@ -17,9 +17,9 @@ from typing import Any, Dict, List, Literal, Optional, Tuple, Union
 import dateutil.parser
 
 from ._internal.dataclass_wrapper import dataclass_optional_args
+from .datablock import OrigDatablock
 from .filesystem import RemotePath
 from .model import (
-    Attachment,
     DatasetType,
     DownloadDataset,
     Lifecycle,
@@ -102,16 +102,6 @@ class DatasetBase:
             used_by_raw=True,
         ),
         Field(
-            name="attachments",
-            description="Small, less than 16 MB attachments, envisaged for png/jpeg previews.",
-            read_only=True,
-            required=False,
-            scicat_name="attachments",
-            type=Optional[Tuple[Attachment, ...]],
-            used_by_derived=True,
-            used_by_raw=True,
-        ),
-        Field(
             name="classification",
             description="ACIA information about AUthenticity,COnfidentiality,INtegrity and AVailability requirements of dataset. E.g. AV(ailabilty)=medium could trigger the creation of a two tape copies. Format 'AV=medium,CO=low'",
             read_only=False,
@@ -165,9 +155,9 @@ class DatasetBase:
             name="creation_location",
             description="Unique location identifier where data was taken, usually in the form /Site-name/facility-name/instrumentOrBeamline-name. This field is required if the dataset is a Raw dataset.",
             read_only=False,
-            required=True,
+            required=False,
             scicat_name="creationLocation",
-            type=str,
+            type=Optional[str],
             used_by_derived=False,
             used_by_raw=True,
         ),
@@ -193,7 +183,7 @@ class DatasetBase:
         ),
         Field(
             name="data_quality_metrics",
-            description="Data Quality Metrics is a number given by the user to rate the dataset.",
+            description="Data Quality Metrics given by the user to rate the dataset.",
             read_only=False,
             required=False,
             scicat_name="dataQualityMetrics",
@@ -233,11 +223,11 @@ class DatasetBase:
         ),
         Field(
             name="input_datasets",
-            description="Array of input dataset identifiers used in producing the derived dataset. Ideally these are the global identifier to existing datasets inside this or federated data catalogs.",
+            description="Array of input dataset identifiers used in producing the derived dataset. Ideally these are the global identifier to existing datasets inside this or federated data catalogs. This field is required if the dataset is a Derived dataset.",
             read_only=False,
-            required=True,
+            required=False,
             scicat_name="inputDatasets",
-            type=List[PID],
+            type=Optional[List[PID]],
             used_by_derived=True,
             used_by_raw=False,
         ),
@@ -265,9 +255,9 @@ class DatasetBase:
             name="investigator",
             description="First name and last name of the person or people pursuing the data analysis. The string may contain a list of names, which should then be separated by semicolons.",
             read_only=False,
-            required=True,
+            required=False,
             scicat_name="investigator",
-            type=str,
+            type=Optional[str],
             used_by_derived=True,
             used_by_raw=False,
         ),
@@ -324,10 +314,20 @@ class DatasetBase:
         Field(
             name="lifecycle",
             description="Describes the current status of the dataset during its lifetime with respect to the storage handling systems.",
-            read_only=False,
+            read_only=True,
             required=False,
             scicat_name="datasetlifecycle",
             type=Optional[Lifecycle],
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="meta",
+            description="JSON object containing the scientific metadata.",
+            read_only=False,
+            required=False,
+            scicat_name="scientificMetadata",
+            type=Optional[Dict[str, Any]],
             used_by_derived=True,
             used_by_raw=True,
         ),
@@ -395,9 +395,9 @@ class DatasetBase:
             name="principal_investigator",
             description="First name and last name of principal investigator(s). If multiple PIs are present, use a semicolon separated list. This field is required if the dataset is a Raw dataset.",
             read_only=False,
-            required=True,
+            required=False,
             scicat_name="principalInvestigator",
-            type=str,
+            type=Optional[str],
             used_by_derived=False,
             used_by_raw=True,
         ),
@@ -503,11 +503,11 @@ class DatasetBase:
         ),
         Field(
             name="used_software",
-            description="A list of links to software repositories which uniquely identifies the pieces of software, including versions, used for yielding the derived data.",
+            description="A list of links to software repositories which uniquely identifies the pieces of software, including versions, used for yielding the derived data. This field is required if the dataset is a Derived dataset.",
             read_only=False,
-            required=True,
+            required=False,
             scicat_name="usedSoftware",
-            type=List[str],
+            type=Optional[List[str]],
             used_by_derived=True,
             used_by_raw=False,
         ),
@@ -526,7 +526,6 @@ class DatasetBase:
     __slots__ = (
         "_access_groups",
         "_api_version",
-        "_attachments",
         "_classification",
         "_comment",
         "_contact_email",
@@ -549,6 +548,7 @@ class DatasetBase:
         "_keywords",
         "_license",
         "_lifecycle",
+        "_meta",
         "_name",
         "_orcid_of_owner",
         "_owner",
@@ -595,7 +595,7 @@ class DatasetBase:
         job_parameters: Optional[Dict[str, Any]] = None,
         keywords: Optional[List[str]] = None,
         license: Optional[str] = None,
-        lifecycle: Optional[Lifecycle] = None,
+        meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         orcid_of_owner: Optional[str] = None,
         owner: Optional[str] = None,
@@ -634,7 +634,7 @@ class DatasetBase:
         self._job_parameters = job_parameters
         self._keywords = keywords
         self._license = license
-        self._lifecycle = lifecycle
+        self._meta = meta
         self._name = name
         self._orcid_of_owner = orcid_of_owner
         self._owner = owner
@@ -650,17 +650,17 @@ class DatasetBase:
         self._techniques = techniques
         self._used_software = used_software
         self._validation_status = validation_status
-        self._attachments = None
         self._created_at = None
         self._created_by = None
         self._history = None
+        self._lifecycle = None
         self._pid = None
         self._updated_at = None
         self._updated_by = None
         self._default_checksum_algorithm = _validate_checksum_algorithm(
             checksum_algorithm
         )
-        self._orig_datablocks: List[OrigDatablockProxy] = []
+        self._orig_datablocks: List[OrigDatablock] = []
 
     @property
     def access_groups(self) -> Optional[List[str]]:
@@ -681,11 +681,6 @@ class DatasetBase:
     def api_version(self, api_version: Optional[str]) -> None:
         """Version of the API used in creation of the dataset."""
         self._api_version = api_version
-
-    @property
-    def attachments(self) -> Optional[Tuple[Attachment, ...]]:
-        """Small, less than 16 MB attachments, envisaged for png/jpeg previews."""
-        return self._attachments
 
     @property
     def classification(self) -> Optional[str]:
@@ -759,12 +754,12 @@ class DatasetBase:
 
     @property
     def data_quality_metrics(self) -> Optional[int]:
-        """Data Quality Metrics is a number given by the user to rate the dataset."""
+        """Data Quality Metrics given by the user to rate the dataset."""
         return self._data_quality_metrics
 
     @data_quality_metrics.setter
     def data_quality_metrics(self, data_quality_metrics: Optional[int]) -> None:
-        """Data Quality Metrics is a number given by the user to rate the dataset."""
+        """Data Quality Metrics given by the user to rate the dataset."""
         self._data_quality_metrics = data_quality_metrics
 
     @property
@@ -794,12 +789,12 @@ class DatasetBase:
 
     @property
     def input_datasets(self) -> Optional[List[PID]]:
-        """Array of input dataset identifiers used in producing the derived dataset. Ideally these are the global identifier to existing datasets inside this or federated data catalogs."""
+        """Array of input dataset identifiers used in producing the derived dataset. Ideally these are the global identifier to existing datasets inside this or federated data catalogs. This field is required if the dataset is a Derived dataset."""
         return self._input_datasets
 
     @input_datasets.setter
     def input_datasets(self, input_datasets: Optional[List[PID]]) -> None:
-        """Array of input dataset identifiers used in producing the derived dataset. Ideally these are the global identifier to existing datasets inside this or federated data catalogs."""
+        """Array of input dataset identifiers used in producing the derived dataset. Ideally these are the global identifier to existing datasets inside this or federated data catalogs. This field is required if the dataset is a Derived dataset."""
         self._input_datasets = input_datasets
 
     @property
@@ -887,10 +882,15 @@ class DatasetBase:
         """Describes the current status of the dataset during its lifetime with respect to the storage handling systems."""
         return self._lifecycle
 
-    @lifecycle.setter
-    def lifecycle(self, lifecycle: Optional[Lifecycle]) -> None:
-        """Describes the current status of the dataset during its lifetime with respect to the storage handling systems."""
-        self._lifecycle = lifecycle
+    @property
+    def meta(self) -> Optional[Dict[str, Any]]:
+        """JSON object containing the scientific metadata."""
+        return self._meta
+
+    @meta.setter
+    def meta(self, meta: Optional[Dict[str, Any]]) -> None:
+        """JSON object containing the scientific metadata."""
+        self._meta = meta
 
     @property
     def name(self) -> Optional[str]:
@@ -1049,12 +1049,12 @@ class DatasetBase:
 
     @property
     def used_software(self) -> Optional[List[str]]:
-        """A list of links to software repositories which uniquely identifies the pieces of software, including versions, used for yielding the derived data."""
+        """A list of links to software repositories which uniquely identifies the pieces of software, including versions, used for yielding the derived data. This field is required if the dataset is a Derived dataset."""
         return self._used_software
 
     @used_software.setter
     def used_software(self, used_software: Optional[List[str]]) -> None:
-        """A list of links to software repositories which uniquely identifies the pieces of software, including versions, used for yielding the derived data."""
+        """A list of links to software repositories which uniquely identifies the pieces of software, including versions, used for yielding the derived data. This field is required if the dataset is a Derived dataset."""
         self._used_software = used_software
 
     @property
@@ -1085,8 +1085,5 @@ class DatasetBase:
 
     @staticmethod
     def _convert_readonly_fields_in_place(read_only: Dict[str, Any]) -> Dict[str, Any]:
-        read_only["attachments"] = (lambda x: tuple(x) if x is not None else None)(
-            read_only["attachments"]
-        )
         read_only["pid"] = _parse_pid(read_only["pid"])
         return read_only

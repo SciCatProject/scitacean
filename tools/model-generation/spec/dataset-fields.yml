@@ -4,7 +4,6 @@ manual:
   - numberOfFilesArchived
   - origdatablocks
   - packedSize
-  - scientificMetadata
   - size
 
 defaults:

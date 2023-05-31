@@ -31,52 +31,52 @@ class DownloadDataset(
     BaseModel, masked=("attachments", "datablocks", "origdatablocks")
 ):
     contactEmail: str
-    creationLocation: str
     creationTime: datetime
-    inputDatasets: List[PID]
-    investigator: str
     numberOfFilesArchived: NonNegativeInt
     owner: str
     ownerGroup: str
-    principalInvestigator: str
     sourceFolder: RemotePath
     type: DatasetType
-    usedSoftware: List[str]
     accessGroups: Optional[List[str]]
     version: Optional[str]
     classification: Optional[str]
     comment: Optional[str]
     createdAt: Optional[datetime]
     createdBy: Optional[str]
+    creationLocation: Optional[str]
     dataFormat: Optional[str]
     dataQualityMetrics: Optional[int]
     description: Optional[str]
     endTime: Optional[datetime]
     history: Optional[DownloadHistory]
+    inputDatasets: Optional[List[PID]]
     instrumentGroup: Optional[str]
     instrumentId: Optional[str]
+    investigator: Optional[str]
     isPublished: Optional[bool]
     jobLogData: Optional[str]
     jobParameters: Optional[Dict[str, Any]]
     keywords: Optional[List[str]]
     license: Optional[str]
     datasetlifecycle: Optional[DownloadLifecycle]
+    scientificMetadata: Optional[Dict[str, Any]]
     datasetName: Optional[str]
     numberOfFiles: Optional[NonNegativeInt]
     orcidOfOwner: Optional[str]
     ownerEmail: Optional[str]
     packedSize: Optional[NonNegativeInt]
     pid: Optional[PID]
+    principalInvestigator: Optional[str]
     proposalId: Optional[str]
     relationships: Optional[List[DownloadRelationship]]
     sampleId: Optional[str]
-    scientificMetadata: Optional[Dict[str, Any]]
     sharedWith: Optional[List[str]]
     size: Optional[NonNegativeInt]
     sourceFolderHost: Optional[str]
     techniques: Optional[List[DownloadTechnique]]
     updatedAt: Optional[datetime]
     updatedBy: Optional[str]
+    usedSoftware: Optional[List[str]]
     validationStatus: Optional[str]
 
     @pydantic.validator("contactEmail", "ownerEmail")
@@ -91,37 +91,37 @@ class DownloadDataset(
 class UploadDerivedDataset(BaseModel):
     contactEmail: str
     creationTime: datetime
-    inputDatasets: List[PID]
-    investigator: str
     numberOfFilesArchived: NonNegativeInt
     owner: str
     ownerGroup: str
     sourceFolder: RemotePath
     type: DatasetType
-    usedSoftware: List[str]
     accessGroups: Optional[List[str]]
     version: Optional[str]
     classification: Optional[str]
     comment: Optional[str]
     dataQualityMetrics: Optional[int]
     description: Optional[str]
+    inputDatasets: Optional[List[PID]]
     instrumentGroup: Optional[str]
+    investigator: Optional[str]
     isPublished: Optional[bool]
     jobLogData: Optional[str]
     jobParameters: Optional[Dict[str, Any]]
     keywords: Optional[List[str]]
     license: Optional[str]
+    scientificMetadata: Optional[Dict[str, Any]]
     datasetName: Optional[str]
     numberOfFiles: Optional[NonNegativeInt]
     orcidOfOwner: Optional[str]
     ownerEmail: Optional[str]
     packedSize: Optional[NonNegativeInt]
     relationships: Optional[List[UploadRelationship]]
-    scientificMetadata: Optional[Dict[str, Any]]
     sharedWith: Optional[List[str]]
     size: Optional[NonNegativeInt]
     sourceFolderHost: Optional[str]
     techniques: Optional[List[UploadTechnique]]
+    usedSoftware: Optional[List[str]]
     validationStatus: Optional[str]
 
     @pydantic.validator("contactEmail", "ownerEmail")
@@ -135,18 +135,17 @@ class UploadDerivedDataset(BaseModel):
 
 class UploadRawDataset(BaseModel):
     contactEmail: str
-    creationLocation: str
     creationTime: datetime
     numberOfFilesArchived: NonNegativeInt
     owner: str
     ownerGroup: str
-    principalInvestigator: str
     sourceFolder: RemotePath
     type: DatasetType
     accessGroups: Optional[List[str]]
     version: Optional[str]
     classification: Optional[str]
     comment: Optional[str]
+    creationLocation: Optional[str]
     dataFormat: Optional[str]
     dataQualityMetrics: Optional[int]
     description: Optional[str]
@@ -156,15 +155,16 @@ class UploadRawDataset(BaseModel):
     isPublished: Optional[bool]
     keywords: Optional[List[str]]
     license: Optional[str]
+    scientificMetadata: Optional[Dict[str, Any]]
     datasetName: Optional[str]
     numberOfFiles: Optional[NonNegativeInt]
     orcidOfOwner: Optional[str]
     ownerEmail: Optional[str]
     packedSize: Optional[NonNegativeInt]
+    principalInvestigator: Optional[str]
     proposalId: Optional[str]
     relationships: Optional[List[UploadRelationship]]
     sampleId: Optional[str]
-    scientificMetadata: Optional[Dict[str, Any]]
     sharedWith: Optional[List[str]]
     size: Optional[NonNegativeInt]
     sourceFolderHost: Optional[str]

@@ -5,4 +5,5 @@
 Dataset:
   datasetName: name
   datasetlifecycle: lifecycle
+  scientificMetadata: meta
   version: api_version
