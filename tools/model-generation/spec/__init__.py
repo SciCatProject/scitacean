@@ -180,126 +180,110 @@ def _camel_case_to_snake_case(string: str) -> str:
     return re.sub(r"([A-Z])", repl, string)
 
 
-def _merge_upload_and_download_field(
-    spec_name: str, download_field: SpecField, upload_field: SchemaField
+def _get_common_field_attr(
+    name: str, allow_mismatch: bool = False, **fields: SchemaField
+) -> Any:
+    source_key = None
+    val = None
+    for key, field in fields.items():
+        if field is None:
+            continue
+        if val is None:
+            source_key = key
+            val = getattr(field, name)
+        else:
+            if not allow_mismatch and val != getattr(field, name):
+                sys.stderr.write(
+                    f"Mismatch in field {name}:\n"
+                    f" {source_key}:\n {val}\n {key}:\n {getattr(field, name)}\n"
+                )
+    return val
+
+
+def _merge_field(
+    name: str, download: Optional[SchemaField], upload: Optional[SchemaField]
 ) -> SpecField:
-    if upload_field.type != download_field.type:
-        sys.stderr.write(
-            f"Mismatch in field {upload_field.name} of schemas "
-            f"for upload and download of {spec_name}.\n"
-            f" Upload:\n {upload_field}\n Download:\n {download_field}\n"
-        )
-    # not all DTOs / classes contain descriptions
-    return dataclasses.replace(
-        download_field,
-        description=upload_field.description or download_field.description,
-        upload=True,
-        required=upload_field.required,
-    )
-
-
-def _merge_derived_and_raw_field(
-    derived_field: DatasetField, raw_field: SchemaField
-) -> DatasetField:
-    for field_name in ("type", "default"):
-        if getattr(raw_field, field_name) != getattr(derived_field, field_name):
-            sys.stderr.write(
-                f"Mismatch in field {derived_field.name} of raw and "
-                "derived dataset schemas.\n"
-                f" Derived:\n {derived_field}\n Raw:\n {raw_field}\n"
-            )
-    return dataclasses.replace(
-        derived_field,
-        used_by_raw=True,
-        upload=True,
-        required=derived_field.required or raw_field.required,
+    fields = {"download": download, "upload": upload}
+    return SpecField(
+        name=_camel_case_to_snake_case(_get_common_field_attr("name", **fields)),
+        scicat_name=name,
+        description=_get_common_field_attr(
+            "description", allow_mismatch=True, **fields
+        ),
+        type=_get_common_field_attr("type", **fields),
+        required=upload is not None and upload.required,
+        download=download is not None,
+        upload=upload is not None,
     )
 
 
 def _build_spec(name: str, schemas: _UpDownSchemas) -> Spec:
-    fields = {
-        n: SpecField(
-            name=_camel_case_to_snake_case(n),
-            scicat_name=n,
-            description=field.description,
-            type=field.type,
-            required=False,  # required is only for fields that users have to set.
-            download=True,
-        )
-        for n, field in schemas.download.fields.items()
-    }
-
+    field_names = set(schemas.download.fields.keys())
     if schemas.upload is not None:
-        for n, field in schemas.upload.fields.items():
-            if n in fields:
-                fields[n] = _merge_upload_and_download_field(name, fields[n], field)
-            else:
-                fields[n] = SpecField(
-                    name=_camel_case_to_snake_case(field.name),
-                    scicat_name=field.name,
-                    description=field.description,
-                    type=field.type,
-                    required=field.required,
-                    default=field.default,
-                    upload=True,
-                )
-
+        field_names |= set(schemas.upload.fields.keys())
+    fields = {
+        name: _merge_field(
+            name,
+            download=schemas.download.fields.get(name),
+            upload=schemas.upload.fields.get(name)
+            if schemas.upload is not None
+            else None,
+        )
+        for name in field_names
+    }
     return Spec(
         name=name,
         fields=fields,
     )
 
 
-def _build_dataset_spec(name: str, schemas: _DatasetSchemas) -> DatasetSpec:
+def _merge_dataset_field(
+    name: str,
+    download: Optional[SchemaField],
+    raw_upload: Optional[SchemaField],
+    derived_upload: Optional[SchemaField],
+) -> DatasetField:
     fields = {
-        n: DatasetField(
-            name=_camel_case_to_snake_case(n),
-            scicat_name=n,
-            description=field.description,
-            type=field.type,
-            required=False,  # required is only for fields that users have to set.
-            download=True,
-        )
-        for n, field in schemas.download.fields.items()
+        "download": download,
+        "raw_upload": raw_upload,
+        "derived_upload": derived_upload,
     }
+    required = (
+        raw_upload is not None
+        and derived_upload is not None
+        and raw_upload.required
+        and derived_upload.required
+    )
+    return DatasetField(
+        name=_camel_case_to_snake_case(_get_common_field_attr("name", **fields)),
+        scicat_name=name,
+        description=_get_common_field_attr(
+            "description", allow_mismatch=True, **fields
+        ),
+        type=_get_common_field_attr("type", **fields),
+        required=required,
+        download=download is not None,
+        upload=raw_upload is not None or derived_upload is not None,
+        used_by_derived=derived_upload is not None,
+        used_by_raw=raw_upload is not None,
+    )
 
-    for n, field in schemas.upload_derived.fields.items():
-        if n in fields:
-            f = _merge_upload_and_download_field(name, fields[n], field)
-            fields[n] = dataclasses.replace(
-                f,
-                used_by_derived=True,
-                required=field.required,
-                default=field.default,
-                upload=True,
-            )
-        else:
-            fields[n] = DatasetField(
-                name=_camel_case_to_snake_case(field.name),
-                scicat_name=field.name,
-                description=field.description,
-                type=field.type,
-                required=field.required,
-                default=field.default,
-                download=False,
-                used_by_derived=True,
-            )
 
-    for n, field in schemas.upload_raw.fields.items():
-        if n in fields:
-            fields[n] = _merge_derived_and_raw_field(fields[n], field)
-        else:
-            fields[n] = DatasetField(
-                name=_camel_case_to_snake_case(field.name),
-                scicat_name=field.name,
-                description=field.description,
-                type=field.type,
-                required=field.required,
-                default=field.default,
-                upload=True,
-                used_by_raw=True,
-            )
-
+def _build_dataset_spec(name: str, schemas: _DatasetSchemas) -> DatasetSpec:
+    field_names = (
+        schemas.download.fields.keys()
+        | schemas.upload_raw.fields.keys()
+        | schemas.upload_derived.fields.keys()
+    )
+    fields = {
+        name: _merge_dataset_field(
+            name,
+            download=schemas.download.fields.get(name),
+            raw_upload=schemas.upload_raw.fields.get(name),
+            derived_upload=schemas.upload_derived.fields.get(name),
+        )
+        for name in field_names
+    }
     return DatasetSpec(
         name=name,
         fields=fields,
