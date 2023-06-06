@@ -19,3 +19,6 @@ conversions:
   sourceFolder:
     func: _parse_remote_path
     arg_type: Union[RemotePath, str]
+
+extra_read_only:
+  - pid

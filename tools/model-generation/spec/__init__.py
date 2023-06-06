@@ -386,6 +386,8 @@ def _extend_dataset_fields(spec: DatasetSpec) -> DatasetSpec:
         field.default = customizations["defaults"].get(name)
         if (conv := customizations["conversions"].get(name)) is not None:
             field.conversion = DatasetFieldConversion(**conv)
+        if name in customizations["extra_read_only"]:
+            field.upload = False
     return spec
 
 
