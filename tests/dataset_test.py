@@ -132,9 +132,9 @@ def test_can_set_default_checksum_algorithm(typ, algorithm, fs):
 @given(sst.datasets())
 @settings(max_examples=100)
 def test_dataset_models_roundtrip(initial):
-    dataset_model = initial.make_model()
-    dblock_models = initial.make_datablock_models()
-    rebuilt = Dataset.from_models(
+    dataset_model = initial.make_upload_model()
+    dblock_models = initial.make_datablock_upload_models()
+    rebuilt = Dataset.from_download_models(
         dataset_model=dataset_model, orig_datablock_models=dblock_models.orig_datablocks
     )
     assert initial == rebuilt
@@ -149,7 +149,9 @@ def test_make_scicat_models_datablock_without_files(dataset):
 @given(sst.datasets())
 @settings(max_examples=10)
 def test_make_scicat_models_datablock_with_one_file(dataset):
-    file_model = model.DataFile(path="path", size=6163, chk="8450ac0", gid="group")
+    file_model = model.DownloadDataFile(
+        path="path", size=6163, chk="8450ac0", gid="group", time=datetime.now()
+    )
     dataset.add_files(File.from_scicat(local_path=None, model=file_model))
 
     blocks = dataset.make_datablock_models().orig_datablocks
@@ -167,7 +169,7 @@ def test_eq_self(dset):
     dset.add_files(
         File.from_scicat(
             local_path=None,
-            model=model.DataFile(path="path", size=94571),
+            model=model.DownloadDataFile(path="path", size=94571, time=datetime.now()),
         )
     )
     assert dset == dset
@@ -196,13 +198,15 @@ def test_neq_single_mismatched_file(initial):
     modified.add_files(
         File.from_scicat(
             local_path=None,
-            model=model.DataFile(path="path", size=51553312),
+            model=model.DownloadDataFile(
+                path="path", size=51553312, time=datetime.now()
+            ),
         )
     )
     initial.add_files(
         File.from_scicat(
             local_path=None,
-            model=model.DataFile(path="path", size=94571),
+            model=model.DownloadDataFile(path="path", size=94571, time=datetime.now()),
         )
     )
     assert modified != initial
@@ -215,7 +219,9 @@ def test_neq_extra_file(initial):
     modified.add_files(
         File.from_scicat(
             local_path="/local",
-            model=model.DataFile(path="path", size=51553312),
+            model=model.DownloadDataFile(
+                path="path", size=51553312, time=datetime.now()
+            ),
         )
     )
     assert modified != initial
@@ -223,7 +229,11 @@ def test_neq_extra_file(initial):
 
 @pytest.mark.parametrize(
     "field",
-    Dataset.fields(read_only=False),
+    (
+        field
+        for field in Dataset.fields(read_only=False)
+        if field.name != "job_parameters"
+    ),
     ids=lambda f: f.name,
 )
 @given(sst.datasets(), st.data())
@@ -236,10 +246,17 @@ def test_replace_replaces_single_writable_field(field, initial, data):
 
 @pytest.mark.parametrize(
     "field",
-    filter(
-        lambda f: f.name
-        not in ("number_of_files", "number_of_files_archived", "size", "packed_size"),
-        Dataset.fields(read_only=True),
+    (
+        field
+        for field in Dataset.fields(read_only=True)
+        if field.name
+        not in (
+            "lifecycle",
+            "number_of_files",
+            "number_of_files_archived",
+            "size",
+            "packed_size",
+        )
     ),
     ids=lambda f: f.name,
 )
@@ -271,7 +288,7 @@ def test_replace_other_fields_are_copied(initial):
         investigator="inv@esti.gator",
         techniques=[model.Technique(pid="tech/abcd.01", name="magick")],
         type="raw",
-        _read_only={"version": 666},
+        _read_only={"api_version": 666},
     )
     assert replaced.owner == initial.owner
     assert replaced.size == initial.size
@@ -300,7 +317,7 @@ def test_replace_does_not_change_files_no_input_files(initial):
 def test_replace_does_not_change_files_with_input_files(initial):
     file = File.from_scicat(
         local_path=None,
-        model=model.DataFile(path="path", size=6163),
+        model=model.DownloadDataFile(path="path", size=6163, time=datetime.now()),
     )
     initial.add_files(file)
     replaced = initial.replace(owner="a-new-owner")
@@ -317,7 +334,7 @@ def test_as_new(initial):
     assert new.created_by is None
     assert new.updated_at is None
     assert new.updated_by is None
-    assert new.history == []
+    assert new.history is None
     assert new.lifecycle is None
     assert abs(new.creation_time - datetime.now(tz=timezone.utc)) < timedelta(seconds=1)
 
@@ -335,7 +352,7 @@ def test_derive_default(initial):
     assert derived.type == "derived"
     assert derived.input_datasets == [initial.pid]
     assert derived.lifecycle is None
-    assert derived.history == []
+    assert derived.history is None
 
     assert derived.investigator == initial.investigator
     assert derived.owner == initial.owner
@@ -357,7 +374,7 @@ def test_derive_set_keep(initial):
     assert derived.type == "derived"
     assert derived.input_datasets == [initial.pid]
     assert derived.lifecycle is None
-    assert derived.history == []
+    assert derived.history is None
 
     assert derived.name == initial.name
     assert derived.used_software == initial.used_software
@@ -373,7 +390,7 @@ def test_derive_keep_nothing(initial):
     assert derived.type == "derived"
     assert derived.input_datasets == [initial.pid]
     assert derived.lifecycle is None
-    assert derived.history == []
+    assert derived.history is None
 
     assert derived.investigator is None
     assert derived.owner is None

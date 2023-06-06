@@ -113,6 +113,7 @@ class Dataset(DatasetBase):
             getattr(self, field.name) == getattr(other, field.name)
             for field in Dataset.fields()
         )
+        eq = eq and self._orig_datablocks == other._orig_datablocks
         return eq
 
     @property
@@ -262,7 +263,6 @@ class Dataset(DatasetBase):
         return self.replace(
             _read_only={field.name: None for field in Dataset.fields(read_only=True)},
             creation_time=datetime.now(tz=timezone.utc),
-            lifecycle=None,
         )
 
     def derive(

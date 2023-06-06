@@ -97,7 +97,6 @@ class UploadDerivedDataset(BaseModel):
     sourceFolder: RemotePath
     type: DatasetType
     accessGroups: Optional[List[str]]
-    version: Optional[str]
     classification: Optional[str]
     comment: Optional[str]
     dataQualityMetrics: Optional[int]
@@ -116,7 +115,6 @@ class UploadDerivedDataset(BaseModel):
     orcidOfOwner: Optional[str]
     ownerEmail: Optional[str]
     packedSize: Optional[NonNegativeInt]
-    pid: Optional[PID]
     relationships: Optional[List[UploadRelationship]]
     sharedWith: Optional[List[str]]
     size: Optional[NonNegativeInt]
@@ -143,7 +141,6 @@ class UploadRawDataset(BaseModel):
     sourceFolder: RemotePath
     type: DatasetType
     accessGroups: Optional[List[str]]
-    version: Optional[str]
     classification: Optional[str]
     comment: Optional[str]
     creationLocation: Optional[str]
@@ -162,7 +159,6 @@ class UploadRawDataset(BaseModel):
     orcidOfOwner: Optional[str]
     ownerEmail: Optional[str]
     packedSize: Optional[NonNegativeInt]
-    pid: Optional[PID]
     principalInvestigator: Optional[str]
     proposalId: Optional[str]
     relationships: Optional[List[UploadRelationship]]
@@ -213,13 +209,14 @@ class UploadAttachment(BaseModel):
 class DownloadOrigDatablock(BaseModel):
     chkAlg: str
     dataFileList: List[DownloadDataFile]
+    datasetId: PID
+    ownerGroup: str
     size: NonNegativeInt
+    _id: Optional[str]
     accessGroups: Optional[List[str]]
     createdAt: Optional[datetime]
     createdBy: Optional[str]
-    datasetId: Optional[PID]
     instrumentGroup: Optional[str]
-    ownerGroup: Optional[str]
     updatedAt: Optional[datetime]
     updatedBy: Optional[str]
 
@@ -227,7 +224,11 @@ class DownloadOrigDatablock(BaseModel):
 class UploadOrigDatablock(BaseModel):
     chkAlg: str
     dataFileList: List[UploadDataFile]
+    datasetId: PID
+    ownerGroup: str
     size: NonNegativeInt
+    accessGroups: Optional[List[str]]
+    instrumentGroup: Optional[str]
 
 
 class DownloadDatablock(BaseModel):
@@ -237,6 +238,7 @@ class DownloadDatablock(BaseModel):
     packedSize: NonNegativeInt
     size: NonNegativeInt
     version: str
+    _id: Optional[str]
     accessGroups: Optional[List[str]]
     createdAt: Optional[datetime]
     createdBy: Optional[str]
@@ -294,6 +296,7 @@ class UploadRelationship(BaseModel):
 
 
 class DownloadHistory(BaseModel):
+    _id: Optional[str]
     updatedAt: Optional[datetime]
     updatedBy: Optional[datetime]
 
@@ -504,8 +507,13 @@ class Relationship(BaseUserModel):
 
 @dataclass_optional_args(kw_only=True, slots=True)
 class History(BaseUserModel):
+    __id: Optional[str] = None
     _updated_at: Optional[datetime] = None
     _updated_by: Optional[datetime] = None
+
+    @property
+    def _id(self) -> Optional[str]:
+        return self.__id
 
     @property
     def updated_at(self) -> Optional[datetime]:

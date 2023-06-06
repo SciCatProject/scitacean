@@ -576,7 +576,6 @@ class DatasetBase:
         self,
         type: Union[DatasetType, Literal["raw", "derived"]],
         access_groups: Optional[List[str]] = None,
-        api_version: Optional[str] = None,
         classification: Optional[str] = None,
         comment: Optional[str] = None,
         contact_email: Optional[str] = None,
@@ -615,7 +614,6 @@ class DatasetBase:
     ) -> None:
         self._type = DatasetType(type)
         self._access_groups = access_groups
-        self._api_version = api_version
         self._classification = classification
         self._comment = comment
         self._contact_email = contact_email
@@ -650,6 +648,7 @@ class DatasetBase:
         self._techniques = techniques
         self._used_software = used_software
         self._validation_status = validation_status
+        self._api_version = None
         self._created_at = None
         self._created_by = None
         self._history = None
@@ -676,11 +675,6 @@ class DatasetBase:
     def api_version(self) -> Optional[str]:
         """Version of the API used in creation of the dataset."""
         return self._api_version
-
-    @api_version.setter
-    def api_version(self, api_version: Optional[str]) -> None:
-        """Version of the API used in creation of the dataset."""
-        self._api_version = api_version
 
     @property
     def classification(self) -> Optional[str]:

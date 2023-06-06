@@ -38,6 +38,7 @@ class OrigDatablock:
     _created_at: Optional[datetime] = None
     _created_by: Optional[str] = None
     _dataset_id: Optional[PID] = None
+    _id: Optional[str] = None
     _updated_at: Optional[datetime] = None
     _updated_by: Optional[str] = None
 
@@ -70,6 +71,7 @@ class OrigDatablock:
             _created_at=dblock.createdAt,
             _created_by=dblock.createdBy,
             _dataset_id=orig_datablock_model.datasetId,
+            _id=orig_datablock_model._id,
             _updated_at=dblock.updatedAt,
             _updated_by=dblock.updatedBy,
             init_files=[
@@ -112,6 +114,11 @@ class OrigDatablock:
     def dataset_id(self) -> PID:
         """PID of the dataset this datablock belongs to."""
         return self._dataset_id
+
+    @property
+    def datablock_id(self) -> Optional[str]:
+        """ID of this datablock."""
+        return self._id
 
     def add_files(self, *files: File) -> None:
         """Append files to the datablock.
