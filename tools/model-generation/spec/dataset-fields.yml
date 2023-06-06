@@ -21,4 +21,5 @@ conversions:
     arg_type: Union[RemotePath, str]
 
 extra_read_only:
+  - version
   - pid

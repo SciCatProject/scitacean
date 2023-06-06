@@ -94,7 +94,7 @@ class DatasetBase:
         Field(
             name="api_version",
             description="Version of the API used in creation of the dataset.",
-            read_only=False,
+            read_only=True,
             required=False,
             scicat_name="version",
             type=Optional[str],
