@@ -77,7 +77,7 @@ class {{ name }}(BaseModel{{ mask_keyword(spec, kind) }}):
 {% endfor -%}
 {% endfor -%}
 
-{% for spec in specs.values()|rejectattr("name", "eq", "OrigDatablock") -%}
+{% for spec in specs.values()|rejectattr("name", "in", ["DataFile", "Datablock", "OrigDatablock"]) -%}
 @dataclass_optional_args(kw_only=True, slots=True)
 class {{ spec.name }}(BaseUserModel):
 {%- set fields = spec.fields_for("user")|sort(attribute="upload", reverse=True) -%}

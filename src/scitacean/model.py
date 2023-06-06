@@ -116,6 +116,7 @@ class UploadDerivedDataset(BaseModel):
     orcidOfOwner: Optional[str]
     ownerEmail: Optional[str]
     packedSize: Optional[NonNegativeInt]
+    pid: Optional[PID]
     relationships: Optional[List[UploadRelationship]]
     sharedWith: Optional[List[str]]
     size: Optional[NonNegativeInt]
@@ -161,6 +162,7 @@ class UploadRawDataset(BaseModel):
     orcidOfOwner: Optional[str]
     ownerEmail: Optional[str]
     packedSize: Optional[NonNegativeInt]
+    pid: Optional[PID]
     principalInvestigator: Optional[str]
     proposalId: Optional[str]
     relationships: Optional[List[UploadRelationship]]
@@ -297,23 +299,23 @@ class DownloadHistory(BaseModel):
 
 
 class DownloadDataFile(BaseModel):
-    chk: str
-    gid: str
     path: str
-    perm: str
     size: NonNegativeInt
     time: datetime
-    uid: str
+    chk: Optional[str]
+    gid: Optional[str]
+    perm: Optional[str]
+    uid: Optional[str]
 
 
 class UploadDataFile(BaseModel):
-    chk: str
-    gid: str
     path: str
-    perm: str
     size: NonNegativeInt
     time: datetime
-    uid: str
+    chk: Optional[str]
+    gid: Optional[str]
+    perm: Optional[str]
+    uid: Optional[str]
 
 
 class DownloadInstrument(BaseModel):
@@ -389,65 +391,6 @@ class Attachment(BaseUserModel):
     def make_upload_model(self) -> UploadAttachment:
         """Construct a SciCat upload model from self."""
         return UploadAttachment(**self._upload_model_dict())
-
-
-@dataclass_optional_args(kw_only=True, slots=True)
-class Datablock(BaseUserModel):
-    archive_id: str
-    chk_alg: str
-    data_file_list: List[DataFile]
-    packed_size: NonNegativeInt
-    size: NonNegativeInt
-    version: str
-    _access_groups: Optional[List[str]] = None
-    _created_at: Optional[datetime] = None
-    _created_by: Optional[str] = None
-    _dataset_id: Optional[PID] = None
-    _instrument_group: Optional[str] = None
-    _owner_group: Optional[str] = None
-    _updated_at: Optional[datetime] = None
-    _updated_by: Optional[str] = None
-
-    @property
-    def access_groups(self) -> Optional[List[str]]:
-        return self._access_groups
-
-    @property
-    def created_at(self) -> Optional[datetime]:
-        return self._created_at
-
-    @property
-    def created_by(self) -> Optional[str]:
-        return self._created_by
-
-    @property
-    def dataset_id(self) -> Optional[PID]:
-        return self._dataset_id
-
-    @property
-    def instrument_group(self) -> Optional[str]:
-        return self._instrument_group
-
-    @property
-    def owner_group(self) -> Optional[str]:
-        return self._owner_group
-
-    @property
-    def updated_at(self) -> Optional[datetime]:
-        return self._updated_at
-
-    @property
-    def updated_by(self) -> Optional[str]:
-        return self._updated_by
-
-    @classmethod
-    def from_download_model(cls, download_model: DownloadDatablock) -> Datablock:
-        """Construct an instance from an associated SciCat download model."""
-        return cls(**cls._download_model_dict(download_model))
-
-    def make_upload_model(self) -> UploadDatablock:
-        """Construct a SciCat upload model from self."""
-        return UploadDatablock(**self._upload_model_dict())
 
 
 @dataclass_optional_args(kw_only=True, slots=True)
@@ -576,26 +519,6 @@ class History(BaseUserModel):
     def from_download_model(cls, download_model: DownloadHistory) -> History:
         """Construct an instance from an associated SciCat download model."""
         return cls(**cls._download_model_dict(download_model))
-
-
-@dataclass_optional_args(kw_only=True, slots=True)
-class DataFile(BaseUserModel):
-    chk: str
-    gid: str
-    path: str
-    perm: str
-    size: NonNegativeInt
-    time: datetime
-    uid: str
-
-    @classmethod
-    def from_download_model(cls, download_model: DownloadDataFile) -> DataFile:
-        """Construct an instance from an associated SciCat download model."""
-        return cls(**cls._download_model_dict(download_model))
-
-    def make_upload_model(self) -> UploadDataFile:
-        """Construct a SciCat upload model from self."""
-        return UploadDataFile(**self._upload_model_dict())
 
 
 @dataclass_optional_args(kw_only=True, slots=True)
