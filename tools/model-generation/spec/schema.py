@@ -59,7 +59,6 @@ def parse_schema_fields(spec: Dict[str, Any]) -> Dict[str, SchemaField]:
             default=field_spec.get("default", None),
         )
         for name, field_spec in spec["properties"].items()
-        if not name.startswith("_")
     }
 
 

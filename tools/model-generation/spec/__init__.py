@@ -140,13 +140,13 @@ class DatasetSpec(Spec):
 
 _SCHEMA_GROUPS = {
     "Attachment": ("CreateAttachmentDto", "Attachment"),
-    "OrigDatablock": ("CreateDatasetOrigDatablockDto", "OrigDatablock"),
+    "OrigDatablock": ("CreateOrigDatablockDto", "OrigDatablock"),
     "Datablock": ("CreateDatasetDatablockDto", "Datablock"),
     "Lifecycle": (None, "LifecycleClass"),
     "Technique": ("TechniqueClass", "TechniqueClass"),
     "Relationship": ("RelationshipClass", "RelationshipClass"),
     "History": (None, "HistoryClass"),
-    "DataFile": ("DataFile", "DataFile"),  # TODO everything marked as required
+    "DataFile": ("DataFile", "DataFile"),
     "Instrument": (None, "Instrument"),
     "Sample": ("CreateSampleDto", "SampleClass"),
 }
