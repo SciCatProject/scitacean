@@ -18,6 +18,7 @@ from .model import (
     DownloadDataset,
     DownloadOrigDatablock,
     UploadDerivedDataset,
+    UploadOrigDatablock,
     UploadRawDataset,
 )
 from .pid import PID
@@ -27,14 +28,14 @@ class Dataset(DatasetBase):
     @classmethod
     def from_download_models(
         cls,
-        download_model: DownloadDataset,
+        dataset_model: DownloadDataset,
         orig_datablock_models: List[DownloadOrigDatablock],
     ) -> Dataset:
         """Construct a new dataset from SciCat download models.
 
         Parameters
         ----------
-        download_model:
+        dataset_model:
             Model of the dataset.
         orig_datablock_models:
             List of all associated original datablock models for the dataset.
@@ -44,7 +45,7 @@ class Dataset(DatasetBase):
         :
             A new Dataset instance.
         """
-        init_args, read_only = DatasetBase._prepare_fields_from_download(download_model)
+        init_args, read_only = DatasetBase._prepare_fields_from_download(dataset_model)
         dset = cls(**init_args)
         for key, val in read_only:
             setattr(dset, key, val)
@@ -164,7 +165,7 @@ class Dataset(DatasetBase):
         self,
         *paths: Union[str, Path],
         base_path: Union[str, Path] = "",
-        datablock: Union[int, str, PID] = -1,  # TODO PID for datablock?
+        datablock: Union[int, str] = -1,
     ) -> None:
         """Add files on the local file system to the dataset.
 
@@ -242,7 +243,7 @@ class Dataset(DatasetBase):
             _orig_datablocks if _orig_datablocks is not None else self._orig_datablocks
         )
         for key, val in read_only.items():
-            setattr(dset, key, val)
+            setattr(dset, "_" + key, val)
         return dset
 
     def as_new(self) -> Dataset:
@@ -363,7 +364,7 @@ class Dataset(DatasetBase):
 
     def _lookup_orig_datablock(self, id_: str) -> OrigDatablock:
         try:
-            return next(db for db in self._orig_datablocks if db.id_ == id_)
+            return next(db for db in self._orig_datablocks if db.datablock_id == id_)
         except StopIteration:
             raise KeyError(f"No OrigDatablock with id {id_}") from None
 
@@ -379,20 +380,28 @@ class Dataset(DatasetBase):
 
     def make_upload_model(self) -> Union[UploadDerivedDataset, UploadRawDataset]:
         """Construct a SciCat upload model from self."""
-        # TODO datablocks
-        # TODO special fields?
         model = (
             UploadRawDataset if self.type == DatasetType.RAW else UploadDerivedDataset
         )
+        # Datablocks are not included here because they are handled separately
+        # by make_datablock_upload_models and their own endpoints.
+        special = ("relationships", "techniques")
         return model(
+            numberOfFiles=self.number_of_files,
+            numberOfFilesArchived=self.number_of_files_archived,
+            size=self.size,
+            packedSize=self.packed_size,
+            techniques=_list_field_for_upload(self.techniques),
+            relationships=_list_field_for_upload(self.relationships),
             **{
                 field.scicat_name: value
                 for field in self.fields()
-                if (value := getattr(self, field.name)) is not None
-            }
+                if field.name not in special
+                and (value := getattr(self, field.name)) is not None
+            },
         )
 
-    def make_datablock_upload_models(self) -> DatablockModels:
+    def make_datablock_upload_models(self) -> DatablockUploadModels:
         """Build models for all contained (orig) datablocks.
 
         Returns
@@ -401,8 +410,8 @@ class Dataset(DatasetBase):
             Structure with datablock and orig datablock models.
         """
         if self.number_of_files == 0:
-            return DatablockModels(orig_datablocks=None)
-        return DatablockModels(
+            return DatablockUploadModels(orig_datablocks=None)
+        return DatablockUploadModels(
             orig_datablocks=[
                 dblock.make_upload_model(self) for dblock in self._orig_datablocks
             ]
@@ -418,10 +427,16 @@ class Dataset(DatasetBase):
 
 
 @dataclasses.dataclass
-class DatablockModels:
+class DatablockUploadModels:
     """Pydantic models for (orig) datablocks."""
 
     # TODO
-    # datablocks: Optional[List[Datablock]]
-    orig_datablocks: Optional[List[OrigDatablock]]
+    # datablocks: Optional[List[UploadDatablock]]
+    orig_datablocks: Optional[List[UploadOrigDatablock]]
     """Orig datablocks"""
+
+
+def _list_field_for_upload(value: Optional[List[Any]]) -> Optional[List[Any]]:
+    if value is None:
+        return None
+    return [item.make_upload_model() for item in value]
