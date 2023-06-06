@@ -8,9 +8,9 @@ from scitacean import PID, DatasetType
 from scitacean.testing import strategies as sst
 
 
-@given(sst.datasets())
+@given(sst.datasets(for_upload=True))
 def test_datasets_makes_valid_dataset(dset):
-    _ = dset.make_model()
+    _ = dset.make_upload_model()
 
 
 @settings(max_examples=10)

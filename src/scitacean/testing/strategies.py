@@ -55,7 +55,6 @@ def _orcid_field_strategy(field: Dataset.Field) -> st.SearchStrategy[Optional[st
 def _scientific_metadata_strategy(
     field: Dataset.Field,
 ) -> st.SearchStrategy[Dict[str, Any]]:
-    assert field.type == Dict  # noqa: S101 (testing code -> assert is safe)
     return st.dictionaries(
         keys=st.text(),
         values=st.text() | st.dictionaries(keys=st.text(), values=st.text()),
@@ -108,10 +107,12 @@ def _make_dataset(*, type: DatasetType, args: dict, read_only: dict) -> Dataset:
 
 
 def datasets(
-    dataset_type: Optional[DatasetType] = None, **fixed: Any
+    dataset_type: Optional[DatasetType] = None, for_upload: bool = False, **fixed: Any
 ) -> st.SearchStrategy[Dataset]:
     if dataset_type is None:
-        return st.sampled_from(DatasetType).flatmap(partial(datasets, **fixed))
+        return st.sampled_from(DatasetType).flatmap(
+            partial(datasets, for_upload=for_upload, **fixed)
+        )
 
     def make_fixed_arg(key: str) -> st.SearchStrategy[Any]:
         val = fixed[key]
@@ -135,7 +136,10 @@ def datasets(
             "checksum_algorithm": st.sampled_from(("blake2b", "sha256")),
         }
     )
-    read_only = st.fixed_dictionaries(make_args(read_only=True))
+    if not for_upload:
+        read_only = st.fixed_dictionaries(make_args(read_only=True))
+    else:
+        read_only = st.just({})
     return st.builds(
         _make_dataset,
         type=st.just(dataset_type),
