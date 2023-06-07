@@ -10,6 +10,7 @@ from hypothesis import strategies as st
 
 from scitacean import PID, Dataset, DatasetType, File, model
 from scitacean.testing import strategies as sst
+from scitacean.testing.client import process_uploaded_dataset
 
 from .common.files import make_file
 
@@ -129,13 +130,21 @@ def test_can_set_default_checksum_algorithm(typ, algorithm, fs):
     assert f.checksum_algorithm == algorithm
 
 
-@given(sst.datasets())
+@given(sst.datasets(for_upload=True))
 @settings(max_examples=100)
 def test_dataset_models_roundtrip(initial):
     dataset_model = initial.make_upload_model()
-    dblock_models = initial.make_datablock_upload_models()
+    dblock_models = initial.make_datablock_upload_models().orig_datablocks
+    dataset_model, dblock_models = process_uploaded_dataset(
+        dataset_model, dblock_models
+    )
+    dataset_model.createdAt = None
+    dataset_model.createdBy = None
+    dataset_model.updatedAt = None
+    dataset_model.updatedBy = None
+    dataset_model.pid = None
     rebuilt = Dataset.from_download_models(
-        dataset_model=dataset_model, orig_datablock_models=dblock_models.orig_datablocks
+        dataset_model=dataset_model, orig_datablock_models=dblock_models
     )
     assert initial == rebuilt
 
@@ -143,10 +152,10 @@ def test_dataset_models_roundtrip(initial):
 @given(sst.datasets())
 @settings(max_examples=10)
 def test_make_scicat_models_datablock_without_files(dataset):
-    assert dataset.make_datablock_models().orig_datablocks is None
+    assert dataset.make_datablock_upload_models().orig_datablocks is None
 
 
-@given(sst.datasets())
+@given(sst.datasets(pid=st.builds(PID)))
 @settings(max_examples=10)
 def test_make_scicat_models_datablock_with_one_file(dataset):
     file_model = model.DownloadDataFile(
@@ -154,7 +163,7 @@ def test_make_scicat_models_datablock_with_one_file(dataset):
     )
     dataset.add_files(File.from_scicat(local_path=None, model=file_model))
 
-    blocks = dataset.make_datablock_models().orig_datablocks
+    blocks = dataset.make_datablock_upload_models().orig_datablocks
     assert len(blocks) == 1
 
     block = blocks[0]
@@ -175,11 +184,19 @@ def test_eq_self(dset):
     assert dset == dset
 
 
+# Fields whose types are not supported by hypothesis.
+# E.g. because they contain `Any`.
+_UNGENERATABLE_FIELDS = ("job_parameters", "meta")
+
+
 # Filtering out bools because hypothesis struggles to find enough examples
 # where the new value is not the same as the old value.
 @pytest.mark.parametrize(
     "field",
-    filter(lambda f: f.type != bool, Dataset.fields(read_only=False)),
+    filter(
+        lambda f: f.type != bool and f.name not in _UNGENERATABLE_FIELDS,
+        Dataset.fields(read_only=False),
+    ),
     ids=lambda f: f.name,
 )
 @given(sst.datasets(), st.data())
@@ -232,7 +249,7 @@ def test_neq_extra_file(initial):
     (
         field
         for field in Dataset.fields(read_only=False)
-        if field.name != "job_parameters"
+        if field.name not in _UNGENERATABLE_FIELDS
     ),
     ids=lambda f: f.name,
 )

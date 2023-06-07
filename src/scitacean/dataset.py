@@ -8,15 +8,29 @@ import dataclasses
 import itertools
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Generator, Iterable, List, Literal, Optional, Tuple, Union
+from typing import (
+    Any,
+    Dict,
+    Generator,
+    Iterable,
+    List,
+    Literal,
+    Optional,
+    Tuple,
+    Type,
+    Union,
+)
 
 from ._dataset_fields import DatasetBase
 from .datablock import OrigDatablock
 from .file import File
 from .model import (
+    BaseUserModel,
     DatasetType,
     DownloadDataset,
     DownloadOrigDatablock,
+    Relationship,
+    Technique,
     UploadDerivedDataset,
     UploadOrigDatablock,
     UploadRawDataset,
@@ -46,13 +60,15 @@ class Dataset(DatasetBase):
             A new Dataset instance.
         """
         init_args, read_only = DatasetBase._prepare_fields_from_download(dataset_model)
+        for mod, key in ((Technique, "techniques"), (Relationship, "relationships")):
+            init_args[key] = _list_field_from_download(mod, init_args[key])
         dset = cls(**init_args)
-        for key, val in read_only:
+        for key, val in read_only.items():
             setattr(dset, key, val)
-        dset._orig_datablocks.extend(
-            map(OrigDatablock.from_download_model, orig_datablock_models)
-        )
-        # TODO other special fields
+        if orig_datablock_models is not None:
+            dset._orig_datablocks.extend(
+                map(OrigDatablock.from_download_model, orig_datablock_models)
+            )
         return dset
 
     @classmethod
@@ -440,3 +456,11 @@ def _list_field_for_upload(value: Optional[List[Any]]) -> Optional[List[Any]]:
     if value is None:
         return None
     return [item.make_upload_model() for item in value]
+
+
+def _list_field_from_download(
+    mod: Type[BaseUserModel], value: Optional[List[Any]]
+) -> Optional[List[Any]]:
+    if value is None:
+        return None
+    return [mod.from_download_model(item) for item in value]

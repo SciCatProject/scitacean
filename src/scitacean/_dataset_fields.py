@@ -1071,7 +1071,7 @@ class DatasetBase:
             if field.read_only:
                 read_only["_" + field.name] = getattr(download_model, field.scicat_name)
             else:
-                init_args["_" + field.name] = getattr(download_model, field.scicat_name)
+                init_args[field.name] = getattr(download_model, field.scicat_name)
 
         DatasetBase._convert_readonly_fields_in_place(read_only)
 
@@ -1079,5 +1079,6 @@ class DatasetBase:
 
     @staticmethod
     def _convert_readonly_fields_in_place(read_only: Dict[str, Any]) -> Dict[str, Any]:
-        read_only["pid"] = _parse_pid(read_only["pid"])
+        if "_pid" in read_only:
+            read_only["_pid"] = _parse_pid(read_only["_pid"])
         return read_only
