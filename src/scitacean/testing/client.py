@@ -7,7 +7,7 @@ from __future__ import annotations
 import datetime
 import functools
 from copy import deepcopy
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 from .. import model
 from ..client import Client, ScicatClient
@@ -182,7 +182,7 @@ class FakeScicatClient(ScicatClient):
     @_conditionally_disabled
     def get_orig_datablocks(
         self, pid: PID, strict_validation: bool = False
-    ) -> List[model.OrigDatablock]:
+    ) -> List[model.OrigDatablock]:  # TODO here and rest of classes
         _ = strict_validation  # unused by fake
         try:
             return self.main.orig_datablocks[pid]
@@ -200,7 +200,9 @@ class FakeScicatClient(ScicatClient):
         return ingested
 
     @_conditionally_disabled
-    def create_orig_datablock(self, dblock: model.OrigDatablock) -> model.OrigDatablock:
+    def create_orig_datablock(
+        self, dblock: model.UploadOrigDatablock
+    ) -> model.DownloadOrigDatablock:
         dataset_id = dblock.datasetId
         if dataset_id not in self.main.datasets:
             raise ScicatCommError(f"No dataset with id {dataset_id}")
@@ -213,7 +215,30 @@ def _process_dataset(
 ) -> model.DownloadDataset:
     return model.DownloadDataset(
         pid=PID.generate(prefix="PID.SAMPLE.PREFIX"),
-        created_by="fake",
-        created_at=datetime.datetime.now(tz=datetime.timezone.utc),
+        createdBy="fake",
+        createdAt=datetime.datetime.now(tz=datetime.timezone.utc),
         **deepcopy(dset).dict(exclude_none=True),
     )
+
+
+def _process_orig_datablock(
+    dblock: model.UploadOrigDatablock,
+) -> model.DownloadOrigDatablock:
+    return model.DownloadOrigDatablock(
+        datasetId=dblock.datasetId,
+        createdBy="fake",
+        createdAt=datetime.datetime.now(tz=datetime.timezone.utc),
+        **deepcopy(dblock).dict(exclude_none=True),
+    )
+
+
+def process_uploaded_dataset(
+    dataset: Union[model.UploadDerivedDataset, model.UploadRawDataset],
+    orig_datablocks: Optional[List[model.UploadOrigDatablock]],
+) -> Tuple[model.DownloadDataset, Optional[List[model.DownloadOrigDatablock]]]:
+    dblocks = (
+        list(map(_process_orig_datablock, orig_datablocks))
+        if orig_datablocks is not None
+        else None
+    )
+    return _process_dataset(dataset), dblocks
