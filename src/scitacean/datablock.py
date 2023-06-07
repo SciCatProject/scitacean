@@ -71,7 +71,7 @@ class OrigDatablock:
             _created_at=dblock.createdAt,
             _created_by=dblock.createdBy,
             _dataset_id=orig_datablock_model.datasetId,
-            _id=orig_datablock_model._id,
+            _id=orig_datablock_model.id,
             _updated_at=dblock.updatedAt,
             _updated_by=dblock.updatedBy,
             init_files=[

@@ -212,7 +212,7 @@ class DownloadOrigDatablock(BaseModel):
     datasetId: PID
     ownerGroup: str
     size: NonNegativeInt
-    _id: Optional[str]
+    id: Optional[str] = pydantic.Field(alias="_id")
     accessGroups: Optional[List[str]]
     createdAt: Optional[datetime]
     createdBy: Optional[str]
@@ -238,7 +238,7 @@ class DownloadDatablock(BaseModel):
     packedSize: NonNegativeInt
     size: NonNegativeInt
     version: str
-    _id: Optional[str]
+    id: Optional[str] = pydantic.Field(alias="_id")
     accessGroups: Optional[List[str]]
     createdAt: Optional[datetime]
     createdBy: Optional[str]
@@ -296,7 +296,7 @@ class UploadRelationship(BaseModel):
 
 
 class DownloadHistory(BaseModel):
-    _id: Optional[str]
+    id: Optional[str] = pydantic.Field(alias="_id")
     updatedAt: Optional[datetime]
     updatedBy: Optional[datetime]
 

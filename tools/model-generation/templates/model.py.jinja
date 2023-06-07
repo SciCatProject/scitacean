@@ -69,7 +69,11 @@ class Upload{{ dset_type|capitalize }}Dataset(BaseModel{{ mask_keyword(dset_spec
 {%- if fields -%}
 class {{ name }}(BaseModel{{ mask_keyword(spec, kind) }}):
 {%- for field in fields %}
+{%- if field.scicat_name.startswith("_") %}
+    {{ field.scicat_name[1:] }}: {{ field.full_type_for(kind) }} = pydantic.Field(alias={{ field.scicat_name|quote }})
+{%- else %}
     {{ field.scicat_name }}: {{ field.full_type_for(kind) }}
+{%- endif %}
 {%- endfor %}
 {{- validations(fields) }}
 
