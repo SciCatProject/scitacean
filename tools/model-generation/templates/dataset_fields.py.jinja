@@ -42,13 +42,12 @@ from .model import (
 from .pid import PID
 
 
-def _parse_datetime(x: Optional[Union[datetime, str]]) -> datetime:
-    if isinstance(x, datetime):
+def _parse_datetime(x: Optional[Union[datetime, str]]) -> Optional[datetime]:
+    if isinstance(x, datetime) or x is None:
         return x
-    if isinstance(x, str):
-        if x != "now":
-            return dateutil.parser.parse(x)
-    return datetime.now(tz=timezone.utc)
+    if x == "now":
+        return datetime.now(tz=timezone.utc)
+    return dateutil.parser.parse(x)
 
 
 def _parse_pid(pid: Optional[Union[str, PID]]) -> Optional[PID]:
