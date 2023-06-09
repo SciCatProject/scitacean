@@ -207,13 +207,13 @@ class UploadAttachment(BaseModel):
 
 
 class DownloadOrigDatablock(BaseModel):
-    chkAlg: str
     dataFileList: List[DownloadDataFile]
     datasetId: PID
     ownerGroup: str
     size: NonNegativeInt
     id: Optional[str] = pydantic.Field(alias="_id")
     accessGroups: Optional[List[str]]
+    chkAlg: Optional[str]
     createdAt: Optional[datetime]
     createdBy: Optional[str]
     instrumentGroup: Optional[str]
@@ -222,12 +222,12 @@ class DownloadOrigDatablock(BaseModel):
 
 
 class UploadOrigDatablock(BaseModel):
-    chkAlg: str
     dataFileList: List[UploadDataFile]
     datasetId: PID
     ownerGroup: str
     size: NonNegativeInt
     accessGroups: Optional[List[str]]
+    chkAlg: Optional[str]
     instrumentGroup: Optional[str]
 
 
