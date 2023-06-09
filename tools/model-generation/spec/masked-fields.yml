@@ -2,6 +2,7 @@
 # Fields can either be a string in which case it is dropped both for
 # upload and download or a dict mapping onto either "upload" or "download" to select
 # what model to mask it in.
+# Field names must be SciCat names (camelCase).
 Dataset:
   - attachments
   - datablocks
