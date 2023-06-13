@@ -41,6 +41,7 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 ssh = ["fabric"]
+test = ["hypothesis", "pyyaml"]
 
 [tool.setuptools_scm]
 
