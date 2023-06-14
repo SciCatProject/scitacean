@@ -190,5 +190,5 @@ def _check_ready_for_upload(user_model: BaseUserModel) -> None:
 #   (Should be the same as pid where applicable.)
 # - _id is MongoDB's unique ID for the entry.
 #   (Should be the same as id/pid where applicable.)
-# - _v is some version added by Mongoose.
-_IGNORED_KWARGS = ("id", "_id", "_v")
+# - _v or __v is some version added by Mongoose.
+_IGNORED_KWARGS = ("id", "_id", "_v", "__v")
