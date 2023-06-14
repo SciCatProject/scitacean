@@ -4,7 +4,9 @@
 import hypothesis
 import pytest
 
-from .common.backend import scicat_access, scicat_backend  # noqa: F401
+from scitacean.testing.backend import add_pytest_option as add_backend_option
+from scitacean.testing.backend.fixtures import *  # noqa: F403
+
 from .common.ssh_server import (  # noqa: F401
     ssh_access,
     ssh_config_dir,
@@ -27,12 +29,7 @@ hypothesis.settings.register_profile(
 
 
 def pytest_addoption(parser: pytest.Parser):
-    parser.addoption(
-        "--backend-tests",
-        action="store_true",
-        default=False,
-        help="Select whether to run tests against a real SciCat backend",
-    )
+    add_backend_option(parser)
     parser.addoption(
         "--ssh-tests",
         action="store_true",
