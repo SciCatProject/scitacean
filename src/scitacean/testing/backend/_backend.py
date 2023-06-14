@@ -43,6 +43,7 @@ def _apply_config(template: dict) -> dict:
     env = scicat["environment"]
     env["PORT"] = config.SCICAT_PORT
     env["PID_PREFIX"] = config.PID_PREFIX
+    env["SITE"] = config.SITE
 
     return res
 

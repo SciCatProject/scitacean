@@ -58,6 +58,7 @@ USERS = {
 
 SCICAT_PORT = 3000
 PID_PREFIX = "PID.prefix.a0b1"
+SITE = "SCITACEAN"
 
 
 @dataclass
