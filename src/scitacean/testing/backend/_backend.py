@@ -16,22 +16,22 @@ from . import config
 _PathLike = Union[str, os.PathLike]
 
 
-def _read_json(filename: str) -> Any:
+def _read_yaml(filename: str) -> Any:
     if hasattr(importlib.resources, "files"):
         # Use new API added in Python 3.9
         return yaml.safe_load(
             importlib.resources.files("scitacean.testing.backend")
             .joinpath(filename)
-            .open()
+            .read_text()
         )
     # Old API, deprecated as of Python 3.11
     return yaml.safe_load(
-        importlib.resources.open_text("scitacean.testing.backend", filename)
+        importlib.resources.read_text("scitacean.testing.backend", filename)
     )
 
 
 def _docker_compose_template() -> dict:
-    return _read_json("docker-compose-template.yaml")
+    return _read_yaml("docker-compose-template.yaml")
 
 
 def _apply_config(template: dict) -> dict:
