@@ -32,6 +32,9 @@ def fake_client(scicat_access) -> FakeClient:
         url=scicat_access.url, **scicat_access.user.credentials
     )
     client.datasets.update({ds.pid: ds for ds in seed.INITIAL_DATASETS.values()})
+    client.orig_datablocks.update(
+        {dbs[0].datasetId: dbs for dbs in seed.INITIAL_ORIG_DATABLOCKS.values()}
+    )
     return client
 
 

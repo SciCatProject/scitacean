@@ -4,17 +4,21 @@
 import pickle
 from copy import deepcopy
 from pathlib import Path
-from typing import Dict, Optional, Union
+from typing import Dict, List, Optional, Union
 
 from dateutil.parser import parse as parse_datetime
 
 from ...client import Client
 from ...model import (
     DownloadDataset,
+    DownloadOrigDatablock,
+    UploadDataFile,
     UploadDerivedDataset,
+    UploadOrigDatablock,
     UploadRawDataset,
     UploadTechnique,
 )
+from ...pid import PID
 from .config import SITE, SciCatAccess, SciCatUser
 
 _DATASETS: Dict[str, Union[UploadRawDataset, UploadDerivedDataset]] = {
@@ -69,7 +73,60 @@ _DATASETS: Dict[str, Union[UploadRawDataset, UploadDerivedDataset]] = {
     ),
 }
 
+_ORIG_DATABLOCKS: Dict[str, List[UploadOrigDatablock]] = {
+    "raw": [
+        UploadOrigDatablock(
+            datasetId=PID(pid="PLACEHOLDER"),
+            ownerGroup="PLACEHOLDER",
+            size=619,
+            accessGroups=["uu", "faculty"],
+            chkAlg="md5",
+            dataFileList=[
+                UploadDataFile(
+                    path="file1.txt",
+                    size=300,
+                    time=parse_datetime("2005-11-04T13:22:09.000Z"),
+                    chk="97157d347fe9af920f5e61e96cf401cb",
+                    gid="1000",
+                    uid="1000",
+                    perm="777",
+                ),
+                UploadDataFile(
+                    path="sub/song.mp3",
+                    size=319,
+                    time=parse_datetime("2005-11-02T09:02:54.100Z"),
+                    chk=None,
+                    gid="1000",
+                    uid="1000",
+                    perm="777",
+                ),
+            ],
+        )
+    ],
+    "derived": [
+        UploadOrigDatablock(
+            datasetId=PID(pid="PLACEHOLDER"),
+            ownerGroup="PLACEHOLDER",
+            size=464,
+            accessGroups=["uu", "faculty"],
+            chkAlg="sha256",
+            dataFileList=[
+                UploadDataFile(
+                    path="table.csv",
+                    size=464,
+                    time=parse_datetime("2005-10-31T00:00:01.000Z"),
+                    chk="dddd8355da9105acabb9928196f022ca0581ffb73d8b89c891eb6f71477cb4cb",
+                    gid="2000",
+                    uid="0",
+                    perm="656",
+                ),
+            ],
+        )
+    ],
+}
+
 INITIAL_DATASETS: Dict[str, DownloadDataset] = {}
+INITIAL_ORIG_DATABLOCKS: Dict[str, List[DownloadOrigDatablock]] = {}
 
 
 def _apply_config_dataset(
@@ -82,11 +139,21 @@ def _apply_config_dataset(
     return dset
 
 
+def _apply_config_orig_datablock(
+    dblock: UploadOrigDatablock, dset: DownloadDataset, user: SciCatUser
+) -> UploadOrigDatablock:
+    dblock = deepcopy(dblock)
+    dblock.ownerGroup = user.group
+    dblock.datasetId = dset.pid
+    return dblock
+
+
 def seed_database(*, client: Optional[Client], scicat_access: SciCatAccess) -> None:
     """Seed the database for testing.
 
     Uses the provided client to upload the datasets.
-    Initializes ``INITIAL_DATASETS`` with finalized datasets returned by the client.
+    Initializes ``INITIAL_DATASETS`` and ``INITIAL_ORIG_DATABLOCKS``
+    with finalized datasets returned by the client.
     """
     upload_datasets = {
         key: _apply_config_dataset(dset, scicat_access.user)
@@ -96,18 +163,36 @@ def seed_database(*, client: Optional[Client], scicat_access: SciCatAccess) -> N
         key: client.scicat.create_dataset_model(dset)
         for key, dset in upload_datasets.items()
     }
-
     INITIAL_DATASETS.update(download_datasets)
-    # TODO datablocks
+
+    upload_orig_datablocks = {
+        key: [
+            _apply_config_orig_datablock(
+                dblock, download_datasets[key], scicat_access.user
+            )
+            for dblock in dblocks
+        ]
+        for key, dblocks in _ORIG_DATABLOCKS.items()
+    }
+    download_orig_datablocks = {
+        key: [client.scicat.create_orig_datablock(dblock) for dblock in dblocks]
+        for key, dblocks in upload_orig_datablocks.items()
+    }
+    INITIAL_ORIG_DATABLOCKS.update(download_orig_datablocks)
 
 
 def save_seed(target_dir: Path) -> None:
     """Save the processed seed to a file."""
     with open(target_dir / "seed", "wb") as f:
-        pickle.dump(INITIAL_DATASETS, f)
+        pickle.dump(
+            {"datasets": INITIAL_DATASETS, "orig_datablocks": INITIAL_ORIG_DATABLOCKS},
+            f,
+        )
 
 
 def seed_worker(target_dir: Path) -> None:
     """Load the processed seed from a file."""
     with open(target_dir / "seed", "rb") as f:
-        INITIAL_DATASETS.update(pickle.load(f))
+        loaded = pickle.load(f)
+        INITIAL_DATASETS.update(loaded["datasets"])
+        INITIAL_ORIG_DATABLOCKS.update(loaded["orig_datablocks"])
