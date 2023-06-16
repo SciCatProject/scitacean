@@ -5,7 +5,6 @@ import hypothesis
 import pytest
 
 from scitacean.testing.backend import add_pytest_option as add_backend_option
-from scitacean.testing.backend.fixtures import *  # noqa: F403
 
 from .common.ssh_server import (  # noqa: F401
     ssh_access,
@@ -15,6 +14,8 @@ from .common.ssh_server import (  # noqa: F401
     ssh_data_dir,
     ssh_fileserver,
 )
+
+pytest_plugins = "scitacean.testing.backend.fixtures"
 
 # The datasets strategy requires a large amount of memory and time.
 # This is not good but hard to avoid.
