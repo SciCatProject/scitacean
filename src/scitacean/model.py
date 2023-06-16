@@ -234,13 +234,13 @@ class UploadOrigDatablock(BaseModel):
 
 class DownloadDatablock(BaseModel):
     archiveId: str
-    chkAlg: str
     dataFileList: List[DownloadDataFile]
     packedSize: NonNegativeInt
     size: NonNegativeInt
     version: str
     id: Optional[str] = pydantic.Field(alias="_id")
     accessGroups: Optional[List[str]]
+    chkAlg: Optional[str]
     createdAt: Optional[datetime]
     createdBy: Optional[str]
     datasetId: Optional[PID]
@@ -252,11 +252,11 @@ class DownloadDatablock(BaseModel):
 
 class UploadDatablock(BaseModel):
     archiveId: str
-    chkAlg: str
     dataFileList: List[UploadDataFile]
     packedSize: NonNegativeInt
     size: NonNegativeInt
     version: str
+    chkAlg: Optional[str]
 
 
 class DownloadLifecycle(BaseModel):
