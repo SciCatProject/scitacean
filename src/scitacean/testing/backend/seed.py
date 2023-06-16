@@ -1,7 +1,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
 
+import pickle
 from copy import deepcopy
+from pathlib import Path
 from typing import Dict, Optional, Union
 
 from dateutil.parser import parse as parse_datetime
@@ -13,7 +15,6 @@ from ...model import (
     UploadRawDataset,
     UploadTechnique,
 )
-from ..client import FakeClient
 from .config import SITE, SciCatAccess, SciCatUser
 
 _DATASETS: Dict[str, Union[UploadRawDataset, UploadDerivedDataset]] = {
@@ -81,38 +82,32 @@ def _apply_config_dataset(
     return dset
 
 
-def _seed_with_real_client(
-    client: Client,
-    upload_datasets: Dict[str, Union[UploadRawDataset, UploadDerivedDataset]],
-) -> Dict[str, DownloadDataset]:
-    download_datasets = {
-        key: client.scicat.create_dataset_model(dset)
-        for key, dset in upload_datasets.items()
-    }
-    return download_datasets
+def seed_database(*, client: Optional[Client], scicat_access: SciCatAccess) -> None:
+    """Seed the database for testing.
 
-
-def _seed_with_fake_client(
-    fake_client: FakeClient,
-    upload_datasets: Dict[str, Union[UploadRawDataset, UploadDerivedDataset]],
-) -> Dict[str, DownloadDataset]:
-    download_datasets = {
-        key: fake_client.scicat.create_dataset_model(dset)
-        for key, dset in upload_datasets.items()
-    }
-    return download_datasets
-
-
-def seed_database(
-    *, client: Optional[Client], fake_client: FakeClient, scicat_access: SciCatAccess
-) -> None:
+    Uses the provided client to upload the datasets.
+    Initializes ``INITIAL_DATASETS`` with finalized datasets returned by the client.
+    """
     upload_datasets = {
         key: _apply_config_dataset(dset, scicat_access.user)
         for key, dset in _DATASETS.items()
     }
-    if client is not None:
-        download_datasets = _seed_with_real_client(client, upload_datasets)
-    else:
-        download_datasets = _seed_with_fake_client(fake_client, upload_datasets)
+    download_datasets = {
+        key: client.scicat.create_dataset_model(dset)
+        for key, dset in upload_datasets.items()
+    }
 
     INITIAL_DATASETS.update(download_datasets)
+    # TODO datablocks
+
+
+def save_seed(target_dir: Path) -> None:
+    """Save the processed seed to a file."""
+    with open(target_dir / "seed", "wb") as f:
+        pickle.dump(INITIAL_DATASETS, f)
+
+
+def seed_worker(target_dir: Path) -> None:
+    """Load the processed seed from a file."""
+    with open(target_dir / "seed", "rb") as f:
+        INITIAL_DATASETS.update(pickle.load(f))
