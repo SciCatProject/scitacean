@@ -4,7 +4,7 @@
 
 Primarily meant for testing.
 """
-
+import json
 import os
 import subprocess
 from contextlib import contextmanager
@@ -47,3 +47,16 @@ def docker_compose_run(config_file: _PathLike, service: str, *cmd: str):
     subprocess.check_call(
         ["docker", "compose", "--file", os.fspath(config_file), "run", service, *cmd]
     )
+
+
+def container_is_running(name: str) -> bool:
+    ps = subprocess.run(
+        ["docker", "ps", "--format=json"], stdout=subprocess.PIPE, check=True
+    )
+    lines = ps.stdout.decode(encoding="utf-8").split("\n")
+    containers = [json.loads(line) for line in lines if line]
+    for container in containers:
+        names = container["Names"]
+        if (isinstance(names, str) and names == name) or name in names:
+            return True
+    return False
