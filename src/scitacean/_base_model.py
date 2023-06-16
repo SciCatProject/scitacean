@@ -17,7 +17,7 @@ except ImportError:
     )
 
 import dataclasses
-from typing import Any, Dict, Optional, Tuple, Type, TypeVar
+from typing import Any, Dict, Iterable, Optional, Type, TypeVar
 
 import pydantic
 
@@ -53,23 +53,22 @@ class BaseModel(pydantic.BaseModel):
     # Those will be silently dropped by __init__.
     # Note also the comment for _IGNORED_KWARGS below.
     def __init_subclass__(
-        cls, /, masked: Optional[Tuple[str, ...]] = None, **kwargs: Any
+        cls, /, masked: Optional[Iterable[str]] = None, **kwargs: Any
     ) -> None:
         super().__init_subclass__(**kwargs)
-        if masked is not None:
-            cls._masked_fields = masked
+
+        masked = list(masked) if masked is not None else []
+        field_names = {field.alias for field in cls.__fields__.values()}
+        masked.extend(key for key in _IGNORED_KWARGS if key not in field_names)
+        cls._masked_fields = tuple(masked)
 
     def __init__(self, **kwargs: Any) -> None:
         self._delete_ignored_args(kwargs)
         super().__init__(**kwargs)
 
     def _delete_ignored_args(self, args: Dict[str, Any]) -> None:
-        for key in _IGNORED_KWARGS:
-            if key not in self.__fields__:
-                args.pop(key, None)
-        if hasattr(self, "_masked_fields"):
-            for key in self._masked_fields:
-                args.pop(key, None)
+        for key in self._masked_fields:
+            args.pop(key, None)
 
 
 class BaseUserModel:
