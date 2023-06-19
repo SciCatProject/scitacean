@@ -11,6 +11,7 @@ import pytest
 from ..._internal import docker
 from ..._internal.file_counter import FileCounter, NullCounter
 from ...client import Client
+from .._pytest_helpers import init_pytest_work_dir
 from ..client import FakeClient
 from . import seed
 from ._backend import configure, wait_until_backend_is_live
@@ -62,13 +63,15 @@ def require_scicat_backend(request, scicat_backend) -> None:
 
 @pytest.fixture(scope="session")
 def scicat_backend(
-    request: pytest.FixtureRequest, tmp_path_factory, scicat_access, worker_id
+    request: pytest.FixtureRequest, tmp_path_factory, scicat_access
 ) -> bool:
     """Spin up a SciCat and seed backend.
 
     Returns True if backend tests are enabled and False otherwise.
     """
-    target_dir, counter = _init_work_dir(request, tmp_path_factory)
+    target_dir, counter = init_pytest_work_dir(
+        request, tmp_path_factory, name="scitacean-scicat-backend"
+    )
 
     if not backend_enabled(request):
         with _prepare_without_backend(
@@ -120,30 +123,6 @@ def _prepare_with_backend(
         with counter.decrement() as count:
             if count == 0:
                 _backend_docker_down(target_dir)
-
-
-def _using_xdist(request: pytest.FixtureRequest) -> bool:
-    try:
-        return request.getfixturevalue("worker_id") != "master"
-    except pytest.FixtureLookupError:
-        return False
-
-
-def _init_work_dir(request: pytest.FixtureRequest, tmp_path_factory):
-    # get the temp directory for this invocation of pytest shared by all workers
-    if _using_xdist(request):
-        root_tmp_dir = tmp_path_factory.getbasetemp().parent
-    else:
-        root_tmp_dir = tmp_path_factory.getbasetemp()
-    docker_target_dir = root_tmp_dir / "scitacean-scicat-backend"
-    docker_target_dir.mkdir(exist_ok=True)
-
-    if _using_xdist(request):
-        counter = FileCounter(docker_target_dir / "counter")
-    else:
-        counter = NullCounter()
-
-    return docker_target_dir, counter
 
 
 def _seed_database(
