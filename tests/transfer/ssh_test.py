@@ -10,9 +10,8 @@ import paramiko
 import pytest
 
 from scitacean import Dataset, File, FileUploadError, RemotePath
+from scitacean.testing.ssh import IgnorePolicy, skip_if_not_ssh
 from scitacean.transfer.ssh import SSHFileTransfer
-
-from ..common.ssh_server import IgnorePolicy, skip_if_not_ssh
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -236,10 +235,10 @@ def ssh_corrupting_connect(ssh_access, ssh_connection_config):
         connection = fabric.Connection(
             host=host,
             port=port,
-            user=ssh_access.username,
+            user=ssh_access.user.username,
             config=ssh_connection_config,
             connect_kwargs={
-                "password": ssh_access.password,
+                "password": ssh_access.user.password,
                 "transport_factory": CorruptingTransfer,
                 **ssh_connection_config.connect_kwargs,
             },
@@ -298,10 +297,10 @@ def ssh_raising_connect(ssh_access, ssh_connection_config):
         connection = fabric.Connection(
             host=host,
             port=port,
-            user=ssh_access.username,
+            user=ssh_access.user.username,
             config=ssh_connection_config,
             connect_kwargs={
-                "password": ssh_access.password,
+                "password": ssh_access.user.password,
                 "transport_factory": RaisingTransfer,
                 **ssh_connection_config.connect_kwargs,
             },
