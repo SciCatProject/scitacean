@@ -31,7 +31,7 @@ def _read_yaml(filename: str) -> Any:
 
 
 def _docker_compose_template() -> dict:
-    return _read_yaml("docker-compose-template.yaml")
+    return _read_yaml("docker-compose-backend-template.yaml")
 
 
 def _apply_config(template: dict) -> dict:
