@@ -8,6 +8,7 @@ from typing import Dict, List, Optional, Union
 
 from dateutil.parser import parse as parse_datetime
 
+from ... import model
 from ...client import Client
 from ...model import (
     DownloadDataset,
@@ -71,6 +72,49 @@ _DATASETS: Dict[str, Union[UploadRawDataset, UploadDerivedDataset]] = {
             "pressure": {"value": "8.1", "unit": "Pa"},
         },
     ),
+    "public": UploadRawDataset(
+        ownerGroup="PLACEHOLDER",
+        accessGroups=["uu"],
+        classification="IN=medium,AV=low,CO=low",
+        contactEmail="mustrum.ridcully69@uu.am",
+        creationTime=parse_datetime("1998-11-05T23:00:42.000Z"),
+        datasetName="Shoe counter",
+        description="Got all these shoes!",
+        isPublished=True,
+        numberOfFiles=1,
+        numberOfFilesArchived=0,
+        owner="PLACEHOLDER",
+        ownerEmail="PLACE@HOLD.ER",
+        size=64,
+        sourceFolder="/hex/secret/stuff",
+        type="raw",
+        principalInvestigator="Mustrum Ridcully",
+        creationLocation=SITE,
+        techniques=[UploadTechnique(pid="S", name="shoes")],
+    ),
+    "partially-broken": model.construct(
+        UploadRawDataset,
+        _strict_validation=False,
+        ownerGroup="PLACEHOLDER",
+        accessGroups=["uu"],
+        classification="IN=medium,AV=low,CO=low",
+        contactEmail="owner@mail.com",
+        orcidOfOwner="00-11-22-33",
+        creationTime=parse_datetime("1998-11-05T23:00:42.000Z"),
+        datasetName="Dataset with broken fields",
+        description="Bad fields: contactEmail, orcidOfOwner, numberOfFiles, size",
+        isPublished=False,
+        numberOfFiles=-1,
+        numberOfFilesArchived=0,
+        owner="PLACEHOLDER",
+        ownerEmail="PLACE@HOLD.ER",
+        size=-10,
+        sourceFolder="/remote/source",
+        type="derived",
+        investigator="who?!",
+        inputDatasets=[],
+        usedSoftware=["scitacean"],
+    ),
 }
 
 _ORIG_DATABLOCKS: Dict[str, List[UploadOrigDatablock]] = {
@@ -123,6 +167,26 @@ _ORIG_DATABLOCKS: Dict[str, List[UploadOrigDatablock]] = {
             ],
         )
     ],
+    "public": [
+        UploadOrigDatablock(
+            datasetId=PID(pid="PLACEHOLDER"),
+            ownerGroup="PLACEHOLDER",
+            size=64,
+            accessGroups=["uu"],
+            chkAlg="md5",
+            dataFileList=[
+                UploadDataFile(
+                    path="shoes",
+                    size=64,
+                    time=parse_datetime("1998-11-05T22:56:13.000Z"),
+                    chk="95fe96bf90f6a53c1e20d6578e0d9e6e",
+                    gid="0",
+                    uid="0",
+                    perm="0",
+                ),
+            ],
+        )
+    ],
 }
 
 INITIAL_DATASETS: Dict[str, DownloadDataset] = {}
@@ -148,6 +212,15 @@ def _apply_config_orig_datablock(
     return dblock
 
 
+def _create_dataset_model(
+    client: Client, dset: Union[UploadRawDataset, UploadDerivedDataset]
+) -> DownloadDataset:
+    uploaded = client.scicat.create_dataset_model(dset)
+    # pid is a str if validation fails but we need a PID for fake clients.
+    uploaded.pid = PID.parse(uploaded.pid)
+    return uploaded
+
+
 def seed_database(*, client: Optional[Client], scicat_access: SciCatAccess) -> None:
     """Seed the database for testing.
 
@@ -160,7 +233,7 @@ def seed_database(*, client: Optional[Client], scicat_access: SciCatAccess) -> N
         for key, dset in _DATASETS.items()
     }
     download_datasets = {
-        key: client.scicat.create_dataset_model(dset)
+        key: _create_dataset_model(client, dset)
         for key, dset in upload_datasets.items()
     }
     INITIAL_DATASETS.update(download_datasets)

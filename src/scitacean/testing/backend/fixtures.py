@@ -55,6 +55,11 @@ def client(request, scicat_backend) -> Union[Client, FakeClient]:
     return request.getfixturevalue("real_client")
 
 
+@pytest.fixture()
+def require_scicat_backend(request, scicat_backend) -> None:
+    skip_if_not_backend(request)
+
+
 @pytest.fixture(scope="session")
 def scicat_backend(
     request: pytest.FixtureRequest, tmp_path_factory, scicat_access, worker_id
