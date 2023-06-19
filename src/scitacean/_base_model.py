@@ -80,14 +80,18 @@ class BaseUserModel:
     @classmethod
     def _download_model_dict(cls, download_model: Any) -> Dict[str, Any]:
         return {
-            field.name: getattr(download_model, _model_field_name_of(field.name))
+            field.name: getattr(
+                download_model, _model_field_name_of(cls.__name__, field.name)
+            )
             for field in dataclasses.fields(cls)
         }
 
     def _upload_model_dict(self) -> Dict[str, Any]:
         _check_ready_for_upload(self)
         return {
-            _model_field_name_of(field.name): getattr(self, field.name)
+            _model_field_name_of(self.__class__.__name__, field.name): getattr(
+                self, field.name
+            )
             for field in dataclasses.fields(self)
             if not field.name.startswith("_")
         }
@@ -157,12 +161,22 @@ def validate_orcids(value: Optional[str]) -> Optional[str]:
     )
 
 
-def _model_field_name_of(name: str) -> str:
+def _model_field_name_of(cls_name: str, name: str) -> str:
     """Convert a user model field name to a SciCat model field name.
 
     Converts snake_case to camelCase and strips leading underscores.
+    E.g.,
+    `proposal_id` -> `proposalId`,
+    `_created_at` -> `createdAt`,
+    `__History__id` -> `id`.
     """
-    first, *remainder = name.lstrip("_").split("_")
+    name = name.lstrip("_")
+    if name.startswith(cls_name):
+        # Field names with two leading underscores are prefixed with `_cls_name`
+        # by dataclasses, e.g. `__id` -> `_History__id`.
+        # Strip this prefix plus underscores.
+        name = name[len(cls_name) + 2 :]
+    first, *remainder = name.split("_")
     return first + "".join(word.capitalize() for word in remainder)
 
 
