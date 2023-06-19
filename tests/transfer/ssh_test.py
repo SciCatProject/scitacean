@@ -69,26 +69,26 @@ def test_upload_one_file_source_folder_in_dataset(
 def test_upload_one_file_source_folder_in_transfer(
     ssh_access, ssh_connect_with_username_password, tmp_path, ssh_data_dir
 ):
-    ds = Dataset(type="raw", pid="abcd-12")
+    ds = Dataset(type="raw", owner="librarian")
     with open(tmp_path / "file1.txt", "w") as f:
         f.write("File no. 2")
 
     ssh = SSHFileTransfer(
         host=ssh_access.host,
         port=ssh_access.port,
-        source_folder="/data/upload/{pid.pid}",
+        source_folder="/data/upload/{owner}",
     )
     with ssh.connect_for_upload(
         dataset=ds, connect=ssh_connect_with_username_password
     ) as con:
-        assert con.source_folder == RemotePath("/data/upload/abcd-12")
+        assert con.source_folder == RemotePath("/data/upload/librarian")
         con.upload_files(
             File.from_local(
                 path=tmp_path / "file1.txt", remote_path=RemotePath("upload_1.txt")
             )
         )
 
-    with open(ssh_data_dir / "upload" / "abcd-12" / "upload_1.txt", "r") as f:
+    with open(ssh_data_dir / "upload" / "librarian" / "upload_1.txt", "r") as f:
         assert f.read() == "File no. 2"
 
 
