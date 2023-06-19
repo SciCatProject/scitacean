@@ -120,7 +120,7 @@ class FakeClient(Client):
 
         self.disabled = {} if disable is None else dict(disable)
         self.datasets: Dict[PID, model.DownloadDataset] = {}
-        self.orig_datablocks: Dict[PID, List[model.OrigDatablock]] = {}
+        self.orig_datablocks: Dict[PID, List[model.DownloadOrigDatablock]] = {}
 
     @classmethod
     def from_token(
@@ -182,7 +182,7 @@ class FakeScicatClient(ScicatClient):
     @_conditionally_disabled
     def get_orig_datablocks(
         self, pid: PID, strict_validation: bool = False
-    ) -> List[model.OrigDatablock]:  # TODO here and rest of classes
+    ) -> List[model.DownloadOrigDatablock]:  # TODO here and rest of classes
         _ = strict_validation  # unused by fake
         try:
             return self.main.orig_datablocks[pid]
@@ -203,20 +203,29 @@ class FakeScicatClient(ScicatClient):
     def create_orig_datablock(
         self, dblock: model.UploadOrigDatablock
     ) -> model.DownloadOrigDatablock:
-        dataset_id = dblock.datasetId
+        ingested = _process_orig_datablock(dblock)
+        dataset_id = ingested.datasetId
         if dataset_id not in self.main.datasets:
             raise ScicatCommError(f"No dataset with id {dataset_id}")
-        self.main.orig_datablocks.setdefault(dataset_id, []).append(dblock)
-        return dblock
+        self.main.orig_datablocks.setdefault(dataset_id, []).append(ingested)
+        return ingested
 
 
 def _process_dataset(
     dset: Union[model.UploadDerivedDataset, model.UploadRawDataset]
 ) -> model.DownloadDataset:
-    return model.DownloadDataset(
+    created_at = datetime.datetime.now(tz=datetime.timezone.utc)
+    # TODO use user login if possible
+    # Using strict_validation=False because the input model should already be validated.
+    # If there are validation errors, it was probably intended by the user.
+    return model.construct(
+        model.DownloadDataset,
+        _strict_validation=False,
         pid=PID.generate(prefix="PID.SAMPLE.PREFIX"),
         createdBy="fake",
-        createdAt=datetime.datetime.now(tz=datetime.timezone.utc),
+        createdAt=created_at,
+        updatedBy="fake",
+        updatedAt=created_at,
         **deepcopy(dset).dict(exclude_none=True),
     )
 
@@ -224,12 +233,23 @@ def _process_dataset(
 def _process_orig_datablock(
     dblock: model.UploadOrigDatablock,
 ) -> model.DownloadOrigDatablock:
-    return model.DownloadOrigDatablock(
-        datasetId=dblock.datasetId,
+    created_at = datetime.datetime.now(tz=datetime.timezone.utc)
+    # TODO use user login if possible
+    # TODO more fields
+    # Using strict_validation=False because the input model should already be validated.
+    # If there are validation errors, it was probably intended by the user.
+    processed = model.construct(
+        model.DownloadOrigDatablock,
+        _strict_validation=False,
         createdBy="fake",
-        createdAt=datetime.datetime.now(tz=datetime.timezone.utc),
+        createdAt=created_at,
+        updatedBy="fake",
+        updatedAt=created_at,
         **deepcopy(dblock).dict(exclude_none=True),
     )
+    if dblock.datasetId is not None:
+        processed.datasetId = dblock.datasetId
+    return processed
 
 
 def process_uploaded_dataset(
