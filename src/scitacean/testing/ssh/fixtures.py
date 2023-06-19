@@ -1,9 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
 
-import shutil
-import tempfile
-import uuid
+import logging
 from pathlib import Path
 from typing import Optional
 
@@ -11,9 +9,16 @@ import fabric
 import fabric.config
 import pytest
 
-from ..._internal.docker import docker_compose, docker_compose_run
+from ..._internal import docker
+from .._pytest_helpers import init_work_dir, root_tmp_dir
 from ._pytest_helpers import skip_if_not_ssh, ssh_enabled
-from ._ssh import IgnorePolicy, configure, local_access, wait_until_server_is_live
+from ._ssh import (
+    IgnorePolicy,
+    SSHAccess,
+    configure,
+    local_access,
+    wait_until_ssh_server_is_live,
+)
 
 
 @pytest.fixture(scope="session")
@@ -23,32 +28,22 @@ def ssh_access(request):
 
 
 @pytest.fixture(scope="session")
-def ssh_config_dir(request) -> Optional[Path]:
+def ssh_config_dir(request, tmp_path_factory) -> Optional[Path]:
     if not ssh_enabled(request):
-        yield None
         return
-
-    # Ideally, we would use tempfile.TemporaryDirectory(ignore_cleanup_errors=True)
-    # See module docstring for why.
-    # But the cleanup option was only added in Python 3.10.
-    tmp = Path(tempfile.gettempdir())
-    tempdir = tmp / uuid.uuid4().hex
-    tempdir.mkdir(exist_ok=False)
-    yield Path(tempdir)
-    shutil.rmtree(tempdir, ignore_errors=True)
+    return root_tmp_dir(request, tmp_path_factory) / "scitacean-ssh"
 
 
 @pytest.fixture(scope="session")
 def ssh_data_dir(ssh_config_dir) -> Optional[Path]:
     if ssh_config_dir is None:
-        yield None
         return
-
-    yield ssh_config_dir / "data"
+    return ssh_config_dir / "data"
 
 
 @pytest.fixture(scope="session")
 def ssh_fileserver(
+    request,
     ssh_access,
     ssh_config_dir,
     ssh_connect_with_username_password,
@@ -62,14 +57,19 @@ def ssh_fileserver(
         yield False
         return
 
-    config_file = configure(ssh_config_dir)
-    with docker_compose(config_file):
-        wait_until_server_is_live(ssh_access, max_time=20, n_tries=20)
-        # Give the user write access.
-        docker_compose_run(
-            config_file, "scitacean-test-ssh-server", "chown", "1000:1000", "/data"
-        )
+    target_dir, counter = init_work_dir(request, ssh_config_dir, name=None)
+
+    try:
+        with counter.increment() as count:
+            if count == 1:
+                _ssh_docker_up(target_dir, ssh_access)
+            elif not _ssh_server_is_running():
+                raise RuntimeError("Expected SSH server to be running")
         yield True
+    finally:
+        with counter.decrement() as count:
+            if count == 0:
+                _ssh_docker_down(target_dir)
 
 
 @pytest.fixture(scope="session")
@@ -111,3 +111,33 @@ def ssh_connect_with_username_password(ssh_access, ssh_connection_config):
         return connection
 
     return connect
+
+
+def _ssh_docker_up(target_dir: Path, ssh_access: SSHAccess) -> None:
+    if _ssh_server_is_running():
+        raise RuntimeError("SSH docker container is already running")
+    docker_compose_file = target_dir / "docker-compose.yaml"
+    log = logging.getLogger("scitacean.testing")
+    log.info("Starting docker container with SSH server from %s", docker_compose_file)
+    configure(target_dir)
+    docker.docker_compose_up(docker_compose_file)
+    log.info("Waiting for SSH docker to become accessible")
+    wait_until_ssh_server_is_live(ssh_access=ssh_access, max_time=20, n_tries=20)
+    log.info("Successfully connected to SSH server")
+
+
+def _ssh_docker_down(target_dir: Path) -> None:
+    # Check if container is running because the fixture can call this function
+    # if there was an exception in _ssh_docker_up.
+    # In that case, there is nothing to tear down.
+    if _ssh_server_is_running():
+        docker_compose_file = target_dir / "docker-compose.yaml"
+        log = logging.getLogger("scitacean.testing")
+        log.info(
+            "Stopping docker container with SSH server from %s", docker_compose_file
+        )
+        docker.docker_compose_down(docker_compose_file)
+
+
+def _ssh_server_is_running() -> bool:
+    return docker.container_is_running("scitacean-test-ssh")

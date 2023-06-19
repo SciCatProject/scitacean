@@ -17,18 +17,22 @@ def using_xdist(request: pytest.FixtureRequest) -> bool:
         return False
 
 
+def root_tmp_dir(
+    request: pytest.FixtureRequest, tmp_path_factory: pytest.TempPathFactory
+) -> Path:
+    """Get the temp directory for this invocation of pytest shared by all workers."""
+    if using_xdist(request):
+        return tmp_path_factory.getbasetemp().parent
+    return tmp_path_factory.getbasetemp()
+
+
 def init_pytest_work_dir(
     request: pytest.FixtureRequest,
     tmp_path_factory: pytest.TempPathFactory,
     name: Optional[str],
 ) -> Tuple[Path, Union[FileCounter, NullCounter]]:
     """Create a working directory and initialize an atomic counter and lock for it."""
-    # get the temp directory for this invocation of pytest shared by all workers
-    if using_xdist(request):
-        root_tmp_dir = tmp_path_factory.getbasetemp().parent
-    else:
-        root_tmp_dir = tmp_path_factory.getbasetemp()
-    return init_work_dir(request, root_tmp_dir, name)
+    return init_work_dir(request, root_tmp_dir(request, tmp_path_factory), name)
 
 
 def init_work_dir(

@@ -2,7 +2,7 @@ version: "2.1"
 services:
   scitacean-test-ssh-server:
     image: linuxserver/openssh-server:latest
-    container_name: openssh-server
+    container_name: scitacean-test-ssh
     hostname: scitacean-test-ssh-server
     environment:
       - PUID=1000

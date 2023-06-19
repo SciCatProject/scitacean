@@ -88,7 +88,7 @@ def configure(target_dir: Union[os.PathLike, str]) -> Path:
     target_seed_dir.mkdir(parents=True)
     _copy_seed(target_seed_dir)
 
-    config_target = target_dir / "docker-compose-ssh-server.yaml"
+    config_target = target_dir / "docker-compose.yaml"
     config_target.write_text(yaml.dump(_docker_compose_file()))
 
     target_dir.joinpath(".env").write_text(
@@ -107,7 +107,7 @@ def can_connect(ssh_access: SSHAccess) -> bool:
     return True
 
 
-def wait_until_server_is_live(ssh_access: SSHAccess, max_time: float, n_tries: int):
+def wait_until_ssh_server_is_live(ssh_access: SSHAccess, max_time: float, n_tries: int):
     # The container takes a while to be fully live.
     for _ in range(n_tries):
         if can_connect(ssh_access):
