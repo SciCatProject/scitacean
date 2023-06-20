@@ -2,10 +2,12 @@
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
 
 """Generate Python classes for SciCat models."""
-
+import argparse
 import subprocess
+import tempfile
+from contextlib import contextmanager
 from pathlib import Path
-from typing import Dict
+from typing import Any, Dict, Generator
 
 from jinja2 import Environment, FileSystemLoader, Template
 from spec import DatasetSpec, Spec, load_specs
@@ -22,6 +24,18 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 MODEL_OUT_PATH = REPO_ROOT / "src" / "scitacean" / "model.py"
 # Output file for _dataset_fields.py
 DSET_FIELDS_OUT_PATH = REPO_ROOT / "src" / "scitacean" / "_dataset_fields.py"
+
+
+def _parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        prog="generate_models.py", description="Generate models for Scitacean"
+    )
+    parser.add_argument(
+        "--launch-scicat",
+        action="store_true",
+        help="Launch a temporary SciCat backend with docker",
+    )
+    return parser.parse_args()
 
 
 def quote(s: str) -> str:
@@ -64,8 +78,34 @@ def format_with_black(path: Path) -> None:
     )
 
 
+@contextmanager
+def _scicat_backend() -> Generator[None, None, None]:
+    from scitacean.testing import backend
+
+    with tempfile.TemporaryDirectory() as work_dir:
+        docker_file = Path(work_dir) / "docker-compose.yaml"
+        backend.configure(docker_file)
+        backend.start_backend(docker_file)
+        try:
+            backend.wait_until_backend_is_live(max_time=20, n_tries=20)
+            yield
+        finally:
+            backend.stop_backend(docker_file)
+
+
+def load(real_backend: bool) -> Dict[str, Any]:
+    if not real_backend:
+        return load_specs(SCHEMA_URL)
+
+    with _scicat_backend():
+        from scitacean.testing.backend import config
+
+        return load_specs(f"http://localhost:{config.SCICAT_PORT}/explorer-json")
+
+
 def main() -> None:
-    specs = load_specs(SCHEMA_URL)
+    args = _parse_args()
+    specs = load(args.launch_scicat)
     dset_spec = specs["Dataset"]
 
     with open(MODEL_OUT_PATH, "w") as f:
