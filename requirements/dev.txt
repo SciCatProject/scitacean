@@ -11,7 +11,7 @@
 -r static.txt
 -r test.txt
 -r wheels.txt
-anyio==3.6.2
+anyio==3.7.0
     # via jupyter-server
 argon2-cffi==21.3.0
     # via
@@ -37,9 +37,9 @@ ipython-genutils==0.2.0
     #   notebook
 isoduration==20.11.0
     # via jsonschema
-json5==0.9.11
+json5==0.9.14
     # via jupyterlab-server
-jsonpointer==2.3
+jsonpointer==2.4
     # via jsonschema
 jsonschema[format-nongpl]==4.17.3
     # via
@@ -48,7 +48,7 @@ jsonschema[format-nongpl]==4.17.3
     #   nbformat
 jupyter-events==0.6.3
     # via jupyter-server
-jupyter-server==2.5.0
+jupyter-server==2.6.0
     # via
     #   jupyterlab
     #   jupyterlab-server
@@ -58,11 +58,11 @@ jupyter-server-terminals==0.4.4
     # via jupyter-server
 jupyterlab==3.5.3
     # via -r requirements/dev.in
-jupyterlab-server==2.22.1
+jupyterlab-server==2.23.0
     # via jupyterlab
 mypy-extensions==1.0.0
     # via black
-nbclassic==0.5.6
+nbclassic==1.0.0
     # via
     #   jupyterlab
     #   notebook
@@ -70,13 +70,15 @@ notebook==6.5.4
     # via jupyterlab
 notebook-shim==0.2.3
     # via nbclassic
+overrides==7.3.1
+    # via jupyter-server
 pathspec==0.11.1
     # via black
-pip-compile-multi==2.6.2
+pip-compile-multi==2.6.3
     # via -r requirements/dev.in
 pip-tools==6.13.0
     # via pip-compile-multi
-prometheus-client==0.16.0
+prometheus-client==0.17.0
     # via
     #   jupyter-server
     #   nbclassic
@@ -104,28 +106,32 @@ terminado==0.17.1
     #   jupyter-server-terminals
     #   nbclassic
     #   notebook
+tomli==2.0.1
+    # via jupyterlab
 toposort==1.10
     # via pip-compile-multi
-types-docutils==0.19.1.8
+types-docutils==0.20.0.1
     # via -r requirements/dev.in
-types-paramiko==3.0.0.8
+types-paramiko==3.2.0.0
     # via -r requirements/dev.in
-types-python-dateutil==2.8.19.12
+types-python-dateutil==2.8.19.13
     # via -r requirements/dev.in
-types-pyyaml==6.0.12.9
+types-pyyaml==6.0.12.10
     # via -r requirements/dev.in
-types-requests==2.29.0.0
+types-requests==2.31.0.1
     # via -r requirements/dev.in
-types-urllib3==1.26.25.12
+types-urllib3==1.26.25.13
     # via types-requests
 uri-template==1.2.0
     # via jsonschema
 webcolors==1.13
     # via jsonschema
-websocket-client==1.5.1
+websocket-client==1.6.0
     # via jupyter-server
 wheel==0.40.0
-    # via pip-tools
+    # via
+    #   pip-tools
+    #   sphinx-copybutton
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
