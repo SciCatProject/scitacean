@@ -45,6 +45,7 @@ from ._ssh import (
     SSHUser,
     can_connect,
     configure,
+    local_access,
     wait_until_ssh_server_is_live,
 )
 
@@ -52,6 +53,7 @@ __all__ = [
     "add_pytest_option",
     "can_connect",
     "configure",
+    "local_access",
     "ssh_enabled",
     "skip_if_not_ssh",
     "wait_until_ssh_server_is_live",
