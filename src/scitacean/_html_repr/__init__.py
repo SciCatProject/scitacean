@@ -56,12 +56,13 @@ def _format_files(dset: Dataset) -> str:
 
 def _format_metadata(dset: Dataset) -> str:
     template = resources.metadata_template()
+    meta = dset.meta if dset.meta else {}
     return "\n".join(
         template.substitute(
             name=html.escape(str(name)),
             value=_format_metadata_value(value),
         )
-        for name, value in dset.meta.items()
+        for name, value in meta.items()
     )
 
 
