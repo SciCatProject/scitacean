@@ -31,29 +31,31 @@ from .pid import PID
 class DownloadDataset(
     BaseModel, masked=("attachments", "datablocks", "origdatablocks")
 ):
-    contactEmail: str
-    creationTime: datetime
-    numberOfFilesArchived: NonNegativeInt
-    owner: str
-    ownerGroup: str
-    sourceFolder: RemotePath
-    type: DatasetType
+    contactEmail: Optional[str]
+    creationLocation: Optional[str]
+    creationTime: Optional[datetime]
+    inputDatasets: Optional[List[PID]]
+    investigator: Optional[str]
+    numberOfFilesArchived: Optional[NonNegativeInt]
+    owner: Optional[str]
+    ownerGroup: Optional[str]
+    principalInvestigator: Optional[str]
+    sourceFolder: Optional[RemotePath]
+    type: Optional[DatasetType]
+    usedSoftware: Optional[List[str]]
     accessGroups: Optional[List[str]]
     version: Optional[str]
     classification: Optional[str]
     comment: Optional[str]
     createdAt: Optional[datetime]
     createdBy: Optional[str]
-    creationLocation: Optional[str]
     dataFormat: Optional[str]
     dataQualityMetrics: Optional[int]
     description: Optional[str]
     endTime: Optional[datetime]
     history: Optional[DownloadHistory]
-    inputDatasets: Optional[List[PID]]
     instrumentGroup: Optional[str]
     instrumentId: Optional[str]
-    investigator: Optional[str]
     isPublished: Optional[bool]
     jobLogData: Optional[str]
     jobParameters: Optional[Dict[str, Any]]
@@ -67,7 +69,6 @@ class DownloadDataset(
     ownerEmail: Optional[str]
     packedSize: Optional[NonNegativeInt]
     pid: Optional[PID]
-    principalInvestigator: Optional[str]
     proposalId: Optional[str]
     relationships: Optional[List[DownloadRelationship]]
     sampleId: Optional[str]
@@ -77,7 +78,6 @@ class DownloadDataset(
     techniques: Optional[List[DownloadTechnique]]
     updatedAt: Optional[datetime]
     updatedBy: Optional[str]
-    usedSoftware: Optional[List[str]]
     validationStatus: Optional[str]
 
     @pydantic.validator("contactEmail", "ownerEmail")
@@ -92,19 +92,20 @@ class DownloadDataset(
 class UploadDerivedDataset(BaseModel):
     contactEmail: str
     creationTime: datetime
+    inputDatasets: List[PID]
+    investigator: str
     numberOfFilesArchived: NonNegativeInt
     owner: str
     ownerGroup: str
     sourceFolder: RemotePath
     type: DatasetType
+    usedSoftware: List[str]
     accessGroups: Optional[List[str]]
     classification: Optional[str]
     comment: Optional[str]
     dataQualityMetrics: Optional[int]
     description: Optional[str]
-    inputDatasets: Optional[List[PID]]
     instrumentGroup: Optional[str]
-    investigator: Optional[str]
     isPublished: Optional[bool]
     jobLogData: Optional[str]
     jobParameters: Optional[Dict[str, Any]]
@@ -121,7 +122,6 @@ class UploadDerivedDataset(BaseModel):
     size: Optional[NonNegativeInt]
     sourceFolderHost: Optional[str]
     techniques: Optional[List[UploadTechnique]]
-    usedSoftware: Optional[List[str]]
     validationStatus: Optional[str]
 
     @pydantic.validator("contactEmail", "ownerEmail")
@@ -135,16 +135,17 @@ class UploadDerivedDataset(BaseModel):
 
 class UploadRawDataset(BaseModel):
     contactEmail: str
+    creationLocation: str
     creationTime: datetime
     numberOfFilesArchived: NonNegativeInt
     owner: str
     ownerGroup: str
+    principalInvestigator: str
     sourceFolder: RemotePath
     type: DatasetType
     accessGroups: Optional[List[str]]
     classification: Optional[str]
     comment: Optional[str]
-    creationLocation: Optional[str]
     dataFormat: Optional[str]
     dataQualityMetrics: Optional[int]
     description: Optional[str]
@@ -160,7 +161,6 @@ class UploadRawDataset(BaseModel):
     orcidOfOwner: Optional[str]
     ownerEmail: Optional[str]
     packedSize: Optional[NonNegativeInt]
-    principalInvestigator: Optional[str]
     proposalId: Optional[str]
     relationships: Optional[List[UploadRelationship]]
     sampleId: Optional[str]
@@ -180,8 +180,8 @@ class UploadRawDataset(BaseModel):
 
 
 class DownloadAttachment(BaseModel):
-    caption: str
-    ownerGroup: str
+    caption: Optional[str]
+    ownerGroup: Optional[str]
     accessGroups: Optional[List[str]]
     createdAt: Optional[datetime]
     createdBy: Optional[str]
@@ -208,10 +208,10 @@ class UploadAttachment(BaseModel):
 
 
 class DownloadOrigDatablock(BaseModel):
-    dataFileList: List[DownloadDataFile]
-    datasetId: PID
-    ownerGroup: str
-    size: NonNegativeInt
+    dataFileList: Optional[List[DownloadDataFile]]
+    datasetId: Optional[PID]
+    ownerGroup: Optional[str]
+    size: Optional[NonNegativeInt]
     id: Optional[str] = pydantic.Field(alias="_id")
     accessGroups: Optional[List[str]]
     chkAlg: Optional[str]
@@ -233,11 +233,11 @@ class UploadOrigDatablock(BaseModel):
 
 
 class DownloadDatablock(BaseModel):
-    archiveId: str
-    dataFileList: List[DownloadDataFile]
-    packedSize: NonNegativeInt
-    size: NonNegativeInt
-    version: str
+    archiveId: Optional[str]
+    dataFileList: Optional[List[DownloadDataFile]]
+    packedSize: Optional[NonNegativeInt]
+    size: Optional[NonNegativeInt]
+    version: Optional[str]
     id: Optional[str] = pydantic.Field(alias="_id")
     accessGroups: Optional[List[str]]
     chkAlg: Optional[str]
@@ -277,8 +277,8 @@ class DownloadLifecycle(BaseModel):
 
 
 class DownloadTechnique(BaseModel):
-    name: str
-    pid: str
+    name: Optional[str]
+    pid: Optional[str]
 
 
 class UploadTechnique(BaseModel):
@@ -287,8 +287,8 @@ class UploadTechnique(BaseModel):
 
 
 class DownloadRelationship(BaseModel):
-    pid: PID
-    relationship: str
+    pid: Optional[PID]
+    relationship: Optional[str]
 
 
 class UploadRelationship(BaseModel):
@@ -303,9 +303,9 @@ class DownloadHistory(BaseModel):
 
 
 class DownloadDataFile(BaseModel):
-    path: str
-    size: NonNegativeInt
-    time: datetime
+    path: Optional[str]
+    size: Optional[NonNegativeInt]
+    time: Optional[datetime]
     chk: Optional[str]
     gid: Optional[str]
     perm: Optional[str]
@@ -330,7 +330,7 @@ class DownloadInstrument(BaseModel):
 
 
 class DownloadSample(BaseModel):
-    ownerGroup: str
+    ownerGroup: Optional[str]
     accessGroups: Optional[List[str]]
     createdAt: Optional[datetime]
     createdBy: Optional[str]

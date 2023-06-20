@@ -471,6 +471,7 @@ def test_orcid_validation_valid(good_orcid):
     dset = Dataset(
         type="raw",
         contact_email="jan-lukas.wynen@ess.eu",
+        creation_location="scitacean/tests",
         creation_time="2142-04-02T16:44:56",
         owner="Jan-Lukas Wynen",
         owner_group="ess",

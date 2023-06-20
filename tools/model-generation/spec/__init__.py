@@ -41,7 +41,9 @@ class SpecField:
 
     def full_type_for(self, kind: Literal["download", "upload", "user"]) -> str:
         return (
-            self.type_for(kind) if self.required else f"Optional[{self.type_for(kind)}]"
+            self.type_for(kind)
+            if self.required and kind != "download"
+            else f"Optional[{self.type_for(kind)}]"
         )
 
     def type_for(self, kind: Literal["download", "upload", "user"]) -> str:
@@ -248,11 +250,8 @@ def _merge_dataset_field(
         "raw_upload": raw_upload,
         "derived_upload": derived_upload,
     }
-    required = (
-        raw_upload is not None
-        and derived_upload is not None
-        and raw_upload.required
-        and derived_upload.required
+    required = (raw_upload is not None and raw_upload.required) or (
+        derived_upload is not None and derived_upload.required
     )
     return DatasetField(
         name=_camel_case_to_snake_case(_get_common_field_attr("name", **fields)),
