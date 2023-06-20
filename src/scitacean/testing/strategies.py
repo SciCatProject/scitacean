@@ -4,7 +4,7 @@ import string
 from functools import partial
 from typing import Any, Dict, Optional
 
-from email_validator import EmailNotValidError, validate_email
+from email_validator import EmailNotValidError, ValidatedEmail, validate_email
 from hypothesis import strategies as st
 
 from scitacean import Dataset, DatasetType, RemotePath, model
@@ -13,18 +13,35 @@ from scitacean._internal.orcid import orcid_checksum
 
 # email_validator and by extension pydantic is more picky than hypothesis
 # so make sure that generated emails actually pass model validation.
-def _is_valid_email(email: str) -> bool:
+def _validate_email(email: str) -> Optional[ValidatedEmail]:
     try:
-        validate_email(email, check_deliverability=False)
-        return True
+        return validate_email(email, check_deliverability=False)
     except EmailNotValidError:
-        return False
+        return None
+
+
+def _is_valid_email(validated_email: Optional[ValidatedEmail]) -> bool:
+    return validated_email is not None
+
+
+def emails() -> st.SearchStrategy[str]:
+    # pydantic.EmailStr converts the input:
+    #  - Converts to lower case.
+    #  - Uses the normalized email, i.e., with utf-8 characters,
+    #    not ASCII (see Punycode) for internationalized names.
+    # So we do the same here to make round trips work.
+    return (
+        st.emails()
+        .map(lambda s: s.lower())
+        .map(_validate_email)
+        .filter(_is_valid_email)
+        .map(lambda m: m.normalized)
+    )
 
 
 def multi_emails() -> st.SearchStrategy[str]:
-    # Convert to lowercase because that is what pydantic does.
     return st.lists(
-        st.emails().filter(_is_valid_email).map(lambda s: s.lower()),
+        emails(),
         min_size=1,
         max_size=2,
     ).map(lambda email: ";".join(email))
