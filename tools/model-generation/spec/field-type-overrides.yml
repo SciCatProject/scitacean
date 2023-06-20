@@ -10,9 +10,7 @@ Dataset:
   type: DatasetType
 Datablock:
   datasetId: PID
-  dataFileList: List[DataFile]
 OrigDatablock:
   datasetId: PID
-  dataFileList: List[DataFile]
 Relationship:
   pid: PID
