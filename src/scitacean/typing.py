@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
 
+"""Definitions for type checking."""
+
 from pathlib import Path
 from typing import ContextManager, List, Protocol
 

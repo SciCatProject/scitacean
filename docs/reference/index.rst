@@ -38,28 +38,14 @@ Auxiliary classes
    :template: scitacean-class-template.rst
    :recursive:
 
-   datablock.OrigDatablockProxy
-   dataset.DatablockModels
+   datablock.OrigDatablock
+   dataset.DatablockUploadModels
    PID
    RemotePath
    model.DatasetType
 
-Dataclasses
-~~~~~~~~~~~
-
-.. currentmodule:: scitacean._dataset_fields
-
-.. autosummary::
-   :toctree: ../generated/classes
-   :template: scitacean-dataclass-template.rst
-   :recursive:
-
-   DatasetFields
-
 Exceptions
 ~~~~~~~~~~
-
-.. currentmodule:: scitacean
 
 .. autosummary::
    :toctree: ../generated/classes
@@ -71,59 +57,20 @@ Exceptions
    ScicatCommError
    ScicatLoginError
 
-Models
-~~~~~~
-
-.. currentmodule:: scitacean
-
-Pydantic models for communication with a SciCat server.
+Submodules
+~~~~~~~~~~
 
 .. autosummary::
-   :toctree: ../generated/classes
-
-   model.Datablock
-   model.DataFile
-   model.DatasetLifecycle
-   model.DerivedDataset
-   model.MongoQueryable
-   model.OrigDatablock
-   model.Ownable
-   model.RawDataset
-   model.Technique
-
-Typing
-~~~~~~
-
-.. currentmodule:: scitacean
-
-.. autosummary::
-   :toctree: ../generated/classes
-   :template: scitacean-class-template.rst
+   :toctree: ../generated/modules
+   :template: scitacean-module-template.rst
    :recursive:
 
-   typing.Downloader
-   typing.DownloadConnection
-   typing.FileTransfer
-   typing.UploadConnection
-   typing.Uploader
-
-Testing
-~~~~~~~
-
-.. currentmodule:: scitacean
-
-.. autosummary::
-   :toctree: ../generated/classes
-   :template: scitacean-class-template.rst
-   :recursive:
-
-   testing.client.FakeClient
-   testing.transfer.FakeFileTransfer
+   model
+   testing
+   typing
 
 Miscellaneous
 ~~~~~~~~~~~~~
-
-.. currentmodule:: scitacean
 
 .. autosummary::
    :toctree: ../generated/functions

@@ -268,9 +268,6 @@ class SSHFileTransfer:
 
         file_transfer = SSHFileTransfer(host="fileserver",
                                         source_folder="transfer/{name}")
-
-    A useful approach is to include the PID in the source folder, for example
-    ``/some/base/folder/{pid.pid}``, to avoid clashes between different datasets.
     """
 
     def __init__(
