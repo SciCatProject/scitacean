@@ -101,6 +101,7 @@ def construct(
     model: Type[ModelType],
     *,
     _strict_validation: bool = True,
+    _quiet: bool = False,
     **fields: Any,
 ) -> ModelType:
     """Instantiate a SciCat model.
@@ -119,6 +120,8 @@ def construct(
     _strict_validation:
         If ``True``, the model must pass validation.
         If ``False``, a model is still returned if validation fails.
+    _quiet:
+        If ``False``, logs a warning on validation failure.
     fields:
         Field values to pass to the model initializer.
 
@@ -132,12 +135,13 @@ def construct(
     except pydantic.ValidationError as e:
         if _strict_validation:
             raise
-        get_logger().warning(
-            "Validation of metadata failed: %s\n"
-            "The returned object may be incomplete or broken. "
-            "In particular, some fields may not have the correct type",
-            str(e),
-        )
+        if not _quiet:
+            get_logger().warning(
+                "Validation of metadata failed: %s\n"
+                "The returned object may be incomplete or broken. "
+                "In particular, some fields may not have the correct type",
+                str(e),
+            )
         return model.construct(**fields)
 
 

@@ -95,6 +95,7 @@ _DATASETS: Dict[str, Union[UploadRawDataset, UploadDerivedDataset]] = {
     "partially-broken": model.construct(
         UploadRawDataset,
         _strict_validation=False,
+        _quiet=True,
         ownerGroup="PLACEHOLDER",
         accessGroups=["uu"],
         classification="IN=medium,AV=low,CO=low",
