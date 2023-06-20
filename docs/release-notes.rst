@@ -32,6 +32,21 @@ Release notes
    Stability, Maintainability, and Testing
    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+v23.05.0 (2023-05-15)
+---------------------
+
+Features
+~~~~~~~~
+
+* Early support for the new SciCat backend version 4.
+  It is possible to upload and download datasets as before.
+  But the new fields added in v4 are not supported yet.
+
+Bugfixes
+~~~~~~~~
+
+* Fixed a bug in ``Client.download_files`` where if a file already existed on local, its local path was not set. This was introduced in v23.04.0.
+
 v23.04.0 (2023-04-05)
 ---------------------
 

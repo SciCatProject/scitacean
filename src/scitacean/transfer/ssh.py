@@ -268,6 +268,10 @@ class SSHFileTransfer:
 
         file_transfer = SSHFileTransfer(host="fileserver",
                                         source_folder="transfer/{name}")
+
+    A useful approach is to include a unique ID in the source folder, for example
+    ``"/some/base/folder/{uid}"``, to avoid clashes between different datasets.
+    Scitacean will fill in the ``"{uid}"`` placeholder with a new UUID4.
     """
 
     def __init__(

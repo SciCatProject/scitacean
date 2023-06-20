@@ -3,6 +3,7 @@
 """Common utilities for file transfers."""
 
 from typing import Optional, Union
+from uuid import uuid4
 
 from ..dataset import Dataset
 from ..filesystem import RemotePath
@@ -38,4 +39,6 @@ def source_folder_for(
 
     if isinstance(pattern, RemotePath):
         pattern = pattern.posix
-    return RemotePath(DatasetPathFormatter().format(pattern, dataset))
+    return RemotePath(
+        DatasetPathFormatter().format(pattern, dset=dataset, uid=str(uuid4()))
+    )
