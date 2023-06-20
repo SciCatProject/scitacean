@@ -210,37 +210,38 @@ class Client:
             and some files or a partial dataset are left on the servers.
             Note the error message if that happens.
         """
-        if dataset.pid is None:
-            dataset = dataset.replace(pid=PID.generate())
         dataset = dataset.replace(
             source_folder=self._expect_file_transfer().source_folder_for(dataset)
         )
         dataset.validate()
+        # TODO skip if there are no files
         with self._connect_for_file_upload(dataset) as con:
             # TODO check if any remote file is out of date.
             #  if so, raise an error. We never overwrite remote files!
             uploaded_files = con.upload_files(*dataset.files)
             dataset = dataset.replace_files(*uploaded_files)
             try:
-                finalized_model = self.scicat.create_dataset_model(dataset.make_model())
+                finalized_model = self.scicat.create_dataset_model(
+                    dataset.make_upload_model()
+                )
             except ScicatCommError:
                 con.revert_upload(*uploaded_files)
                 raise
 
-        with_new_pid = dataset.replace(pid=finalized_model.pid)
-        datablock_models = with_new_pid.make_datablock_models()
+        with_new_pid = dataset.replace(_read_only={"pid": finalized_model.pid})
+        datablock_models = with_new_pid.make_datablock_upload_models()
         finalized_orig_datablocks = self._upload_orig_datablocks(
             datablock_models.orig_datablocks
         )
 
-        return Dataset.from_models(
+        return Dataset.from_download_models(
             dataset_model=finalized_model,
             orig_datablock_models=finalized_orig_datablocks,
         )
 
     def _upload_orig_datablocks(
-        self, orig_datablocks: Optional[List[model.OrigDatablock]]
-    ) -> Optional[List[model.OrigDatablock]]:
+        self, orig_datablocks: Optional[List[model.UploadOrigDatablock]]
+    ) -> Optional[List[model.DownloadOrigDatablock]]:
         if orig_datablocks is None:
             return None
 
@@ -648,15 +649,26 @@ class ScicatClient:
         logger.info("Calling SciCat API at %s for operation '%s'", full_url, operation)
 
         response = self._send_to_scicat(cmd=cmd, url=full_url, data=data)
-        if not response.ok:
-            err = response.json().get("error", {})
-            logger.error("API call failed, endpoint: %s, response: %s", full_url, err)
-            raise ScicatCommError(f"Error in operation {operation}: {err}")
+        if not response.ok or not response.text:
+            logger.error(
+                "SciCat API call to %s failed: %s %s: %s",
+                full_url,
+                response.status_code,
+                response.reason,
+                response.text,
+            )
+            raise ScicatCommError(
+                f"Error in operation '{operation}': {response.status_code} "
+                f"{response.reason}: {response.text}"
+            )
         logger.info("API call successful for operation '%s'", operation)
-        res = response.json()
+        res = response.json()  # TODO can fail
+        # TODO should this raise? This happens e.g. when listing all
+        #  datasets but there are none
         if not res:
             raise ScicatCommError(
-                f"{cmd} to {url} succeeded but di not return anything."
+                f"Internal SciCat communication error: {cmd.upper()} request to "
+                f"{full_url} succeeded but did not return anything."
             )
         return res
 
