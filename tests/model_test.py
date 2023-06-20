@@ -95,7 +95,7 @@ def test_derived_dataset_default_values(
         accessGroups=["access1"],
         contactEmail="contact@email.com",
         creationTime=parse_date("2000-01-01T01:01:01.000Z"),
-        inputDatasets=[PID(prefix="PID.SAMPLE.PREFIX", pid="abcd")],
+        inputDatasets=[PID(prefix="PID.prefix.a0b1", pid="abcd")],
         investigator="inv@esti.gator",
         numberOfFilesArchived=0,
         owner=scicat_access.user.username,
@@ -111,7 +111,7 @@ def test_derived_dataset_default_values(
     assert finalized.accessGroups == ["access1"]
     assert finalized.contactEmail == "contact@email.com"
     assert finalized.creationTime == parse_date("2000-01-01T01:01:01.000Z")
-    assert finalized.inputDatasets == [PID(prefix="PID.SAMPLE.PREFIX", pid="abcd")]
+    assert finalized.inputDatasets == [PID(prefix="PID.prefix.a0b1", pid="abcd")]
     assert finalized.investigator == "inv@esti.gator"
     assert finalized.owner == scicat_access.user.username
     assert finalized.ownerGroup == scicat_access.user.group

@@ -221,7 +221,7 @@ def _process_dataset(
     return model.construct(
         model.DownloadDataset,
         _strict_validation=False,
-        pid=PID.generate(prefix="PID.SAMPLE.PREFIX"),
+        pid=PID.generate(prefix="PID.prefix.a0b1"),
         createdBy="fake",
         createdAt=created_at,
         updatedBy="fake",
