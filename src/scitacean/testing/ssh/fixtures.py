@@ -124,6 +124,10 @@ def _ssh_docker_up(target_dir: Path, ssh_access: SSHAccess) -> None:
     log.info("Waiting for SSH docker to become accessible")
     wait_until_ssh_server_is_live(ssh_access=ssh_access, max_time=20, n_tries=20)
     log.info("Successfully connected to SSH server")
+    # Give the user write access.
+    docker.docker_compose_run(
+        docker_compose_file, "scitacean-test-ssh-server", "chown", "1000:1000", "/data"
+    )
 
 
 def _ssh_docker_down(target_dir: Path) -> None:

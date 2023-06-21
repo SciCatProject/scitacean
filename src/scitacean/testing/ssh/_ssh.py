@@ -82,7 +82,7 @@ def _copy_seed(target_seed_dir: Path) -> None:
 
 
 def configure(target_dir: Union[os.PathLike, str]) -> Path:
-    """Generate a config file for docker compose and symlink seed data."""
+    """Generate a config file for docker compose and copy seed data."""
     target_dir = Path(target_dir)
     target_seed_dir = target_dir / "data" / "seed"
     target_seed_dir.mkdir(parents=True)
