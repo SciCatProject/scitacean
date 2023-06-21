@@ -11,7 +11,7 @@ import pydantic
 
 from ..dataset import Dataset
 from ..filesystem import RemotePath
-from ..model import DatasetType, Lifecycle, Technique
+from ..model import DatasetType, History, Lifecycle, Relationship, Technique
 from ..pid import PID
 from . import resources
 
@@ -199,15 +199,17 @@ _TYPE_NAME = {
     str: "str",
     int: "int",
     bool: "bool",
+    dict: "dict",
     datetime: "datetime",
-    PID: "PID",
+    History: "History",
     Lifecycle: "Lifecycle",
+    PID: "PID",
     RemotePath: "RemotePath",
     List[str]: "list[str]",
     List[PID]: "list[PID]",
+    List[Relationship]: "list[Relationship]",
     List[Technique]: "list[Technique]",
     List[dict]: "list[dict]",  # type: ignore[type-arg]
-    dict: "dict",
 }
 
 
