@@ -99,7 +99,7 @@ class DatasetBase:
             read_only={{ not field.upload }},
             required={{ field.required }},
             scicat_name="{{ field.scicat_name }}",
-            type={{ field.full_type_for("user")|replace("NonNegativeInt", "int") }},
+            type={{ field.type_for("user")|replace("NonNegativeInt", "int") }},
             used_by_derived={{ field.used_by_derived or not field.upload }},
             used_by_raw={{ field.used_by_raw or not field.upload }},
         ),
