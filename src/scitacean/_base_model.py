@@ -172,7 +172,7 @@ def _model_field_name_of(cls_name: str, name: str) -> str:
     E.g.,
     `proposal_id` -> `proposalId`,
     `_created_at` -> `createdAt`,
-    `__History__id` -> `id`.
+    `_History__id` -> `id`.
     """
     name = name.lstrip("_")
     if name.startswith(cls_name):
