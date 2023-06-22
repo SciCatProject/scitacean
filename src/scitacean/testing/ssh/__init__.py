@@ -8,14 +8,16 @@ Use the ``ssh_fileserver`` fixture to manage the server and use ``ssh_access`` t
 get all required access parameters.
 When the server fixture is first used, it initializes the server using these steps:
 
-1. Create a temporary directory with contents
-   tmpdir |
-          |- docker-compose.yaml
-          |- .env         (paths for docker volumes)
-          |- counter      (number of workers using the server)
-          |- counter.lock (file lock)
-          |- data |       (storage of files)
-                  |- seed (populated from scitacean.testing.ssh.ssh_server_seed)
+1. Create a temporary directory with contents::
+
+       tmpdir
+         ├ docker-compose.yaml
+         ├ .env         (paths for docker volumes)
+         ├ counter      (number of workers using the server)
+         ├ counter.lock (file lock)
+         └ data       (storage of files)
+            └ seed (populated from scitacean.testing.ssh.ssh_server_seed)
+
 2. Start docker.
 3. Make data writable by the user in docker.
    This changes the ownership of data on the host to root (on some machines).
