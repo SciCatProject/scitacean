@@ -1,6 +1,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
 
+"""Initial contents of the SciCat testing backend.
+
+The contents of this module are used to initialize
+the local database before making it available to tests.
+"""
+
 import pickle
 from copy import deepcopy
 from pathlib import Path
@@ -22,6 +28,7 @@ from ...model import (
 from ...pid import PID
 from .config import SITE, SciCatAccess, SciCatUser
 
+# Dataset models to upload to the database.
 _DATASETS: Dict[str, Union[UploadRawDataset, UploadDerivedDataset]] = {
     "raw": UploadRawDataset(
         ownerGroup="PLACEHOLDER",
@@ -118,6 +125,7 @@ _DATASETS: Dict[str, Union[UploadRawDataset, UploadDerivedDataset]] = {
     ),
 }
 
+# Orig datablocks to upload to the database.
 _ORIG_DATABLOCKS: Dict[str, List[UploadOrigDatablock]] = {
     "raw": [
         UploadOrigDatablock(
@@ -191,7 +199,9 @@ _ORIG_DATABLOCKS: Dict[str, List[UploadOrigDatablock]] = {
 }
 
 INITIAL_DATASETS: Dict[str, DownloadDataset] = {}
+"""Initial datasets in the testing database."""
 INITIAL_ORIG_DATABLOCKS: Dict[str, List[DownloadOrigDatablock]] = {}
+"""Initial orig datablocks in the testing database."""
 
 
 def _apply_config_dataset(
