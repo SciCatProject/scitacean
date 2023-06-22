@@ -55,13 +55,13 @@ USERS = {
         group="group4",
     ),
     "user5.1": SciCatUser(
-        username="user4",
+        username="user5.1",
         password="359a5fda99bfe5dbc42ee9b3ede77fb7",  # noqa: S106
         email="user5.1@your.site",
         group="group5",
     ),
     "user5.2": SciCatUser(
-        username="user4",
+        username="user5.2",
         password="f3ebd2e4def95db59ef95ee32ef45242",  # noqa: S106
         email="user5.2@your.site",
         group="group5",
