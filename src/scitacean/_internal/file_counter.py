@@ -75,6 +75,21 @@ class NullCounter:
 
     ``increment`` always returns 1 and ``decrement`` always returns 0.
     There is no lock.
+
+    This class can be used similarly to :func:`contextlib.null_context`.
+    That is, it allows for transparent handling of conditional counting and locking.
+    For example
+
+    .. code-block:: python
+
+        def make_counter():
+            if some_condition:
+                return FileCounter(path)
+            return NullCounter()
+
+        counter = make_counter()
+        with counter.increment() as count:
+            # Do some work that requires the lock if some_condition is true.
     """
 
     @contextmanager
