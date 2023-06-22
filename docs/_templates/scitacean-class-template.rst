@@ -1,9 +1,9 @@
 {{ fullname | escape | underline }}
 
 {% set constructors = {"Client": ["from_credentials", "from_token", "without_login"],
-                       "Dataset": ["__init__", "from_models"],
+                       "Dataset": ["__init__", "from_download_models"],
                        "File": ["from_local", "from_scicat"],
-                       "OrigDatablockProxy": ["__init__", "from_model"],
+                       "OrigDatablockProxy": ["__init__", "from_download_model"],
                        "PID": ["__init__", "parse"],
                       } %}
 {% set regular_methods = methods | reject("in", constructors.get(name, []) + ["__init__"]) | list %}
