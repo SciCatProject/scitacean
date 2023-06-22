@@ -5,6 +5,7 @@
                        "File": ["from_local", "from_scicat"],
                        "OrigDatablockProxy": ["__init__", "from_download_model"],
                        "PID": ["__init__", "parse"],
+                       "ScicatClient": ["from_credentials", "from_token", "without_login"],
                       } %}
 {% set regular_methods = methods | reject("in", constructors.get(name, []) + ["__init__"]) | list %}
 
