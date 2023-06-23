@@ -14,13 +14,13 @@ def test_datasets_makes_valid_dataset(dset):
 
 
 @settings(max_examples=10)
-@given(sst.datasets(dataset_type=DatasetType.RAW))
+@given(sst.datasets(type=DatasetType.RAW))
 def test_datasets_can_set_type_to_raw(dset):
     assert dset.type == "raw"
 
 
 @settings(max_examples=10)
-@given(sst.datasets(dataset_type=DatasetType.DERIVED))
+@given(sst.datasets(type=DatasetType.DERIVED))
 def test_datasets_can_set_type_to_derived(dset):
     assert dset.type == "derived"
 

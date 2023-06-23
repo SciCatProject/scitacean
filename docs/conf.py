@@ -40,6 +40,7 @@ extensions = [
 
 intersphinx_mapping = {
     "fabric": ("https://docs.fabfile.org/en/stable", None),
+    "hypothesis": ("https://hypothesis.readthedocs.io/en/latest/", None),
     "python": ("https://docs.python.org/3", None),
     "paramiko": ("https://docs.paramiko.org/en/stable", None),
 }
