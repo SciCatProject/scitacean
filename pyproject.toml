@@ -85,7 +85,7 @@ disallow_untyped_defs = false
 
 [tool.ruff]
 line-length = 88
-select = ["B", "D", "E", "F", "I", "S", "T20", "PGH", "FBT003", "RUF100"]
+select = ["B", "D", "E", "F", "I", "S", "T20", "PGH", "FBT003", "RUF"]
 ignore = [
     "B905", # `zip()` without an explicit `strict=` parameter
     "S324", # insecure hsh function; we don't use hashing for security
