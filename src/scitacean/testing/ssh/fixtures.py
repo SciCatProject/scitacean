@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
 # mypy: disable-error-code="no-untyped-def"
+"""Pytest fixtures to manage and access a local SSH server."""
 
 import logging
 from pathlib import Path
@@ -29,24 +30,27 @@ def ssh_access(request):
 
 
 @pytest.fixture(scope="session")
-def ssh_config_dir(request, tmp_path_factory) -> Optional[Path]:
+def ssh_base_dir(
+    request: pytest.FixtureRequest, tmp_path_factory: pytest.TempPathFactory
+) -> Optional[Path]:
+    """Fixture that returns the base working directory for the SSH server setup."""
     if not ssh_enabled(request):
         return None
     return root_tmp_dir(request, tmp_path_factory) / "scitacean-ssh"
 
 
 @pytest.fixture(scope="session")
-def ssh_data_dir(ssh_config_dir: Optional[Path]) -> Optional[Path]:
-    if ssh_config_dir is None:
+def ssh_data_dir(ssh_base_dir: Optional[Path]) -> Optional[Path]:
+    if ssh_base_dir is None:
         return None
-    return ssh_config_dir / "data"
+    return ssh_base_dir / "data"
 
 
 @pytest.fixture(scope="session")
 def ssh_fileserver(
     request,
     ssh_access,
-    ssh_config_dir,
+    ssh_base_dir,
     ssh_connect_with_username_password,
     ssh_data_dir,
 ):
@@ -54,11 +58,11 @@ def ssh_fileserver(
 
     Does nothing unless the SSh tests are explicitly enabled.
     """
-    if ssh_config_dir is None:
+    if ssh_base_dir is None:
         yield False
         return
 
-    target_dir, counter = init_work_dir(request, ssh_config_dir, name=None)
+    target_dir, counter = init_work_dir(request, ssh_base_dir, name=None)
 
     try:
         with counter.increment() as count:
