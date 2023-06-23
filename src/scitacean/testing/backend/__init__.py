@@ -2,9 +2,12 @@
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
 """Utilities for running tests against a locally deployed SciCat backend.
 
-This module provides tools for using a real SciCat backend running on the local machine.
-It is in particular intended to be used with `pytest <https://docs.pytest.org>`_ and
-the fixtures provided by the :mod:`scitacean.testing.backend.fixtures` submodule.
+This subpackage provides tools for using a real SciCat backend running in docker
+containers on the local machine.
+It, therefore, requires docker to be installed and running.
+The package is in particular intended to be used with
+`pytest <https://docs.pytest.org>`_ and the fixtures provided by the
+:mod:`scitacean.testing.backend.fixtures` submodule.
 But it is also possible to set up tests in a different way by using the functions
 provided here.
 

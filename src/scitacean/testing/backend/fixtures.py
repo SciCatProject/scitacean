@@ -23,7 +23,7 @@ from .config import SciCatAccess, local_access
 
 @pytest.fixture(scope="session")
 def scicat_access() -> SciCatAccess:
-    """Fixture that returns access SciCat parameters.
+    """Fixture that returns SciCat access parameters.
 
     Returns
     -------
@@ -116,8 +116,8 @@ def require_scicat_backend(request, scicat_backend) -> None:
 def scicat_backend(request, tmp_path_factory, scicat_access):
     """Fixture to declare that a test needs a local scicat backend.
 
-    If backend tests are enabled, this fixture spins up the backend the first time
-    a test requests it.
+    If backend tests are enabled, this fixture spins up the backend in a docker
+    container the first time a test requests it.
     The backend will be stopped and removed at the end of the test session.
     :mod:`scitacean.testing.backend.seed` is used to initialize the database.
 

@@ -4,16 +4,24 @@
 
 import dataclasses
 import tempfile
+from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from typing import Callable, Iterator, Optional
 
 import fabric
 import paramiko
 import pytest
+from fabric import Connection
 
 from scitacean import Dataset, File, FileUploadError, RemotePath
+from scitacean.testing.client import FakeClient
 from scitacean.testing.ssh import IgnorePolicy, skip_if_not_ssh
-from scitacean.transfer.ssh import SSHFileTransfer
+from scitacean.transfer.ssh import (
+    SSHDownloadConnection,
+    SSHFileTransfer,
+    SSHUploadConnection,
+)
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -331,3 +339,64 @@ def test_upload_file_reverts_if_upload_fails(
             )
 
     assert "upload8" not in (p.name for p in ssh_data_dir.iterdir())
+
+
+class SSHTestFileTransfer(SSHFileTransfer):
+    def __init__(self, connect, **kwargs):
+        super().__init__(**kwargs)
+        self.connect = connect
+
+    @contextmanager
+    def connect_for_download(
+        self, connect: Optional[Callable[..., Connection]] = None
+    ) -> Iterator[SSHDownloadConnection]:
+        connect = connect if connect is not None else self.connect
+        with super().connect_for_download(connect=connect) as connection:
+            yield connection
+
+    @contextmanager
+    def connect_for_upload(
+        self, dataset: Dataset, connect: Optional[Callable[..., Connection]] = None
+    ) -> Iterator[SSHUploadConnection]:
+        connect = connect if connect is not None else self.connect
+        with super().connect_for_upload(dataset=dataset, connect=connect) as connection:
+            yield connection
+
+
+# This test is referenced in the docs.
+def test_client_with_ssh(
+    require_ssh_fileserver,
+    ssh_access,
+    ssh_connect_with_username_password,
+    ssh_data_dir,
+    tmp_path,
+):
+    tmp_path.joinpath("file1.txt").write_text("File contents")
+
+    client = FakeClient.without_login(
+        url="",
+        file_transfer=SSHTestFileTransfer(
+            connect=ssh_connect_with_username_password,
+            host=ssh_access.host,
+            port=ssh_access.port,
+        ),
+    )
+    ds = Dataset(
+        access_groups=["group1"],
+        contact_email="p.stibbons@uu.am",
+        creation_location="UU",
+        creation_time=datetime(2023, 6, 23, 10, 0, 0),
+        owner="PonderStibbons",
+        owner_group="uu",
+        principal_investigator="MustrumRidcully",
+        source_folder="/data",
+        type="raw",
+    )
+    ds.add_local_files(tmp_path / "file1.txt", base_path=tmp_path)
+    finalized = client.upload_new_dataset_now(ds)
+
+    downloaded = client.get_dataset(finalized.pid)
+    downloaded = client.download_files(downloaded, target=tmp_path / "download")
+
+    assert ssh_data_dir.joinpath("file1.txt").read_text() == "File contents"
+    assert downloaded.files[0].local_path.read_text() == "File contents"
