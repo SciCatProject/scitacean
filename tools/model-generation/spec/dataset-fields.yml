@@ -7,6 +7,7 @@
 # This is useful, e.g., to deduce values from other fields.
 manual:
   - datablocks
+  - scientificMetadata
   - numberOfFiles
   - numberOfFilesArchived
   - origdatablocks

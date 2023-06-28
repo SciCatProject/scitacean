@@ -407,6 +407,7 @@ class Dataset(DatasetBase):
             numberOfFilesArchived=self.number_of_files_archived,
             size=self.size,
             packedSize=self.packed_size,
+            scientificMetadata=self._meta or None,
             techniques=_list_field_for_upload(self.techniques),
             relationships=_list_field_for_upload(self.relationships),
             **{

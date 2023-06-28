@@ -110,6 +110,7 @@ class DatasetBase:
 {% for field in spec.user_dset_fields(manual=False)|sort(attribute="name") %}
         "_{{ field.name }}",
 {% endfor %}
+        "_meta",
         "_default_checksum_algorithm",
         "_orig_datablocks",
     )
@@ -119,6 +120,7 @@ class DatasetBase:
 {%- for field in spec.user_dset_fields(manual=False)|sort(attribute="name")|rejectattr("name", "eq", "type")|selectattr("upload") %}
         {{ field.name }}: {{ init_arg_type(field) }} = {{ field.default }},
 {%- endfor %}
+        meta: Optional[Dict[str, Any]] = None,
         checksum_algorithm: Optional[str] = "blake2b",
     ) -> None:
         self._type = DatasetType(type)
@@ -128,6 +130,7 @@ class DatasetBase:
 {%- for field in spec.user_dset_fields(manual=False)|sort(attribute="name")|rejectattr("upload") %}
         self._{{ field.name }} = None
 {%- endfor %}
+        self._meta = meta or {}
         self._default_checksum_algorithm = _validate_checksum_algorithm(
             checksum_algorithm
         )
@@ -146,6 +149,10 @@ class DatasetBase:
 {% endif %}
 {%- endfor %}
 
+    @property
+    def meta(self) -> Dict[str, Any]:
+        return self._meta
+
     @staticmethod
     def _prepare_fields_from_download(
         download_model: DownloadDataset
@@ -158,6 +165,7 @@ class DatasetBase:
             else:
                 init_args[field.name] = getattr(download_model, field.scicat_name)
 
+        init_args["meta"] = download_model.scientificMetadata
         DatasetBase._convert_readonly_fields_in_place(read_only)
 
         return init_args, read_only

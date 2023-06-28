@@ -321,16 +321,6 @@ class DatasetBase:
             used_by_raw=True,
         ),
         Field(
-            name="meta",
-            description="JSON object containing the scientific metadata.",
-            read_only=False,
-            required=False,
-            scicat_name="scientificMetadata",
-            type=Dict[str, Any],
-            used_by_derived=True,
-            used_by_raw=True,
-        ),
-        Field(
             name="name",
             description="A name for the dataset, given by the creator to carry some semantic meaning. Useful for display purposes e.g. instead of displaying the pid. Will be autofilled if missing using info from sourceFolder.",
             read_only=False,
@@ -547,7 +537,6 @@ class DatasetBase:
         "_keywords",
         "_license",
         "_lifecycle",
-        "_meta",
         "_name",
         "_orcid_of_owner",
         "_owner",
@@ -567,6 +556,7 @@ class DatasetBase:
         "_updated_by",
         "_used_software",
         "_validation_status",
+        "_meta",
         "_default_checksum_algorithm",
         "_orig_datablocks",
     )
@@ -593,7 +583,6 @@ class DatasetBase:
         job_parameters: Optional[Dict[str, Any]] = None,
         keywords: Optional[List[str]] = None,
         license: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         orcid_of_owner: Optional[str] = None,
         owner: Optional[str] = None,
@@ -609,6 +598,7 @@ class DatasetBase:
         techniques: Optional[List[Technique]] = None,
         used_software: Optional[List[str]] = None,
         validation_status: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None,
         checksum_algorithm: Optional[str] = "blake2b",
     ) -> None:
         self._type = DatasetType(type)
@@ -631,7 +621,6 @@ class DatasetBase:
         self._job_parameters = job_parameters
         self._keywords = keywords
         self._license = license
-        self._meta = meta
         self._name = name
         self._orcid_of_owner = orcid_of_owner
         self._owner = owner
@@ -655,6 +644,7 @@ class DatasetBase:
         self._pid = None
         self._updated_at = None
         self._updated_by = None
+        self._meta = meta or {}
         self._default_checksum_algorithm = _validate_checksum_algorithm(
             checksum_algorithm
         )
@@ -876,16 +866,6 @@ class DatasetBase:
         return self._lifecycle
 
     @property
-    def meta(self) -> Optional[Dict[str, Any]]:
-        """JSON object containing the scientific metadata."""
-        return self._meta
-
-    @meta.setter
-    def meta(self, meta: Optional[Dict[str, Any]]) -> None:
-        """JSON object containing the scientific metadata."""
-        self._meta = meta
-
-    @property
     def name(self) -> Optional[str]:
         """A name for the dataset, given by the creator to carry some semantic meaning. Useful for display purposes e.g. instead of displaying the pid. Will be autofilled if missing using info from sourceFolder."""
         return self._name
@@ -1060,6 +1040,10 @@ class DatasetBase:
         """Defines a level of trust, e.g. a measure of how much data was verified or used by other persons."""
         self._validation_status = validation_status
 
+    @property
+    def meta(self) -> Dict[str, Any]:
+        return self._meta
+
     @staticmethod
     def _prepare_fields_from_download(
         download_model: DownloadDataset,
@@ -1072,6 +1056,7 @@ class DatasetBase:
             else:
                 init_args[field.name] = getattr(download_model, field.scicat_name)
 
+        init_args["meta"] = download_model.scientificMetadata
         DatasetBase._convert_readonly_fields_in_place(read_only)
 
         return init_args, read_only
