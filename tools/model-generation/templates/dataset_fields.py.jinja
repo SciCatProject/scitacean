@@ -151,7 +151,13 @@ class DatasetBase:
 
     @property
     def meta(self) -> Dict[str, Any]:
+        """Dict of scientific metadata."""
         return self._meta
+
+    @meta.setter
+    def meta(self, meta: Dict[str, Any]) -> None:
+        """Dict of scientific metadata."""
+        self._meta = meta
 
     @staticmethod
     def _prepare_fields_from_download(
