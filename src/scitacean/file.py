@@ -117,19 +117,21 @@ class File:
         )
 
     @classmethod
-    def from_scicat(
+    def from_download_model(
         cls,
         model: DownloadDataFile,
         *,
         checksum_algorithm: Optional[str] = None,
         local_path: Optional[Union[str, Path]] = None,
     ) -> File:
-        """Construct a new file object from SciCat models.
+        """Construct a new file object from a SciCat download model.
 
         Parameters
         ----------
         model:
             Pydantic model for the file.
+        checksum_algorithm:
+            Algorithm to use to compute the checksum of the file.
         local_path:
             Value for the local path.
 

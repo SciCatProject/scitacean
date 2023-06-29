@@ -113,11 +113,11 @@ def test_file_from_local_remote_path_uses_forward_slash(fs):
     assert file.make_model().path == "file.dat"
 
 
-def test_file_from_scicat():
+def test_file_from_download_model():
     model = DownloadDataFile(
         path="dir/image.jpg", size=12345, time=parse_date("2022-06-22T15:42:53.123Z")
     )
-    file = File.from_scicat(model)
+    file = File.from_download_model(model)
 
     assert file.remote_access_path("/remote/folder") == "/remote/folder/dir/image.jpg"
     assert file.local_path is None
@@ -126,8 +126,8 @@ def test_file_from_scicat():
     assert file.creation_time == parse_date("2022-06-22T15:42:53.123Z")
 
 
-def test_file_from_scicat_remote_path_uses_forward_slash():
-    file = File.from_scicat(
+def test_file_from_download_model_remote_path_uses_forward_slash():
+    file = File.from_download_model(
         DownloadDataFile(
             path="data/subdir/file.dat",
             size=0,
@@ -137,7 +137,7 @@ def test_file_from_scicat_remote_path_uses_forward_slash():
     )
     assert file.remote_path == RemotePath("data/subdir/file.dat")
 
-    file = File.from_scicat(
+    file = File.from_download_model(
         DownloadDataFile(
             path="data/subdir/file.dat",
             size=0,
@@ -200,7 +200,7 @@ def test_downloaded():
         time=parse_date("2025-01-09T21:00:21.421Z"),
         perm="xrw",
     )
-    file = File.from_scicat(model)
+    file = File.from_download_model(model)
     downloaded = file.downloaded(local_path="/local/stream.s")
 
     assert downloaded.is_on_local
@@ -286,7 +286,7 @@ def test_validate_after_download_detects_bad_checksum(fake_file):
         chk="incorrect-checksum",
     )
     file = replace(
-        File.from_scicat(model),
+        File.from_download_model(model),
         checksum_algorithm="md5",
     )
     downloaded = file.downloaded(local_path=fake_file["path"])
@@ -302,7 +302,7 @@ def test_validate_after_download_ignores_checksum_if_no_algorithm(fake_file):
         time=parse_date("2022-06-22T15:42:53.123Z"),
         chk="incorrect-checksum",
     )
-    file = File.from_scicat(model)
+    file = File.from_download_model(model)
     downloaded = file.downloaded(local_path=fake_file["path"])
 
     # does not raise
@@ -317,7 +317,7 @@ def test_validate_after_download_detects_size_mismatch(fake_file, caplog):
         chk="incorrect-checksum",
     )
     file = replace(
-        File.from_scicat(model),
+        File.from_download_model(model),
         checksum_algorithm=None,
     )
     downloaded = file.downloaded(local_path=fake_file["path"])
@@ -328,7 +328,7 @@ def test_validate_after_download_detects_size_mismatch(fake_file, caplog):
 
 @pytest.mark.parametrize("chk", ("sha256", None))
 def test_local_is_not_up_to_date_for_remote_file(chk):
-    file = File.from_scicat(
+    file = File.from_download_model(
         DownloadDataFile(
             path="data.csv",
             size=65178,
@@ -352,7 +352,7 @@ def test_local_is_up_to_date_default_checksum_alg(fs):
     checksum_digest = checksum.hexdigest()
     fs.create_file("data.csv", contents=contents)
 
-    file = File.from_scicat(
+    file = File.from_download_model(
         DownloadDataFile(
             path="data.csv",
             size=65178,
@@ -372,7 +372,7 @@ def test_local_is_up_to_date_matching_checksum(fake_file):
         chk=fake_file["checksum"],
     )
     file = replace(
-        File.from_scicat(model).downloaded(local_path=fake_file["path"]),
+        File.from_download_model(model).downloaded(local_path=fake_file["path"]),
         checksum_algorithm="md5",
     )
     assert file.local_is_up_to_date()
@@ -386,7 +386,7 @@ def test_local_is_not_up_to_date_differing_checksum(fake_file):
         chk="a-different-checksum",
     )
     file = replace(
-        File.from_scicat(model).downloaded(local_path=fake_file["path"]),
+        File.from_download_model(model).downloaded(local_path=fake_file["path"]),
         checksum_algorithm="md5",
     )
     assert not file.local_is_up_to_date()

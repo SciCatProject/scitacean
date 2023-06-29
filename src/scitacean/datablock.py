@@ -75,7 +75,9 @@ class OrigDatablock:
             _updated_at=dblock.updatedAt,
             _updated_by=dblock.updatedBy,
             init_files=[
-                File.from_scicat(file, checksum_algorithm=orig_datablock_model.chkAlg)
+                File.from_download_model(
+                    file, checksum_algorithm=orig_datablock_model.chkAlg
+                )
                 for file in dblock.dataFileList or ()
             ],
         )

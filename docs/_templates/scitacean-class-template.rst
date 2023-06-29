@@ -2,7 +2,7 @@
 
 {% set constructors = {"Client": ["from_credentials", "from_token", "without_login"],
                        "Dataset": ["__init__", "from_download_models"],
-                       "File": ["from_local", "from_scicat"],
+                       "File": ["from_local", "from_download_model"],
                        "OrigDatablockProxy": ["__init__", "from_download_model"],
                        "PID": ["__init__", "parse"],
                        "ScicatClient": ["from_credentials", "from_token", "without_login"],
