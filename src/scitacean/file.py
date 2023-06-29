@@ -13,7 +13,7 @@ from typing import NoReturn, Optional, Union, cast
 from .error import IntegrityError
 from .filesystem import RemotePath, checksum_of_file, file_modification_time, file_size
 from .logging import get_logger
-from .model import DataFile
+from .model import DownloadDataFile, UploadDataFile
 
 
 @dataclasses.dataclass(frozen=True)
@@ -51,14 +51,6 @@ class File:
     """Unix file mode on remote."""
     remote_uid: Optional[str]
     """Unix user ID on remote."""
-    created_at: Optional[datetime] = None
-    """Creator of the file entry in SciCat."""
-    created_by: Optional[str] = None
-    """Creation time of the file entry in SciCat."""
-    updated_at: Optional[datetime] = None
-    """Last updator of the file entry in SciCat."""
-    updated_by: Optional[str] = None
-    """Last update time of the file entry in SciCat."""
     checksum_algorithm: Optional[str] = None
     """Algorithm to use for checksums."""
     _remote_size: Optional[int] = dataclasses.field(default=None, repr=False)
@@ -127,8 +119,9 @@ class File:
     @classmethod
     def from_scicat(
         cls,
-        model: DataFile,
+        model: DownloadDataFile,
         *,
+        checksum_algorithm: Optional[str] = None,
         local_path: Optional[Union[str, Path]] = None,
     ) -> File:
         """Construct a new file object from SciCat models.
@@ -146,15 +139,12 @@ class File:
             A new file object.
         """
         return File(
+            checksum_algorithm=checksum_algorithm,
             local_path=Path(local_path) if isinstance(local_path, str) else local_path,
             remote_path=RemotePath(model.path),
             remote_gid=model.gid,
             remote_perm=model.perm,
             remote_uid=model.uid,
-            created_at=model.createdAt,
-            created_by=model.createdBy,
-            updated_at=model.updatedAt,
-            updated_by=model.updatedBy,
             _remote_size=model.size,
             _remote_creation_time=model.time,
             _remote_checksum=model.chk,
@@ -252,7 +242,7 @@ class File:
         )
         return self._remote_checksum == local_checksum
 
-    def make_model(self, *, for_archive: bool = False) -> DataFile:
+    def make_model(self, *, for_archive: bool = False) -> UploadDataFile:
         """Build a pydantic model for this file.
 
         Parameters
@@ -268,7 +258,7 @@ class File:
         """
         chk = self.checksum()
         # TODO if for_archive: ensure not out of date
-        return DataFile(
+        return UploadDataFile(
             path=self.remote_path.posix,
             size=self.size,
             chk=chk,

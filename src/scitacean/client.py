@@ -165,8 +165,7 @@ class Client:
         :
             A new dataset.
         """
-        if isinstance(pid, str):
-            pid = PID.parse(pid)
+        pid = PID.parse(pid)
         try:
             orig_datablocks = self.scicat.get_orig_datablocks(
                 pid, strict_validation=strict_validation
@@ -176,7 +175,7 @@ class Client:
             #   communication succeeded and the dataset exists but there simply
             #   are no datablocks.
             orig_datablocks = None
-        return Dataset.from_models(
+        return Dataset.from_download_models(
             dataset_model=self.scicat.get_dataset_model(
                 pid, strict_validation=strict_validation
             ),
@@ -211,40 +210,38 @@ class Client:
             and some files or a partial dataset are left on the servers.
             Note the error message if that happens.
         """
-        if dataset.pid is not None:
-            raise ValueError(
-                "Cannot upload the dataset because it has a PID. "
-                "Set the PID to None, the server will assign one for you."
-            )
         dataset = dataset.replace(
             source_folder=self._expect_file_transfer().source_folder_for(dataset)
         )
         dataset.validate()
+        # TODO skip if there are no files
         with self._connect_for_file_upload(dataset) as con:
             # TODO check if any remote file is out of date.
             #  if so, raise an error. We never overwrite remote files!
             uploaded_files = con.upload_files(*dataset.files)
             dataset = dataset.replace_files(*uploaded_files)
             try:
-                finalized_model = self.scicat.create_dataset_model(dataset.make_model())
+                finalized_model = self.scicat.create_dataset_model(
+                    dataset.make_upload_model()
+                )
             except ScicatCommError:
                 con.revert_upload(*uploaded_files)
                 raise
 
-        with_new_pid = dataset.replace(pid=finalized_model.pid)
-        datablock_models = with_new_pid.make_datablock_models()
+        with_new_pid = dataset.replace(_read_only={"pid": finalized_model.pid})
+        datablock_models = with_new_pid.make_datablock_upload_models()
         finalized_orig_datablocks = self._upload_orig_datablocks(
             datablock_models.orig_datablocks
         )
 
-        return Dataset.from_models(
+        return Dataset.from_download_models(
             dataset_model=finalized_model,
             orig_datablock_models=finalized_orig_datablocks,
         )
 
     def _upload_orig_datablocks(
-        self, orig_datablocks: Optional[List[model.OrigDatablock]]
-    ) -> Optional[List[model.OrigDatablock]]:
+        self, orig_datablocks: Optional[List[model.UploadOrigDatablock]]
+    ) -> Optional[List[model.DownloadOrigDatablock]]:
         if orig_datablocks is None:
             return None
 
@@ -463,7 +460,7 @@ class ScicatClient:
 
     def get_dataset_model(
         self, pid: PID, strict_validation: bool = False
-    ) -> Union[model.DerivedDataset, model.RawDataset]:
+    ) -> model.DownloadDataset:
         """Fetch a dataset from SciCat.
 
         Parameters
@@ -479,7 +476,7 @@ class ScicatClient:
         Returns
         -------
         :
-            A model of the dataset. The type is deduced from the received data.
+            A model of the dataset.
 
         Raises
         ------
@@ -492,16 +489,14 @@ class ScicatClient:
             operation="get_dataset_model",
         )
         return model.construct(
-            model.DerivedDataset
-            if dset_json["type"] == "derived"
-            else model.RawDataset,
+            model.DownloadDataset,
             _strict_validation=strict_validation,
             **dset_json,
         )  # type: ignore[return-value]
 
     def get_orig_datablocks(
         self, pid: PID, strict_validation: bool = False
-    ) -> List[model.OrigDatablock]:
+    ) -> List[model.DownloadOrigDatablock]:
         """Fetch all orig datablocks from SciCat for a given dataset.
 
         Parameters
@@ -527,7 +522,7 @@ class ScicatClient:
         """
         dblock_json = self._call_endpoint(
             cmd="get",
-            url=f"Datasets/{quote_plus(str(pid))}/origdatablocks",
+            url=f"datasets/{quote_plus(str(pid))}/origdatablocks",
             operation="get_orig_datablocks",
         )
         return [
@@ -536,8 +531,8 @@ class ScicatClient:
         ]
 
     def create_dataset_model(
-        self, dset: Union[model.DerivedDataset, model.RawDataset]
-    ) -> Union[model.DerivedDataset, model.RawDataset]:
+        self, dset: Union[model.UploadDerivedDataset, model.UploadRawDataset]
+    ) -> model.DownloadDataset:
         """Create a new dataset in SciCat.
 
         The dataset PID must be either
@@ -558,7 +553,8 @@ class ScicatClient:
         Returns
         -------
         :
-            The PID of the new dataset in the catalogue.
+            The uploaded dataset as returned by SciCat.
+            This is the input plus some modifications.
 
         Raises
         ------
@@ -569,13 +565,13 @@ class ScicatClient:
         uploaded = self._call_endpoint(
             cmd="post", url="datasets", data=dset, operation="create_dataset_model"
         )
-        return (
-            model.DerivedDataset(**uploaded)
-            if uploaded["type"] == "derived"
-            else model.RawDataset(**uploaded)
+        return model.construct(
+            model.DownloadDataset, _strict_validation=False, **uploaded
         )
 
-    def create_orig_datablock(self, dblock: model.OrigDatablock) -> model.OrigDatablock:
+    def create_orig_datablock(
+        self, dblock: model.UploadOrigDatablock
+    ) -> model.DownloadOrigDatablock:
         """Create a new orig datablock in SciCat.
 
         The datablock PID must be either
@@ -597,13 +593,14 @@ class ScicatClient:
             If SciCat refuses the datablock or communication
             fails for some other reason.
         """
-        return model.OrigDatablock(
-            **self._call_endpoint(
-                cmd="post",
-                url="origdatablocks",
-                data=dblock,
-                operation="create_orig_datablock",
-            )
+        uploaded = self._call_endpoint(
+            cmd="post",
+            url="origdatablocks",
+            data=dblock,
+            operation="create_orig_datablock",
+        )
+        return model.construct(
+            model.DownloadOrigDatablock, _strict_validation=False, **uploaded
         )
 
     def _send_to_scicat(
@@ -655,15 +652,26 @@ class ScicatClient:
         logger.info("Calling SciCat API at %s for operation '%s'", full_url, operation)
 
         response = self._send_to_scicat(cmd=cmd, url=full_url, data=data)
-        if not response.ok:
-            err = response.json().get("message", {})
-            logger.error("API call failed, endpoint: %s, response: %s", full_url, err)
-            raise ScicatCommError(f"Error in operation {operation}: {err}")
+        if not response.ok or not response.text:
+            logger.error(
+                "SciCat API call to %s failed: %s %s: %s",
+                full_url,
+                response.status_code,
+                response.reason,
+                response.text,
+            )
+            raise ScicatCommError(
+                f"Error in operation '{operation}': {response.status_code} "
+                f"{response.reason}: {response.text}"
+            )
         logger.info("API call successful for operation '%s'", operation)
-        res = response.json()
+        res = response.json()  # TODO can fail
+        # TODO should this raise? This happens e.g. when listing all
+        #  datasets but there are none
         if not res:
             raise ScicatCommError(
-                f"{cmd} to {url} succeeded but di not return anything."
+                f"Internal SciCat communication error: {cmd.upper()} request to "
+                f"{full_url} succeeded but did not return anything."
             )
         return res
 
@@ -686,15 +694,15 @@ def _strip_token(error: Any, token: str) -> str:
 
 def _make_orig_datablock(
     fields: Dict[str, Any], strict_validation: bool
-) -> model.OrigDatablock:
+) -> model.DownloadOrigDatablock:
     files = [
         model.construct(
-            model.DataFile, _strict_validation=strict_validation, **file_fields
+            model.DownloadDataFile, _strict_validation=strict_validation, **file_fields
         )
         for file_fields in fields["dataFileList"]
     ]
     return model.construct(
-        model.OrigDatablock,
+        model.DownloadOrigDatablock,
         _strict_validation=strict_validation,
         **{**fields, "dataFileList": files},
     )

@@ -6,7 +6,7 @@ from contextlib import contextmanager
 import pytest
 from dateutil.parser import parse as parse_date
 
-from scitacean import Dataset, DatasetType, ScicatCommError, model
+from scitacean import Dataset, DatasetType, ScicatCommError
 from scitacean.testing.client import FakeClient
 from scitacean.testing.transfer import FakeFileTransfer
 
@@ -16,55 +16,46 @@ from .common.files import make_file
 
 
 @pytest.fixture
-def ownable():
-    return model.Ownable(ownerGroup="uu", accessGroups=["group1", "2nd_group"])
-
-
-@pytest.fixture
-def derived_dataset_model(ownable):
-    return model.DerivedDataset(
-        owner="PonderStibbons",
+def dataset():
+    return Dataset(
+        access_groups=["group1", "2nd_group"],
         investigator="ridcully@uu.am",
-        contactEmail="p.stibbons@uu.am",
-        sourceFolder="/hex/source123",
-        size=0,
-        numberOfFiles=0,
-        creationTime=parse_date("2011-08-24T12:34:56Z"),
-        datasetName="Data A38",
-        inputDatasets=[],
-        usedSoftware=["EasyScience"],
-        scientificMetadata={
+        contact_email="p.stibbons@uu.am",
+        source_folder="/hex/source123",
+        creation_time=parse_date("2011-08-24T12:34:56Z"),
+        input_datasets=[],
+        name="Data A38",
+        owner="PonderStibbons",
+        owner_group="uu",
+        used_software=["EasyScience"],
+        meta={
             "data_type": "event data",
             "temperature": {"value": "123", "unit": "K"},
             "weight": {"value": "42", "unit": "mg"},
         },
         type=DatasetType.DERIVED,
-        **ownable.dict(),
     )
 
 
 @pytest.fixture
-def client(fs):
-    return FakeClient.from_token(
+def dataset_with_files(dataset, fs):
+    make_file(fs, path="file.nxs", contents=b"contents of file.nxs")
+    make_file(fs, path="the_log_file.log", contents=b"this is a log file")
+    dataset.add_local_files("file.nxs", "the_log_file.log")
+    return dataset
+
+
+@pytest.fixture
+def client(fs, scicat_access):
+    return FakeClient.from_credentials(
         url="",
-        token="",
+        **scicat_access.user.credentials,
         file_transfer=FakeFileTransfer(fs=fs, files={}, reverted={}),
     )
 
 
-@pytest.fixture
-def dataset(derived_dataset_model, fs):
-    make_file(fs, path="file.nxs", contents=b"contents of file.nxs")
-    make_file(fs, path="the_log_file.log", contents=b"this is a log file")
-    dset = Dataset.from_models(
-        dataset_model=derived_dataset_model, orig_datablock_models=None
-    )
-    dset.add_local_files("file.nxs", "the_log_file.log")
-    return dset
-
-
-def test_upload_returns_updated_dataset(client, dataset):
-    finalized = client.upload_new_dataset_now(dataset)
+def test_upload_returns_updated_dataset(client, dataset_with_files):
+    finalized = client.upload_new_dataset_now(dataset_with_files)
     expected = client.get_dataset(finalized.pid).replace(
         # The backend may update the dataset after upload
         _read_only={
@@ -75,10 +66,7 @@ def test_upload_returns_updated_dataset(client, dataset):
     assert finalized == expected
 
 
-def test_upload_without_files_creates_dataset(client, derived_dataset_model):
-    dataset = Dataset.from_models(
-        dataset_model=derived_dataset_model, orig_datablock_models=None
-    )
+def test_upload_without_files_creates_dataset(client, dataset):
     finalized = client.upload_new_dataset_now(dataset)
     expected = client.get_dataset(finalized.pid).replace(
         # The backend may update the dataset after upload
@@ -92,17 +80,20 @@ def test_upload_without_files_creates_dataset(client, derived_dataset_model):
         client.scicat.get_orig_datablocks(finalized.pid)
 
 
-def test_upload_creates_dataset_and_datablock(client, dataset):
-    finalized = client.upload_new_dataset_now(dataset)
-    assert client.datasets[finalized.pid] == finalized.make_model()
-    assert (
-        client.orig_datablocks[finalized.pid]
-        == finalized.make_datablock_models().orig_datablocks
-    )
+def test_upload_creates_dataset_and_datablock(client, dataset_with_files):
+    finalized = client.upload_new_dataset_now(dataset_with_files)
+    assert client.datasets[finalized.pid].createdAt == finalized.created_at
+    assert client.datasets[finalized.pid].datasetName == finalized.name
+    assert client.datasets[finalized.pid].owner == finalized.owner
+    assert client.datasets[finalized.pid].size == finalized.size
+
+    assert client.orig_datablocks[finalized.pid][0].createdBy == finalized.created_by
+    assert client.orig_datablocks[finalized.pid][0].datasetId == finalized.pid
+    assert client.orig_datablocks[finalized.pid][0].size == finalized.size
 
 
-def test_upload_uploads_files_to_source_folder(client, dataset):
-    finalized = client.upload_new_dataset_now(dataset)
+def test_upload_uploads_files_to_source_folder(client, dataset_with_files):
+    finalized = client.upload_new_dataset_now(dataset_with_files)
     source_folder = client.file_transfer.source_folder_for(finalized)
 
     assert (
@@ -115,7 +106,7 @@ def test_upload_uploads_files_to_source_folder(client, dataset):
     )
 
 
-def test_upload_does_not_create_dataset_if_file_upload_fails(dataset, fs):
+def test_upload_does_not_create_dataset_if_file_upload_fails(dataset_with_files, fs):
     class RaisingUpload(FakeFileTransfer):
         source_dir = "/"
 
@@ -129,30 +120,30 @@ def test_upload_does_not_create_dataset_if_file_upload_fails(dataset, fs):
     client = FakeClient(file_transfer=RaisingUpload(fs=fs))
 
     with pytest.raises(RuntimeError, match="Fake upload failure"):
-        client.upload_new_dataset_now(dataset)
+        client.upload_new_dataset_now(dataset_with_files)
 
-    assert dataset.pid not in client.datasets
-    assert dataset.pid not in client.orig_datablocks
+    assert not client.datasets
+    assert not client.orig_datablocks
 
 
-def test_upload_cleans_up_files_if_dataset_ingestion_fails(dataset, fs):
+def test_upload_cleans_up_files_if_dataset_ingestion_fails(dataset_with_files, fs):
     client = FakeClient(
         disable={"create_dataset_model": ScicatCommError("Ingestion failed")},
         file_transfer=FakeFileTransfer(fs=fs),
     )
     with pytest.raises(ScicatCommError):
-        client.upload_new_dataset_now(dataset)
+        client.upload_new_dataset_now(dataset_with_files)
 
     assert not client.file_transfer.files
 
 
-def test_failed_datablock_upload_does_not_revert(dataset, fs):
+def test_failed_datablock_upload_does_not_revert(dataset_with_files, fs):
     client = FakeClient(
         disable={"create_orig_datablock": ScicatCommError("Ingestion failed")},
         file_transfer=FakeFileTransfer(fs=fs),
     )
     with pytest.raises(RuntimeError):
-        client.upload_new_dataset_now(dataset)
+        client.upload_new_dataset_now(dataset_with_files)
 
     uploaded_dset = next(iter(client.datasets.values()))
     assert uploaded_dset.owner == "PonderStibbons"

@@ -1,3 +1,0 @@
-[submodule "tests/scicatlive"]
-	path = tests/scicatlive
-	url = https://github.com/SciCatProject/scicatlive.git

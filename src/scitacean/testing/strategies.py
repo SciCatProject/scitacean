@@ -4,36 +4,51 @@ import string
 from functools import partial
 from typing import Any, Dict, Optional
 
-from email_validator import EmailNotValidError, validate_email
+from email_validator import EmailNotValidError, ValidatedEmail, validate_email
 from hypothesis import strategies as st
 
-from scitacean import Dataset, DatasetType, RemotePath
+from scitacean import Dataset, DatasetType, RemotePath, model
 from scitacean._internal.orcid import orcid_checksum
 
 
 # email_validator and by extension pydantic is more picky than hypothesis
 # so make sure that generated emails actually pass model validation.
-def _is_valid_email(email: str) -> bool:
+def _validate_email(email: str) -> Optional[ValidatedEmail]:
     try:
-        validate_email(email, check_deliverability=False)
-        return True
+        return validate_email(email, check_deliverability=False)
     except EmailNotValidError:
-        return False
+        return None
+
+
+def _is_valid_email(validated_email: Optional[ValidatedEmail]) -> bool:
+    return validated_email is not None
+
+
+def emails() -> st.SearchStrategy[str]:
+    # pydantic.EmailStr converts the input:
+    #  - Converts to lower case.
+    #  - Uses the normalized email, i.e., with utf-8 characters,
+    #    not ASCII (see Punycode) for internationalized names.
+    # So we do the same here to make round trips work.
+    return (
+        st.emails()
+        .map(lambda s: s.lower())
+        .map(_validate_email)
+        .filter(_is_valid_email)
+        .map(lambda m: m.normalized)
+    )
 
 
 def multi_emails() -> st.SearchStrategy[str]:
-    # Convert to lowercase because that is what pydantic does.
     return st.lists(
-        st.emails().filter(_is_valid_email).map(lambda s: s.lower()),
+        emails(),
         min_size=1,
         max_size=2,
     ).map(lambda email: ";".join(email))
 
 
-def _email_field_strategy(
-    field: Dataset.Field, dataset_type: DatasetType
-) -> st.SearchStrategy[Optional[str]]:
-    if field.required(dataset_type):
+def _email_field_strategy(field: Dataset.Field) -> st.SearchStrategy[Optional[str]]:
+    if field.required:
         return multi_emails()
     return st.none() | multi_emails()
 
@@ -48,26 +63,38 @@ def orcids() -> st.SearchStrategy[str]:
     return st.text(alphabet="0123456789", min_size=16, max_size=16).map(make_orcid)
 
 
-def _orcid_field_strategy(
-    field: Dataset.Field, dataset_type: DatasetType
-) -> st.SearchStrategy[Optional[str]]:
-    if field.required(dataset_type):
+def _orcid_field_strategy(field: Dataset.Field) -> st.SearchStrategy[Optional[str]]:
+    if field.required:
         return orcids()
     return st.none() | orcids()
 
 
 def _scientific_metadata_strategy(
-    field: Dataset.Field, dataset_type: DatasetType
+    field: Dataset.Field,
 ) -> st.SearchStrategy[Dict[str, Any]]:
-    assert field.type == Dict  # noqa: S101 (testing code -> assert is safe)
     return st.dictionaries(
         keys=st.text(),
         values=st.text() | st.dictionaries(keys=st.text(), values=st.text()),
     )
 
 
+def _job_parameters_strategy(
+    field: Dataset.Field,
+) -> st.SearchStrategy[Optional[Dict[str, str]]]:
+    return st.from_type(Optional[Dict[str, str]])
+
+
+def _lifecycle_strategy(
+    field: Dataset.Field,
+) -> st.SearchStrategy[Optional[model.Lifecycle]]:
+    # Lifecycle contains fields that have `Any` types which `st.from_type` can't handle.
+    return st.sampled_from((None, model.Lifecycle()))
+
+
 _SPECIAL_FIELDS = {
     "contact_email": _email_field_strategy,
+    "job_parameters": _job_parameters_strategy,
+    "lifecycle": _lifecycle_strategy,
     "owner_email": _email_field_strategy,
     "orcid_of_owner": _orcid_field_strategy,
     "meta": _scientific_metadata_strategy,
@@ -81,21 +108,28 @@ st.register_type_strategy(
 )
 
 
-def _field_strategy(
-    field: Dataset.Field, dataset_type: DatasetType
-) -> st.SearchStrategy[Any]:
+def _field_strategy(field: Dataset.Field) -> st.SearchStrategy[Any]:
     if (strategy := _SPECIAL_FIELDS.get(field.name)) is not None:
-        return strategy(field, dataset_type)
+        return strategy(field)
 
-    typ = field.type if field.required(dataset_type) else Optional[field.type]
+    typ = field.type if field.required else Optional[field.type]
     return st.from_type(typ)  # type:ignore[arg-type]
 
 
+def _make_dataset(*, type: DatasetType, args: dict, read_only: dict) -> Dataset:
+    dset = Dataset(type=type, **args)
+    for key, val in read_only.items():
+        setattr(dset, "_" + key, val)
+    return dset
+
+
 def datasets(
-    dataset_type: Optional[DatasetType] = None, **fixed: Any
+    dataset_type: Optional[DatasetType] = None, for_upload: bool = False, **fixed: Any
 ) -> st.SearchStrategy[Dataset]:
     if dataset_type is None:
-        return st.sampled_from(DatasetType).flatmap(partial(datasets, **fixed))
+        return st.sampled_from(DatasetType).flatmap(
+            partial(datasets, for_upload=for_upload, **fixed)
+        )
 
     def make_fixed_arg(key: str) -> st.SearchStrategy[Any]:
         val = fixed[key]
@@ -104,9 +138,7 @@ def datasets(
     def make_arg(field: Dataset.Field) -> st.SearchStrategy[Any]:
         if field.name in fixed:
             return make_fixed_arg(field.name)
-        return _field_strategy(
-            field, dataset_type=dataset_type  # type: ignore[arg-type]
-        )
+        return _field_strategy(field)
 
     def make_args(read_only: bool) -> Dict[str, st.SearchStrategy[Any]]:
         return {
@@ -115,11 +147,19 @@ def datasets(
             if field.name != "type"
         }
 
-    kwargs = make_args(read_only=False)
-    read_only_arg = st.fixed_dictionaries(make_args(read_only=True))
+    args = st.fixed_dictionaries(
+        {
+            **make_args(read_only=False),
+            "checksum_algorithm": st.sampled_from(("blake2b", "sha256")),
+        }
+    )
+    if not for_upload:
+        read_only = st.fixed_dictionaries(make_args(read_only=True))
+    else:
+        read_only = st.just({})
     return st.builds(
-        Dataset,
+        _make_dataset,
         type=st.just(dataset_type),
-        _read_only=read_only_arg,
-        **kwargs,
+        args=args,
+        read_only=read_only,
     )

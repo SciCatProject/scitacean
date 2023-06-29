@@ -1,0 +1,25 @@
+# Validators in pydantic models.
+# See _base_model.py for supported validators.
+# `size` is realized by replacing the field's type with `NonNegativeInt`.
+# Field names must be SciCat names (camelCase).
+
+Dataset:
+  contactEmail: emails
+  ownerEmail: emails
+
+  numberOfFiles: size
+  numberOfFilesArchived: size
+  packedSize: size
+  size: size
+
+  orcidOfOwner: orcids
+
+DataFile:
+  size: size
+
+Datablock:
+  packedSize: size
+  size: size
+
+OrigDatablock:
+  size: size

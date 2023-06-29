@@ -11,7 +11,7 @@ from dateutil.parser import parse as parse_date
 from scitacean import File, IntegrityError, RemotePath
 from scitacean.file import checksum_of_file
 from scitacean.logging import logger_name
-from scitacean.model import DataFile
+from scitacean.model import DownloadDataFile
 
 from .common.files import make_file
 
@@ -114,7 +114,7 @@ def test_file_from_local_remote_path_uses_forward_slash(fs):
 
 
 def test_file_from_scicat():
-    model = DataFile(
+    model = DownloadDataFile(
         path="dir/image.jpg", size=12345, time=parse_date("2022-06-22T15:42:53.123Z")
     )
     file = File.from_scicat(model)
@@ -128,7 +128,7 @@ def test_file_from_scicat():
 
 def test_file_from_scicat_remote_path_uses_forward_slash():
     file = File.from_scicat(
-        DataFile(
+        DownloadDataFile(
             path="data/subdir/file.dat",
             size=0,
             time=parse_date("2022-06-22T15:42:53.123Z"),
@@ -138,7 +138,7 @@ def test_file_from_scicat_remote_path_uses_forward_slash():
     assert file.remote_path == RemotePath("data/subdir/file.dat")
 
     file = File.from_scicat(
-        DataFile(
+        DownloadDataFile(
             path="data/subdir/file.dat",
             size=0,
             time=parse_date("2022-06-22T15:42:53.123Z"),
@@ -194,12 +194,11 @@ def test_uploaded(fake_file):
 
 
 def test_downloaded():
-    model = DataFile(
+    model = DownloadDataFile(
         path="dir/stream.s",
         size=55123,
         time=parse_date("2025-01-09T21:00:21.421Z"),
         perm="xrw",
-        createdBy="creator-id",
     )
     file = File.from_scicat(model)
     downloaded = file.downloaded(local_path="/local/stream.s")
@@ -210,7 +209,6 @@ def test_downloaded():
     assert downloaded.remote_path == RemotePath("dir/stream.s")
     assert downloaded.local_path == Path("/local/stream.s")
     assert downloaded.remote_perm == "xrw"
-    assert downloaded.created_by == "creator-id"
 
 
 def test_creation_time_is_always_local_time(fake_file):
@@ -281,7 +279,7 @@ def test_checksum_is_up_to_date(fs, fake_file):
 
 
 def test_validate_after_download_detects_bad_checksum(fake_file):
-    model = DataFile(
+    model = DownloadDataFile(
         path=fake_file["path"].name,
         size=fake_file["size"],
         time=parse_date("2022-06-22T15:42:53.123Z"),
@@ -298,7 +296,7 @@ def test_validate_after_download_detects_bad_checksum(fake_file):
 
 
 def test_validate_after_download_ignores_checksum_if_no_algorithm(fake_file):
-    model = DataFile(
+    model = DownloadDataFile(
         path=fake_file["path"].name,
         size=fake_file["size"],
         time=parse_date("2022-06-22T15:42:53.123Z"),
@@ -312,7 +310,7 @@ def test_validate_after_download_ignores_checksum_if_no_algorithm(fake_file):
 
 
 def test_validate_after_download_detects_size_mismatch(fake_file, caplog):
-    model = DataFile(
+    model = DownloadDataFile(
         path=fake_file["path"].name,
         size=fake_file["size"] + 100,
         time=parse_date("2022-06-22T15:42:53.123Z"),
@@ -330,7 +328,14 @@ def test_validate_after_download_detects_size_mismatch(fake_file, caplog):
 
 @pytest.mark.parametrize("chk", ("sha256", None))
 def test_local_is_not_up_to_date_for_remote_file(chk):
-    file = File.from_scicat(DataFile(path="data.csv", size=65178, chk=chk))
+    file = File.from_scicat(
+        DownloadDataFile(
+            path="data.csv",
+            size=65178,
+            chk=chk,
+            time=parse_date("2022-06-22T15:42:53.123Z"),
+        )
+    )
     assert not file.local_is_up_to_date()
 
 
@@ -348,14 +353,19 @@ def test_local_is_up_to_date_default_checksum_alg(fs):
     fs.create_file("data.csv", contents=contents)
 
     file = File.from_scicat(
-        DataFile(path="data.csv", size=65178, chk=checksum)
+        DownloadDataFile(
+            path="data.csv",
+            size=65178,
+            chk=checksum,
+            time=parse_date("2022-06-22T15:42:53.123Z"),
+        )
     ).downloaded(local_path="data.csv")
     with pytest.warns(UserWarning):
         assert file.local_is_up_to_date()
 
 
 def test_local_is_up_to_date_matching_checksum(fake_file):
-    model = DataFile(
+    model = DownloadDataFile(
         path=fake_file["path"].name,
         size=fake_file["size"],
         time=parse_date("2022-06-22T15:42:53.123Z"),
@@ -369,7 +379,7 @@ def test_local_is_up_to_date_matching_checksum(fake_file):
 
 
 def test_local_is_not_up_to_date_differing_checksum(fake_file):
-    model = DataFile(
+    model = DownloadDataFile(
         path=fake_file["path"].name,
         size=fake_file["size"],
         time=parse_date("2022-06-22T15:42:53.123Z"),

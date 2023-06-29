@@ -1,0 +1,187 @@
+{% macro init_arg_type(field) %}
+{%- if field.conversion is none -%}
+    Optional[{{ field.type_for("user")|replace("NonNegativeInt", "int") }}]
+{%- else -%}
+    Optional[{{ field.conversion.arg_type }}]
+{%- endif -%}
+{% endmacro %}
+
+{% macro field_assignment(field) %}
+{%- if field.conversion is none -%}
+    self._{{ field.name }} = {{ field.name }}
+{%- else -%}
+    self._{{ field.name }} = {{ field.conversion.func }}({{ field.name }})
+{%- endif -%}
+{% endmacro %}
+
+{{ banner }}
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
+# flake8: noqa
+
+"""Base class for Dataset."""
+
+from __future__ import annotations
+
+from datetime import datetime, timezone
+from typing import Any, Dict, List, Literal, Optional, Tuple, Union
+
+import dateutil.parser
+
+from ._internal.dataclass_wrapper import dataclass_optional_args
+from .datablock import OrigDatablock
+from .filesystem import RemotePath
+from .model import (
+    DatasetType,
+    DownloadDataset,
+    Lifecycle,
+    History,
+    Relationship,
+    Technique,
+)
+from .pid import PID
+
+
+def _parse_datetime(x: Optional[Union[datetime, str]]) -> Optional[datetime]:
+    if isinstance(x, datetime) or x is None:
+        return x
+    if x == "now":
+        return datetime.now(tz=timezone.utc)
+    return dateutil.parser.parse(x)
+
+
+def _parse_pid(pid: Optional[Union[str, PID]]) -> Optional[PID]:
+    if pid is None:
+        return pid
+    return PID.parse(pid)
+
+
+def _parse_remote_path(path: Optional[Union[str, RemotePath]]) -> Optional[RemotePath]:
+    if path is None:
+        return path
+    return RemotePath(path)
+
+
+def _validate_checksum_algorithm(algorithm: Optional[str]) -> Optional[str]:
+    if algorithm is None:
+        return algorithm
+    import hashlib
+
+    if algorithm not in hashlib.algorithms_available:
+        raise ValueError(f"Checksum algorithm not recognized: {algorithm}")
+    return algorithm
+
+
+class DatasetBase:
+    @dataclass_optional_args(frozen=True, kw_only=True, slots=True)
+    class Field:
+        name: str
+        description: str
+        read_only: bool
+        required: bool
+        scicat_name: str
+        type: type
+        used_by_derived: bool
+        used_by_raw: bool
+
+        def used_by(self, dataset_type: DatasetType) -> bool:
+            return (
+                self.used_by_raw
+                if dataset_type == DatasetType.RAW
+                else self.used_by_derived
+            )
+
+    _FIELD_SPEC = [
+{%- for field in spec.user_dset_fields(manual=False)|sort(attribute="name") -%}
+        Field(
+            name="{{ field.name }}",
+            description="{{ field.description }}",
+            read_only={{ not field.upload }},
+            required={{ field.required }},
+            scicat_name="{{ field.scicat_name }}",
+            type={{ field.type_for("user")|replace("NonNegativeInt", "int") }},
+            used_by_derived={{ field.used_by_derived or not field.upload }},
+            used_by_raw={{ field.used_by_raw or not field.upload }},
+        ),
+{%- endfor -%}
+    ]
+
+    __slots__ = (
+{% for field in spec.user_dset_fields(manual=False)|sort(attribute="name") %}
+        "_{{ field.name }}",
+{% endfor %}
+        "_meta",
+        "_default_checksum_algorithm",
+        "_orig_datablocks",
+    )
+
+    def __init__(self,
+        type: Union[DatasetType, Literal["raw", "derived"]],
+{%- for field in spec.user_dset_fields(manual=False)|sort(attribute="name")|rejectattr("name", "eq", "type")|selectattr("upload") %}
+        {{ field.name }}: {{ init_arg_type(field) }} = {{ field.default }},
+{%- endfor %}
+        meta: Optional[Dict[str, Any]] = None,
+        checksum_algorithm: Optional[str] = "blake2b",
+    ) -> None:
+        self._type = DatasetType(type)
+{%- for field in spec.user_dset_fields(manual=False)|sort(attribute="name")|rejectattr("name", "eq", "type")|selectattr("upload") %}
+        {{ field_assignment(field) }}
+{%- endfor %}
+{%- for field in spec.user_dset_fields(manual=False)|sort(attribute="name")|rejectattr("upload") %}
+        self._{{ field.name }} = None
+{%- endfor %}
+        self._meta = meta or {}
+        self._default_checksum_algorithm = _validate_checksum_algorithm(
+            checksum_algorithm
+        )
+        self._orig_datablocks: List[OrigDatablock] = []
+
+{%- for field in spec.user_dset_fields(manual=False)|sort(attribute="name") %}
+    @property
+    def {{ field.name }}(self) -> Optional[{{ field.type_for("user") }}]:
+        """{{ field.description }}"""
+        return self._{{ field.name }}
+{% if field.upload %}
+    @{{ field.name }}.setter
+    def {{ field.name }}(self, {{ field.name }}: {{ init_arg_type(field) }}) -> None:
+        """{{ field.description }}"""
+        {{ field_assignment(field) }}
+{% endif %}
+{%- endfor %}
+
+    @property
+    def meta(self) -> Dict[str, Any]:
+        """Dict of scientific metadata."""
+        return self._meta
+
+    @meta.setter
+    def meta(self, meta: Dict[str, Any]) -> None:
+        """Dict of scientific metadata."""
+        self._meta = meta
+
+    @staticmethod
+    def _prepare_fields_from_download(
+        download_model: DownloadDataset
+    ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+        init_args = {}
+        read_only = {}
+        for field in DatasetBase._FIELD_SPEC:
+            if field.read_only:
+                read_only["_"+field.name] = getattr(download_model, field.scicat_name)
+            else:
+                init_args[field.name] = getattr(download_model, field.scicat_name)
+
+        init_args["meta"] = download_model.scientificMetadata
+        DatasetBase._convert_readonly_fields_in_place(read_only)
+
+        return init_args, read_only
+
+    @staticmethod
+    def _convert_readonly_fields_in_place(read_only: Dict[str, Any]) -> Dict[str, Any]:
+{% for field in spec.user_dset_fields(manual=False)|sort(attribute="name")|selectattr("conversion") %}
+        {%- if not field.upload %}
+        if "_{{ field.name }}" in read_only:
+            read_only["_{{ field.name }}"] = {{ field.conversion.func }}(read_only["_{{ field.name }}"])
+        {%- endif -%}
+{%- endfor %}
+        return read_only

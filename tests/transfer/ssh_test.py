@@ -1,20 +1,17 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
 import dataclasses
-import re
 import tempfile
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from uuid import uuid4
 
 import fabric
 import paramiko
 import pytest
 
 from scitacean import Dataset, File, FileUploadError, RemotePath
+from scitacean.testing.ssh import IgnorePolicy, skip_if_not_ssh
 from scitacean.transfer.ssh import SSHFileTransfer
-
-from ..common.ssh_server import IgnorePolicy, skip_if_not_ssh
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -71,27 +68,26 @@ def test_upload_one_file_source_folder_in_dataset(
 def test_upload_one_file_source_folder_in_transfer(
     ssh_access, ssh_connect_with_username_password, tmp_path, ssh_data_dir
 ):
-    ds = Dataset(type="raw", pid="abcd-12")
+    ds = Dataset(type="raw", owner="librarian")
     with open(tmp_path / "file1.txt", "w") as f:
         f.write("File no. 2")
 
-    source_uid = str(uuid4())
     ssh = SSHFileTransfer(
         host=ssh_access.host,
         port=ssh_access.port,
-        source_folder=f"/data/upload/{source_uid}",
+        source_folder="/data/upload/{owner}",
     )
     with ssh.connect_for_upload(
         dataset=ds, connect=ssh_connect_with_username_password
     ) as con:
-        assert re.match(r"/data/upload/[a-d0-9\-]+", con.source_folder.posix)
+        assert con.source_folder == RemotePath("/data/upload/librarian")
         con.upload_files(
             File.from_local(
                 path=tmp_path / "file1.txt", remote_path=RemotePath("upload_1.txt")
             )
         )
 
-    with open(ssh_data_dir / "upload" / source_uid / "upload_1.txt", "r") as f:
+    with open(ssh_data_dir / "upload" / "librarian" / "upload_1.txt", "r") as f:
         assert f.read() == "File no. 2"
 
 
@@ -239,10 +235,10 @@ def ssh_corrupting_connect(ssh_access, ssh_connection_config):
         connection = fabric.Connection(
             host=host,
             port=port,
-            user=ssh_access.username,
+            user=ssh_access.user.username,
             config=ssh_connection_config,
             connect_kwargs={
-                "password": ssh_access.password,
+                "password": ssh_access.user.password,
                 "transport_factory": CorruptingTransfer,
                 **ssh_connection_config.connect_kwargs,
             },
@@ -301,10 +297,10 @@ def ssh_raising_connect(ssh_access, ssh_connection_config):
         connection = fabric.Connection(
             host=host,
             port=port,
-            user=ssh_access.username,
+            user=ssh_access.user.username,
             config=ssh_connection_config,
             connect_kwargs={
-                "password": ssh_access.password,
+                "password": ssh_access.user.password,
                 "transport_factory": RaisingTransfer,
                 **ssh_connection_config.connect_kwargs,
             },

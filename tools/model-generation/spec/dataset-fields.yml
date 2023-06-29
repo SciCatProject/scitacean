@@ -1,0 +1,41 @@
+# Customize fields of Dataset.
+# Field names must be SciCat names (camelCase).
+
+# Mark these fields as manual.
+# They will not be included in the list of regular fields and
+# require manual implementations of getters and setters.
+# This is useful, e.g., to deduce values from other fields.
+manual:
+  - datablocks
+  - scientificMetadata
+  - numberOfFiles
+  - numberOfFilesArchived
+  - origdatablocks
+  - packedSize
+  - size
+
+# Default values used in __init__
+defaults:
+  creationTime: '"now"'
+
+# Conversion functions to turn values into a uniform datatype.
+# They are used both for values set by the user of Scitacean and for values downloaded from SCiCat.
+#   func: Function to call on input values.
+#         The return type must be the type of the field (see also field-type-overrides.yml).
+#   arg_type: Type hint for input values.
+conversions:
+  creationTime:
+    func: _parse_datetime
+    arg_type: Union[str, datetime]
+  pid:
+    func: _parse_pid
+    arg_type: Union[PID, str]
+  sourceFolder:
+    func: _parse_remote_path
+    arg_type: Union[RemotePath, str]
+
+# Mark those fields as read-only in addition to those identified as read only from the schema.
+# Read-only fields must be None in uploads.
+extra_read_only:
+  - version
+  - pid

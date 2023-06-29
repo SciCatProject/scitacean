@@ -1,117 +1,407 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
-"""Load model specification files."""
-
+"""Load model specifications."""
 import dataclasses
+import re
+import sys
+from copy import deepcopy
+from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Literal, Optional, Union
 
 import yaml
 
-SPEC_DIR = Path(__file__).resolve().parent
-
-DEFAULTS = {
-    "default": None,
-    "default_factory": None,
-    "manual": False,
-    "model_name": None,  # equals field name
-    "read_only": False,
-    "required": False,
-    "validation": None,
-}
+from .schema import Schema, SchemaField, load_schemas
 
 
 @dataclasses.dataclass
-class Field:
+class _UpDownSchemas:
+    download: Schema
+    upload: Optional[Schema]
+
+
+@dataclasses.dataclass
+class _DatasetSchemas:
+    download: Schema
+    upload_derived: Schema
+    upload_raw: Schema
+
+
+@dataclasses.dataclass
+class SpecField:
     name: str
-    default: Optional[Any]
-    default_factory: Optional[str]
+    scicat_name: str
     description: str
-    extra: Optional[dict]
-    manual: bool
-    model_name: str
-    read_only: bool
-    required: bool
     type: str
-    validation: Optional[str]
+    required: bool  # Required in upload.
+    default: Optional[str] = None
+    upload: bool = False
+    download: bool = False
+    validation: Optional[str] = None
+
+    def full_type_for(self, kind: Literal["download", "upload", "user"]) -> str:
+        return (
+            self.type_for(kind)
+            if self.required and kind != "download"
+            else f"Optional[{self.type_for(kind)}]"
+        )
+
+    def type_for(self, kind: Literal["download", "upload", "user"]) -> str:
+        """Translate SciCat schema/DTO names into Scitacean model names."""
+        if kind == "upload":
+            prefix = "Upload"
+        elif kind == "download":
+            prefix = "Download"
+        else:
+            prefix = ""
+
+        for spec_name in _SCHEMA_GROUPS:
+            if spec_name in self.type:
+                return re.sub(str(spec_name), f"{prefix}{spec_name}", self.type)
+        return self.type
 
 
 @dataclasses.dataclass
 class Spec:
     name: str
-    inherits: str
-    fields: List[Field]
+    download_name: str = dataclasses.field(init=False)
+    upload_name: Optional[str] = dataclasses.field(init=False)
+    fields: Dict[str, SpecField]
+    masked_fields_download: Dict[str, SpecField] = dataclasses.field(init=False)
+    masked_fields_upload: Dict[str, SpecField] = dataclasses.field(init=False)
+
+    def __post_init__(self) -> None:
+        if _SCHEMA_GROUPS.get(self.name, (None, None))[0]:
+            self.upload_name = f"Upload{self.name}"
+        else:
+            self.upload_name = None
+        self.download_name = f"Download{self.name}"
+        self.masked_fields_download = {}
+        self.masked_fields_upload = {}
+
+    def fields_for(
+        self, kind: Literal["download", "upload", "user"]
+    ) -> List[SpecField]:
+        return sorted(
+            sorted(
+                filter(
+                    lambda field: (kind == "download" and field.download)
+                    or (kind == "upload" and field.upload)
+                    or (kind == "user"),
+                    self.fields.values(),
+                ),
+                key=lambda field: field.name,
+            ),
+            key=lambda field: not field.required,
+        )
 
 
-def _load_raw(path: Path):
-    with path.open("r") as f:
+@dataclasses.dataclass
+class DatasetFieldConversion:
+    func: str
+    arg_type: str
+
+
+@dataclasses.dataclass
+class DatasetField(SpecField):
+    conversion: Optional[DatasetFieldConversion] = None
+    default: Optional[Any] = None
+    manual: bool = False
+
+    # These are only used for upload models.
+    # For downloads, all fields should be considered as used.
+    used_by_derived: bool = False
+    used_by_raw: bool = False
+
+
+@dataclasses.dataclass
+class DatasetSpec(Spec):
+    download_name: str = dataclasses.field(default="DownloadDataset", init=False)
+    upload_name: Optional[str] = dataclasses.field(default="UploadDataset", init=False)
+    fields: Dict[str, DatasetField]
+
+    def dset_fields_for(
+        self,
+        kind: Literal["download", "upload", "user"],
+        dset_type: Literal["derived", "raw"],
+    ) -> List[DatasetField]:
+        return list(
+            filter(
+                lambda field: field.used_by_derived
+                if dset_type == "derived"
+                else field.used_by_raw,
+                self.fields_for(kind),
+            )
+        )
+
+    def user_dset_fields(self, manual: Optional[bool] = None) -> List[DatasetField]:
+        if manual is None:
+            return list(self.fields.values())
+        return [field for field in self.fields.values() if field.manual == manual]
+
+
+_SCHEMA_GROUPS = {
+    "Attachment": ("CreateAttachmentDto", "Attachment"),
+    "OrigDatablock": ("CreateOrigDatablockDto", "OrigDatablock"),
+    "Datablock": ("CreateDatasetDatablockDto", "Datablock"),
+    "Lifecycle": (None, "LifecycleClass"),
+    "Technique": ("TechniqueClass", "TechniqueClass"),
+    "Relationship": ("RelationshipClass", "RelationshipClass"),
+    "History": (None, "HistoryClass"),
+    "DataFile": ("DataFile", "DataFile"),
+    "Instrument": (None, "Instrument"),
+    "Sample": ("CreateSampleDto", "SampleClass"),
+}
+
+
+def _collect_schemas(
+    schemas: Dict[str, Schema]
+) -> Dict[str, Union[_UpDownSchemas, _DatasetSchemas]]:
+    return {
+        "Dataset": _DatasetSchemas(
+            upload_derived=schemas["CreateDerivedDatasetDto"],
+            upload_raw=schemas["CreateRawDatasetDto"],
+            download=schemas["DatasetClass"],
+        ),
+        **{
+            name: _UpDownSchemas(
+                download=schemas[down_name],
+                upload=schemas[up_name] if up_name else None,
+            )
+            for name, (up_name, down_name) in _SCHEMA_GROUPS.items()
+        },
+    }
+
+
+def _camel_case_to_snake_case(string: str) -> str:
+    """Convert a string from camelCase to snake_case."""
+
+    def repl(match):
+        return "_" + match[1].lower()
+
+    return re.sub(r"([A-Z])", repl, string)
+
+
+def _get_common_field_attr(
+    name: str, allow_mismatch: bool = False, **fields: SchemaField
+) -> Any:
+    source_key = None
+    val = None
+    for key, field in fields.items():
+        if field is None:
+            continue
+        if val is None:
+            source_key = key
+            val = getattr(field, name)
+        else:
+            if not allow_mismatch and val != getattr(field, name):
+                sys.stderr.write(
+                    f"Mismatch in field {name}:\n"
+                    f" {source_key}:\n {val}\n {key}:\n {getattr(field, name)}\n"
+                )
+    return val
+
+
+def _merge_field(
+    name: str, download: Optional[SchemaField], upload: Optional[SchemaField]
+) -> SpecField:
+    fields = {"download": download, "upload": upload}
+    return SpecField(
+        name=_camel_case_to_snake_case(_get_common_field_attr("name", **fields)),
+        scicat_name=name,
+        description=_get_common_field_attr(
+            "description", allow_mismatch=True, **fields
+        ),
+        type=_get_common_field_attr("type", **fields),
+        required=upload is not None and upload.required,
+        download=download is not None,
+        upload=upload is not None,
+    )
+
+
+def _build_spec(name: str, schemas: _UpDownSchemas) -> Spec:
+    field_names = set(schemas.download.fields.keys())
+    if schemas.upload is not None:
+        field_names |= set(schemas.upload.fields.keys())
+    fields = {
+        name: _merge_field(
+            name,
+            download=schemas.download.fields.get(name),
+            upload=schemas.upload.fields.get(name)
+            if schemas.upload is not None
+            else None,
+        )
+        for name in field_names
+    }
+    return Spec(
+        name=name,
+        fields=fields,
+    )
+
+
+def _merge_dataset_field(
+    name: str,
+    download: Optional[SchemaField],
+    raw_upload: Optional[SchemaField],
+    derived_upload: Optional[SchemaField],
+) -> DatasetField:
+    fields = {
+        "download": download,
+        "raw_upload": raw_upload,
+        "derived_upload": derived_upload,
+    }
+    required = (raw_upload is not None and raw_upload.required) or (
+        derived_upload is not None and derived_upload.required
+    )
+    return DatasetField(
+        name=_camel_case_to_snake_case(_get_common_field_attr("name", **fields)),
+        scicat_name=name,
+        description=_get_common_field_attr(
+            "description", allow_mismatch=True, **fields
+        ),
+        type=_get_common_field_attr("type", **fields),
+        required=required,
+        download=download is not None,
+        upload=raw_upload is not None or derived_upload is not None,
+        used_by_derived=derived_upload is not None,
+        used_by_raw=raw_upload is not None,
+    )
+
+
+def _build_dataset_spec(name: str, schemas: _DatasetSchemas) -> DatasetSpec:
+    field_names = (
+        schemas.download.fields.keys()
+        | schemas.upload_raw.fields.keys()
+        | schemas.upload_derived.fields.keys()
+    )
+    fields = {
+        name: _merge_dataset_field(
+            name,
+            download=schemas.download.fields.get(name),
+            raw_upload=schemas.upload_raw.fields.get(name),
+            derived_upload=schemas.upload_derived.fields.get(name),
+        )
+        for name in field_names
+    }
+    return DatasetSpec(
+        name=name,
+        fields=fields,
+    )
+
+
+@lru_cache
+def _masked_fields() -> Dict[str, List[str]]:
+    with open(Path(__file__).resolve().parent / "masked-fields.yml", "r") as f:
         return yaml.safe_load(f)
 
 
-def _load_raw_specs() -> dict:
-    return {
-        spec["name"]: spec
-        for spec in (
-            _load_raw(path) for path in SPEC_DIR.iterdir() if path.suffix == ".yml"
-        )
-    }
-
-
-def _get_defaults(spec: dict) -> dict:
-    return {**DEFAULTS, **spec.get("default_values", {})}
-
-
-def _apply_defaults_field(field: dict, defaults: dict) -> dict:
-    new_field = dict(field)
-    for key, default_value in defaults.items():
-        if key not in new_field:
-            if key == "model_name":
-                new_field[key] = new_field["name"]
+def _mask_fields(spec: Spec) -> Spec:
+    spec = deepcopy(spec)
+    masked = _masked_fields()
+    for field_name in masked.get(spec.name, []):
+        if isinstance(field_name, dict):
+            ((field_name, updown),) = field_name.items()
+            if updown == "upload":
+                spec.fields[field_name].upload = False
+                spec.masked_fields_upload[field_name] = spec.fields[field_name]
+            elif updown == "download":
+                spec.masked_fields_download[field_name] = spec.fields[field_name]
             else:
-                new_field[key] = default_value
-    return new_field
+                raise ValueError("Invalid mask value")
+        else:
+            spec.masked_fields_upload[field_name] = spec.fields[field_name]
+            spec.masked_fields_download[field_name] = spec.fields.pop(field_name)
+    return spec
 
 
-def _apply_defaults(spec: dict) -> dict:
-    defaults = _get_defaults(spec)
-    new_spec = dict(spec)
-    new_spec["fields"] = [
-        _apply_defaults_field(field, defaults) for field in spec["fields"]
-    ]
-    return new_spec
+@lru_cache
+def _field_name_overrides() -> Dict[str, Dict[str, str]]:
+    with open(Path(__file__).resolve().parent / "field-name-overrides.yml", "r") as f:
+        return yaml.safe_load(f)
 
 
-def _validate(spec: dict):
-    for s in spec.values():
-        for field in s["fields"]:
-            if field.get("default") and field.get("default_factory"):
-                raise ValueError("Cannot use both default and default_factory")
+def _postprocess_field_names(spec: Spec) -> Spec:
+    spec = deepcopy(spec)
+    overrides = _field_name_overrides()
+    for field_name, override in overrides.get(spec.name, {}).items():
+        spec.fields[field_name].name = override
+    return spec
 
 
-def _to_field_dataclass(field: dict) -> Field:
-    field = dict(field)
-    args = {
-        f.name: field.pop(f.name)
-        for f in dataclasses.fields(Field)
-        if f.name != "extra"
+@lru_cache
+def _field_type_overrides() -> Dict[str, Dict[str, str]]:
+    with open(Path(__file__).resolve().parent / "field-type-overrides.yml", "r") as f:
+        return yaml.safe_load(f)
+
+
+def _postprocess_field_types(spec: Spec) -> Spec:
+    spec = deepcopy(spec)
+
+    # Convert type names in the schema to Scitacean class names.
+    for field in spec.fields.values():
+        for class_name, model_names in _SCHEMA_GROUPS.items():
+            for name in model_names:
+                if name and name in field.type:
+                    field.type = re.sub(name, class_name, field.type)
+
+    overrides = _field_type_overrides()
+    for field_name, override in overrides.get(spec.name, {}).items():
+        spec.fields[field_name].type = override
+    return spec
+
+
+@lru_cache
+def _field_validations() -> Dict[str, Dict[str, str]]:
+    with open(Path(__file__).resolve().parent / "field-validations.yml", "r") as f:
+        return yaml.safe_load(f)
+
+
+def _assign_validations(spec: Spec) -> Spec:
+    validations = _field_validations()
+    if spec.name not in validations:
+        return spec
+
+    spec = deepcopy(spec)
+    for field_name, validation in validations[spec.name].items():
+        if validation == "size":
+            spec.fields[field_name].type = "NonNegativeInt"
+        else:
+            spec.fields[field_name].validation = validation
+    return spec
+
+
+@lru_cache
+def _dataset_field_customizations() -> Dict[str, Any]:
+    with open(Path(__file__).resolve().parent / "dataset-fields.yml", "r") as f:
+        return yaml.safe_load(f)
+
+
+def _extend_dataset_fields(spec: DatasetSpec) -> DatasetSpec:
+    customizations = _dataset_field_customizations()
+    spec = deepcopy(spec)
+
+    for name, field in spec.fields.items():
+        field.manual = name in customizations["manual"]
+        field.default = customizations["defaults"].get(name)
+        if (conv := customizations["conversions"].get(name)) is not None:
+            field.conversion = DatasetFieldConversion(**conv)
+        if name in customizations["extra_read_only"]:
+            field.upload = False
+    return spec
+
+
+def load_specs(schema_url: str) -> Dict[str, Any]:
+    schemas = _collect_schemas(load_schemas(schema_url))
+    dataset_schema = schemas.pop("Dataset")
+    specs = {
+        "Dataset": _extend_dataset_fields(
+            _build_dataset_spec("Dataset", dataset_schema)
+        ),
+        **{name: _build_spec(name, updown) for name, updown in schemas.items()},
     }
-    extra = field
-    return Field(**args, extra=extra)
-
-
-def _to_spec_dataclasses(specs: dict) -> Dict[str, Spec]:
     return {
-        name: Spec(
-            name=name,
-            inherits=spec.get("inherits", "BaseModel"),
-            fields=[_to_field_dataclass(f) for f in spec["fields"]],
+        name: _assign_validations(
+            _postprocess_field_types(_postprocess_field_names(_mask_fields(spec)))
         )
         for name, spec in specs.items()
     }
-
-
-def load_specs() -> Dict[str, Spec]:
-    raw_specs = _load_raw_specs()
-    defaults_applied = {name: _apply_defaults(spec) for name, spec in raw_specs.items()}
-    _validate(defaults_applied)
-    return _to_spec_dataclasses(defaults_applied)

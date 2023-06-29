@@ -41,6 +41,7 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 ssh = ["fabric"]
+test = ["filelock", "hypothesis", "pyyaml"]
 
 [tool.setuptools_scm]
 
@@ -64,6 +65,7 @@ filterwarnings = [
 ]
 
 [tool.mypy]
+plugins = "pydantic.mypy"
 mypy_path = "src"
 exclude = ["venv"]
 ignore_missing_imports = true
@@ -95,3 +97,6 @@ known-first-party = ["scitacean"]
 
 [tool.ruff.pydocstyle]
 convention = "numpy"
+
+[tool.codespell]
+ignore-words-list = "specfield"

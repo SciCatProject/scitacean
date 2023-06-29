@@ -1,0 +1,16 @@
+# Specify types of fields.
+# By default, types are taken from the schemas.
+# Entries in this file override the specified types.
+# Field names must be SciCat names (camelCase).
+
+Dataset:
+  inputDatasets: List[PID]
+  pid: PID
+  sourceFolder: RemotePath
+  type: DatasetType
+Datablock:
+  datasetId: PID
+OrigDatablock:
+  datasetId: PID
+Relationship:
+  pid: PID

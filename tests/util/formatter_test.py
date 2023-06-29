@@ -1,7 +1,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
 
-from scitacean import Dataset
+import pytest
+
+from scitacean import PID, Dataset
 from scitacean.util.formatter import DatasetPathFormatter
 
 
@@ -14,7 +16,8 @@ def test_dataset_formatter_uses_dataset_fields():
 
 
 def test_dataset_formatter_can_access_attrs_of_fields():
-    dset = Dataset(type="raw", pid="prefix/actual-id")
+    dset = Dataset(type="raw")
+    dset._pid = PID.parse("prefix/actual-id")
     formatted = DatasetPathFormatter().format("{pid.pid}", dset=dset)
     assert formatted == "actual-id"
 
@@ -52,3 +55,9 @@ def test_dataset_formatter_preserves_path_separators():
     dset = Dataset(type="raw", owner="Nanny Ogg")
     formatted = DatasetPathFormatter().format("{type}/{owner}.data", dset=dset)
     assert formatted == "raw/Nanny Ogg.data"
+
+
+def test_dataset_formatter_does_not_allow_none():
+    dset = Dataset(type="raw", owner=None)
+    with pytest.raises(ValueError):
+        DatasetPathFormatter().format("{owner}", dset=dset)

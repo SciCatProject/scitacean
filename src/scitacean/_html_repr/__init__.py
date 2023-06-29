@@ -11,7 +11,7 @@ import pydantic
 
 from ..dataset import Dataset
 from ..filesystem import RemotePath
-from ..model import DatasetLifecycle, DatasetType, Technique
+from ..model import DatasetType, History, Lifecycle, Relationship, Technique
 from ..pid import PID
 from . import resources
 
@@ -161,7 +161,7 @@ def _get_fields(dset: Dataset) -> List[Field]:
             type=field.type,
             description=field.description,
             read_only=field.read_only,
-            required=field.required(dset.type),
+            required=field.required,
             error=_check_error(field, validation),
             main=field.name in _MAIN_FIELDS,
         )
@@ -198,15 +198,17 @@ _TYPE_NAME = {
     str: "str",
     int: "int",
     bool: "bool",
+    dict: "dict",
     datetime: "datetime",
+    History: "History",
+    Lifecycle: "Lifecycle",
     PID: "PID",
-    DatasetLifecycle: "DatasetLifecycle",
     RemotePath: "RemotePath",
     List[str]: "list[str]",
     List[PID]: "list[PID]",
+    List[Relationship]: "list[Relationship]",
     List[Technique]: "list[Technique]",
     List[dict]: "list[dict]",  # type: ignore[type-arg]
-    dict: "dict",
 }
 
 

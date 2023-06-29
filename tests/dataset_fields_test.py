@@ -9,12 +9,22 @@ from datetime import datetime, timedelta, timezone
 import dateutil.parser
 import pydantic
 import pytest
-from hypothesis import given, settings
+from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 
 from scitacean import PID, Dataset, DatasetType
 from scitacean.filesystem import RemotePath
-from scitacean.model import DataFile, DerivedDataset, OrigDatablock, RawDataset
+from scitacean.model import (
+    DownloadDataFile,
+    DownloadDataset,
+    DownloadOrigDatablock,
+    UploadDerivedDataset,
+    UploadRawDataset,
+)
+
+# Fields whose types are not supported by hypothesis.
+# E.g. because they contain `Any`.
+_UNGENERATABLE_FIELDS = ("job_parameters", "meta")
 
 
 def test_init_dataset_with_only_type():
@@ -65,13 +75,6 @@ def test_init_dataset_can_set_creation_time():
     )
 
 
-def test_init_dataset_default_values():
-    dset = Dataset(type="derived")
-    assert dset.history is None
-    assert dset.is_published is False
-    assert dset.meta == {}
-
-
 @pytest.mark.parametrize("field", Dataset.fields(read_only=True), ids=lambda f: f.name)
 def test_cannot_set_read_only_fields(field):
     dset = Dataset(type="raw")
@@ -81,7 +84,10 @@ def test_cannot_set_read_only_fields(field):
 
 @pytest.mark.parametrize(
     "field",
-    filter(lambda f: f.name != "type", Dataset.fields(read_only=False)),
+    filter(
+        lambda f: f.name not in ("type", *_UNGENERATABLE_FIELDS),
+        Dataset.fields(read_only=False),
+    ),
     ids=lambda f: f.name,
 )
 @given(st.data())
@@ -92,7 +98,13 @@ def test_can_init_writable_fields(field, data):
     assert getattr(dset, field.name) == value
 
 
-@pytest.mark.parametrize("field", Dataset.fields(read_only=False), ids=lambda f: f.name)
+@pytest.mark.parametrize(
+    "field",
+    filter(
+        lambda f: f.name not in _UNGENERATABLE_FIELDS, Dataset.fields(read_only=False)
+    ),
+    ids=lambda f: f.name,
+)
 @given(st.data())
 @settings(max_examples=10)
 def test_can_set_writable_fields(field, data):
@@ -104,7 +116,7 @@ def test_can_set_writable_fields(field, data):
 
 @pytest.mark.parametrize(
     "field",
-    filter(lambda f: not f.read_only and f.name != "creation_time", Dataset.fields()),
+    filter(lambda f: not f.read_only, Dataset.fields()),
     ids=lambda f: f.name,
 )
 def test_can_set_writable_fields_to_none(field):
@@ -113,19 +125,18 @@ def test_can_set_writable_fields_to_none(field):
     assert getattr(dset, field.name) is None
 
 
-def test_cannot_set_creation_time_to_none():
-    dset = Dataset(type="raw")
-    with pytest.raises(TypeError):
-        dset.creation_time = None
-
-
 def test_init_from_models_sets_metadata():
-    dset = Dataset.from_models(
-        dataset_model=RawDataset(
+    dset = Dataset.from_download_models(
+        dataset_model=DownloadDataset(
             contactEmail="p.stibbons@uu.am",
             creationTime=dateutil.parser.parse("2022-01-10T11:14:52+02:00"),
+            numberOfFiles=0,
+            numberOfFilesArchived=0,
+            packedSize=0,
+            pid=PID.parse("prefix/0123-ab"),
             principalInvestigator="my principal investigator",
             owner="PonderStibbons",
+            size=0,
             sourceFolder=RemotePath("/hex/source91"),
             type=DatasetType.RAW,
             ownerGroup="faculty",
@@ -133,10 +144,12 @@ def test_init_from_models_sets_metadata():
             createdAt=dateutil.parser.parse("2022-01-10T12:41:22+02:00"),
         ),
         orig_datablock_models=[
-            OrigDatablock(
+            DownloadOrigDatablock(
                 dataFileList=[],
+                datasetId=PID.parse("prefix/0123-ab"),
                 size=0,
                 ownerGroup="faculty",
+                chkAlg="md5",
             )
         ],
     )
@@ -151,7 +164,7 @@ def test_init_from_models_sets_metadata():
     assert dset.created_by == "pstibbons"
     assert dset.created_at == dateutil.parser.parse("2022-01-10T12:41:22+02:00")
 
-    assert dset.is_published is False
+    assert dset.is_published is None
     assert dset.owner_email is None
 
     assert len(list(dset.files)) == 0
@@ -162,25 +175,30 @@ def test_init_from_models_sets_metadata():
 
 
 def test_init_from_models_sets_files():
-    dset = Dataset.from_models(
-        dataset_model=RawDataset(
+    dset = Dataset.from_download_models(
+        dataset_model=DownloadDataset(
             contactEmail="p.stibbons@uu.am",
             creationTime=dateutil.parser.parse("2022-01-10T11:14:52-01:00"),
+            numberOfFiles=2,
+            numberOfFilesArchived=0,
             principalInvestigator="librarian@uu.am",
             owner="PonderStibbons",
+            size=6123 + 551,
+            packedSize=0,
+            pid=PID.parse("prefix/abcd-de"),
             sourceFolder=RemotePath("/hex/source91"),
             type=DatasetType.RAW,
             ownerGroup="faculty",
         ),
         orig_datablock_models=[
-            OrigDatablock(
+            DownloadOrigDatablock(
                 dataFileList=[
-                    DataFile(
+                    DownloadDataFile(
                         path="file1.dat",
                         size=6123,
                         time=dateutil.parser.parse("2022-01-09T18:32:01-01:00"),
                     ),
-                    DataFile(
+                    DownloadDataFile(
                         path="sub/file2.png",
                         size=551,
                         time=dateutil.parser.parse("2022-01-09T18:32:42-01:00"),
@@ -188,6 +206,8 @@ def test_init_from_models_sets_files():
                 ],
                 size=6123 + 551,
                 ownerGroup="faculty",
+                datasetId=PID.parse("prefix/abcd-de"),
+                chkAlg="md5",
             )
         ],
     )
@@ -212,38 +232,49 @@ def test_init_from_models_sets_files():
 
 
 def test_init_from_models_sets_files_multi_datablocks():
-    dataset_model = RawDataset(
+    dataset_model = DownloadDataset(
         contactEmail="p.stibbons@uu.am",
         creationTime=dateutil.parser.parse("2022-01-10T11:14:52-01:00"),
+        numberOfFiles=2,
+        numberOfFilesArchived=0,
+        packedSize=0,
+        pid=PID.parse("prefix/abcd-de"),
         principalInvestigator="librarian@uu.am",
         owner="PonderStibbons",
+        size=6123 + 992,
         sourceFolder=RemotePath("/hex/source91"),
         type=DatasetType.RAW,
         ownerGroup="faculty",
     )
     orig_datablock_models = [
-        OrigDatablock(
+        DownloadOrigDatablock(
             dataFileList=[
-                DataFile(
+                DownloadDataFile(
                     path="file1.dat",
                     size=6123,
+                    time=dateutil.parser.parse("2022-01-10T11:14:52-01:00"),
                 )
             ],
+            datasetId=PID.parse("prefix/abcd-de"),
             size=6123,
             ownerGroup="faculty",
+            chkAlg="md5",
         ),
-        OrigDatablock(
+        DownloadOrigDatablock(
             dataFileList=[
-                DataFile(
+                DownloadDataFile(
                     path="sub/file2.png",
                     size=992,
+                    time=dateutil.parser.parse("2022-01-10T11:14:52-01:00"),
                 )
             ],
+            datasetId=PID.parse("prefix/abcd-de"),
             size=992,
             ownerGroup="faculty",
+            chkAlg="md5",
         ),
     ]
-    dset = Dataset.from_models(
+    dset = Dataset.from_download_models(
         dataset_model=dataset_model,
         orig_datablock_models=orig_datablock_models,
     )
@@ -304,7 +335,7 @@ def test_make_raw_model():
         creation_location="ANK/UU",
         shared_with=["librarian", "hicks"],
     )
-    expected = RawDataset(
+    expected = UploadRawDataset(
         contactEmail="p.stibbons@uu.am",
         creationTime=dateutil.parser.parse("2142-04-02T16:44:56"),
         owner="Ponder Stibbons;Mustrum Ridcully",
@@ -312,9 +343,7 @@ def test_make_raw_model():
         principalInvestigator="my principal investigator",
         sourceFolder=RemotePath("/hex/source62"),
         type=DatasetType.RAW,
-        history=None,
-        isPublished=False,
-        scientificMetadata={},
+        scientificMetadata=None,
         creationLocation="ANK/UU",
         sharedWith=["librarian", "hicks"],
         numberOfFiles=0,
@@ -322,7 +351,7 @@ def test_make_raw_model():
         packedSize=0,
         size=0,
     )
-    assert dset.make_model() == expected
+    assert dset.make_upload_model() == expected
 
 
 def test_make_derived_model():
@@ -338,7 +367,7 @@ def test_make_derived_model():
         input_datasets=[PID(pid="623-122")],
         used_software=["scitacean", "magick"],
     )
-    expected = DerivedDataset(
+    expected = UploadDerivedDataset(
         contactEmail="p.stibbons@uu.am;m.ridcully@uu.am",
         creationTime=dateutil.parser.parse("2142-04-02T16:44:56"),
         owner="Ponder Stibbons;Mustrum Ridcully",
@@ -346,8 +375,7 @@ def test_make_derived_model():
         investigator="p.stibbons@uu.am",
         sourceFolder=RemotePath("/hex/source62"),
         type=DatasetType.DERIVED,
-        history=None,
-        isPublished=False,
+        isPublished=None,
         scientificMetadata={"weight": {"value": 5.23, "unit": "kg"}},
         inputDatasets=[PID(pid="623-122")],
         usedSoftware=["scitacean", "magick"],
@@ -356,13 +384,13 @@ def test_make_derived_model():
         packedSize=0,
         size=0,
     )
-    assert dset.make_model() == expected
+    assert dset.make_upload_model() == expected
 
 
 @pytest.mark.parametrize(
     "field",
     filter(
-        lambda f: not f.used_by_raw,
+        lambda f: not f.used_by_raw and f.name not in _UNGENERATABLE_FIELDS,
         Dataset.fields(dataset_type="derived", read_only=False),
     ),
     ids=lambda f: f.name,
@@ -376,19 +404,20 @@ def test_make_raw_model_raises_if_derived_field_set(field, data):
         creation_time="2142-04-02T16:44:56",
         owner="Mustrum Ridcully",
         owner_group="faculty",
-        investigator="p.stibbons@uu.am",
+        principal_investigator="p.stibbons@uu.am",
         source_folder=RemotePath("/hex/source62"),
     )
-    setattr(dset, field.name, data.draw(st.from_type(field.type)))
+    val = data.draw(st.from_type(field.type))
+    assume(val is not None)
+    setattr(dset, field.name, val)
     with pytest.raises(ValueError):
-        dset.make_model()
+        dset.make_upload_model()
 
 
-@pytest.mark.skip("Validation is less strict until full migration to v4")
 @pytest.mark.parametrize(
     "field",
     filter(
-        lambda f: not f.used_by_derived,
+        lambda f: not f.used_by_derived and f.name not in _UNGENERATABLE_FIELDS,
         Dataset.fields(dataset_type="raw", read_only=False),
     ),
     ids=lambda f: f.name,
@@ -407,9 +436,11 @@ def test_make_derived_model_raises_if_raw_field_set(field, data):
         input_datasets=[PID(pid="623-122")],
         used_software=["scitacean", "magick"],
     )
-    setattr(dset, field.name, data.draw(st.from_type(field.type)))
+    val = data.draw(st.from_type(field.type))
+    assume(val is not None)
+    setattr(dset, field.name, val)
     with pytest.raises(ValueError):
-        dset.make_model()
+        dset.make_upload_model()
 
 
 @pytest.mark.parametrize("field", ("contact_email", "owner_email"))
@@ -425,7 +456,7 @@ def test_email_validation(field):
     )
     setattr(dset, field, "not-an-email")
     with pytest.raises(pydantic.ValidationError):
-        dset.make_model()
+        dset.make_upload_model()
 
 
 @pytest.mark.parametrize(
@@ -440,6 +471,7 @@ def test_orcid_validation_valid(good_orcid):
     dset = Dataset(
         type="raw",
         contact_email="jan-lukas.wynen@ess.eu",
+        creation_location="scitacean/tests",
         creation_time="2142-04-02T16:44:56",
         owner="Jan-Lukas Wynen",
         owner_group="ess",
@@ -447,7 +479,7 @@ def test_orcid_validation_valid(good_orcid):
         source_folder=RemotePath("/hex/source62"),
         orcid_of_owner=good_orcid,
     )
-    assert dset.make_model().orcidOfOwner == good_orcid
+    assert dset.make_upload_model().orcidOfOwner == good_orcid
 
 
 @pytest.mark.parametrize(
@@ -471,7 +503,7 @@ def test_orcid_validation_missing_url(bad_orcid):
         orcid_of_owner=bad_orcid,
     )
     with pytest.raises(pydantic.ValidationError):
-        dset.make_model()
+        dset.make_upload_model()
 
 
 # TODO technique

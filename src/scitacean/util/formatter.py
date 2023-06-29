@@ -36,6 +36,9 @@ class DatasetPathFormatter(Formatter):
         "a string {}".format(escape_path("{dset.owner}".format(dset=dset)))
 
     Note that only formatted fields are escaped, not the result as a whole.
+
+    Fields that are used by the formatter must not be ``None``.
+    Otherwise, a :class:`ValueError` will be raised.
     """
 
     def parse(
@@ -53,4 +56,6 @@ class DatasetPathFormatter(Formatter):
         )
 
     def format_field(self, value: Any, format_spec: str) -> str:
+        if value is None:
+            raise ValueError("Cannot format path, dataset field is None")
         return escape_path(super().format_field(value, format_spec))

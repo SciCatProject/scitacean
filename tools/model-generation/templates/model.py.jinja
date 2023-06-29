@@ -1,0 +1,122 @@
+{%- macro validations(fields) %}
+{%- for validation in ("emails", "orcids") %}
+{%- set fields = fields|selectattr("validation", "eq", validation)|list -%}
+{% if fields %}
+
+    @pydantic.validator({{ fields|map("attr", "scicat_name")|map("quote")|join(", ") }})
+    def _validate_{{ validation }}(cls, value: Any) -> Any:
+        return validate_{{ validation }}(value)
+{%- endif %}
+{%- endfor %}
+{% endmacro -%}
+
+{% macro mask_keyword(spec, kind) %}
+{% if kind == "download" and spec.masked_fields_download %}
+, masked=({{ spec.masked_fields_download|map("quote")|join(", ") }})
+{% endif %}
+{% endmacro %}
+
+{% macro field_default(field) %}
+{%- if not field.required -%}
+ = None
+{%- endif -%}
+{% endmacro %}
+
+{{ banner }}
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
+"""Models for communication with SciCat and user facing dataclasses."""
+
+from __future__ import annotations
+
+from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+import pydantic
+from pydantic import NonNegativeInt
+
+from ._base_model import (
+    BaseModel,
+    BaseUserModel,
+    DatasetType,
+    construct,  # noqa: F401 (imported so users can get it from this module)
+    validate_emails,
+    validate_orcids,
+)
+from ._internal.dataclass_wrapper import dataclass_optional_args
+from .filesystem import RemotePath
+from .pid import PID
+
+{% set fields = dset_spec.fields_for("download") -%}
+class DownloadDataset(BaseModel{{ mask_keyword(dset_spec, "download") }}):
+{%- for field in fields %}
+    {{ field.scicat_name }}: {{ field.full_type_for("download") }}
+{%- endfor %}
+{{- validations(fields) }}
+
+{% for dset_type in ("derived", "raw") %}
+{%- set fields = dset_spec.dset_fields_for("upload", dset_type) -%}
+class Upload{{ dset_type|capitalize }}Dataset(BaseModel{{ mask_keyword(dset_spec, "upload") }}):
+{%- for field in fields %}
+    {{ field.scicat_name }}: {{ field.full_type_for("upload") }}
+{%- endfor %}
+{{- validations(fields) }}
+
+{% endfor -%}
+
+{% for spec in specs.values() -%}
+{% for name, kind in ((spec.download_name, "download"), (spec.upload_name, "upload")) %}
+{%- set fields = spec.fields_for(kind) -%}
+{%- if fields -%}
+class {{ name }}(BaseModel{{ mask_keyword(spec, kind) }}):
+{%- for field in fields %}
+{%- if field.scicat_name.startswith("_") %}
+    {{ field.scicat_name[1:] }}: {{ field.full_type_for(kind) }} = pydantic.Field(alias={{ field.scicat_name|quote }})
+{%- else %}
+    {{ field.scicat_name }}: {{ field.full_type_for(kind) }}
+{%- endif %}
+{%- endfor %}
+{{- validations(fields) }}
+
+{% endif -%}
+{% endfor -%}
+{% endfor -%}
+
+{% for spec in specs.values()|rejectattr("name", "in", ["DataFile", "Datablock", "OrigDatablock"]) -%}
+@dataclass_optional_args(kw_only=True, slots=True)
+class {{ spec.name }}(BaseUserModel):
+{%- set fields = spec.fields_for("user")|sort(attribute="upload", reverse=True) -%}
+{%- for field in fields %}
+    {% if field.upload %}{{ field.name }}{% else %}_{{ field.name }}{% endif %}: {{ field.full_type_for("user") }}{{ field_default(field) }}
+{%- endfor %}
+{% for field in fields|rejectattr("upload") %}
+    @property
+    def {{ field.name }}(self) -> {{ field.full_type_for("user") }}:
+        return self._{{ field.name }}
+{% endfor %}
+    @classmethod
+    def from_download_model(cls, download_model: {{ spec.download_name }}) -> {{ spec.name }}:
+        """Construct an instance from an associated SciCat download model."""
+        return cls(**cls._download_model_dict(download_model))
+{% if spec.upload_name %}
+    def make_upload_model(self) -> {{ spec.upload_name }}:
+        """Construct a SciCat upload model from self."""
+        return {{ spec.upload_name }}(**self._upload_model_dict())
+{% endif %}
+
+{% endfor -%}
+
+# Some models contain fields that are other models which are defined
+# further down in the file.
+# Instead of ordering models according to their dependencies, resolve
+# references once all classes have been defined.
+{% for spec in specs.values() -%}
+{%- for name, kind in ((spec.download_name, "download"), (spec.upload_name, "upload")) -%}
+{%- if name -%}
+{{ name }}.update_forward_refs()
+{% endif -%}
+{%- endfor -%}
+{%- endfor -%}
+DownloadDataset.update_forward_refs()
+UploadDerivedDataset.update_forward_refs()
+UploadRawDataset.update_forward_refs()

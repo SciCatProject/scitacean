@@ -1,0 +1,9 @@
+# Map SciCat names (camelCase) to Scitacean names (snake_case).
+# By default, snake_case names are auto generated.
+# Names in this file override the default scheme.
+
+Dataset:
+  datasetName: name
+  datasetlifecycle: lifecycle
+  scientificMetadata: meta
+  version: api_version

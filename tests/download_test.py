@@ -12,7 +12,7 @@ from dateutil.parser import parse as parse_date
 from scitacean import PID, Client, Dataset, DatasetType, File, IntegrityError
 from scitacean.filesystem import RemotePath
 from scitacean.logging import logger_name
-from scitacean.model import DataFile, OrigDatablock, RawDataset
+from scitacean.model import DownloadDataFile, DownloadDataset, DownloadOrigDatablock
 from scitacean.testing.transfer import FakeFileTransfer
 
 
@@ -30,7 +30,12 @@ def data_files():
         "thaum.dat": b"0 4 2 59 330 2314552",
     }
     files = [
-        DataFile(path=name, size=len(content), chk=_checksum(content))
+        DownloadDataFile(
+            path=name,
+            size=len(content),
+            chk=_checksum(content),
+            time=parse_date("1995-08-06T14:14:14"),
+        )
         for name, content in contents.items()
     ]
     return files, contents
@@ -38,24 +43,31 @@ def data_files():
 
 @pytest.fixture
 def dataset_and_files(data_files):
-    model = RawDataset(
+    model = DownloadDataset(
         contactEmail="p.stibbons@uu.am",
         creationTime=parse_date("1995-08-06T14:14:14"),
+        numberOfFiles=len(data_files[0]),
+        numberOfFilesArchived=0,
         owner="pstibbons",
         ownerGroup="faculty",
+        packedSize=0,
         pid=PID(prefix="UU.000", pid="5125.ab.663.8c9f"),
         principalInvestigator="m.ridcully@uu.am",
+        size=sum(f.size for f in data_files[0]),
         sourceFolder=RemotePath("/src/stibbons/774"),
         type=DatasetType.RAW,
     )
-    block = OrigDatablock(
+    block = DownloadOrigDatablock(
+        chkAlg="md5",
         ownerGroup="faculty",
         size=sum(f.size for f in data_files[0]),
         datasetId=PID(prefix="UU.000", pid="5125.ab.663.8c9f"),
         id=PID(prefix="UU.000", pid="0941.66.abff.41de"),
         dataFileList=data_files[0],
     )
-    dset = Dataset.from_models(dataset_model=model, orig_datablock_models=[block])
+    dset = Dataset.from_download_models(
+        dataset_model=model, orig_datablock_models=[block]
+    )
     return dset, {
         dset.source_folder / name: content for name, content in data_files[1].items()
     }
@@ -192,7 +204,7 @@ def test_download_files_ignores_checksum_if_alg_is_none(fs, dataset_and_files):
 
     content = b"random-stuff"
     bad_checksum = "incorrect-checksum"
-    model = DataFile(
+    model = DownloadDataFile(
         path="file.txt",
         size=len(content),
         time=parse_date("2022-06-22T15:42:53+00:00"),
@@ -216,7 +228,7 @@ def test_download_files_detects_bad_checksum(fs, dataset_and_files):
 
     content = b"random-stuff"
     bad_checksum = "incorrect-checksum"
-    model = DataFile(
+    model = DownloadDataFile(
         path="file.txt",
         size=len(content),
         time=parse_date("2022-06-22T15:42:53+00:00"),
@@ -240,7 +252,7 @@ def test_download_files_detects_bad_size(fs, dataset_and_files, caplog):
 
     content = b"random-stuff"
     bad_checksum = hashlib.md5(content).hexdigest()
-    model = DataFile(
+    model = DownloadDataFile(
         path="file.txt",
         size=89412,  # Too large
         time=parse_date("2022-06-22T15:42:53+00:00"),

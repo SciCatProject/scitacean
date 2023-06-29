@@ -6,9 +6,8 @@ from __future__ import annotations
 
 import datetime
 import functools
-import uuid
 from copy import deepcopy
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 from .. import model
 from ..client import Client, ScicatClient
@@ -39,21 +38,20 @@ class FakeClient(Client):
     `pydantic <https://docs.pydantic.dev/>`_ models, namely
 
     - ``FakeClient.datasets``:
-            :class:`dict` of :class:`pydantic.model.DerivedDataset` and
-            :class:`pydantic.model.RawDataset`,
-            indexed by dataset ID.
+            :class:`dict` of :class:`scitacean.model.DownloadDataset`,
+            indexed by dataset PID.
     - ``FakeClient.orig_datablocks``:
-            :class:`dict` of lists of :class:`pydantic.model.OrigDatablock`,
+            :class:`dict` of lists of :class:`scitacean.model.OrigDatablock`,
             indexed by the *dataset* ID.
 
-    Individual functions can be disabled (that is made to raise an exception)
+    Individual functions can be disabled (that is, made to raise an exception)
     using the ``disabled`` argument of the initializer.
 
     Important
     ---------
     ``FakeClient`` does not behave exactly like a ``Client`` connected to a real
     server as that would require reimplementing a large part of the SciCat backend.
-    You should thus always test your code against a (potentially locally deployed)
+    You should thus always also test your code against a (potentially locally deployed)
     real server.
 
     In particular, do not rely on specific error messages or the detailed settings
@@ -67,14 +65,14 @@ class FakeClient(Client):
 
         client = FakeClient()
         pid = PID(prefix="sample.prefix", pid="1234-5678-abcd")
-        client.datasets[pid] = model.DerivedDataset(...)
+        client.datasets[pid] = model.DownloadDataset(pid=pid, ...)
         client.orig_datablocks[pid] = [model.OrigDatablock(
             datasetId=str(pid),
             ...
         )]
         client.get_dataset(pid)
 
-    Use to upload a dataset:
+    Upload a dataset:
 
     .. code-block:: python
 
@@ -114,14 +112,15 @@ class FakeClient(Client):
             Typically :class:`scitacean.testing.transfer.FakeFileTransfer`
             but may be a real file transfer.
         disable:
-            dict function names to exceptions. Functions listed here raise
-            the given exception when called and do nothing else.
+            ``dict`` of function names to exceptions.
+            Functions listed here raise the given exception
+            when called and do nothing else.
         """
         super().__init__(client=FakeScicatClient(self), file_transfer=file_transfer)
 
         self.disabled = {} if disable is None else dict(disable)
-        self.datasets: Dict[PID, Union[model.DerivedDataset, model.RawDataset]] = {}
-        self.orig_datablocks: Dict[PID, List[model.OrigDatablock]] = {}
+        self.datasets: Dict[PID, model.DownloadDataset] = {}
+        self.orig_datablocks: Dict[PID, List[model.DownloadOrigDatablock]] = {}
 
     @classmethod
     def from_token(
@@ -173,7 +172,7 @@ class FakeScicatClient(ScicatClient):
     @_conditionally_disabled
     def get_dataset_model(
         self, pid: PID, strict_validation: bool = False
-    ) -> Union[model.DerivedDataset, model.RawDataset]:
+    ) -> model.DownloadDataset:
         _ = strict_validation  # unused by fake
         try:
             return self.main.datasets[pid]
@@ -183,7 +182,7 @@ class FakeScicatClient(ScicatClient):
     @_conditionally_disabled
     def get_orig_datablocks(
         self, pid: PID, strict_validation: bool = False
-    ) -> List[model.OrigDatablock]:
+    ) -> List[model.DownloadOrigDatablock]:  # TODO here and rest of classes
         _ = strict_validation  # unused by fake
         try:
             return self.main.orig_datablocks[pid]
@@ -194,22 +193,72 @@ class FakeScicatClient(ScicatClient):
 
     @_conditionally_disabled
     def create_dataset_model(
-        self, dset: Union[model.DerivedDataset, model.RawDataset]
-    ) -> Union[model.DerivedDataset, model.RawDataset]:
-        pid = PID(
-            pid=str(dset.pid) if dset.pid is not None else str(uuid.uuid4()),
-            prefix="PID.SAMPLE.PREFIX",
-        )
-        if pid in self.main.datasets:
-            raise ScicatCommError(f"Dataset id already exists: {pid}")
-        self.main.datasets[pid] = deepcopy(dset)
-        self.main.datasets[pid].pid = pid
-        return self.main.datasets[pid]
+        self, dset: Union[model.UploadDerivedDataset, model.UploadRawDataset]
+    ) -> model.DownloadDataset:
+        ingested = _process_dataset(dset)
+        self.main.datasets[ingested.pid] = ingested
+        return ingested
 
     @_conditionally_disabled
-    def create_orig_datablock(self, dblock: model.OrigDatablock) -> model.OrigDatablock:
-        dataset_id = dblock.datasetId
+    def create_orig_datablock(
+        self, dblock: model.UploadOrigDatablock
+    ) -> model.DownloadOrigDatablock:
+        ingested = _process_orig_datablock(dblock)
+        dataset_id = ingested.datasetId
         if dataset_id not in self.main.datasets:
             raise ScicatCommError(f"No dataset with id {dataset_id}")
-        self.main.orig_datablocks.setdefault(dataset_id, []).append(dblock)
-        return dblock
+        self.main.orig_datablocks.setdefault(dataset_id, []).append(ingested)
+        return ingested
+
+
+def _process_dataset(
+    dset: Union[model.UploadDerivedDataset, model.UploadRawDataset]
+) -> model.DownloadDataset:
+    created_at = datetime.datetime.now(tz=datetime.timezone.utc)
+    # TODO use user login if possible
+    # Using strict_validation=False because the input model should already be validated.
+    # If there are validation errors, it was probably intended by the user.
+    return model.construct(
+        model.DownloadDataset,
+        _strict_validation=False,
+        pid=PID.generate(prefix="PID.prefix.a0b1"),
+        createdBy="fake",
+        createdAt=created_at,
+        updatedBy="fake",
+        updatedAt=created_at,
+        **deepcopy(dset).dict(exclude_none=True),
+    )
+
+
+def _process_orig_datablock(
+    dblock: model.UploadOrigDatablock,
+) -> model.DownloadOrigDatablock:
+    created_at = datetime.datetime.now(tz=datetime.timezone.utc)
+    # TODO use user login if possible
+    # TODO more fields
+    # Using strict_validation=False because the input model should already be validated.
+    # If there are validation errors, it was probably intended by the user.
+    processed = model.construct(
+        model.DownloadOrigDatablock,
+        _strict_validation=False,
+        createdBy="fake",
+        createdAt=created_at,
+        updatedBy="fake",
+        updatedAt=created_at,
+        **deepcopy(dblock).dict(exclude_none=True),
+    )
+    if dblock.datasetId is not None:
+        processed.datasetId = dblock.datasetId
+    return processed
+
+
+def process_uploaded_dataset(
+    dataset: Union[model.UploadDerivedDataset, model.UploadRawDataset],
+    orig_datablocks: Optional[List[model.UploadOrigDatablock]],
+) -> Tuple[model.DownloadDataset, Optional[List[model.DownloadOrigDatablock]]]:
+    dblocks = (
+        list(map(_process_orig_datablock, orig_datablocks))
+        if orig_datablocks is not None
+        else None
+    )
+    return _process_dataset(dataset), dblocks
