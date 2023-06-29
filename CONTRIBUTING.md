@@ -10,6 +10,6 @@ If you need help with using Scitacean or contributing to it, have a look at the 
 For bug reports and other problems, please open an [issue](https://github.com/SciCatProject/scitacean/issues/new) in GitHub.
 
 You are welcome to submit pull requests at any time.
-But to avoid having to make large modifications during review or even have your PR rejected, please first open an issue first to discuss your idea!
+But to avoid having to make large modifications during review or even have your PR rejected, please open an issue first to discuss your idea!
 
 Check out the subsections of the [developer documentation](https://scicatproject.github.io/scitacean/developer/index.html) for details on how Scitacean is developed.
