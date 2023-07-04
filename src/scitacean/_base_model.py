@@ -22,6 +22,7 @@ from typing import Any, Dict, Iterable, Optional, Type, TypeVar
 import pydantic
 
 from ._internal.orcid import is_valid_orcid
+from ._internal.pydantic_compat import is_pydantic_v1
 from .filesystem import RemotePath
 from .logging import get_logger
 from .pid import PID
@@ -39,12 +40,19 @@ class DatasetType(*_DatasetTypeBases):
 class BaseModel(pydantic.BaseModel):
     """Base class for Pydantic models for communication with SciCat."""
 
-    class Config:
-        extra = pydantic.Extra.forbid
-        json_encoders = {
-            PID: lambda v: str(v),
-            RemotePath: lambda v: v.posix,
-        }
+    if is_pydantic_v1():
+
+        class Config:
+            extra = pydantic.Extra.forbid
+            json_encoders = {
+                PID: lambda v: str(v),
+                RemotePath: lambda v: v.posix,
+            }
+
+    else:
+        model_config = pydantic.ConfigDict(
+            extra="forbid",
+        )
 
     # Some schemas contain fields that we don't want to use in Scitacean.
     # Normally, omitting them from the model would result in an error when
