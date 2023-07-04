@@ -33,7 +33,7 @@ if not is_pydantic_v1():
                 [core_schema.is_instance_schema(RemotePath), core_schema.str_schema()]
             ),
             serialization=core_schema.plain_serializer_function_ser_schema(
-                lambda p: p.posix,
+                lambda p: p.posix if isinstance(p, RemotePath) else str(p),
                 info_arg=False,
                 return_schema=core_schema.str_schema(),
             ),
