@@ -24,6 +24,7 @@ from ._base_model import (
     validate_orcids,
 )
 from ._internal.dataclass_wrapper import dataclass_optional_args
+from ._internal.pydantic_compat import field_validator
 from .filesystem import RemotePath
 from .pid import PID
 
@@ -80,11 +81,11 @@ class DownloadDataset(
     updatedBy: Optional[str]
     validationStatus: Optional[str]
 
-    @pydantic.validator("contactEmail", "ownerEmail")
+    @field_validator("contactEmail", "ownerEmail")
     def _validate_emails(cls, value: Any) -> Any:
         return validate_emails(value)
 
-    @pydantic.validator("orcidOfOwner")
+    @field_validator("orcidOfOwner")
     def _validate_orcids(cls, value: Any) -> Any:
         return validate_orcids(value)
 
@@ -124,11 +125,11 @@ class UploadDerivedDataset(BaseModel):
     techniques: Optional[List[UploadTechnique]]
     validationStatus: Optional[str]
 
-    @pydantic.validator("contactEmail", "ownerEmail")
+    @field_validator("contactEmail", "ownerEmail")
     def _validate_emails(cls, value: Any) -> Any:
         return validate_emails(value)
 
-    @pydantic.validator("orcidOfOwner")
+    @field_validator("orcidOfOwner")
     def _validate_orcids(cls, value: Any) -> Any:
         return validate_orcids(value)
 
@@ -170,11 +171,11 @@ class UploadRawDataset(BaseModel):
     techniques: Optional[List[UploadTechnique]]
     validationStatus: Optional[str]
 
-    @pydantic.validator("contactEmail", "ownerEmail")
+    @field_validator("contactEmail", "ownerEmail")
     def _validate_emails(cls, value: Any) -> Any:
         return validate_emails(value)
 
-    @pydantic.validator("orcidOfOwner")
+    @field_validator("orcidOfOwner")
     def _validate_orcids(cls, value: Any) -> Any:
         return validate_orcids(value)
 
