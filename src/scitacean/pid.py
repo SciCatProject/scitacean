@@ -5,6 +5,27 @@ from __future__ import annotations
 import uuid
 from typing import Callable, Generator, Optional, Union
 
+from ._internal.pydantic_compat import is_pydantic_v1
+
+if not is_pydantic_v1():
+    from typing import Any
+
+    from pydantic import GetCoreSchemaHandler
+    from pydantic_core import core_schema
+
+    def _get_pid_core_schema(
+        cls, _source_type: Any, _handler: GetCoreSchemaHandler
+    ) -> core_schema.CoreSchema:
+        return core_schema.no_info_after_validator_function(
+            cls.parse,
+            core_schema.union_schema(
+                [core_schema.is_instance_schema(PID), core_schema.str_schema()]
+            ),
+            serialization=core_schema.plain_serializer_function_ser_schema(
+                cls.__str__, info_arg=False, return_schema=core_schema.str_schema()
+            ),
+        )
+
 
 class PID:
     """Stores the ID of database item.
@@ -117,12 +138,6 @@ class PID:
         return self.prefix == other.prefix and self.pid == other.pid
 
     @classmethod
-    def __get_validators__(
-        cls,
-    ) -> Generator[Callable[[Union[str, PID]], PID], None, None]:
-        yield cls.validate
-
-    @classmethod
     def validate(cls, value: Union[str, PID]) -> PID:
         """Pydantic validator for PID fields."""
         if isinstance(value, str):
@@ -130,3 +145,14 @@ class PID:
         if isinstance(value, PID):
             return value
         raise TypeError("expected a PID or str")
+
+    if is_pydantic_v1():
+
+        @classmethod
+        def __get_validators__(
+            cls,
+        ) -> Generator[Callable[[Union[str, PID]], PID], None, None]:
+            yield cls.validate
+
+    else:
+        __get_pydantic_core_schema__ = classmethod(_get_pid_core_schema)
