@@ -226,7 +226,7 @@ def _process_dataset(
         createdAt=created_at,
         updatedBy="fake",
         updatedAt=created_at,
-        **deepcopy(dset).dict(exclude_none=True),
+        **deepcopy(dset).model_dump(exclude_none=True),
     )
 
 
@@ -245,7 +245,7 @@ def _process_orig_datablock(
         createdAt=created_at,
         updatedBy="fake",
         updatedAt=created_at,
-        **deepcopy(dblock).dict(exclude_none=True),
+        **deepcopy(dblock).model_dump(exclude_none=True),
     )
     if dblock.datasetId is not None:
         processed.datasetId = dblock.datasetId

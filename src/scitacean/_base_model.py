@@ -66,7 +66,7 @@ class BaseModel(pydantic.BaseModel):
         super().__init_subclass__(**kwargs)
 
         masked = list(masked) if masked is not None else []
-        field_names = {field.alias for field in cls.__fields__.values()}
+        field_names = {field.alias for field in cls.model_fields.values()}
         masked.extend(key for key in _IGNORED_KWARGS if key not in field_names)
         cls._masked_fields = tuple(masked)
 
@@ -77,6 +77,27 @@ class BaseModel(pydantic.BaseModel):
     def _delete_ignored_args(self, args: Dict[str, Any]) -> None:
         for key in self._masked_fields:
             args.pop(key, None)
+
+    if is_pydantic_v1():
+
+        @classmethod
+        @property
+        def model_fields(cls) -> Dict[str, pydantic.fields.ModelField]:
+            return cls.__fields__
+
+        def model_dump(self, *args, **kwargs) -> Dict[str, Any]:
+            return self.dict(*args, **kwargs)
+
+        def model_dump_json(self, *args, **kwargs) -> str:
+            return self.json(*args, **kwargs)
+
+        @classmethod
+        def model_construct(cls: Type[ModelType], *args, **kwargs) -> ModelType:
+            return cls.construct(*args, **kwargs)
+
+        @classmethod
+        def model_rebuild(cls, *args, **kwargs) -> Optional[bool]:
+            return cls.update_forward_refs(*args, **kwargs)
 
 
 class BaseUserModel:
@@ -150,13 +171,13 @@ def construct(
                 "In particular, some fields may not have the correct type",
                 str(e),
             )
-        return model.construct(**fields)
+        return model.model_construct(**fields)
 
 
 def validate_emails(value: Optional[str]) -> Optional[str]:
     if value is None:
         return value
-    return ";".join(pydantic.EmailStr.validate(item) for item in value.split(";"))
+    return ";".join(pydantic.validate_email(item)[1] for item in value.split(";"))
 
 
 def validate_orcids(value: Optional[str]) -> Optional[str]:
