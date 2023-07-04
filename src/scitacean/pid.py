@@ -5,6 +5,8 @@ from __future__ import annotations
 import uuid
 from typing import Callable, Generator, Optional, Union
 
+import pydantic
+
 from ._internal.pydantic_compat import is_pydantic_v1
 
 if not is_pydantic_v1():
@@ -144,7 +146,7 @@ class PID:
             return PID.parse(value)
         if isinstance(value, PID):
             return value
-        raise TypeError("expected a PID or str")
+        raise pydantic.ValidationError("expected a PID or str")
 
     if is_pydantic_v1():
 
