@@ -129,7 +129,7 @@ class PID:
         return self.pid
 
     def __repr__(self) -> str:
-        return f"PID(prefix={self.prefix}, pid={self.pid})"
+        return f"PID(prefix={self.prefix!r}, pid={self.pid!r})"
 
     def __hash__(self) -> int:
         return hash(str(self))
