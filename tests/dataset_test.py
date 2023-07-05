@@ -169,7 +169,7 @@ def test_make_scicat_models_datablock_with_one_file(dataset):
     block = blocks[0]
     assert block.size == 6163
     assert block.datasetId == dataset.pid
-    assert block.dataFileList == [file_model]
+    assert block.dataFileList == [model.UploadDataFile(**file_model.model_dump())]
 
 
 @given(sst.datasets())
