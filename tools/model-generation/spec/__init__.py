@@ -363,10 +363,11 @@ def _assign_validations(spec: Spec) -> Spec:
 
     spec = deepcopy(spec)
     for field_name, validation in validations[spec.name].items():
-        if validation == "size":
-            spec.fields[field_name].type = "NonNegativeInt"
-        else:
-            spec.fields[field_name].validation = validation
+        if field_name in spec.fields:
+            if validation == "size":
+                spec.fields[field_name].type = "NonNegativeInt"
+            else:
+                spec.fields[field_name].validation = validation
     return spec
 
 

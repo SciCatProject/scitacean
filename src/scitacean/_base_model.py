@@ -189,6 +189,11 @@ def validate_datetime(value: Optional[Union[str, datetime]]) -> Optional[datetim
     return parse_datetime(value)
 
 
+def validate_drop(_: Any) -> None:
+    """Return ``None``."""
+    return None
+
+
 def validate_emails(value: Optional[str]) -> Optional[str]:
     if value is None:
         return value

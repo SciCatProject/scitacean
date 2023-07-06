@@ -93,6 +93,7 @@ def _lifecycle_strategy(
 
 _SPECIAL_FIELDS = {
     "contact_email": _email_field_strategy,
+    "history": lambda field: st.none(),
     "job_parameters": _job_parameters_strategy,
     "lifecycle": _lifecycle_strategy,
     "owner_email": _email_field_strategy,

@@ -24,6 +24,10 @@ Dataset:
 
   orcidOfOwner: orcids
 
+  # The schema for history is wrong, see
+  # https://github.com/SciCatProject/scicat-backend-next/issues/584
+  history: drop
+
 DataFile:
   time: datetime
 

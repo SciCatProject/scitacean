@@ -4,6 +4,7 @@
 # Field names must be SciCat names (camelCase).
 
 Dataset:
+  history: None  # because history is dropped (see field-validations.yml)
   inputDatasets: List[PID]
   pid: PID
   sourceFolder: RemotePath

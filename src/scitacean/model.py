@@ -21,6 +21,7 @@ from ._base_model import (
     DatasetType,
     construct,  # noqa: F401 (imported so users can get it from this module)
     validate_datetime,
+    validate_drop,
     validate_emails,
     validate_orcids,
 )
@@ -55,7 +56,7 @@ class DownloadDataset(
     dataQualityMetrics: Optional[int] = None
     description: Optional[str] = None
     endTime: Optional[datetime] = None
-    history: Optional[DownloadHistory] = None
+    history: Optional[None] = None
     instrumentGroup: Optional[str] = None
     instrumentId: Optional[str] = None
     isPublished: Optional[bool] = None
@@ -85,6 +86,10 @@ class DownloadDataset(
     @field_validator("creationTime", "createdAt", "endTime", "updatedAt", mode="before")
     def _validate_datetime(cls, value: Any) -> Any:
         return validate_datetime(value)
+
+    @field_validator("history", mode="before")
+    def _validate_drop(cls, value: Any) -> Any:
+        return validate_drop(value)
 
     @field_validator("contactEmail", "ownerEmail", mode="before")
     def _validate_emails(cls, value: Any) -> Any:
