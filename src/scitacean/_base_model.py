@@ -68,7 +68,7 @@ class BaseModel(pydantic.BaseModel):
         super().__init_subclass__(**kwargs)
 
         masked = list(masked) if masked is not None else []
-        field_names = {field.alias for field in cls.model_fields.values()}
+        field_names = {field.alias for field in cls.get_model_fields().values()}
         masked.extend(key for key in _IGNORED_KWARGS if key not in field_names)
         cls._masked_fields = tuple(masked)
 
@@ -83,8 +83,7 @@ class BaseModel(pydantic.BaseModel):
     if is_pydantic_v1():
 
         @classmethod
-        @property
-        def model_fields(cls) -> Dict[str, pydantic.fields.ModelField]:
+        def get_model_fields(cls) -> Dict[str, pydantic.fields.ModelField]:
             return cls.__fields__
 
         def model_dump(self, *args, **kwargs) -> Dict[str, Any]:
@@ -100,6 +99,12 @@ class BaseModel(pydantic.BaseModel):
         @classmethod
         def model_rebuild(cls, *args, **kwargs) -> Optional[bool]:
             return cls.update_forward_refs(*args, **kwargs)
+
+    else:
+
+        @classmethod
+        def get_model_fields(cls) -> Dict[str, pydantic.fields.FieldInfo]:
+            return cls.model_fields
 
 
 class BaseUserModel:
