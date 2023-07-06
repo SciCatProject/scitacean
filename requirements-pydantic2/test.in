@@ -1,0 +1,8 @@
+-r base.in
+filelock
+hypothesis
+pyfakefs
+pytest
+pytest-randomly
+pytest-xdist
+pyyaml

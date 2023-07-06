@@ -26,12 +26,13 @@ jobs:
           commit_message: Apply automatic formatting
 
   tests:
-    name: Tests py${{ matrix.python }} ${{ matrix.os }}
+    name: Tests ${{ matrix.os }} ${{ matrix.tox }}
     needs: formatting
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         include:
+          - {python: '3.11', os: ubuntu-22.04, tox: pydantic2-full}
           - {python: '3.11', os: ubuntu-22.04, tox: py311-full}
           - {python: '3.10', os: ubuntu-22.04, tox: py310-full}
           - {python: '3.9', os: ubuntu-22.04, tox: py39-full}

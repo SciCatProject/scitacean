@@ -1,5 +1,5 @@
 email-validator
 fabric
-pydantic
+pydantic < 2  # autodoc_pydantic is not compatible with pydantic 2
 python-dateutil
 requests
