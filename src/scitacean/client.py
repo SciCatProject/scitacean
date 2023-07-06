@@ -492,7 +492,7 @@ class ScicatClient:
             model.DownloadDataset,
             _strict_validation=strict_validation,
             **dset_json,
-        )  # type: ignore[return-value]
+        )
 
     def get_orig_datablocks(
         self, pid: PID, strict_validation: bool = False
@@ -622,7 +622,9 @@ class ScicatClient:
             return requests.request(
                 method=cmd,
                 url=url,
-                data=data.json(exclude_none=True) if data is not None else None,
+                data=data.model_dump_json(exclude_none=True)
+                if data is not None
+                else None,
                 params=params,
                 headers=headers,
                 timeout=self._timeout.seconds,

@@ -3,7 +3,17 @@
 # `size` is realized by replacing the field's type with `NonNegativeInt`.
 # Field names must be SciCat names (camelCase).
 
+Attachment:
+  createdAt: datetime
+  updatedAt: datetime
+
+
 Dataset:
+  creationTime: datetime
+  createdAt: datetime
+  endTime: datetime
+  updatedAt: datetime
+
   contactEmail: emails
   ownerEmail: emails
 
@@ -14,12 +24,39 @@ Dataset:
 
   orcidOfOwner: orcids
 
+  # The schema for history is wrong, see
+  # https://github.com/SciCatProject/scicat-backend-next/issues/584
+  history: drop
+
 DataFile:
+  time: datetime
+
   size: size
 
 Datablock:
+  createdAt: datetime
+  updatedAt: datetime
+
   packedSize: size
   size: size
 
+Lifecycle:
+  archiveRetentionTime: datetime
+  dateOfDiskPurging: datetime
+  dateOfPublishing: datetime
+  publishedOn: datetime
+
+History:
+  createdAt: datetime
+  updatedAt: datetime
+
+
 OrigDatablock:
+  createdAt: datetime
+  updatedAt: datetime
+
   size: size
+
+Sample:
+  createdAt: datetime
+  updatedAt: datetime

@@ -9,7 +9,7 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from scitacean import PID, DatasetType, model
-from scitacean.model import DownloadHistory, UploadDerivedDataset, UploadRawDataset
+from scitacean.model import UploadDerivedDataset, UploadRawDataset
 
 T = TypeVar("T")
 
@@ -123,7 +123,7 @@ def test_derived_dataset_default_values(
     assert finalized.createdBy  # some non-empty str
     assert finalized.classification  # some non-empty str
     assert finalized.datasetName  # some non-empty str
-    assert finalized.history == DownloadHistory()
+    assert finalized.history is None
     assert finalized.isPublished is False
     assert finalized.keywords == []
     assert finalized.numberOfFiles == 0
@@ -179,7 +179,7 @@ def test_raw_dataset_default_values(real_client, require_scicat_backend, scicat_
     assert finalized.createdBy  # some non-empty str
     assert finalized.classification  # some non-empty str
     assert finalized.datasetName  # some non-empty str
-    assert finalized.history == DownloadHistory()
+    assert finalized.history is None
     assert finalized.isPublished is False
     assert finalized.keywords == []
     assert finalized.numberOfFiles == 0

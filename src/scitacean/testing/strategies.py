@@ -7,8 +7,8 @@ from typing import Any, Dict, Optional
 from email_validator import EmailNotValidError, ValidatedEmail, validate_email
 from hypothesis import strategies as st
 
-from scitacean import Dataset, DatasetType, RemotePath, model
-from scitacean._internal.orcid import orcid_checksum
+from .. import PID, Dataset, DatasetType, RemotePath, model
+from .._internal.orcid import orcid_checksum
 
 
 # email_validator and by extension pydantic is more picky than hypothesis
@@ -93,6 +93,7 @@ def _lifecycle_strategy(
 
 _SPECIAL_FIELDS = {
     "contact_email": _email_field_strategy,
+    "history": lambda field: st.none(),
     "job_parameters": _job_parameters_strategy,
     "lifecycle": _lifecycle_strategy,
     "owner_email": _email_field_strategy,
@@ -105,6 +106,15 @@ st.register_type_strategy(
     st.text(
         alphabet=string.ascii_lowercase + string.ascii_uppercase + string.digits + "/."
     ).map(RemotePath),
+)
+
+st.register_type_strategy(
+    PID,
+    st.builds(
+        PID,
+        prefix=st.text(alphabet=st.characters(blacklist_characters="/")) | st.none(),
+        pid=st.text(),
+    ),
 )
 
 

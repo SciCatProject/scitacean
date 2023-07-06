@@ -17,11 +17,14 @@ except ImportError:
     )
 
 import dataclasses
-from typing import Any, Dict, Iterable, Optional, Type, TypeVar
+from datetime import datetime
+from typing import Any, Dict, Iterable, Optional, Type, TypeVar, Union
 
 import pydantic
+from dateutil.parser import parse as parse_datetime
 
 from ._internal.orcid import is_valid_orcid
+from ._internal.pydantic_compat import is_pydantic_v1
 from .filesystem import RemotePath
 from .logging import get_logger
 from .pid import PID
@@ -39,12 +42,19 @@ class DatasetType(*_DatasetTypeBases):
 class BaseModel(pydantic.BaseModel):
     """Base class for Pydantic models for communication with SciCat."""
 
-    class Config:
-        extra = pydantic.Extra.forbid
-        json_encoders = {
-            PID: lambda v: str(v),
-            RemotePath: lambda v: v.posix,
-        }
+    if is_pydantic_v1():
+
+        class Config:
+            extra = pydantic.Extra.forbid
+            json_encoders = {
+                PID: lambda v: str(v),
+                RemotePath: lambda v: v.posix,
+            }
+
+    else:
+        model_config = pydantic.ConfigDict(
+            extra="forbid",
+        )
 
     # Some schemas contain fields that we don't want to use in Scitacean.
     # Normally, omitting them from the model would result in an error when
@@ -58,7 +68,7 @@ class BaseModel(pydantic.BaseModel):
         super().__init_subclass__(**kwargs)
 
         masked = list(masked) if masked is not None else []
-        field_names = {field.alias for field in cls.__fields__.values()}
+        field_names = {field.alias for field in cls.get_model_fields().values()}
         masked.extend(key for key in _IGNORED_KWARGS if key not in field_names)
         cls._masked_fields = tuple(masked)
 
@@ -69,6 +79,32 @@ class BaseModel(pydantic.BaseModel):
     def _delete_ignored_args(self, args: Dict[str, Any]) -> None:
         for key in self._masked_fields:
             args.pop(key, None)
+
+    if is_pydantic_v1():
+
+        @classmethod
+        def get_model_fields(cls) -> Dict[str, pydantic.fields.ModelField]:
+            return cls.__fields__
+
+        def model_dump(self, *args, **kwargs) -> Dict[str, Any]:
+            return self.dict(*args, **kwargs)
+
+        def model_dump_json(self, *args, **kwargs) -> str:
+            return self.json(*args, **kwargs)
+
+        @classmethod
+        def model_construct(cls: Type[ModelType], *args, **kwargs) -> ModelType:
+            return cls.construct(*args, **kwargs)
+
+        @classmethod
+        def model_rebuild(cls, *args, **kwargs) -> Optional[bool]:
+            return cls.update_forward_refs(*args, **kwargs)
+
+    else:
+
+        @classmethod
+        def get_model_fields(cls) -> Dict[str, pydantic.fields.FieldInfo]:
+            return cls.model_fields
 
 
 class BaseUserModel:
@@ -142,13 +178,31 @@ def construct(
                 "In particular, some fields may not have the correct type",
                 str(e),
             )
-        return model.construct(**fields)
+        return model.model_construct(**fields)
+
+
+def validate_datetime(value: Optional[Union[str, datetime]]) -> Optional[datetime]:
+    """Convert strings to datetimes.
+
+    This uses dateutil.parser.parse instead of Pydantic's builtin parser in order to
+    produce results that are consistent with user inputs.
+    Pydantic uses a custom type for timezones which is not fully compatible with
+    dateutil's.
+    """
+    if not isinstance(value, str):
+        return value
+    return parse_datetime(value)
+
+
+def validate_drop(_: Any) -> None:
+    """Return ``None``."""
+    return None
 
 
 def validate_emails(value: Optional[str]) -> Optional[str]:
     if value is None:
         return value
-    return ";".join(pydantic.EmailStr.validate(item) for item in value.split(";"))
+    return ";".join(pydantic.validate_email(item)[1] for item in value.split(";"))
 
 
 def validate_orcids(value: Optional[str]) -> Optional[str]:

@@ -13,8 +13,10 @@ alabaster==0.7.13
 asttokens==2.2.1
     # via stack-data
 attrs==23.1.0
-    # via jsonschema
-autodoc-pydantic==1.8.0
+    # via
+    #   jsonschema
+    #   referencing
+autodoc-pydantic==1.9.0
     # via -r requirements/docs.in
 babel==2.12.1
     # via
@@ -46,7 +48,7 @@ fastjsonschema==2.17.1
     # via nbformat
 imagesize==1.4.1
     # via sphinx
-ipykernel==6.23.2
+ipykernel==6.24.0
     # via -r requirements/docs.in
 ipython==8.14.0
     # via
@@ -60,9 +62,11 @@ jinja2==3.1.2
     #   nbconvert
     #   nbsphinx
     #   sphinx
-jsonschema==4.17.3
+jsonschema==4.18.0
     # via nbformat
-jupyter-client==8.2.0
+jsonschema-specifications==2023.6.1
+    # via jsonschema
+jupyter-client==8.3.0
     # via
     #   ipykernel
     #   nbclient
@@ -122,9 +126,9 @@ pexpect==4.8.0
     # via ipython
 pickleshare==0.7.5
     # via ipython
-platformdirs==3.6.0
+platformdirs==3.8.0
     # via jupyter-core
-prompt-toolkit==3.0.38
+prompt-toolkit==3.0.39
     # via ipython
 psutil==5.9.5
     # via ipykernel
@@ -141,14 +145,20 @@ pygments==2.15.1
     #   nbconvert
     #   pydata-sphinx-theme
     #   sphinx
-pyrsistent==0.19.3
-    # via jsonschema
 pyyaml==6.0
     # via myst-parser
 pyzmq==25.1.0
     # via
     #   ipykernel
     #   jupyter-client
+referencing==0.29.1
+    # via
+    #   jsonschema
+    #   jsonschema-specifications
+rpds-py==0.8.7
+    # via
+    #   jsonschema
+    #   referencing
 snowballstemmer==2.2.0
     # via sphinx
 soupsieve==2.4.1

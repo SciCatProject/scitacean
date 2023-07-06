@@ -109,10 +109,11 @@ def test_get_orig_datablock_bad_id(scicat_client):
 def test_create_dataset_model(scicat_client, derived_dataset):
     finalized = scicat_client.create_dataset_model(derived_dataset)
     downloaded = scicat_client.get_dataset_model(finalized.pid)
-    for key, expected in finalized.dict(exclude_none=True).items():
+    for key, expected in finalized:
         # The database populates a number of fields that are None in dset.
         # But we don't want to test those here as we don't want to test the database.
-        assert expected == downloaded.dict(exclude_none=True)[key], f"key = {key}"
+        if expected is not None:
+            assert expected == dict(downloaded)[key], f"key = {key}"
 
 
 def test_create_first_orig_datablock(scicat_client, derived_dataset, orig_datablock):
@@ -122,17 +123,15 @@ def test_create_first_orig_datablock(scicat_client, derived_dataset, orig_databl
     downloaded = scicat_client.get_orig_datablocks(uploaded.pid)
     assert len(downloaded) == 1
     downloaded = downloaded[0]
-    for key, expected in orig_datablock.dict(exclude_none=True).items():
+    for key, expected in orig_datablock:
         # The database populates a number of fields that are None in dset.
         # But we don't want to test those here as we don't want to test the database.
-        if key != "dataFileList":
-            assert expected == downloaded.dict()[key], f"key = {key}"
+        if expected is not None and key != "dataFileList":
+            assert expected == dict(downloaded)[key], f"key = {key}"
     for i in range(len(orig_datablock.dataFileList)):
-        for key, expected in (
-            orig_datablock.dataFileList[i].dict(exclude_none=True).items()
-        ):
+        for key, expected in orig_datablock.dataFileList[i]:
             assert (
-                expected == downloaded.dataFileList[i].dict()[key]
+                expected == dict(downloaded.dataFileList[i])[key]
             ), f"i = {i}, key = {key}"
 
 

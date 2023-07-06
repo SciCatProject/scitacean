@@ -169,7 +169,7 @@ def test_make_scicat_models_datablock_with_one_file(dataset):
     block = blocks[0]
     assert block.size == 6163
     assert block.datasetId == dataset.pid
-    assert block.dataFileList == [file_model]
+    assert block.dataFileList == [model.UploadDataFile(**file_model.model_dump())]
 
 
 @given(sst.datasets())
@@ -268,6 +268,7 @@ def test_replace_replaces_single_writable_field(field, initial, data):
         for field in Dataset.fields(read_only=True)
         if field.name
         not in (
+            "history",
             "lifecycle",
             "number_of_files",
             "number_of_files_archived",

@@ -211,6 +211,28 @@ class FakeScicatClient(ScicatClient):
         return ingested
 
 
+def _model_dict(mod: model.BaseModel) -> Dict[str, Any]:
+    return {
+        key: deepcopy(val)
+        for key in mod.get_model_fields().keys()
+        if (val := getattr(mod, key)) is not None
+    }
+
+
+def _process_relationship(
+    relationship: model.UploadRelationship,
+) -> model.DownloadRelationship:
+    return model.DownloadRelationship(**_model_dict(relationship))
+
+
+def _process_technique(technique: model.UploadTechnique) -> model.DownloadTechnique:
+    return model.DownloadTechnique(**_model_dict(technique))
+
+
+def _process_data_file(file: model.UploadDataFile) -> model.DownloadDataFile:
+    return model.DownloadDataFile(**_model_dict(file))
+
+
 def _process_dataset(
     dset: Union[model.UploadDerivedDataset, model.UploadRawDataset]
 ) -> model.DownloadDataset:
@@ -218,6 +240,13 @@ def _process_dataset(
     # TODO use user login if possible
     # Using strict_validation=False because the input model should already be validated.
     # If there are validation errors, it was probably intended by the user.
+    fields = _model_dict(dset)
+    if "relationships" in fields:
+        fields["relationships"] = list(
+            map(_process_relationship, fields["relationships"])
+        )
+    if "techniques" in fields:
+        fields["techniques"] = list(map(_process_technique, fields["techniques"]))
     return model.construct(
         model.DownloadDataset,
         _strict_validation=False,
@@ -226,7 +255,7 @@ def _process_dataset(
         createdAt=created_at,
         updatedBy="fake",
         updatedAt=created_at,
-        **deepcopy(dset).dict(exclude_none=True),
+        **fields,
     )
 
 
@@ -238,6 +267,9 @@ def _process_orig_datablock(
     # TODO more fields
     # Using strict_validation=False because the input model should already be validated.
     # If there are validation errors, it was probably intended by the user.
+    fields = _model_dict(dblock)
+    if "dataFileList" in fields:
+        fields["dataFileList"] = list(map(_process_data_file, fields["dataFileList"]))
     processed = model.construct(
         model.DownloadOrigDatablock,
         _strict_validation=False,
@@ -245,7 +277,7 @@ def _process_orig_datablock(
         createdAt=created_at,
         updatedBy="fake",
         updatedAt=created_at,
-        **deepcopy(dblock).dict(exclude_none=True),
+        **fields,
     )
     if dblock.datasetId is not None:
         processed.datasetId = dblock.datasetId

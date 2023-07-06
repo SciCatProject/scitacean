@@ -216,7 +216,7 @@ class DatasetBase:
             read_only=True,
             required=False,
             scicat_name="history",
-            type=History,
+            type=None,
             used_by_derived=True,
             used_by_raw=True,
         ),
@@ -766,7 +766,7 @@ class DatasetBase:
         self._end_time = end_time
 
     @property
-    def history(self) -> Optional[History]:
+    def history(self) -> Optional[None]:
         """List of objects containing old and new values."""
         return self._history
 
