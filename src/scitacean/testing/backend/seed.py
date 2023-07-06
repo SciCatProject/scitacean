@@ -93,7 +93,7 @@ _DATASETS: Dict[str, Union[UploadRawDataset, UploadDerivedDataset]] = {
         techniques=[UploadTechnique(pid="S", name="shoes")],
     ),
     "partially-broken": model.construct(
-        UploadRawDataset,
+        UploadDerivedDataset,
         _strict_validation=False,
         _quiet=True,
         ownerGroup="PLACEHOLDER",
