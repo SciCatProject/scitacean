@@ -17,9 +17,11 @@ except ImportError:
     )
 
 import dataclasses
-from typing import Any, Dict, Iterable, Optional, Type, TypeVar
+from datetime import datetime
+from typing import Any, Dict, Iterable, Optional, Type, TypeVar, Union
 
 import pydantic
+from dateutil.parser import parse as parse_datetime
 
 from ._internal.orcid import is_valid_orcid
 from ._internal.pydantic_compat import is_pydantic_v1
@@ -172,6 +174,19 @@ def construct(
                 str(e),
             )
         return model.model_construct(**fields)
+
+
+def validate_datetime(value: Optional[Union[str, datetime]]) -> Optional[datetime]:
+    """Convert strings to datetimes.
+
+    This uses dateutil.parser.parse instead of Pydantic's builtin parser in order to
+    produce results that are consistent with user inputs.
+    Pydantic uses a custom type for timezones which is not fully compatible with
+    dateutil's.
+    """
+    if not isinstance(value, str):
+        return value
+    return parse_datetime(value)
 
 
 def validate_emails(value: Optional[str]) -> Optional[str]:

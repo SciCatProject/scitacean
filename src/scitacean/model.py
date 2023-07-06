@@ -20,6 +20,7 @@ from ._base_model import (
     BaseUserModel,
     DatasetType,
     construct,  # noqa: F401 (imported so users can get it from this module)
+    validate_datetime,
     validate_emails,
     validate_orcids,
 )
@@ -81,11 +82,15 @@ class DownloadDataset(
     updatedBy: Optional[str] = None
     validationStatus: Optional[str] = None
 
-    @field_validator("contactEmail", "ownerEmail")
+    @field_validator("creationTime", "createdAt", "endTime", "updatedAt", mode="before")
+    def _validate_datetime(cls, value: Any) -> Any:
+        return validate_datetime(value)
+
+    @field_validator("contactEmail", "ownerEmail", mode="before")
     def _validate_emails(cls, value: Any) -> Any:
         return validate_emails(value)
 
-    @field_validator("orcidOfOwner")
+    @field_validator("orcidOfOwner", mode="before")
     def _validate_orcids(cls, value: Any) -> Any:
         return validate_orcids(value)
 
@@ -125,11 +130,15 @@ class UploadDerivedDataset(BaseModel):
     techniques: Optional[List[UploadTechnique]] = None
     validationStatus: Optional[str] = None
 
-    @field_validator("contactEmail", "ownerEmail")
+    @field_validator("creationTime", mode="before")
+    def _validate_datetime(cls, value: Any) -> Any:
+        return validate_datetime(value)
+
+    @field_validator("contactEmail", "ownerEmail", mode="before")
     def _validate_emails(cls, value: Any) -> Any:
         return validate_emails(value)
 
-    @field_validator("orcidOfOwner")
+    @field_validator("orcidOfOwner", mode="before")
     def _validate_orcids(cls, value: Any) -> Any:
         return validate_orcids(value)
 
@@ -171,11 +180,15 @@ class UploadRawDataset(BaseModel):
     techniques: Optional[List[UploadTechnique]] = None
     validationStatus: Optional[str] = None
 
-    @field_validator("contactEmail", "ownerEmail")
+    @field_validator("creationTime", "endTime", mode="before")
+    def _validate_datetime(cls, value: Any) -> Any:
+        return validate_datetime(value)
+
+    @field_validator("contactEmail", "ownerEmail", mode="before")
     def _validate_emails(cls, value: Any) -> Any:
         return validate_emails(value)
 
-    @field_validator("orcidOfOwner")
+    @field_validator("orcidOfOwner", mode="before")
     def _validate_orcids(cls, value: Any) -> Any:
         return validate_orcids(value)
 
@@ -194,6 +207,10 @@ class DownloadAttachment(BaseModel):
     thumbnail: Optional[str] = None
     updatedAt: Optional[datetime] = None
     updatedBy: Optional[str] = None
+
+    @field_validator("createdAt", "updatedAt", mode="before")
+    def _validate_datetime(cls, value: Any) -> Any:
+        return validate_datetime(value)
 
 
 class UploadAttachment(BaseModel):
@@ -221,6 +238,10 @@ class DownloadOrigDatablock(BaseModel):
     instrumentGroup: Optional[str] = None
     updatedAt: Optional[datetime] = None
     updatedBy: Optional[str] = None
+
+    @field_validator("createdAt", "updatedAt", mode="before")
+    def _validate_datetime(cls, value: Any) -> Any:
+        return validate_datetime(value)
 
 
 class UploadOrigDatablock(BaseModel):
@@ -250,6 +271,10 @@ class DownloadDatablock(BaseModel):
     updatedAt: Optional[datetime] = None
     updatedBy: Optional[str] = None
 
+    @field_validator("createdAt", "updatedAt", mode="before")
+    def _validate_datetime(cls, value: Any) -> Any:
+        return validate_datetime(value)
+
 
 class UploadDatablock(BaseModel):
     archiveId: str
@@ -275,6 +300,16 @@ class DownloadLifecycle(BaseModel):
     retrieveIntegrityCheck: Optional[bool] = None
     retrieveReturnMessage: Optional[Dict[str, Any]] = None
     retrieveStatusMessage: Optional[str] = None
+
+    @field_validator(
+        "archiveRetentionTime",
+        "dateOfDiskPurging",
+        "dateOfPublishing",
+        "publishedOn",
+        mode="before",
+    )
+    def _validate_datetime(cls, value: Any) -> Any:
+        return validate_datetime(value)
 
 
 class DownloadTechnique(BaseModel):
@@ -302,6 +337,10 @@ class DownloadHistory(BaseModel):
     updatedAt: Optional[datetime] = None
     updatedBy: Optional[datetime] = None
 
+    @field_validator("updatedAt", mode="before")
+    def _validate_datetime(cls, value: Any) -> Any:
+        return validate_datetime(value)
+
 
 class DownloadDataFile(BaseModel):
     path: Optional[str] = None
@@ -312,6 +351,10 @@ class DownloadDataFile(BaseModel):
     perm: Optional[str] = None
     uid: Optional[str] = None
 
+    @field_validator("time", mode="before")
+    def _validate_datetime(cls, value: Any) -> Any:
+        return validate_datetime(value)
+
 
 class UploadDataFile(BaseModel):
     path: str
@@ -321,6 +364,10 @@ class UploadDataFile(BaseModel):
     gid: Optional[str] = None
     perm: Optional[str] = None
     uid: Optional[str] = None
+
+    @field_validator("time", mode="before")
+    def _validate_datetime(cls, value: Any) -> Any:
+        return validate_datetime(value)
 
 
 class DownloadInstrument(BaseModel):
@@ -343,6 +390,10 @@ class DownloadSample(BaseModel):
     sampleId: Optional[str] = None
     updatedAt: Optional[datetime] = None
     updatedBy: Optional[str] = None
+
+    @field_validator("createdAt", "updatedAt", mode="before")
+    def _validate_datetime(cls, value: Any) -> Any:
+        return validate_datetime(value)
 
 
 class UploadSample(BaseModel):
