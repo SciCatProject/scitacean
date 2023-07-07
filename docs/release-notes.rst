@@ -32,35 +32,22 @@ Release notes
    Stability, Maintainability, and Testing
    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-vYY.0M.MICRO (Unreleased)
--------------------------
-
-Security
-~~~~~~~~
+v23.07.0 (2023-07-07)
+---------------------
 
 Features
 ~~~~~~~~
 
 * Proper support for the new SciCat backend version 4.
 * ``scitacean.testing`` now contains tools for managing locally deployed SciCat servers and SSH servers.
+* Pydantic version 2 is not supported in addition to version 1.
+  Prior versions of Scitacean are incompatible with Pydantic version 2 and users need to ensure to install a compatible version.
 
 Breaking changes
 ~~~~~~~~~~~~~~~~
 
 * Models have been split into 'download' and 'upload' models for communication with SciCat as well as 'user' models that are exposed in the high level interface.
   For users, this mostly affects tests with ``FakeClient``.
-
-Bugfixes
-~~~~~~~~
-
-Documentation
-~~~~~~~~~~~~~
-
-Deprecations
-~~~~~~~~~~~~
-
-Stability, Maintainability, and Testing
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 v23.05.0 (2023-05-15)
 ---------------------
