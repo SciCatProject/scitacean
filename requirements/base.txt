@@ -15,16 +15,16 @@ cffi==1.15.1
     #   pynacl
 charset-normalizer==3.1.0
     # via requests
-cryptography==41.0.1
+cryptography==41.0.2
     # via paramiko
 decorator==5.1.1
     # via fabric
 dnspython==2.3.0
     # via email-validator
 email-validator==2.0.0.post2
-    # via -r requirements/base.in
+    # via -r base.in
 fabric==3.1.0
-    # via -r requirements/base.in
+    # via -r base.in
 idna==3.4
     # via
     #   email-validator
@@ -36,13 +36,13 @@ paramiko==3.2.0
 pycparser==2.21
     # via cffi
 pydantic==1.10.11
-    # via -r requirements/base.in
+    # via -r base.in
 pynacl==1.5.0
     # via paramiko
 python-dateutil==2.8.2
-    # via -r requirements/base.in
+    # via -r base.in
 requests==2.31.0
-    # via -r requirements/base.in
+    # via -r base.in
 six==1.16.0
     # via python-dateutil
 typing-extensions==4.7.1
