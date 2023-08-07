@@ -14,6 +14,15 @@
 {%- endif -%}
 {% endmacro %}
 
+{% macro field_type_spec(field) %}
+{%- set ty = field.type_for("user")|replace("NonNegativeInt", "int") -%}
+{%- if ty == "None" -%}
+type(None)
+{%- else -%}
+{{ ty }}
+{%- endif -%}
+{% endmacro %}
+
 {{ banner }}
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
@@ -28,14 +37,13 @@ from typing import Any, Dict, List, Literal, Optional, Tuple, Union
 
 import dateutil.parser
 
+from ._base_model import DatasetType
 from ._internal.dataclass_wrapper import dataclass_optional_args
 from .datablock import OrigDatablock
 from .filesystem import RemotePath
 from .model import (
-    DatasetType,
     DownloadDataset,
     Lifecycle,
-    History,
     Relationship,
     Technique,
 )
@@ -92,6 +100,16 @@ class DatasetBase:
             )
 
     _FIELD_SPEC = [
+        Field(
+            name="type",
+            description="Characterize type of dataset, either 'raw' or 'derived'. Autofilled when choosing the proper inherited models.",
+            read_only=False,
+            required=True,
+            scicat_name="type",
+            type=DatasetType,
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
 {%- for field in spec.user_dset_fields(manual=False)|sort(attribute="name") -%}
         Field(
             name="{{ field.name }}",
@@ -99,7 +117,7 @@ class DatasetBase:
             read_only={{ not field.upload }},
             required={{ field.required }},
             scicat_name="{{ field.scicat_name }}",
-            type={{ field.type_for("user")|replace("NonNegativeInt", "int") }},
+            type={{ field_type_spec(field) }},
             used_by_derived={{ field.used_by_derived or not field.upload }},
             used_by_raw={{ field.used_by_raw or not field.upload }},
         ),
@@ -111,20 +129,21 @@ class DatasetBase:
         "_{{ field.name }}",
 {% endfor %}
         "_meta",
+        "_type",
         "_default_checksum_algorithm",
         "_orig_datablocks",
     )
 
     def __init__(self,
         type: Union[DatasetType, Literal["raw", "derived"]],
-{%- for field in spec.user_dset_fields(manual=False)|sort(attribute="name")|rejectattr("name", "eq", "type")|selectattr("upload") %}
+{%- for field in spec.user_dset_fields(manual=False)|sort(attribute="name")|selectattr("upload") %}
         {{ field.name }}: {{ init_arg_type(field) }} = {{ field.default }},
 {%- endfor %}
         meta: Optional[Dict[str, Any]] = None,
         checksum_algorithm: Optional[str] = "blake2b",
     ) -> None:
         self._type = DatasetType(type)
-{%- for field in spec.user_dset_fields(manual=False)|sort(attribute="name")|rejectattr("name", "eq", "type")|selectattr("upload") %}
+{%- for field in spec.user_dset_fields(manual=False)|sort(attribute="name")|selectattr("upload") %}
         {{ field_assignment(field) }}
 {%- endfor %}
 {%- for field in spec.user_dset_fields(manual=False)|sort(attribute="name")|rejectattr("upload") %}
@@ -158,6 +177,16 @@ class DatasetBase:
     def meta(self, meta: Dict[str, Any]) -> None:
         """Dict of scientific metadata."""
         self._meta = meta
+
+    @property
+    def type(self) -> DatasetType:
+        """Characterize type of dataset, either 'raw' or 'derived'. Autofilled when choosing the proper inherited models."""
+        return self._type
+
+    @type.setter
+    def type(self, type: Union[DatasetType, Literal["raw", "derived"]]) -> None:
+        """Characterize type of dataset, either 'raw' or 'derived'. Autofilled when choosing the proper inherited models."""
+        self._type = DatasetType(type)
 
     @staticmethod
     def _prepare_fields_from_download(

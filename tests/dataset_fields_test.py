@@ -116,7 +116,9 @@ def test_can_set_writable_fields(field, data):
 
 @pytest.mark.parametrize(
     "field",
-    filter(lambda f: not f.read_only, Dataset.fields()),
+    filter(
+        lambda f: f.name != "type", filter(lambda f: not f.read_only, Dataset.fields())
+    ),
     ids=lambda f: f.name,
 )
 def test_can_set_writable_fields_to_none(field):

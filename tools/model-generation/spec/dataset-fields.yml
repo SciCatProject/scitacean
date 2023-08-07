@@ -13,6 +13,7 @@ manual:
   - origdatablocks
   - packedSize
   - size
+  - type
 
 # Default values used in __init__
 defaults:
