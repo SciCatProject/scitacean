@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
+# mypy: disable-error-code="no-untyped-def"
 
 import logging
 from pathlib import Path
@@ -30,14 +31,14 @@ def ssh_access(request):
 @pytest.fixture(scope="session")
 def ssh_config_dir(request, tmp_path_factory) -> Optional[Path]:
     if not ssh_enabled(request):
-        return
+        return None
     return root_tmp_dir(request, tmp_path_factory) / "scitacean-ssh"
 
 
 @pytest.fixture(scope="session")
-def ssh_data_dir(ssh_config_dir) -> Optional[Path]:
+def ssh_data_dir(ssh_config_dir: Optional[Path]) -> Optional[Path]:
     if ssh_config_dir is None:
-        return
+        return None
     return ssh_config_dir / "data"
 
 

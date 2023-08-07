@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
+# mypy: disable-error-code="no-untyped-def, return-value"
+
 import dataclasses
 import tempfile
 from datetime import datetime, timedelta, timezone

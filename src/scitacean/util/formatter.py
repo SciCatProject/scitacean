@@ -3,9 +3,14 @@
 """String-formatting tools."""
 
 from string import Formatter
-from typing import Any, Iterator, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Iterable, Optional, Tuple
 
 from ..filesystem import escape_path
+
+if TYPE_CHECKING:
+    from _typeshed import StrOrLiteralStr
+else:
+    StrOrLiteralStr = str
 
 
 class DatasetPathFormatter(Formatter):
@@ -43,7 +48,14 @@ class DatasetPathFormatter(Formatter):
 
     def parse(
         self, format_string: str
-    ) -> Iterator[Tuple[str, Optional[str], Optional[str], Optional[str]]]:
+    ) -> Iterable[
+        Tuple[
+            StrOrLiteralStr,
+            Optional[StrOrLiteralStr],
+            Optional[StrOrLiteralStr],
+            Optional[StrOrLiteralStr],
+        ]
+    ]:
         def add0(field_name: Optional[str]) -> Optional[str]:
             if field_name == "uid":
                 return field_name
@@ -51,11 +63,10 @@ class DatasetPathFormatter(Formatter):
                 return "dset." + field_name
             return None
 
-        return map(
-            lambda t: (t[0], add0(t[1]), t[2], t[3]), super().parse(format_string)
-        )
+        return ((t[0], add0(t[1]), t[2], t[3]) for t in super().parse(format_string))
 
     def format_field(self, value: Any, format_spec: str) -> str:
         if value is None:
             raise ValueError("Cannot format path, dataset field is None")
-        return escape_path(super().format_field(value, format_spec))
+        formatted: str = super().format_field(value, format_spec)
+        return escape_path(formatted)

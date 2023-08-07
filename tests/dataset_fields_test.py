@@ -1,10 +1,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
+# mypy: disable-error-code="arg-type"
 
 # These tests use Dataset instead of DatasetFields in order to test the
 # public interface and make sure that Dataset does not break any behavior.
 
 from datetime import datetime, timedelta, timezone
+from typing import Union
 
 import dateutil.parser
 import pydantic
@@ -53,10 +55,13 @@ def test_init_dataset_needs_type():
 def test_init_dataset_sets_creation_time():
     expected = datetime.now(tz=timezone.utc)
     dset = Dataset(type="raw")
+    assert dset.creation_time is not None
     assert abs(dset.creation_time - expected) < timedelta(seconds=30)
 
 
 def test_init_dataset_can_set_creation_time():
+    dt: Union[str, datetime]
+
     dt = dateutil.parser.parse("2022-01-10T11:14:52.623Z")
     dset = Dataset(type="derived", creation_time=dt)
     assert dset.creation_time == dt
@@ -70,6 +75,7 @@ def test_init_dataset_can_set_creation_time():
     assert dset.creation_time == dateutil.parser.parse(dt)
 
     dset = Dataset(type="derived", creation_time="now")
+    assert dset.creation_time is not None
     assert abs(dset.creation_time - datetime.now(tz=timezone.utc)) < timedelta(
         seconds=30
     )
@@ -84,9 +90,10 @@ def test_cannot_set_read_only_fields(field):
 
 @pytest.mark.parametrize(
     "field",
-    filter(
-        lambda f: f.name not in ("type", *_UNGENERATABLE_FIELDS),
-        Dataset.fields(read_only=False),
+    (
+        f
+        for f in Dataset.fields(read_only=False)
+        if f.name not in ("type", *_UNGENERATABLE_FIELDS)
     ),
     ids=lambda f: f.name,
 )
@@ -100,9 +107,7 @@ def test_can_init_writable_fields(field, data):
 
 @pytest.mark.parametrize(
     "field",
-    filter(
-        lambda f: f.name not in _UNGENERATABLE_FIELDS, Dataset.fields(read_only=False)
-    ),
+    (f for f in Dataset.fields(read_only=False) if f.name not in _UNGENERATABLE_FIELDS),
     ids=lambda f: f.name,
 )
 @given(st.data())
@@ -116,9 +121,7 @@ def test_can_set_writable_fields(field, data):
 
 @pytest.mark.parametrize(
     "field",
-    filter(
-        lambda f: f.name != "type", filter(lambda f: not f.read_only, Dataset.fields())
-    ),
+    (f for f in Dataset.fields() if f.name != "type" and not f.read_only),
     ids=lambda f: f.name,
 )
 def test_can_set_writable_fields_to_none(field):
@@ -391,9 +394,10 @@ def test_make_derived_model():
 
 @pytest.mark.parametrize(
     "field",
-    filter(
-        lambda f: not f.used_by_raw and f.name not in _UNGENERATABLE_FIELDS,
-        Dataset.fields(dataset_type="derived", read_only=False),
+    (
+        f
+        for f in Dataset.fields(dataset_type="derived", read_only=False)
+        if not f.used_by_raw and f.name not in _UNGENERATABLE_FIELDS
     ),
     ids=lambda f: f.name,
 )
@@ -418,9 +422,10 @@ def test_make_raw_model_raises_if_derived_field_set(field, data):
 
 @pytest.mark.parametrize(
     "field",
-    filter(
-        lambda f: not f.used_by_derived and f.name not in _UNGENERATABLE_FIELDS,
-        Dataset.fields(dataset_type="raw", read_only=False),
+    (
+        f
+        for f in Dataset.fields(dataset_type="raw", read_only=False)
+        if not f.used_by_derived and f.name not in _UNGENERATABLE_FIELDS
     ),
     ids=lambda f: f.name,
 )

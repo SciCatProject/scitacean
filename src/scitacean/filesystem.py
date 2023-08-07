@@ -21,11 +21,13 @@ from typing import Any, Callable, Generator, Optional, TypeVar, Union
 from ._internal.pydantic_compat import is_pydantic_v1
 
 if not is_pydantic_v1():
+    from typing import Type
+
     from pydantic import GetCoreSchemaHandler
     from pydantic_core import core_schema
 
     def _get_remote_path_core_schema(
-        cls, _source_type: Any, _handler: GetCoreSchemaHandler
+        cls: Type[RemotePath], _source_type: Any, _handler: GetCoreSchemaHandler
     ) -> core_schema.CoreSchema:
         return core_schema.no_info_after_validator_function(
             cls,
@@ -54,10 +56,10 @@ class RemotePath:
     the two should almost never be mixed.
     """
 
-    def __init__(self, *path_segments: Union[str, RemotePath]):
+    def __init__(self, *path_segments: Union[str, RemotePath]) -> None:
         """Initialize from given path segments."""
         for segment in path_segments:
-            if isinstance(segment, (PurePath, Path)):
+            if isinstance(segment, (PurePath, Path)):  # type: ignore[unreachable]
                 raise TypeError(
                     "OS paths are not supported by RemotePath.__init__. "
                     "use RemotePath.from_local instead."
@@ -86,7 +88,7 @@ class RemotePath:
 
     def __truediv__(self, other: Union[str, RemotePath]) -> RemotePath:
         """Join two path segments."""
-        if isinstance(other, (PurePath, Path)):
+        if isinstance(other, (PurePath, Path)):  # type: ignore[unreachable]
             raise TypeError("OS paths are not supported when concatenating RemotePath.")
         this = _strip_trailing_slash(self.posix)
         other = _strip_leading_slash(_strip_trailing_slash(_posix(other)))
@@ -240,7 +242,8 @@ def escape_path(path: P) -> P:
     Replaces
 
     - Unicode characters using ``"backslashreplace"``.
-      See the `Python docs <https://docs.python.org/3/library/codecs.html?highlight=unicode_escape#error-handlers>`_.
+      See the
+      `Python docs <https://docs.python.org/3/library/codecs.html#error-handlers>`_.
     - Non-word characters by '_'. This includes backslashes
       introduced by the above.
 
@@ -256,7 +259,11 @@ def escape_path(path: P) -> P:
     :
         ``path`` with offending characters replaced.
         Has the same type as ``path``.
-    """  # noqa: E501
-    s = path.posix if isinstance(path, RemotePath) else os.fspath(path)
+    """
+    s = (
+        path.posix
+        if isinstance(path, RemotePath)
+        else os.fspath(path)  # type: ignore[arg-type]
+    )
     no_utf = s.encode("ascii", "backslashreplace").decode("ascii")
-    return type(path)(re.sub(r"[^\w .\-]", "_", no_utf))
+    return type(path)(re.sub(r"[^\w .\-]", "_", no_utf))  # type: ignore[return-value]

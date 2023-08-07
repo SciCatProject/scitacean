@@ -89,6 +89,11 @@ class SSHUploadConnection:
         return uploaded
 
     def _upload_file(self, file: File) -> Tuple[File, Optional[Exception]]:
+        if file.local_path is None:
+            raise ValueError(
+                f"Cannot upload file to {file.remote_path}, "
+                "the file has no local path"
+            )
         remote_path = self.remote_path(file.remote_path)
         get_logger().info(
             "Uploading file %s to %s on host %s",
@@ -127,6 +132,7 @@ class SSHUploadConnection:
                 f"match checksum of local file ({file.checksum()}) "
                 f"using algorithm {file.checksum_algorithm}"
             )
+        return None
 
     def _compute_checksum(self, file: File) -> Optional[str]:
         if (hash_exe := _coreutils_checksum_for(file)) is None:
@@ -166,9 +172,7 @@ class SSHUploadConnection:
     def revert_upload(self, *files: File) -> None:
         """Remove uploaded files from the remote folder."""
         for file in files:
-            self._revert_upload_single(
-                remote=file.remote_path, local=file.local_path
-            )  # type: ignore[arg-type]
+            self._revert_upload_single(remote=file.remote_path, local=file.local_path)
 
         if _folder_is_empty(self._connection, self.source_folder):
             try:
@@ -186,7 +190,9 @@ class SSHUploadConnection:
                     exc.result,
                 )
 
-    def _revert_upload_single(self, *, remote: RemotePath, local: Path) -> None:
+    def _revert_upload_single(
+        self, *, remote: RemotePath, local: Optional[Path]
+    ) -> None:
         remote_path = self.remote_path(remote)
         get_logger().info(
             "Reverting upload of file %s to %s on host %s",
@@ -279,7 +285,7 @@ class SSHFileTransfer:
         *,
         host: str,
         port: Optional[int] = None,
-        source_folder: Optional[Union[str, Path]] = None,
+        source_folder: Optional[Union[str, RemotePath]] = None,
     ) -> None:
         """Construct a new SSH file transfer.
 

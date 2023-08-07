@@ -179,7 +179,7 @@ class Client:
             dataset_model=self.scicat.get_dataset_model(
                 pid, strict_validation=strict_validation
             ),
-            orig_datablock_models=orig_datablocks,
+            orig_datablock_models=orig_datablocks or [],
         )
 
     def upload_new_dataset_now(self, dataset: Dataset) -> Dataset:
@@ -236,7 +236,7 @@ class Client:
 
         return Dataset.from_download_models(
             dataset_model=finalized_model,
-            orig_datablock_models=finalized_orig_datablocks,
+            orig_datablock_models=finalized_orig_datablocks or [],
         )
 
     def _upload_orig_datablocks(
@@ -387,7 +387,7 @@ class Client:
                     for f in to_download
                     if (p := f.remote_access_path(dataset.source_folder)) is not None
                 ],
-                local=[f.local_path for f in to_download],
+                local=[f.local_path for f in to_download],  # type: ignore[misc]
             )
         for f in to_download:
             f.validate_after_download()
@@ -687,11 +687,11 @@ def _url_concat(a: str, b: str) -> str:
 
 
 def _strip_token(error: Any, token: str) -> str:
-    error = str(error)
-    error = re.sub(r"token=[\w\-./]+", "token=<HIDDEN>", error)
+    err = str(error)
+    err = re.sub(r"token=[\w\-./]+", "token=<HIDDEN>", err)
     if token:  # token can be ""
-        error = error.replace(token, "<HIDDEN>")
-    return error
+        err = err.replace(token, "<HIDDEN>")
+    return err
 
 
 def _make_orig_datablock(
@@ -811,7 +811,7 @@ def _remove_up_to_date_local_files(
         file
         for file in files
         if not (
-            file.local_path.exists()
+            file.local_path.exists()  # type: ignore[union-attr]
             and dataclasses.replace(
                 file, checksum_algorithm=checksum_algorithm
             ).local_is_up_to_date()

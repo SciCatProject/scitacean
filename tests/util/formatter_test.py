@@ -17,7 +17,7 @@ def test_dataset_formatter_uses_dataset_fields():
 
 def test_dataset_formatter_can_access_attrs_of_fields():
     dset = Dataset(type="raw")
-    dset._pid = PID.parse("prefix/actual-id")
+    dset._pid = PID.parse("prefix/actual-id")  # type: ignore[assignment]
     formatted = DatasetPathFormatter().format("{pid.pid}", dset=dset)
     assert formatted == "actual-id"
 

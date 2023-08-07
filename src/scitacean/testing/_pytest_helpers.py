@@ -12,7 +12,8 @@ from .._internal.file_counter import FileCounter, NullCounter
 def using_xdist(request: pytest.FixtureRequest) -> bool:
     """Return True if we are running with one or more pytest-xdist workers."""
     try:
-        return request.getfixturevalue("worker_id") != "master"
+        is_master = request.getfixturevalue("worker_id") == "master"
+        return not is_master
     except pytest.FixtureLookupError:
         return False
 
@@ -42,6 +43,7 @@ def init_work_dir(
     target_dir = base_path / name if name else base_path
     target_dir.mkdir(exist_ok=True)
 
+    counter: Union[FileCounter, NullCounter]
     if using_xdist(request):
         counter = FileCounter(target_dir / "counter")
     else:

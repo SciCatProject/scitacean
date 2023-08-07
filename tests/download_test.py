@@ -73,7 +73,7 @@ def dataset_and_files(data_files):
     }
 
 
-def load(name: Union[str, Path]):
+def load(name: Union[str, Path]) -> bytes:
     with open(name, "rb") as f:
         return f.read()
 

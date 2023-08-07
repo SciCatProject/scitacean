@@ -76,7 +76,7 @@ class OrigDatablock:
             _updated_by=dblock.updatedBy,
             init_files=[
                 File.from_scicat(file, checksum_algorithm=orig_datablock_model.chkAlg)
-                for file in dblock.dataFileList
+                for file in dblock.dataFileList or ()
             ],
         )
 
@@ -111,7 +111,7 @@ class OrigDatablock:
         return self._updated_by
 
     @property
-    def dataset_id(self) -> PID:
+    def dataset_id(self) -> Optional[PID]:
         """PID of the dataset this datablock belongs to."""
         return self._dataset_id
 

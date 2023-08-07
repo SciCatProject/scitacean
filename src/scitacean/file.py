@@ -141,7 +141,7 @@ class File:
         return File(
             checksum_algorithm=checksum_algorithm,
             local_path=Path(local_path) if isinstance(local_path, str) else local_path,
-            remote_path=RemotePath(model.path),
+            remote_path=RemotePath(model.path),  # type: ignore[arg-type]
             remote_gid=model.gid,
             remote_perm=model.perm,
             remote_uid=model.uid,

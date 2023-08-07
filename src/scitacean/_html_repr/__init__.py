@@ -5,7 +5,7 @@
 import html
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Iterable, List, Optional
 
 import pydantic
 
@@ -81,7 +81,7 @@ def _format_metadata_value(value: Any) -> str:
 _VALUE_UNIT_KEYS = {"value", "unit", "valueSI", "unitSI"}
 
 
-def _has_value_unit_encoding(meta_value: Any):
+def _has_value_unit_encoding(meta_value: Any) -> bool:
     if (
         isinstance(meta_value, dict)
         and "value" in meta_value
@@ -104,7 +104,7 @@ class Field:
 
 
 def _format_field(field: Field) -> str:
-    def format_value(val) -> str:
+    def format_value(val: Any) -> str:
         if isinstance(val, datetime):
             return val.strftime("%Y-%m-%d %H:%M:%S%z")
         return html.escape(str(val))
@@ -175,7 +175,7 @@ def _get_fields(dset: Dataset) -> List[Field]:
     )
 
 
-def _check_error(field: Field, validation: Dict[str, str]) -> Optional[str]:
+def _check_error(field: Dataset.Field, validation: Dict[str, str]) -> Optional[str]:
     if field.name in validation:
         # TODO validation uses model names (camelCase)
         return validation[field.name]
@@ -183,7 +183,7 @@ def _check_error(field: Field, validation: Dict[str, str]) -> Optional[str]:
 
 
 def _validate(dset: Dataset) -> Dict[str, str]:
-    def single_elem(xs):
+    def single_elem(xs: Iterable[Any]) -> Any:
         (x,) = xs
         return x
 

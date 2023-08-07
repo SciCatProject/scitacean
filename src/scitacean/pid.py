@@ -10,13 +10,13 @@ import pydantic
 from ._internal.pydantic_compat import is_pydantic_v1
 
 if not is_pydantic_v1():
-    from typing import Any
+    from typing import Any, Type
 
     from pydantic import GetCoreSchemaHandler
     from pydantic_core import core_schema
 
     def _get_pid_core_schema(
-        cls, _source_type: Any, _handler: GetCoreSchemaHandler
+        cls: Type[PID], _source_type: Any, _handler: GetCoreSchemaHandler
     ) -> core_schema.CoreSchema:
         return core_schema.no_info_after_validator_function(
             cls.parse,

@@ -17,7 +17,7 @@ T = TypeVar("T")
 def build_user_model_for_upload(cls: Type[T]) -> st.SearchStrategy[T]:
     private_fields = {
         field.name: st.none()
-        for field in dataclasses.fields(cls)
+        for field in dataclasses.fields(cls)  # type: ignore[arg-type]
         if field.name.startswith("_")
     }
     return st.builds(cls, **private_fields)
