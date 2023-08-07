@@ -107,6 +107,7 @@ class BaseModel(pydantic.BaseModel):
             return cls.model_fields
 
 
+@dataclasses.dataclass
 class BaseUserModel:
     """Base class for user models.
 
