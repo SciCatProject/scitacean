@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
 import importlib.resources
-import os
 import time
 from dataclasses import dataclass
 from functools import lru_cache
@@ -81,7 +80,7 @@ def _copy_seed(target_seed_dir: Path) -> None:
         target_seed_dir.joinpath(name).write_text(content)
 
 
-def configure(target_dir: Union[os.PathLike[str], str]) -> Path:
+def configure(target_dir: Union[Path, str]) -> Path:
     """Generate a config file for docker compose and copy seed data."""
     target_dir = Path(target_dir)
     target_seed_dir = target_dir / "data" / "seed"
