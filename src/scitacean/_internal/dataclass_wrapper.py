@@ -5,12 +5,13 @@
 import dataclasses
 from typing import Any, Callable, Type, TypeVar
 
+T = TypeVar("T")
+
+
 try:
     from typing import dataclass_transform
 except ImportError:
     from typing import Tuple, Union
-
-    from _typeshed import IdentityFunction
 
     F = TypeVar("F")
 
@@ -22,14 +23,11 @@ except ImportError:
         frozen_default: bool = False,
         field_specifiers: Tuple[Union[type[Any], Callable[..., Any]], ...] = (),
         **kwargs: Any,
-    ) -> IdentityFunction:
+    ) -> Callable[[T], T]:
         def impl(f: F) -> F:
             return f
 
         return impl
-
-
-T = TypeVar("T")
 
 
 @dataclass_transform()

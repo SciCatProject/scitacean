@@ -3,14 +3,20 @@
 """String-formatting tools."""
 
 from string import Formatter
-from typing import TYPE_CHECKING, Any, Iterable, Optional, Tuple
+from typing import Any, Iterable, Optional, Tuple
 
 from ..filesystem import escape_path
 
-if TYPE_CHECKING:
-    from _typeshed import StrOrLiteralStr
-else:
-    StrOrLiteralStr = str
+try:
+    from typing import LiteralString, TypeVar
+
+    StrOrLiteralStr = TypeVar("StrOrLiteralStr", LiteralString, str)
+    del LiteralString, TypeVar
+except ImportError:
+    from typing import TypeAlias
+
+    StrOrLiteralStr: TypeAlias = str  # type: ignore[no-redef]
+    del TypeAlias
 
 
 class DatasetPathFormatter(Formatter):
