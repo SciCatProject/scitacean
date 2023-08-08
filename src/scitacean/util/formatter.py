@@ -13,10 +13,7 @@ try:
     StrOrLiteralStr = TypeVar("StrOrLiteralStr", LiteralString, str)
     del LiteralString, TypeVar
 except ImportError:
-    from typing import TypeAlias
-
-    StrOrLiteralStr: TypeAlias = str  # type: ignore[no-redef]
-    del TypeAlias
+    StrOrLiteralStr = str  # type: ignore[misc]
 
 
 class DatasetPathFormatter(Formatter):
