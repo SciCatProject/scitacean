@@ -16,14 +16,13 @@ from typing import Any, Dict, List, Literal, Optional, Tuple, Union
 
 import dateutil.parser
 
+from ._base_model import DatasetType
 from ._internal.dataclass_wrapper import dataclass_optional_args
 from .datablock import OrigDatablock
 from .filesystem import RemotePath
 from .model import (
-    DatasetType,
     DownloadDataset,
     Lifecycle,
-    History,
     Relationship,
     Technique,
 )
@@ -80,6 +79,16 @@ class DatasetBase:
             )
 
     _FIELD_SPEC = [
+        Field(
+            name="type",
+            description="Characterize type of dataset, either 'raw' or 'derived'. Autofilled when choosing the proper inherited models.",
+            read_only=False,
+            required=True,
+            scicat_name="type",
+            type=DatasetType,
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
         Field(
             name="access_groups",
             description="Optional additional groups which have read access to the data. Users which are members in one of the groups listed here are allowed to access this data. The special group 'public' makes data available to all users.",
@@ -216,7 +225,7 @@ class DatasetBase:
             read_only=True,
             required=False,
             scicat_name="history",
-            type=None,
+            type=type(None),
             used_by_derived=True,
             used_by_raw=True,
         ),
@@ -461,16 +470,6 @@ class DatasetBase:
             used_by_raw=True,
         ),
         Field(
-            name="type",
-            description="Characterize type of dataset, either 'raw' or 'derived'. Autofilled when choosing the proper inherited models.",
-            read_only=False,
-            required=True,
-            scicat_name="type",
-            type=DatasetType,
-            used_by_derived=True,
-            used_by_raw=True,
-        ),
-        Field(
             name="updated_at",
             description="Date and time when this record was updated last. This property is added and maintained by mongoose.",
             read_only=True,
@@ -551,12 +550,12 @@ class DatasetBase:
         "_source_folder",
         "_source_folder_host",
         "_techniques",
-        "_type",
         "_updated_at",
         "_updated_by",
         "_used_software",
         "_validation_status",
         "_meta",
+        "_type",
         "_default_checksum_algorithm",
         "_orig_datablocks",
     )
@@ -1001,16 +1000,6 @@ class DatasetBase:
         self._techniques = techniques
 
     @property
-    def type(self) -> Optional[DatasetType]:
-        """Characterize type of dataset, either 'raw' or 'derived'. Autofilled when choosing the proper inherited models."""
-        return self._type
-
-    @type.setter
-    def type(self, type: Optional[DatasetType]) -> None:
-        """Characterize type of dataset, either 'raw' or 'derived'. Autofilled when choosing the proper inherited models."""
-        self._type = type
-
-    @property
     def updated_at(self) -> Optional[datetime]:
         """Date and time when this record was updated last. This property is added and maintained by mongoose."""
         return self._updated_at
@@ -1049,6 +1038,16 @@ class DatasetBase:
     def meta(self, meta: Dict[str, Any]) -> None:
         """Dict of scientific metadata."""
         self._meta = meta
+
+    @property
+    def type(self) -> DatasetType:
+        """Characterize type of dataset, either 'raw' or 'derived'. Autofilled when choosing the proper inherited models."""
+        return self._type
+
+    @type.setter
+    def type(self, type: Union[DatasetType, Literal["raw", "derived"]]) -> None:
+        """Characterize type of dataset, either 'raw' or 'derived'. Autofilled when choosing the proper inherited models."""
+        self._type = DatasetType(type)
 
     @staticmethod
     def _prepare_fields_from_download(

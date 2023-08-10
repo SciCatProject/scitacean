@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
+# mypy: disable-error-code="arg-type, index"
+
 import pickle
 
 import pydantic
@@ -20,7 +22,7 @@ from scitacean.util.credentials import SecretStr
 
 
 @pytest.fixture()
-def scicat_client(client) -> ScicatClient:
+def scicat_client(client: Client) -> ScicatClient:
     return client.scicat
 
 

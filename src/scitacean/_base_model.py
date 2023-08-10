@@ -2,23 +2,11 @@
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
 
 """Types and functions to implement models for communication with SciCat."""
-
-try:
-    # Python 3.11+
-    from enum import StrEnum as _StrEnum
-
-    _DatasetTypeBases = (_StrEnum,)
-except ImportError:
-    from enum import Enum as _Enum
-
-    _DatasetTypeBases = (
-        str,
-        _Enum,
-    )
+from __future__ import annotations
 
 import dataclasses
 from datetime import datetime
-from typing import Any, Dict, Iterable, Optional, Type, TypeVar, Union
+from typing import Any, Dict, Iterable, Optional, Tuple, Type, TypeVar, Union
 
 import pydantic
 from dateutil.parser import parse as parse_datetime
@@ -31,12 +19,28 @@ from .pid import PID
 
 ModelType = TypeVar("ModelType", bound=pydantic.BaseModel)
 
+try:
+    # Python 3.11+
+    from enum import StrEnum
 
-class DatasetType(*_DatasetTypeBases):
-    """Type of Dataset."""
+    class DatasetType(StrEnum):
+        """Type of Dataset."""
 
-    RAW = "raw"
-    DERIVED = "derived"
+        RAW = "raw"
+        DERIVED = "derived"
+
+    del StrEnum
+
+except ImportError:
+    from enum import Enum
+
+    class DatasetType(str, Enum):  # type: ignore[no-redef]
+        """Type of Dataset."""
+
+        RAW = "raw"
+        DERIVED = "derived"
+
+    del Enum
 
 
 class BaseModel(pydantic.BaseModel):
@@ -55,6 +59,8 @@ class BaseModel(pydantic.BaseModel):
         model_config = pydantic.ConfigDict(
             extra="forbid",
         )
+
+    _masked_fields: Tuple[str, ...]
 
     # Some schemas contain fields that we don't want to use in Scitacean.
     # Normally, omitting them from the model would result in an error when
@@ -83,21 +89,23 @@ class BaseModel(pydantic.BaseModel):
     if is_pydantic_v1():
 
         @classmethod
-        def get_model_fields(cls) -> Dict[str, pydantic.fields.ModelField]:
-            return cls.__fields__
+        def get_model_fields(cls) -> Dict[str, Any]:
+            return cls.__fields__  # type: ignore[return-value]
 
-        def model_dump(self, *args, **kwargs) -> Dict[str, Any]:
+        def model_dump(self, *args: Any, **kwargs: Any) -> Dict[str, Any]:
             return self.dict(*args, **kwargs)
 
-        def model_dump_json(self, *args, **kwargs) -> str:
+        def model_dump_json(self, *args: Any, **kwargs: Any) -> str:
             return self.json(*args, **kwargs)
 
         @classmethod
-        def model_construct(cls: Type[ModelType], *args, **kwargs) -> ModelType:
+        def model_construct(
+            cls: Type[ModelType], *args: Any, **kwargs: Any
+        ) -> ModelType:
             return cls.construct(*args, **kwargs)
 
         @classmethod
-        def model_rebuild(cls, *args, **kwargs) -> Optional[bool]:
+        def model_rebuild(cls, *args: Any, **kwargs: Any) -> Optional[bool]:
             return cls.update_forward_refs(*args, **kwargs)
 
     else:
@@ -107,6 +115,7 @@ class BaseModel(pydantic.BaseModel):
             return cls.model_fields
 
 
+@dataclasses.dataclass
 class BaseUserModel:
     """Base class for user models.
 
@@ -131,6 +140,10 @@ class BaseUserModel:
             for field in dataclasses.fields(self)
             if not field.name.startswith("_")
         }
+
+    @classmethod
+    def from_download_model(cls, download_model: Any) -> BaseUserModel:
+        raise NotImplementedError()
 
 
 def construct(

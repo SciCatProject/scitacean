@@ -4,7 +4,7 @@
 import pickle
 from copy import deepcopy
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Union
 
 from dateutil.parser import parse as parse_datetime
 
@@ -209,7 +209,7 @@ def _apply_config_orig_datablock(
 ) -> UploadOrigDatablock:
     dblock = deepcopy(dblock)
     dblock.ownerGroup = user.group
-    dblock.datasetId = dset.pid
+    dblock.datasetId = dset.pid  # type: ignore[assignment]
     return dblock
 
 
@@ -218,11 +218,11 @@ def _create_dataset_model(
 ) -> DownloadDataset:
     uploaded = client.scicat.create_dataset_model(dset)
     # pid is a str if validation fails but we need a PID for fake clients.
-    uploaded.pid = PID.parse(uploaded.pid)
+    uploaded.pid = PID.parse(uploaded.pid)  # type: ignore[arg-type]
     return uploaded
 
 
-def seed_database(*, client: Optional[Client], scicat_access: SciCatAccess) -> None:
+def seed_database(*, client: Client, scicat_access: SciCatAccess) -> None:
     """Seed the database for testing.
 
     Uses the provided client to upload the datasets.

@@ -9,7 +9,7 @@ import pytest
 from dateutil.parser import parse as parse_date
 
 from scitacean import File, IntegrityError, RemotePath
-from scitacean.file import checksum_of_file
+from scitacean.filesystem import checksum_of_file
 from scitacean.logging import logger_name
 from scitacean.model import DownloadDataFile
 
@@ -270,12 +270,12 @@ def test_checksum_is_up_to_date(fs, fake_file):
 
     checksum = hashlib.new("md5")
     checksum.update(new_contents)
-    checksum = checksum.hexdigest()
-    assert checksum != fake_file["size"]
+    checksum_digest = checksum.hexdigest()
+    assert checksum_digest != fake_file["size"]
 
     with open(fake_file["path"], "wb") as f:
         f.write(new_contents)
-    assert file.checksum() == checksum
+    assert file.checksum() == checksum_digest
 
 
 def test_validate_after_download_detects_bad_checksum(fake_file):
@@ -349,14 +349,14 @@ def test_local_is_up_to_date_default_checksum_alg(fs):
     contents = b"some file content"
     checksum = hashlib.new("blake2b")
     checksum.update(contents)
-    checksum = checksum.hexdigest()
+    checksum_digest = checksum.hexdigest()
     fs.create_file("data.csv", contents=contents)
 
     file = File.from_scicat(
         DownloadDataFile(
             path="data.csv",
             size=65178,
-            chk=checksum,
+            chk=checksum_digest,
             time=parse_date("2022-06-22T15:42:53.123Z"),
         )
     ).downloaded(local_path="data.csv")

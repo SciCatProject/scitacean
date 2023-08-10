@@ -47,7 +47,7 @@ from ._base_model import (
     BaseModel,
     BaseUserModel,
     DatasetType,
-    construct,  # noqa: F401 (imported so users can get it from this module)
+    construct,
     validate_datetime,
     validate_drop,
     validate_emails,
@@ -118,7 +118,7 @@ class {{ spec.name }}(BaseUserModel):
 # Instead of ordering models according to their dependencies, resolve
 # references once all classes have been defined.
 {% for spec in specs.values() -%}
-{%- for name, kind in ((spec.download_name, "download"), (spec.upload_name, "upload")) -%}
+{%- for name in (spec.download_name, spec.upload_name) -%}
 {%- if name -%}
 {{ name }}.model_rebuild()
 {% endif -%}
@@ -127,3 +127,23 @@ class {{ spec.name }}(BaseUserModel):
 DownloadDataset.model_rebuild()
 UploadDerivedDataset.model_rebuild()
 UploadRawDataset.model_rebuild()
+
+__all__ = (
+    "BaseModel",
+    "BaseUserModel",
+    "DatasetType",
+    "construct",
+    "DownloadDataset",
+    "UploadDerivedDataset",
+    "UploadRawDataset",
+{% for spec in specs.values() -%}
+{%- for name in (spec.download_name, spec.upload_name) -%}
+{%- if name -%}
+    "{{ name }}",
+{% endif -%}
+{%- endfor -%}
+{%- endfor -%}
+{% for spec in specs.values()|rejectattr("name", "in", ["DataFile", "Datablock", "OrigDatablock"]) -%}
+    "{{ spec.name }}",
+{%- endfor -%}
+)

@@ -42,7 +42,7 @@ def test_remote_path_init_requires_path_like():
 @pytest.mark.parametrize("local_type", (PurePath, Path))
 def test_remote_path_rejects_os_path(local_type):
     with pytest.raises(TypeError):
-        RemotePath(local_type("dir", "file.csv"))  # type: ignore[arg-type]
+        RemotePath(local_type("dir", "file.csv"))
 
 
 @pytest.mark.parametrize("local_type", (PurePath, PurePosixPath, PureWindowsPath))
@@ -122,9 +122,9 @@ def test_remote_path_join_url(types):
 
 def test_remote_path_join_rejects_os_path():
     with pytest.raises(TypeError):
-        RemotePath("asd") / Path("qwe")  # type: ignore[arg-type]
+        RemotePath("asd") / Path("qwe")  # type: ignore[operator]
     with pytest.raises(TypeError):
-        Path("qwe") / RemotePath("asd")  # type: ignore[arg-type]
+        Path("qwe") / RemotePath("asd")  # type: ignore[operator]
 
 
 def test_remote_path_name():

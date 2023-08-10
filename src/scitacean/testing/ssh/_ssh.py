@@ -1,12 +1,11 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
 import importlib.resources
-import os
 import time
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Iterable, Tuple, Union
+from typing import Any, Dict, Iterable, Tuple, Union
 
 import paramiko
 import yaml
@@ -40,8 +39,8 @@ def _read_yaml(filename: str) -> Any:
 
 
 @lru_cache(maxsize=1)
-def _docker_compose_file() -> dict:
-    return _read_yaml("docker-compose-ssh-server.yaml")
+def _docker_compose_file() -> Dict[str, Any]:
+    return _read_yaml("docker-compose-ssh-server.yaml")  # type: ignore[no-any-return]
 
 
 def _seed_files() -> Iterable[Tuple[str, str]]:
@@ -81,7 +80,7 @@ def _copy_seed(target_seed_dir: Path) -> None:
         target_seed_dir.joinpath(name).write_text(content)
 
 
-def configure(target_dir: Union[os.PathLike, str]) -> Path:
+def configure(target_dir: Union[Path, str]) -> Path:
     """Generate a config file for docker compose and copy seed data."""
     target_dir = Path(target_dir)
     target_seed_dir = target_dir / "data" / "seed"
@@ -107,7 +106,9 @@ def can_connect(ssh_access: SSHAccess) -> bool:
     return True
 
 
-def wait_until_ssh_server_is_live(ssh_access: SSHAccess, max_time: float, n_tries: int):
+def wait_until_ssh_server_is_live(
+    ssh_access: SSHAccess, max_time: float, n_tries: int
+) -> None:
     # The container takes a while to be fully live.
     for _ in range(n_tries):
         if can_connect(ssh_access):
@@ -117,7 +118,9 @@ def wait_until_ssh_server_is_live(ssh_access: SSHAccess, max_time: float, n_trie
         raise RuntimeError("Cannot connect to SSH server")
 
 
-def cleanup_data_dir(ssh_access, ssh_connect_with_username_password):
+def cleanup_data_dir(
+    ssh_access: SSHAccess, ssh_connect_with_username_password: Any
+) -> None:
     # Delete all directories created by tests.
     # These are owned by root on the host and cannot be deleted by Python's tempfile.
     connection = ssh_connect_with_username_password(
@@ -147,5 +150,5 @@ def _make_client(ssh_access: SSHAccess) -> paramiko.SSHClient:
 # Every time we create a container, it gets a new host key.
 # So simply accept any host keys.
 class IgnorePolicy(paramiko.MissingHostKeyPolicy):
-    def missing_host_key(self, client, hostname, key):
+    def missing_host_key(self, client: Any, hostname: Any, key: Any) -> None:
         return

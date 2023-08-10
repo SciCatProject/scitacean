@@ -6,13 +6,17 @@ from contextlib import contextmanager
 import pytest
 from dateutil.parser import parse as parse_date
 
-from scitacean import Dataset, DatasetType, ScicatCommError
+from scitacean import Client, Dataset, DatasetType, ScicatCommError
 from scitacean.testing.client import FakeClient
 from scitacean.testing.transfer import FakeFileTransfer
 
 from .common.files import make_file
 
 # TODO source_folder changed / populated in file after upload
+
+
+def get_file_transfer(client: Client) -> FakeFileTransfer:
+    return client.file_transfer  # type: ignore[return-value]
 
 
 @pytest.fixture
@@ -97,11 +101,11 @@ def test_upload_uploads_files_to_source_folder(client, dataset_with_files):
     source_folder = client.file_transfer.source_folder_for(finalized)
 
     assert (
-        client.file_transfer.files[source_folder / "file.nxs"]
+        get_file_transfer(client).files[source_folder / "file.nxs"]
         == b"contents of file.nxs"
     )
     assert (
-        client.file_transfer.files[source_folder / "the_log_file.log"]
+        get_file_transfer(client).files[source_folder / "the_log_file.log"]
         == b"this is a log file"
     )
 
@@ -134,7 +138,7 @@ def test_upload_cleans_up_files_if_dataset_ingestion_fails(dataset_with_files, f
     with pytest.raises(ScicatCommError):
         client.upload_new_dataset_now(dataset_with_files)
 
-    assert not client.file_transfer.files
+    assert not get_file_transfer(client).files
 
 
 def test_failed_datablock_upload_does_not_revert(dataset_with_files, fs):
@@ -150,5 +154,5 @@ def test_failed_datablock_upload_does_not_revert(dataset_with_files, fs):
     assert uploaded_dset.datasetName == "Data A38"
     assert uploaded_dset.usedSoftware == ["EasyScience"]
 
-    assert client.file_transfer.files
-    assert not client.file_transfer.reverted
+    assert get_file_transfer(client).files
+    assert not get_file_transfer(client).reverted

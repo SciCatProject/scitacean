@@ -19,7 +19,7 @@ def add_pytest_option(parser: pytest.Parser, option: str = "--ssh-tests") -> Non
     _COMMAND_LINE_OPTION = option
 
 
-def skip_if_not_ssh(request):
+def skip_if_not_ssh(request: pytest.FixtureRequest) -> None:
     if not ssh_enabled(request):
         pytest.skip(
             "Tests against an SSH file server are disabled, "
@@ -28,4 +28,6 @@ def skip_if_not_ssh(request):
 
 
 def ssh_enabled(request: pytest.FixtureRequest) -> bool:
-    return _COMMAND_LINE_OPTION and request.config.getoption(_COMMAND_LINE_OPTION)
+    return _COMMAND_LINE_OPTION is not None and bool(
+        request.config.getoption(_COMMAND_LINE_OPTION)
+    )

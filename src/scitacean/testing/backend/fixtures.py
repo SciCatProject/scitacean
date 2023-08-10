@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
+# mypy: disable-error-code="no-untyped-def"
 
 import logging
 from contextlib import contextmanager
@@ -32,9 +33,14 @@ def fake_client(scicat_access) -> FakeClient:
     client = FakeClient.from_credentials(
         url=scicat_access.url, **scicat_access.user.credentials
     )
-    client.datasets.update({ds.pid: ds for ds in seed.INITIAL_DATASETS.values()})
+    client.datasets.update(
+        {ds.pid: ds for ds in seed.INITIAL_DATASETS.values()}  # type: ignore[misc]
+    )
     client.orig_datablocks.update(
-        {dbs[0].datasetId: dbs for dbs in seed.INITIAL_ORIG_DATABLOCKS.values()}
+        {
+            dbs[0].datasetId: dbs  # type: ignore[misc]
+            for dbs in seed.INITIAL_ORIG_DATABLOCKS.values()
+        }
     )
     return client
 
@@ -51,9 +57,9 @@ def real_client(scicat_access, scicat_backend) -> Optional[Client]:
 @pytest.fixture(params=["real", "fake"])
 def client(request, scicat_backend) -> Union[Client, FakeClient]:
     if request.param == "fake":
-        return request.getfixturevalue("fake_client")
+        return request.getfixturevalue("fake_client")  # type: ignore[no-any-return]
     skip_if_not_backend(request)
-    return request.getfixturevalue("real_client")
+    return request.getfixturevalue("real_client")  # type: ignore[no-any-return]
 
 
 @pytest.fixture()
@@ -62,9 +68,7 @@ def require_scicat_backend(request, scicat_backend) -> None:
 
 
 @pytest.fixture(scope="session")
-def scicat_backend(
-    request: pytest.FixtureRequest, tmp_path_factory, scicat_access
-) -> bool:
+def scicat_backend(request, tmp_path_factory, scicat_access):
     """Spin up a SciCat and seed backend.
 
     Returns True if backend tests are enabled and False otherwise.
@@ -131,7 +135,8 @@ def _seed_database(
     target_dir: Path,
 ) -> None:
     client = client_class.from_credentials(
-        url=scicat_access.url, **scicat_access.user.credentials
+        url=scicat_access.url,
+        **scicat_access.user.credentials,  # type: ignore[arg-type]
     )
     seed.seed_database(client=client, scicat_access=scicat_access)
     seed.save_seed(target_dir)

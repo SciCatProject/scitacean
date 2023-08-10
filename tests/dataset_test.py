@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
+# mypy: disable-error-code="arg-type, union-attr"
 
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -193,9 +194,10 @@ _UNGENERATABLE_FIELDS = ("job_parameters", "meta")
 # where the new value is not the same as the old value.
 @pytest.mark.parametrize(
     "field",
-    filter(
-        lambda f: f.type != bool and f.name not in _UNGENERATABLE_FIELDS,
-        Dataset.fields(read_only=False),
+    (
+        f
+        for f in Dataset.fields(read_only=False)
+        if f.type != bool and f.name not in _UNGENERATABLE_FIELDS
     ),
     ids=lambda f: f.name,
 )

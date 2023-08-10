@@ -25,6 +25,6 @@ hypothesis.settings.register_profile(
 )
 
 
-def pytest_addoption(parser: pytest.Parser):
+def pytest_addoption(parser: pytest.Parser) -> None:
     add_backend_option(parser)
     add_ssh_option(parser)

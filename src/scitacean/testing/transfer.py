@@ -46,7 +46,9 @@ class FakeUploadConnection:
     def _remote_path(self, filename: RemotePath) -> RemotePath:
         return self._source_folder / filename
 
-    def _upload_file(self, *, remote: RemotePath, local: Path) -> RemotePath:
+    def _upload_file(self, *, remote: RemotePath, local: Optional[Path]) -> RemotePath:
+        if local is None:
+            raise ValueError(f"No local path for file {remote}")
         remote = self._remote_path(remote)
         with open(local, "rb") as f:
             self.files[remote] = f.read()
@@ -54,9 +56,7 @@ class FakeUploadConnection:
 
     def upload_files(self, *files: File) -> List[File]:
         for file in files:
-            self._upload_file(
-                remote=file.remote_path, local=file.local_path
-            )  # type: ignore[arg-type]
+            self._upload_file(remote=file.remote_path, local=file.local_path)
         return list(files)
 
     def revert_upload(self, *files: File) -> None:

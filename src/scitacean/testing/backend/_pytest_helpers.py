@@ -19,7 +19,7 @@ def add_pytest_option(parser: pytest.Parser, option: str = "--backend-tests") ->
     _COMMAND_LINE_OPTION = option
 
 
-def skip_if_not_backend(request):
+def skip_if_not_backend(request: pytest.FixtureRequest) -> None:
     if not backend_enabled(request):
         pytest.skip(
             "Tests against a real backend are disabled, "
@@ -28,4 +28,6 @@ def skip_if_not_backend(request):
 
 
 def backend_enabled(request: pytest.FixtureRequest) -> bool:
-    return _COMMAND_LINE_OPTION and request.config.getoption(_COMMAND_LINE_OPTION)
+    return _COMMAND_LINE_OPTION is not None and bool(
+        request.config.getoption(_COMMAND_LINE_OPTION)
+    )

@@ -35,7 +35,7 @@ def emails() -> st.SearchStrategy[str]:
         .map(lambda s: s.lower())
         .map(_validate_email)
         .filter(_is_valid_email)
-        .map(lambda m: m.normalized)
+        .map(lambda m: m.normalized)  # type: ignore[union-attr]
     )
 
 
@@ -81,7 +81,7 @@ def _scientific_metadata_strategy(
 def _job_parameters_strategy(
     field: Dataset.Field,
 ) -> st.SearchStrategy[Optional[Dict[str, str]]]:
-    return st.from_type(Optional[Dict[str, str]])
+    return st.from_type(Optional[Dict[str, str]])  # type: ignore[arg-type]
 
 
 def _lifecycle_strategy(
@@ -126,7 +126,9 @@ def _field_strategy(field: Dataset.Field) -> st.SearchStrategy[Any]:
     return st.from_type(typ)  # type:ignore[arg-type]
 
 
-def _make_dataset(*, type: DatasetType, args: dict, read_only: dict) -> Dataset:
+def _make_dataset(
+    *, type: DatasetType, args: Dict[str, Any], read_only: Dict[str, Any]
+) -> Dataset:
     dset = Dataset(type=type, **args)
     for key, val in read_only.items():
         setattr(dset, "_" + key, val)

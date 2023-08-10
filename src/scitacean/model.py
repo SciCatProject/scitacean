@@ -19,7 +19,7 @@ from ._base_model import (
     BaseModel,
     BaseUserModel,
     DatasetType,
-    construct,  # noqa: F401 (imported so users can get it from this module)
+    construct,
     validate_datetime,
     validate_drop,
     validate_emails,
@@ -681,3 +681,37 @@ UploadSample.model_rebuild()
 DownloadDataset.model_rebuild()
 UploadDerivedDataset.model_rebuild()
 UploadRawDataset.model_rebuild()
+
+__all__ = (
+    "BaseModel",
+    "BaseUserModel",
+    "DatasetType",
+    "construct",
+    "DownloadDataset",
+    "UploadDerivedDataset",
+    "UploadRawDataset",
+    "DownloadAttachment",
+    "UploadAttachment",
+    "DownloadOrigDatablock",
+    "UploadOrigDatablock",
+    "DownloadDatablock",
+    "UploadDatablock",
+    "DownloadLifecycle",
+    "DownloadTechnique",
+    "UploadTechnique",
+    "DownloadRelationship",
+    "UploadRelationship",
+    "DownloadHistory",
+    "DownloadDataFile",
+    "UploadDataFile",
+    "DownloadInstrument",
+    "DownloadSample",
+    "UploadSample",
+    "Attachment",
+    "Lifecycle",
+    "Technique",
+    "Relationship",
+    "History",
+    "Instrument",
+    "Sample",
+)

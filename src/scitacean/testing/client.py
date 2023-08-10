@@ -196,7 +196,8 @@ class FakeScicatClient(ScicatClient):
         self, dset: Union[model.UploadDerivedDataset, model.UploadRawDataset]
     ) -> model.DownloadDataset:
         ingested = _process_dataset(dset)
-        self.main.datasets[ingested.pid] = ingested
+        pid: PID = ingested.pid  # type: ignore[assignment]
+        self.main.datasets[pid] = ingested
         return ingested
 
     @_conditionally_disabled

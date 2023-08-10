@@ -384,7 +384,9 @@ class Dataset(DatasetBase):
         except StopIteration:
             raise KeyError(f"No OrigDatablock with id {id_}") from None
 
-    def _get_or_add_orig_datablock(self, key: Union[int, str]) -> OrigDatablock:
+    def _get_or_add_orig_datablock(self, key: Union[int, str, PID]) -> OrigDatablock:
+        if isinstance(key, PID):
+            key = str(PID)
         if isinstance(key, str):
             return self._lookup_orig_datablock(key)
         # The 0th datablock is implicitly always there and created on demand.
@@ -396,7 +398,7 @@ class Dataset(DatasetBase):
 
     def make_upload_model(self) -> Union[UploadDerivedDataset, UploadRawDataset]:
         """Construct a SciCat upload model from self."""
-        model = (
+        model: Union[Type[UploadRawDataset], Type[UploadDerivedDataset]] = (
             UploadRawDataset if self.type == DatasetType.RAW else UploadDerivedDataset
         )
         # Datablocks are not included here because they are handled separately
