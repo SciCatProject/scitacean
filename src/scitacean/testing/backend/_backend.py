@@ -50,7 +50,13 @@ def _apply_config(template: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def configure(target_path: _PathLike) -> None:
-    """Build a docker-compose file for the testing backend."""
+    """Build a docker-compose file for the testing backend.
+
+    Parameters
+    ----------
+    target_path:
+        Generate a docker-compose file at this path.
+    """
     c = yaml.dump(_apply_config(_docker_compose_template()))
     if "PLACEHOLDER" in c:
         raise RuntimeError("Incorrect config")
@@ -70,7 +76,13 @@ def stop_backend(docker_compose_file: _PathLike) -> None:
 
 
 def can_connect() -> bool:
-    """Test the connection to the testing SciCat backend."""
+    """Test the connection to the testing SciCat backend.
+
+    Returns
+    -------
+    :
+        True if the backend is reachable, False otherwise.
+    """
     scicat_access = config.local_access("user1")
     try:
         response = requests.post(

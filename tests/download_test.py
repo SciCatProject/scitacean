@@ -211,7 +211,7 @@ def test_download_files_ignores_checksum_if_alg_is_none(fs, dataset_and_files):
         chk=bad_checksum,
     )
     dataset.add_orig_datablock(checksum_algorithm=None)
-    dataset.add_files(File.from_scicat(model))
+    dataset.add_files(File.from_download_model(model))
 
     client = Client.without_login(
         url="/",
@@ -235,7 +235,7 @@ def test_download_files_detects_bad_checksum(fs, dataset_and_files):
         chk=bad_checksum,
     )
     dataset.add_orig_datablock(checksum_algorithm="md5")
-    dataset.add_files(File.from_scicat(model))
+    dataset.add_files(File.from_download_model(model))
 
     client = Client.without_login(
         url="/",
@@ -259,7 +259,7 @@ def test_download_files_detects_bad_size(fs, dataset_and_files, caplog):
         chk=bad_checksum,
     )
     dataset.add_orig_datablock(checksum_algorithm="md5")
-    dataset.add_files(File.from_scicat(model))
+    dataset.add_files(File.from_download_model(model))
 
     client = Client.without_login(
         url="/",

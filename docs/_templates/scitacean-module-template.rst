@@ -2,6 +2,8 @@
 
 .. automodule:: {{ fullname }}
 
+{% if name not in ["model"] %}
+
    {% block attributes %}
    {% if attributes %}
    .. rubric:: {{ _('Module Attributes') }}
@@ -64,3 +66,5 @@
 {%- endfor %}
 {% endif %}
 {% endblock %}
+
+{% endif %}

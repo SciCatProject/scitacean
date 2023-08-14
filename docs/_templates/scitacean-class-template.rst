@@ -1,10 +1,11 @@
 {{ fullname | escape | underline }}
 
 {% set constructors = {"Client": ["from_credentials", "from_token", "without_login"],
-                       "Dataset": ["__init__", "from_models"],
-                       "File": ["from_local", "from_scicat"],
-                       "OrigDatablockProxy": ["__init__", "from_model"],
+                       "Dataset": ["__init__", "from_download_models"],
+                       "File": ["from_local", "from_download_model"],
+                       "OrigDatablockProxy": ["__init__", "from_download_model"],
                        "PID": ["__init__", "parse"],
+                       "ScicatClient": ["from_credentials", "from_token", "without_login"],
                       } %}
 {% set regular_methods = methods | reject("in", constructors.get(name, []) + ["__init__"]) | list %}
 

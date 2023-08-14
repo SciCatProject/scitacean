@@ -8,3 +8,4 @@ User guide
    downloading
    uploading
    testing
+   classes-and-concepts

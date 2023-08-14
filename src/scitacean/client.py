@@ -405,6 +405,8 @@ class Client:
 
 
 class ScicatClient:
+    """Low-level client to call the SciCat API."""
+
     def __init__(
         self,
         url: str,
@@ -425,6 +427,22 @@ class ScicatClient:
         token: Union[str, StrStorage],
         timeout: Optional[datetime.timedelta] = None,
     ) -> ScicatClient:
+        """Create a new low-level client and authenticate with a token.
+
+        Parameters
+        ----------
+        url:
+            URL of the SciCat api.
+        token:
+            User token to authenticate with SciCat.
+        timeout:
+            Timeout for all API requests.
+
+        Returns
+        -------
+        :
+            A new low-level client.
+        """
         return ScicatClient(url=url, token=token, timeout=timeout)
 
     @classmethod
@@ -435,6 +453,25 @@ class ScicatClient:
         password: Union[str, StrStorage],
         timeout: Optional[datetime.timedelta] = None,
     ) -> ScicatClient:
+        """Create a new low-level client and authenticate with username and password.
+
+        Parameters
+        ----------
+        url:
+            URL of the SciCat api.
+            It should include the suffix `api/vn` where `n` is a number.
+        username:
+            Name of the user.
+        password:
+            Password of the user.
+        timeout:
+            Timeout for all API requests.
+
+        Returns
+        -------
+        :
+            A new low-level client.
+        """
         if not isinstance(username, StrStorage):
             username = SecretStr(username)
         if not isinstance(password, StrStorage):
@@ -456,6 +493,23 @@ class ScicatClient:
     def without_login(
         cls, url: str, timeout: Optional[datetime.timedelta] = None
     ) -> ScicatClient:
+        """Create a new low-level client without authentication.
+
+        The client can only download public datasets and not upload at all.
+
+        Parameters
+        ----------
+        url:
+            URL of the SciCat api.
+            It should include the suffix `api/vn` where `n` is a number.
+        timeout:
+            Timeout for all API requests.
+
+        Returns
+        -------
+        :
+            A new low-level client.
+        """
         return ScicatClient(url=url, token=None, timeout=timeout)
 
     def get_dataset_model(

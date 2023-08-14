@@ -38,6 +38,7 @@ Auxiliary classes
    :template: scitacean-class-template.rst
    :recursive:
 
+   client.ScicatClient
    datablock.OrigDatablock
    dataset.DatablockUploadModels
    PID

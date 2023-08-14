@@ -5,7 +5,78 @@
 
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
-"""Models for communication with SciCat and user facing dataclasses."""
+"""Models for communication with SciCat and user facing dataclasses.
+
+The high-level :class:`scitacean.Client` and :class:`scitacean.Dataset` return objects
+from the SciCat database in the form of 'user models'.
+Those are usually all that is required for working with Scitacean.
+
+At a lower level, those models are converted to or from upload or download models,
+respectively, by the corresponding methods of the user models.
+These upload and download models represent SciCat's schemas more closely and are used
+by the lower-level :class:`scitacean.client.ScicatClient`
+and :class:`scitacean.testing.client.FakeClient`.
+
+.. rubric:: User models
+
+Dataclasses exposed to users, primarily through :class:`Dataset`.
+
+.. autosummary::
+  :toctree: ../classes
+  :template: scitacean-class-template.rst
+
+  Attachment
+  DatasetType
+  History
+  Instrument
+  Lifecycle
+  Relationship
+  Sample
+  Technique
+
+.. rubric:: Download models
+
+Pydantic models for the data received from SciCat in downloads.
+
+.. autosummary::
+  :toctree: ../classes
+
+  DownloadAttachment
+  DownloadDatablock
+  DownloadDataFile
+  DownloadDataset
+  DownloadHistory
+  DownloadInstrument
+  DownloadLifecycle
+  DownloadOrigDatablock
+  DownloadRelationship
+  DownloadSample
+  DownloadTechnique
+
+.. rubric:: Upload models
+
+Pydantic models sent to SciCat in uploads.
+
+.. autosummary::
+  :toctree: ../classes
+
+  UploadAttachment
+  UploadDatablock
+  UploadDataFile
+  UploadDerivedDataset
+  UploadOrigDatablock
+  UploadRawDataset
+  UploadRelationship
+  UploadSample
+  UploadTechnique
+
+.. rubric:: Functions
+
+.. autosummary::
+   :toctree: ../functions
+
+   construct
+"""
 
 from __future__ import annotations
 

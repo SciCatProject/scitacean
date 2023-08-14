@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
+"""Fake file transfer."""
+
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Dict, Iterator, List, Optional, Union
@@ -16,6 +18,8 @@ from ..transfer.util import source_folder_for
 
 
 class FakeDownloadConnection:
+    """'Download' files from a fake file transfer."""
+
     def __init__(self, fs: Optional[FakeFilesystem], files: Dict[RemotePath, bytes]):
         self.files = files
         self.fs = fs
@@ -33,6 +37,8 @@ class FakeDownloadConnection:
 
 
 class FakeUploadConnection:
+    """'Upload' files to a fake file transfer."""
+
     def __init__(
         self,
         files: Dict[RemotePath, bytes],

@@ -1,10 +1,11 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
 # mypy: disable-error-code="no-untyped-def"
+"""Pytest fixtures to manage and access a local SSH server."""
 
 import logging
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional
 
 import fabric
 import fabric.config
@@ -23,42 +24,94 @@ from ._ssh import (
 
 
 @pytest.fixture(scope="session")
-def ssh_access(request):
+def ssh_access(request: pytest.FixtureRequest) -> SSHAccess:
+    """Fixture that returns SSH access parameters.
+
+    Returns
+    -------
+    :
+        A URL and user to connect to the testing SSH server.
+        The user has access to all initial files registered in the
+        database and permissions to create new files.
+    """
     skip_if_not_ssh(request)
     return local_access()
 
 
 @pytest.fixture(scope="session")
-def ssh_config_dir(request, tmp_path_factory) -> Optional[Path]:
+def ssh_base_dir(
+    request: pytest.FixtureRequest, tmp_path_factory: pytest.TempPathFactory
+) -> Optional[Path]:
+    """Fixture that returns the base working directory for the SSH server setup.
+
+    Returns
+    -------
+    :
+        A path to a directory on the host machine.
+        The directory gets populated by the
+        :func:`scitacean.testing.ssh.fixtures.ssh_fileserver` fixture.
+        It contains the docker configuration and volumes.
+
+        Returns ``None`` if SSH tests are disabled
+    """
     if not ssh_enabled(request):
         return None
     return root_tmp_dir(request, tmp_path_factory) / "scitacean-ssh"
 
 
 @pytest.fixture(scope="session")
-def ssh_data_dir(ssh_config_dir: Optional[Path]) -> Optional[Path]:
-    if ssh_config_dir is None:
+def ssh_data_dir(ssh_base_dir: Optional[Path]) -> Optional[Path]:
+    """Fixture that returns the data directory for the SSH server setup.
+
+    Returns
+    -------
+    :
+        A path to a directory on the host machine.
+        The directory is mounted as ``/data`` on the server.
+
+        Returns ``None`` if SSH tests are disabled
+    """
+    if ssh_base_dir is None:
         return None
-    return ssh_config_dir / "data"
+    return ssh_base_dir / "data"
+
+
+@pytest.fixture()
+def require_ssh_fileserver(request, ssh_fileserver) -> None:
+    """Fixture to declare that a test needs a local SSH server.
+
+    Like :func:`scitacean.testing.ssh.ssh_fileserver`
+    but this skips the test if SSH tests are disabled.
+    """
+    skip_if_not_ssh(request)
 
 
 @pytest.fixture(scope="session")
 def ssh_fileserver(
-    request,
-    ssh_access,
-    ssh_config_dir,
+    request: pytest.FixtureRequest,
+    ssh_access: SSHAccess,
+    ssh_base_dir: Optional[Path],
+    ssh_data_dir: Optional[Path],
     ssh_connect_with_username_password,
-    ssh_data_dir,
-):
-    """Spin up an SSH server.
+) -> bool:
+    """Fixture to declare that a test needs a local SSH server.
 
-    Does nothing unless the SSh tests are explicitly enabled.
+    If SSH tests are enabled, this fixture configures and starts an SSH server
+    in a docker container the first time a test requests it.
+    The server and container will be stopped and removed at the end of the test session.
+
+    Does nothing if the SSH tests are disabled.
+
+    Returns
+    -------
+    :
+        True if SSH tests are enabled and False otherwise.
     """
-    if ssh_config_dir is None:
+    if ssh_base_dir is None:
         yield False
         return
 
-    target_dir, counter = init_work_dir(request, ssh_config_dir, name=None)
+    target_dir, counter = init_work_dir(request, ssh_base_dir, name=None)
 
     try:
         with counter.increment() as count:
@@ -74,8 +127,11 @@ def ssh_fileserver(
 
 
 @pytest.fixture(scope="session")
-def ssh_connection_config():
-    """Return configuration for fabric.Connection."""
+def ssh_connection_config() -> fabric.config.Config:
+    """Fixture that returns the configuration for fabric.Connection for tests.
+
+    Can be used to open SSH connections if ``SSHFileTransfer`` is not enough.
+    """
     config = fabric.config.Config()
     config["load_ssh_configs"] = False
     config["connect_kwargs"] = {
@@ -86,16 +142,38 @@ def ssh_connection_config():
 
 
 @pytest.fixture(scope="session")
-def ssh_connect_with_username_password(ssh_access, ssh_connection_config):
-    """Return a function to create a connection to the testing SSH server.
+def ssh_connect_with_username_password(
+    ssh_access: SSHAccess, ssh_connection_config: fabric.config.Config
+) -> Callable[..., fabric.Connection]:
+    """Fixture that returns a function to create a connection to the testing SSH server.
 
     Uses username+password and rejects any other authentication attempt.
+
+    Returns
+    -------
+    :
+        A function to pass as the ``connect`` argument to
+        :meth:`scitacean.transfer.ssh.SSHFileTransfer.connect_for_download`
+        or :meth:`scitacean.transfer.ssh.SSHFileTransfer.connect_for_upload`.
+
+    Examples
+    --------
+    Explicitly connect to the
+
+    .. code-block:: python
+
+        def test_ssh(ssh_access, ssh_connect_with_username_password, ssh_fileserver):
+            ssh = SSHFileTransfer(host=ssh_access.host, port=ssh_access.port)
+            with ssh.connect_for_download(
+                connect=ssh_connect_with_username_password
+            ) as connection:
+                # use connection
     """
 
     def connect(host: str, port: int, **kwargs):
         if kwargs:
             raise ValueError(
-                "connect_with_username_password must only be"
+                "ssh_connect_with_username_password must only be"
                 f" used without extra arguments. Got {kwargs=}"
             )
         connection = fabric.Connection(

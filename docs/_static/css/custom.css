@@ -3,6 +3,8 @@ html[data-theme="light"] {
     --pst-color-secondary: #459db9;
     --pst-color-link-hover: var(--pst-color-link);
 
+    --bs-body-color: var(--pst-color-text-base);
+
     --cean-color-header-text: #2c2c2c;
     --cean-color-header-text-highlight: black;
     /* match cean-color-header-text */
@@ -15,6 +17,8 @@ html[data-theme="dark"] {
     --pst-color-secondary: #459db9;
     --pst-color-border: #aaa;
     --pst-color-link-hover: var(--pst-color-link);
+
+    --bs-body-color: var(--pst-color-text-base);
 
     --cean-color-header-text: #d4d4d4;
     --cean-color-header-text-highlight: #e5e5e5;

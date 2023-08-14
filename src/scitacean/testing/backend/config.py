@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
+"""Backend configuration."""
 
 from dataclasses import dataclass
 from typing import Dict
@@ -7,7 +8,14 @@ from typing import Dict
 
 @dataclass
 class SciCatUser:
-    """Only for testing."""
+    """A SciCat user.
+
+    Warning
+    -------
+    Only ever use this for testing!
+    This class does not have the usual protections against
+    leaks of secrets used by the client.
+    """
 
     username: str
     password: str
@@ -16,6 +24,14 @@ class SciCatUser:
 
     @property
     def credentials(self) -> Dict[str, str]:
+        """Return login credentials for this user.
+
+        User as
+
+        .. code-block:: python
+
+            client = Client.from_credentials(url="...", **user.credentials)
+        """
         return {
             "username": self.username,
             "password": self.password,
@@ -67,17 +83,36 @@ USERS = {
         group="group5",
     ),
 }
+"""Pre-configured users of the backend."""
 
 SCICAT_PORT = 3000
+"""Port of the SciCat server on localhost."""
 PID_PREFIX = "PID.prefix.a0b1"
+"""Prefix for PIDs that gets inserted by the server."""
 SITE = "SCITACEAN"
+"""Name of the deployment site (facility) of SciCat."""
 
 
 @dataclass
 class SciCatAccess:
+    """Access parameters for a local SciCat backend."""
+
     url: str
     user: SciCatUser
 
 
 def local_access(user: str) -> SciCatAccess:
+    """Return parameters to connect a client to a local SciCat backend.
+
+    Parameters
+    ----------
+    user:
+        User name.
+        Must be in :attr:`scitacean.testing.backend.config.USERS`.
+
+    Returns
+    -------
+    :
+        Parameters for the local SciCat backend.
+    """
     return SciCatAccess(url=f"http://localhost:{SCICAT_PORT}/api/v3/", user=USERS[user])

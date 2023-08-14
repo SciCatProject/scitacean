@@ -35,7 +35,7 @@ except ImportError:
     from enum import Enum
 
     class DatasetType(str, Enum):  # type: ignore[no-redef]
-        """Type of Dataset."""
+        """Enum representing the type of datasets."""
 
         RAW = "raw"
         DERIVED = "derived"

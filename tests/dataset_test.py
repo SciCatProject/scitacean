@@ -162,7 +162,7 @@ def test_make_scicat_models_datablock_with_one_file(dataset):
     file_model = model.DownloadDataFile(
         path="path", size=6163, chk="8450ac0", gid="group", time=datetime.now()
     )
-    dataset.add_files(File.from_scicat(local_path=None, model=file_model))
+    dataset.add_files(File.from_download_model(local_path=None, model=file_model))
 
     blocks = dataset.make_datablock_upload_models().orig_datablocks
     assert len(blocks) == 1
@@ -177,7 +177,7 @@ def test_make_scicat_models_datablock_with_one_file(dataset):
 @settings(max_examples=10)
 def test_eq_self(dset):
     dset.add_files(
-        File.from_scicat(
+        File.from_download_model(
             local_path=None,
             model=model.DownloadDataFile(path="path", size=94571, time=datetime.now()),
         )
@@ -215,7 +215,7 @@ def test_neq_single_mismatched_field_writable(field, initial, data):
 def test_neq_single_mismatched_file(initial):
     modified = initial.replace()
     modified.add_files(
-        File.from_scicat(
+        File.from_download_model(
             local_path=None,
             model=model.DownloadDataFile(
                 path="path", size=51553312, time=datetime.now()
@@ -223,7 +223,7 @@ def test_neq_single_mismatched_file(initial):
         )
     )
     initial.add_files(
-        File.from_scicat(
+        File.from_download_model(
             local_path=None,
             model=model.DownloadDataFile(path="path", size=94571, time=datetime.now()),
         )
@@ -236,7 +236,7 @@ def test_neq_single_mismatched_file(initial):
 def test_neq_extra_file(initial):
     modified = initial.replace()
     modified.add_files(
-        File.from_scicat(
+        File.from_download_model(
             local_path="/local",
             model=model.DownloadDataFile(
                 path="path", size=51553312, time=datetime.now()
@@ -335,7 +335,7 @@ def test_replace_does_not_change_files_no_input_files(initial):
 @given(sst.datasets())
 @settings(max_examples=1)
 def test_replace_does_not_change_files_with_input_files(initial):
-    file = File.from_scicat(
+    file = File.from_download_model(
         local_path=None,
         model=model.DownloadDataFile(path="path", size=6163, time=datetime.now()),
     )
