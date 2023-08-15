@@ -32,6 +32,33 @@ Release notes
    Stability, Maintainability, and Testing
    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+vYY.0M.MICRO (Unreleased)
+-------------------------
+
+Security
+~~~~~~~~
+
+Features
+~~~~~~~~
+
+* File downloads now use the checksum algorithm stored in SciCat when possible.
+  So it is no longer necessary to specify it by hand in many cases.
+
+Breaking changes
+~~~~~~~~~~~~~~~~
+
+Bugfixes
+~~~~~~~~
+
+Documentation
+~~~~~~~~~~~~~
+
+Deprecations
+~~~~~~~~~~~~
+
+Stability, Maintainability, and Testing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 v23.07.0 (2023-07-07)
 ---------------------
 

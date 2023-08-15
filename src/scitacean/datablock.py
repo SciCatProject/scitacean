@@ -64,7 +64,7 @@ class OrigDatablock:
         """
         dblock = orig_datablock_model
         return OrigDatablock(
-            checksum_algorithm=None,
+            checksum_algorithm=dblock.chkAlg,
             owner_group=dblock.ownerGroup,
             access_groups=dblock.accessGroups,
             instrument_group=dblock.instrumentGroup,
@@ -75,9 +75,7 @@ class OrigDatablock:
             _updated_at=dblock.updatedAt,
             _updated_by=dblock.updatedBy,
             init_files=[
-                File.from_download_model(
-                    file, checksum_algorithm=orig_datablock_model.chkAlg
-                )
+                File.from_download_model(file, checksum_algorithm=dblock.chkAlg)
                 for file in dblock.dataFileList or ()
             ],
         )
