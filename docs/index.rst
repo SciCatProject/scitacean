@@ -1,5 +1,24 @@
-Scitacean
-=========
+.. image:: _static/logo.svg
+   :class: only-light
+   :alt: Scitacean
+   :width: 25%
+
+.. image:: _static/logo-dark.svg
+   :class: only-dark
+   :alt: Scitacean
+   :width: 25%
+
+.. raw:: html
+
+   <style>
+    .transparent {display: none; visibility: hidden;}
+    .transparent + a.headerlink {display: none; visibility: hidden;}
+   </style>
+
+.. role:: transparent
+
+:transparent:`Scitacean`
+========================
 
 Scitacean is a high level Python package for downloading and uploading datasets from and to `SciCat <https://scicatproject.github.io/>`_.
 
