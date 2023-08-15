@@ -273,7 +273,6 @@ def test_download_files_detects_bad_size(fs, dataset_and_files, caplog):
     assert "89412" in caplog.text
 
 
-@pytest.mark.skip("Checksum algorithm not yet supported by datablocks")
 def test_download_does_not_download_up_to_date_file(fs, dataset_and_files):
     # Ensure the file exists locally
     dataset, contents = dataset_and_files
@@ -326,6 +325,35 @@ def test_download_does_not_download_up_to_date_file_manual_checksum(
         dataset, target="./download", select=True, checksum_algorithm="md5"
     )
     assert all(file.local_path is not None for file in downloaded.files)
+
+
+def test_override_datablock_checksum(fs, dataset_and_files):
+    # Ensure the file exists locally
+    dataset, contents = dataset_and_files
+    client = Client.without_login(
+        url="/", file_transfer=FakeFileTransfer(fs=fs, files=contents)
+    )
+    client.download_files(dataset, target="./download", select=True)
+
+    # Downloads the same file again when the checksum algorithm is wrong.
+    class RaisingDownloader(FakeFileTransfer):
+        source_dir = "/"
+
+        @contextmanager
+        def connect_for_download(self):
+            raise RuntimeError("Download disabled")
+
+    client = Client.without_login(
+        url="/",
+        file_transfer=RaisingDownloader(fs=fs),
+    )
+    with pytest.raises(RuntimeError, match="Download disabled"):
+        client.download_files(
+            dataset,
+            target="./download",
+            select=True,
+            checksum_algorithm="sha256",  # The datablock uses md5
+        )
 
 
 def test_force_file_download(fs, dataset_and_files):

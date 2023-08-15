@@ -317,12 +317,13 @@ class Client:
             - A **Callable[File]**: if this callable returns ``True`` for ``f``
         checksum_algorithm:
             Select an algorithm for computing file checksums.
-            This argument will be removed when the next SciCat version
-            has been released.
+            The data block normally determines the algorithm, but this argument can
+            override the stored value if the data block is broken
+            or no algorithm has been set.
         force:
             If ``True``, download files regardless of whether they already exist
             locally.
-            This bypasses the chekcsum computation of pre-existing local files.
+            This bypasses the checksum computation of pre-existing local files.
 
         Returns
         -------
@@ -861,13 +862,15 @@ def _select_files(select: FileSelector, dataset: Dataset) -> List[File]:
 def _remove_up_to_date_local_files(
     files: List[File], checksum_algorithm: Optional[str]
 ) -> List[File]:
+    def is_up_to_date(file: File) -> bool:
+        if checksum_algorithm is not None:
+            file = dataclasses.replace(file, checksum_algorithm=checksum_algorithm)
+        return file.local_is_up_to_date()
+
     return [
         file
         for file in files
         if not (
-            file.local_path.exists()  # type: ignore[union-attr]
-            and dataclasses.replace(
-                file, checksum_algorithm=checksum_algorithm
-            ).local_is_up_to_date()
+            file.local_path.exists() and is_up_to_date(file)  # type: ignore[union-attr]
         )
     ]
