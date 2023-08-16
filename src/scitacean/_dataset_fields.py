@@ -12,7 +12,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Literal, Optional, Tuple, Union
+from typing import Any, Dict, List, Literal, Optional, Tuple, Type, Union
 
 import dateutil.parser
 
@@ -21,7 +21,11 @@ from ._internal.dataclass_wrapper import dataclass_optional_args
 from .datablock import OrigDatablock
 from .filesystem import RemotePath
 from .model import (
+    construct,
+    BaseModel,
+    BaseUserModel,
     DownloadDataset,
+    DownloadLifecycle,
     Lifecycle,
     Relationship,
     Technique,
@@ -1062,12 +1066,44 @@ class DatasetBase:
                 init_args[field.name] = getattr(download_model, field.scicat_name)
 
         init_args["meta"] = download_model.scientificMetadata
-        DatasetBase._convert_readonly_fields_in_place(read_only)
+        _convert_download_fields_in_place(init_args, read_only)
 
         return init_args, read_only
 
     @staticmethod
-    def _convert_readonly_fields_in_place(read_only: Dict[str, Any]) -> Dict[str, Any]:
-        if "_pid" in read_only:
-            read_only["_pid"] = _parse_pid(read_only["_pid"])
-        return read_only
+    def _convert_readonly_fields_in_place(read_only: Dict[str, Any]) -> None:
+        if (pid := read_only.get("_pid")) is not None:
+            read_only["_pid"] = _parse_pid(pid)
+
+
+def _convert_download_fields_in_place(
+    init_args: Dict[str, Any], read_only: Dict[str, Any]
+) -> None:
+    for mod, key in ((Technique, "techniques"), (Relationship, "relationships")):
+        init_args[key] = _list_field_from_download(mod, init_args.get(key))
+
+    DatasetBase._convert_readonly_fields_in_place(read_only)
+    if (lifecycle := read_only.get("_lifecycle")) is not None:
+        read_only["_lifecycle"] = Lifecycle.from_download_model(
+            _as_model(DownloadLifecycle, lifecycle)
+        )
+
+
+def _list_field_from_download(
+    mod: Type[BaseUserModel], value: Optional[List[Any]]
+) -> Optional[List[BaseUserModel]]:
+    if value is None:
+        return None
+    return [
+        mod.from_download_model(_as_model(mod.download_model_type(), item))
+        for item in value
+    ]
+
+
+# If validation fails, sub models are not converted automatically by Pydantic.
+def _as_model(
+    mod: Type[BaseModel], value: Union[BaseModel, Dict[str, Any]]
+) -> BaseModel:
+    if isinstance(value, dict):
+        return construct(mod, **value, _strict_validation=False)
+    return value
