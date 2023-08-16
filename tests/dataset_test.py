@@ -91,7 +91,7 @@ def raw_download_model():
 def derived_download_model():
     return model.DownloadDataset(
         contactEmail="p.stibbons@uu.am",
-        creationLocation="UnseenUniversity",
+        creationLocation=None,
         creationTime=parse_datetime("1995-08-06T14:14:14Z"),
         inputDatasets=[PID.parse("123.cc/948.f7.2a")],
         investigator="Ponder Stibbons",
@@ -111,7 +111,7 @@ def derived_download_model():
         dataFormat=None,
         dataQualityMetrics=24,
         description="Dubiously analyzed data",
-        endTime=parse_datetime("1995-08-03T00:00:00Z"),
+        endTime=None,
         history=None,
         instrumentGroup="professors",
         instrumentId=None,
@@ -177,6 +177,13 @@ def test_from_download_models_initializes_fields(dataset_download_model):
     for field in dset.fields():
         if field.used_by(dataset_download_model.type):
             assert getattr(dset, field.name) == get_model_field(field.scicat_name)
+
+
+def test_from_download_models_does_not_initialize_wrong_fields(dataset_download_model):
+    dset = Dataset.from_download_models(dataset_download_model, [])
+    for field in dset.fields():
+        if not field.used_by(dataset_download_model.type):
+            assert getattr(dset, field.name) is None
 
 
 @pytest.mark.parametrize("typ", (DatasetType.RAW, DatasetType.DERIVED))
