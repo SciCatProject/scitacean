@@ -40,9 +40,10 @@ extensions = [
 
 intersphinx_mapping = {
     "fabric": ("https://docs.fabfile.org/en/latest", None),
-    "hypothesis": ("https://hypothesis.readthedocs.io/en/latest/", None),
-    "python": ("https://docs.python.org/3", None),
+    "hypothesis": ("https://hypothesis.readthedocs.io/en/latest", None),
     "paramiko": ("https://docs.paramiko.org/en/latest", None),
+    "pydantic": ("https://docs.pydantic.dev/latest", None),
+    "python": ("https://docs.python.org/3", None),
 }
 
 # autodocs includes everything, even irrelevant API internals. autosummary
