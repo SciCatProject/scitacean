@@ -288,6 +288,14 @@ class DownloadAttachment(BaseModel):
     def _validate_datetime(cls, value: Any) -> Any:
         return validate_datetime(value)
 
+    @classmethod
+    def user_model_type(cls) -> Optional[type]:
+        return Attachment
+
+    @classmethod
+    def upload_model_type(cls) -> Optional[type]:
+        return UploadAttachment
+
 
 class UploadAttachment(BaseModel):
     caption: str
@@ -299,6 +307,14 @@ class UploadAttachment(BaseModel):
     proposalId: Optional[str] = None
     sampleId: Optional[str] = None
     thumbnail: Optional[str] = None
+
+    @classmethod
+    def user_model_type(cls) -> Optional[type]:
+        return Attachment
+
+    @classmethod
+    def download_model_type(cls) -> Optional[type]:
+        return DownloadAttachment
 
 
 class DownloadOrigDatablock(BaseModel):
@@ -319,6 +335,10 @@ class DownloadOrigDatablock(BaseModel):
     def _validate_datetime(cls, value: Any) -> Any:
         return validate_datetime(value)
 
+    @classmethod
+    def upload_model_type(cls) -> Optional[type]:
+        return UploadOrigDatablock
+
 
 class UploadOrigDatablock(BaseModel):
     dataFileList: List[UploadDataFile]
@@ -328,6 +348,10 @@ class UploadOrigDatablock(BaseModel):
     accessGroups: Optional[List[str]] = None
     chkAlg: Optional[str] = None
     instrumentGroup: Optional[str] = None
+
+    @classmethod
+    def download_model_type(cls) -> Optional[type]:
+        return DownloadOrigDatablock
 
 
 class DownloadDatablock(BaseModel):
@@ -351,6 +375,10 @@ class DownloadDatablock(BaseModel):
     def _validate_datetime(cls, value: Any) -> Any:
         return validate_datetime(value)
 
+    @classmethod
+    def upload_model_type(cls) -> Optional[type]:
+        return UploadDatablock
+
 
 class UploadDatablock(BaseModel):
     archiveId: str
@@ -359,6 +387,10 @@ class UploadDatablock(BaseModel):
     size: NonNegativeInt
     version: str
     chkAlg: Optional[str] = None
+
+    @classmethod
+    def download_model_type(cls) -> Optional[type]:
+        return DownloadDatablock
 
 
 class DownloadLifecycle(BaseModel):
@@ -387,25 +419,61 @@ class DownloadLifecycle(BaseModel):
     def _validate_datetime(cls, value: Any) -> Any:
         return validate_datetime(value)
 
+    @classmethod
+    def user_model_type(cls) -> Optional[type]:
+        return Lifecycle
+
 
 class DownloadTechnique(BaseModel):
     name: Optional[str] = None
     pid: Optional[str] = None
+
+    @classmethod
+    def user_model_type(cls) -> Optional[type]:
+        return Technique
+
+    @classmethod
+    def upload_model_type(cls) -> Optional[type]:
+        return UploadTechnique
 
 
 class UploadTechnique(BaseModel):
     name: str
     pid: str
 
+    @classmethod
+    def user_model_type(cls) -> Optional[type]:
+        return Technique
+
+    @classmethod
+    def download_model_type(cls) -> Optional[type]:
+        return DownloadTechnique
+
 
 class DownloadRelationship(BaseModel):
     pid: Optional[PID] = None
     relationship: Optional[str] = None
 
+    @classmethod
+    def user_model_type(cls) -> Optional[type]:
+        return Relationship
+
+    @classmethod
+    def upload_model_type(cls) -> Optional[type]:
+        return UploadRelationship
+
 
 class UploadRelationship(BaseModel):
     pid: PID
     relationship: str
+
+    @classmethod
+    def user_model_type(cls) -> Optional[type]:
+        return Relationship
+
+    @classmethod
+    def download_model_type(cls) -> Optional[type]:
+        return DownloadRelationship
 
 
 class DownloadHistory(BaseModel):
@@ -416,6 +484,10 @@ class DownloadHistory(BaseModel):
     @field_validator("updatedAt", mode="before")
     def _validate_datetime(cls, value: Any) -> Any:
         return validate_datetime(value)
+
+    @classmethod
+    def user_model_type(cls) -> Optional[type]:
+        return History
 
 
 class DownloadDataFile(BaseModel):
@@ -431,6 +503,10 @@ class DownloadDataFile(BaseModel):
     def _validate_datetime(cls, value: Any) -> Any:
         return validate_datetime(value)
 
+    @classmethod
+    def upload_model_type(cls) -> Optional[type]:
+        return UploadDataFile
+
 
 class UploadDataFile(BaseModel):
     path: str
@@ -445,12 +521,20 @@ class UploadDataFile(BaseModel):
     def _validate_datetime(cls, value: Any) -> Any:
         return validate_datetime(value)
 
+    @classmethod
+    def download_model_type(cls) -> Optional[type]:
+        return DownloadDataFile
+
 
 class DownloadInstrument(BaseModel):
     customMetadata: Optional[Dict[str, Any]] = None
     name: Optional[str] = None
     pid: Optional[str] = None
     uniqueName: Optional[str] = None
+
+    @classmethod
+    def user_model_type(cls) -> Optional[type]:
+        return Instrument
 
 
 class DownloadSample(BaseModel):
@@ -471,6 +555,14 @@ class DownloadSample(BaseModel):
     def _validate_datetime(cls, value: Any) -> Any:
         return validate_datetime(value)
 
+    @classmethod
+    def user_model_type(cls) -> Optional[type]:
+        return Sample
+
+    @classmethod
+    def upload_model_type(cls) -> Optional[type]:
+        return UploadSample
+
 
 class UploadSample(BaseModel):
     ownerGroup: str
@@ -481,6 +573,14 @@ class UploadSample(BaseModel):
     owner: Optional[str] = None
     sampleCharacteristics: Optional[Dict[str, Any]] = None
     sampleId: Optional[str] = None
+
+    @classmethod
+    def user_model_type(cls) -> Optional[type]:
+        return Sample
+
+    @classmethod
+    def download_model_type(cls) -> Optional[type]:
+        return DownloadSample
 
 
 @dataclass_optional_args(kw_only=True, slots=True)
@@ -523,6 +623,14 @@ class Attachment(BaseUserModel):
     def make_upload_model(self) -> UploadAttachment:
         """Construct a SciCat upload model from self."""
         return UploadAttachment(**self._upload_model_dict())
+
+    @classmethod
+    def upload_model_type(cls) -> Optional[type]:
+        return UploadAttachment
+
+    @classmethod
+    def download_model_type(cls) -> type:
+        return DownloadAttachment
 
 
 @dataclass_optional_args(kw_only=True, slots=True)
@@ -603,6 +711,10 @@ class Lifecycle(BaseUserModel):
         """Construct an instance from an associated SciCat download model."""
         return cls(**cls._download_model_dict(download_model))
 
+    @classmethod
+    def download_model_type(cls) -> type:
+        return DownloadLifecycle
+
 
 @dataclass_optional_args(kw_only=True, slots=True)
 class Technique(BaseUserModel):
@@ -618,6 +730,14 @@ class Technique(BaseUserModel):
         """Construct a SciCat upload model from self."""
         return UploadTechnique(**self._upload_model_dict())
 
+    @classmethod
+    def upload_model_type(cls) -> Optional[type]:
+        return UploadTechnique
+
+    @classmethod
+    def download_model_type(cls) -> type:
+        return DownloadTechnique
+
 
 @dataclass_optional_args(kw_only=True, slots=True)
 class Relationship(BaseUserModel):
@@ -632,6 +752,14 @@ class Relationship(BaseUserModel):
     def make_upload_model(self) -> UploadRelationship:
         """Construct a SciCat upload model from self."""
         return UploadRelationship(**self._upload_model_dict())
+
+    @classmethod
+    def upload_model_type(cls) -> Optional[type]:
+        return UploadRelationship
+
+    @classmethod
+    def download_model_type(cls) -> type:
+        return DownloadRelationship
 
 
 @dataclass_optional_args(kw_only=True, slots=True)
@@ -656,6 +784,10 @@ class History(BaseUserModel):
     def from_download_model(cls, download_model: DownloadHistory) -> History:
         """Construct an instance from an associated SciCat download model."""
         return cls(**cls._download_model_dict(download_model))
+
+    @classmethod
+    def download_model_type(cls) -> type:
+        return DownloadHistory
 
 
 @dataclass_optional_args(kw_only=True, slots=True)
@@ -685,6 +817,10 @@ class Instrument(BaseUserModel):
     def from_download_model(cls, download_model: DownloadInstrument) -> Instrument:
         """Construct an instance from an associated SciCat download model."""
         return cls(**cls._download_model_dict(download_model))
+
+    @classmethod
+    def download_model_type(cls) -> type:
+        return DownloadInstrument
 
 
 @dataclass_optional_args(kw_only=True, slots=True)
@@ -726,6 +862,14 @@ class Sample(BaseUserModel):
     def make_upload_model(self) -> UploadSample:
         """Construct a SciCat upload model from self."""
         return UploadSample(**self._upload_model_dict())
+
+    @classmethod
+    def upload_model_type(cls) -> Optional[type]:
+        return UploadSample
+
+    @classmethod
+    def download_model_type(cls) -> type:
+        return DownloadSample
 
 
 # Some models contain fields that are other models which are defined

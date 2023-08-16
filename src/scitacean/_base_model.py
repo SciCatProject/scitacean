@@ -86,6 +86,31 @@ class BaseModel(pydantic.BaseModel):
         for key in self._masked_fields:
             args.pop(key, None)
 
+    @classmethod
+    def user_model_type(cls) -> Optional[type]:
+        """Return the user model type for this model.
+
+        Returns ``None`` if there is no user model, e.g., for ``Dataset``
+        where there is a custom class instead of a plain model.
+        """
+        return None
+
+    @classmethod
+    def upload_model_type(cls) -> Optional[type]:
+        """Return the upload model type for this model.
+
+        Returns ``None`` if the model cannot be uploaded or this is an upload model.
+        """
+        return None
+
+    @classmethod
+    def download_model_type(cls) -> Optional[type]:
+        """Return the download model type for this model.
+
+        Returns ``None`` if this is a download model.
+        """
+        return None
+
     if is_pydantic_v1():
 
         @classmethod
@@ -143,7 +168,23 @@ class BaseUserModel:
 
     @classmethod
     def from_download_model(cls, download_model: Any) -> BaseUserModel:
-        raise NotImplementedError()
+        raise NotImplementedError("Function does not exist for BaseUserModel")
+
+    @classmethod
+    def upload_model_type(cls) -> Optional[type]:
+        """Return the upload model type for this user model.
+
+        Returns ``None`` if the model cannot be uploaded.
+        """
+        return None
+
+    @classmethod
+    def download_model_type(cls) -> type:
+        """Return the download model type for this user model."""
+        # There is no sensible default value here as there always exists a download
+        # model.
+        # All child classes must implement this function.
+        raise NotImplementedError("Function does not exist for BaseUserModel")
 
 
 def construct(
@@ -159,6 +200,7 @@ def construct(
     -------
     If the model is created without validation, no fields will be converted
     to their proper type but will simply be whatever arguments are passed.
+    See ``model_construct`` or :class:`pydantic.BaseModel` for more information.
 
     A warning will be emitted in this case.
 
