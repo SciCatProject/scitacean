@@ -4,8 +4,8 @@
 [![License: BSD 3-Clause](https://img.shields.io/github/license/SciCatProject/scitacean?style=flat-square&color=yellowgreen)](LICENSE)
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/SciCatProject/scitacean/blob/main/docs/_static/logo.svg">
-  <source media="(prefers-color-scheme: light)" srcset="https://github.com/SciCatProject/scitacean/blob/main/docs/_static/logo-dark.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/SciCatProject/scitacean/blob/main/docs/_static/logo-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="https://github.com/SciCatProject/scitacean/blob/main/docs/_static/logo.svg">
   <img alt="Scitacean" src="https://github.com/SciCatProject/scitacean/blob/main/docs/_static/logo.svg" width="25%">
 </picture>
 
