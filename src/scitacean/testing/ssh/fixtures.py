@@ -5,7 +5,7 @@
 
 import logging
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Callable, Generator, Optional
 
 import fabric
 import fabric.config
@@ -93,7 +93,7 @@ def ssh_fileserver(
     ssh_base_dir: Optional[Path],
     ssh_data_dir: Optional[Path],
     ssh_connect_with_username_password,
-) -> bool:
+) -> Generator[bool, None, None]:
     """Fixture to declare that a test needs a local SSH server.
 
     If SSH tests are enabled, this fixture configures and starts an SSH server

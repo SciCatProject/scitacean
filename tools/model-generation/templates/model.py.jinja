@@ -135,10 +135,28 @@ class Upload{{ dset_type|capitalize }}Dataset(BaseModel{{ mask_keyword(dset_spec
 {%- set fields = spec.fields_for(kind) -%}
 {%- if fields -%}
 class {{ name }}(BaseModel{{ mask_keyword(spec, kind) }}):
-{%- for field in fields -%}
+{% for field in fields -%}
 {{ model_field(field, kind) }}
 {%- endfor %}
 {{- validations(fields) }}
+
+{%- if spec.name not in ["DataFile", "Datablock", "OrigDatablock"] %}
+    @classmethod
+    def user_model_type(cls) -> Optional[type]:
+        return {{ spec.name }}
+{%- endif %}
+
+{%- if kind == "download" and spec.upload_name %}
+    @classmethod
+    def upload_model_type(cls) -> Optional[type]:
+        return {{ spec.upload_name }}
+{%- endif %}
+
+{%- if kind == "upload" %}
+    @classmethod
+    def download_model_type(cls) -> Optional[type]:
+        return {{ spec.download_name }}
+{%- endif %}
 
 {% endif -%}
 {% endfor -%}
@@ -147,8 +165,8 @@ class {{ name }}(BaseModel{{ mask_keyword(spec, kind) }}):
 {% for spec in specs.values()|rejectattr("name", "in", ["DataFile", "Datablock", "OrigDatablock"]) -%}
 @dataclass_optional_args(kw_only=True, slots=True)
 class {{ spec.name }}(BaseUserModel):
-{%- set fields = spec.fields_for("user")|sort(attribute="upload", reverse=True) -%}
-{%- for field in fields %}
+{% set fields = spec.fields_for("user")|sort(attribute="upload", reverse=True) -%}
+{% for field in fields %}
     {% if field.upload %}{{ field.name }}{% else %}_{{ field.name }}{% endif %}: {{ field.full_type_for("user") }}{{ field_default(field) }}
 {%- endfor %}
 {% for field in fields|rejectattr("upload") %}
@@ -165,6 +183,16 @@ class {{ spec.name }}(BaseUserModel):
         """Construct a SciCat upload model from self."""
         return {{ spec.upload_name }}(**self._upload_model_dict())
 {% endif %}
+
+{%- if spec.upload_name %}
+    @classmethod
+    def upload_model_type(cls) -> Optional[type]:
+        return {{ spec.upload_name }}
+{%- endif %}
+
+    @classmethod
+    def download_model_type(cls) -> type:
+        return {{ spec.download_name }}
 
 {% endfor -%}
 

@@ -6,14 +6,184 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
+from dateutil.parser import parse as parse_datetime
 from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 
-from scitacean import PID, Dataset, DatasetType, File, model
+from scitacean import PID, Dataset, DatasetType, File, RemotePath, model
 from scitacean.testing import strategies as sst
 from scitacean.testing.client import process_uploaded_dataset
 
 from .common.files import make_file
+
+
+@pytest.fixture()
+def raw_download_model():
+    return model.DownloadDataset(
+        contactEmail="p.stibbons@uu.am",
+        creationLocation="UnseenUniversity",
+        creationTime=parse_datetime("1995-08-06T14:14:14Z"),
+        inputDatasets=None,
+        investigator=None,
+        numberOfFilesArchived=None,
+        owner="pstibbons",
+        ownerGroup="faculty",
+        principalInvestigator="Ponder Stibbons",
+        sourceFolder=RemotePath("/uu/hex"),
+        type=DatasetType.RAW,
+        usedSoftware=None,
+        accessGroups=["uu"],
+        version="3",
+        classification="IN=medium,AV=low,CO=low",
+        comment="Where did this come from?",
+        createdAt=parse_datetime("1995-08-06T14:14:14Z"),
+        createdBy="pstibbons",
+        dataFormat=".thaum",
+        dataQualityMetrics=24,
+        description="Some shady data",
+        endTime=parse_datetime("1995-08-03T00:00:00Z"),
+        history=None,
+        instrumentGroup="professors",
+        instrumentId="0000-aa",
+        isPublished=True,
+        jobLogData=None,
+        jobParameters=None,
+        keywords=["thaum", "shady"],
+        license="NoThouchy",
+        datasetName="Flux44",
+        numberOfFiles=1,
+        orcidOfOwner="https://orcid.org/0000-0001-2345-6789",
+        ownerEmail="m.ridcully@uu.am",
+        packedSize=0,
+        pid=PID.parse("123.cc/948.f7.2a"),
+        proposalId="33.dc",
+        sampleId="bac.a4",
+        sharedWith=["librarian"],
+        size=400,
+        sourceFolderHost="ftp://uu.am/data",
+        updatedAt=parse_datetime("1995-08-06T17:30:18Z"),
+        updatedBy="librarian",
+        validationStatus="ok",
+        datasetlifecycle=model.DownloadLifecycle(
+            isOnCentralDisk=True,
+            retrievable=False,
+        ),
+        relationships=[
+            model.DownloadRelationship(
+                pid=PID.parse("123.cc/020.0a.4e"),
+                relationship="calibration",
+            )
+        ],
+        techniques=[
+            model.DownloadTechnique(
+                name="reflorbment",
+                pid="aa.90.4",
+            )
+        ],
+        scientificMetadata={
+            "confidence": "low",
+            "price": {"value": "606", "unit": "AM$"},
+        },
+    )
+
+
+@pytest.fixture()
+def derived_download_model():
+    return model.DownloadDataset(
+        contactEmail="p.stibbons@uu.am",
+        creationLocation=None,
+        creationTime=parse_datetime("1995-08-06T14:14:14Z"),
+        inputDatasets=[PID.parse("123.cc/948.f7.2a")],
+        investigator="Ponder Stibbons",
+        numberOfFilesArchived=None,
+        owner="pstibbons",
+        ownerGroup="faculty",
+        principalInvestigator=None,
+        sourceFolder=RemotePath("/uu/hex"),
+        type=DatasetType.DERIVED,
+        usedSoftware=["scitacean"],
+        accessGroups=["uu"],
+        version="3",
+        classification="IN=medium,AV=low,CO=low",
+        comment="Why did we actually make this data?",
+        createdAt=parse_datetime("1995-08-06T14:14:14Z"),
+        createdBy="pstibbons",
+        dataFormat=None,
+        dataQualityMetrics=24,
+        description="Dubiously analyzed data",
+        endTime=None,
+        history=None,
+        instrumentGroup="professors",
+        instrumentId=None,
+        isPublished=True,
+        jobLogData="process interrupted",
+        jobParameters={"nodes": 4},
+        keywords=["thaum", "dubious"],
+        license="NoThouchy",
+        datasetName="Flux peaks",
+        numberOfFiles=1,
+        orcidOfOwner="https://orcid.org/0000-0001-2345-6789",
+        ownerEmail="m.ridcully@uu.am",
+        packedSize=0,
+        pid=PID.parse("123.cc/948.f7.2a"),
+        proposalId=None,
+        sampleId=None,
+        sharedWith=["librarian"],
+        size=400,
+        sourceFolderHost="ftp://uu.am/data",
+        updatedAt=parse_datetime("1995-08-06T17:30:18Z"),
+        updatedBy="librarian",
+        validationStatus="ok",
+        datasetlifecycle=model.DownloadLifecycle(
+            isOnCentralDisk=True,
+            retrievable=False,
+        ),
+        relationships=[
+            model.DownloadRelationship(
+                pid=PID.parse("123.cc/020.0a.4e"),
+                relationship="calibration",
+            )
+        ],
+        techniques=[
+            model.DownloadTechnique(
+                name="reflorbment",
+                pid="aa.90.4",
+            )
+        ],
+        scientificMetadata={
+            "confidence": "low",
+            "price": {"value": "606", "unit": "AM$"},
+        },
+    )
+
+
+@pytest.fixture(params=["raw_download_model", "derived_download_model"])
+def dataset_download_model(request):
+    return request.getfixturevalue(request.param)
+
+
+def test_from_download_models_initializes_fields(dataset_download_model):
+    def get_model_field(name):
+        val = getattr(dataset_download_model, name)
+        if name == "relationships":
+            return [model.Relationship.from_download_model(v) for v in val]
+        if name == "techniques":
+            return [model.Technique.from_download_model(v) for v in val]
+        if name == "datasetlifecycle":
+            return model.Lifecycle.from_download_model(val)
+        return val
+
+    dset = Dataset.from_download_models(dataset_download_model, [])
+    for field in dset.fields():
+        if field.used_by(dataset_download_model.type):
+            assert getattr(dset, field.name) == get_model_field(field.scicat_name)
+
+
+def test_from_download_models_does_not_initialize_wrong_fields(dataset_download_model):
+    dset = Dataset.from_download_models(dataset_download_model, [])
+    for field in dset.fields():
+        if not field.used_by(dataset_download_model.type):
+            assert getattr(dset, field.name) is None
 
 
 @pytest.mark.parametrize("typ", (DatasetType.RAW, DatasetType.DERIVED))
