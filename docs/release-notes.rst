@@ -50,6 +50,8 @@ Breaking changes
 Bugfixes
 ~~~~~~~~
 
+* Fields of derived datasets are no longer initialized when downloading raw datasets and vice versa.
+
 Documentation
 ~~~~~~~~~~~~~
 
