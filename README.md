@@ -3,7 +3,11 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7520487.svg)](https://doi.org/10.5281/zenodo.7520487)
 [![License: BSD 3-Clause](https://img.shields.io/github/license/SciCatProject/scitacean?style=flat-square&color=yellowgreen)](LICENSE)
 
-# Scitacean
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/SciCatProject/scitacean/blob/main/docs/_static/logo.svg">
+  <source media="(prefers-color-scheme: light)" srcset="https://github.com/SciCatProject/scitacean/blob/main/docs/_static/logo-dark.svg">
+  <img alt="Scitacean" src="https://github.com/SciCatProject/scitacean/blob/main/docs/_static/logo.svg" width="25%">
+</picture>
 
 Scitacean is a high level Python package for downloading and uploading datasets from and to [SciCat](https://scicatproject.github.io/).
 
