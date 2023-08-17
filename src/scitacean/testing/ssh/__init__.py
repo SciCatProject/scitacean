@@ -95,7 +95,7 @@ The counter and counter.lock files are used to synchronize starting and stopping
 of the docker container between processes.
 This is required when ``pytest-xdist`` is used.
 Otherwise, those files will not be present.
-"""  # noqa: E501
+"""
 
 from ._pytest_helpers import add_pytest_option, skip_if_not_ssh, ssh_enabled
 from ._ssh import (

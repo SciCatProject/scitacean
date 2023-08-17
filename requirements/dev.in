@@ -6,7 +6,8 @@
 -r wheels.in
 black
 jinja2
-jupyterlab == 3.5.3  # newer has broken dependency on y-py
+jupyterlab
+mypy
 pip-compile-multi
 pre-commit
 pyyaml

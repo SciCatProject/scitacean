@@ -277,6 +277,6 @@ def save_seed(target_dir: Path) -> None:
 def seed_worker(target_dir: Path) -> None:
     """Load the processed seed from a file."""
     with open(target_dir / "seed", "rb") as f:
-        loaded = pickle.load(f)
+        loaded = pickle.load(f)  # noqa: S301
         INITIAL_DATASETS.update(loaded["datasets"])
         INITIAL_ORIG_DATABLOCKS.update(loaded["orig_datablocks"])

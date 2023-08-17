@@ -122,5 +122,5 @@ class TimeLimitedStr(StrStorage):
     def __repr__(self) -> str:
         return (
             f"TimeLimitedStr(expires_at={self._expires_at.isoformat()}, "
-            f"value={repr(self._value)}"
+            f"value={self._value!r}"
         )
