@@ -50,7 +50,7 @@ class BaseModel(pydantic.BaseModel):
 
         class Config:
             extra = pydantic.Extra.forbid
-            json_encoders = {
+            json_encoders = {  # noqa: RUF012
                 PID: lambda v: str(v),
                 RemotePath: lambda v: v.posix,
             }

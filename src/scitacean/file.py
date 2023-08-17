@@ -230,7 +230,8 @@ class File:
                 "No checksum algorithm has been set, using the default 'blake2b' "
                 f"to check if local file '{self.local_path}' is up to date. "
                 "There is a very low chance that this yields a false positive "
-                "and the file is incorrect. Set an algorithm manually to avoid this."
+                "and the file is incorrect. Set an algorithm manually to avoid this.",
+                stacklevel=2,
             )
             return self._local_is_up_to_date_with_checksum_algorithm("blake2b")
         return self._local_is_up_to_date_with_checksum_algorithm(

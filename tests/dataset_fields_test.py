@@ -223,13 +223,13 @@ def test_init_from_models_sets_files():
     assert dset.packed_size == 0
     assert dset.size == 6123 + 551
 
-    f0 = [f for f in dset.files if f.remote_path.suffix == ".dat"][0]
+    (f0,) = [f for f in dset.files if f.remote_path.suffix == ".dat"]
     assert f0.remote_access_path(dset.source_folder) == "/hex/source91/file1.dat"
     assert f0.local_path is None
     assert f0.size == 6123
     assert f0.make_model().path == "file1.dat"
 
-    f1 = [f for f in dset.files if f.remote_path.suffix == ".png"][0]
+    (f1,) = [f for f in dset.files if f.remote_path.suffix == ".png"]
     assert f1.remote_access_path(dset.source_folder) == "/hex/source91/sub/file2.png"
     assert f1.local_path is None
     assert f1.size == 551
@@ -290,13 +290,13 @@ def test_init_from_models_sets_files_multi_datablocks():
     assert dset.packed_size == 0
     assert dset.size == 6123 + 992
 
-    f0 = [f for f in dset.files if f.remote_path.suffix == ".dat"][0]
+    (f0,) = [f for f in dset.files if f.remote_path.suffix == ".dat"]
     assert f0.remote_access_path(dset.source_folder) == "/hex/source91/file1.dat"
     assert f0.local_path is None
     assert f0.size == 6123
     assert f0.make_model().path == "file1.dat"
 
-    f1 = [f for f in dset.files if f.remote_path.suffix == ".png"][0]
+    (f1,) = [f for f in dset.files if f.remote_path.suffix == ".png"]
     assert f1.remote_access_path(dset.source_folder) == "/hex/source91/sub/file2.png"
     assert f1.local_path is None
     assert f1.size == 992

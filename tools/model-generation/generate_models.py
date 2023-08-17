@@ -74,7 +74,8 @@ def format_with_black(path: Path) -> None:
     # Root of Scitacean repo
     base_path = Path(__file__).resolve().parent.parent.parent
     subprocess.check_call(
-        ["black", path.resolve().relative_to(base_path)], cwd=base_path
+        ["black", path.resolve().relative_to(base_path)],  # noqa: S603, S607
+        cwd=base_path,
     )
 
 
