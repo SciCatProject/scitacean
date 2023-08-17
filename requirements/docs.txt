@@ -5,92 +5,53 @@
 #
 #    pip-compile-multi
 #
+-r base.txt
+-r test.txt
 accessible-pygments==0.0.4
     # via pydata-sphinx-theme
 alabaster==0.7.13
     # via sphinx
 asttokens==2.2.1
     # via stack-data
-attrs==23.1.0
-    # via
-    #   hypothesis
-    #   jsonschema
-    #   referencing
 autodoc-pydantic==1.9.0
-    # via -r docs.in
+    # via -r requirements/docs.in
 babel==2.12.1
     # via
     #   pydata-sphinx-theme
     #   sphinx
 backcall==0.2.0
     # via ipython
-bcrypt==4.0.1
-    # via paramiko
 beautifulsoup4==4.12.2
     # via
     #   nbconvert
     #   pydata-sphinx-theme
 bleach==6.0.0
     # via nbconvert
-certifi==2023.7.22
-    # via requests
-cffi==1.15.1
-    # via
-    #   cryptography
-    #   pynacl
-charset-normalizer==3.1.0
-    # via requests
-comm==0.1.3
+comm==0.1.4
     # via ipykernel
-cryptography==41.0.3
-    # via paramiko
-debugpy==1.6.7
+debugpy==1.6.7.post1
     # via ipykernel
-decorator==5.1.1
-    # via
-    #   fabric
-    #   ipython
 defusedxml==0.7.1
     # via nbconvert
-dnspython==2.3.0
-    # via email-validator
-docutils==0.19
+docutils==0.20.1
     # via
     #   myst-parser
     #   nbsphinx
     #   pydata-sphinx-theme
     #   sphinx
-email-validator==2.0.0.post2
-    # via -r base.in
-execnet==1.9.0
-    # via pytest-xdist
 executing==1.2.0
     # via stack-data
-fabric==3.1.0
-    # via -r base.in
-fastjsonschema==2.17.1
+fastjsonschema==2.18.0
     # via nbformat
-filelock==3.12.2
-    # via -r test.in
-hypothesis==6.80.0
-    # via -r test.in
-idna==3.4
-    # via
-    #   email-validator
-    #   requests
 imagesize==1.4.1
     # via sphinx
-iniconfig==2.0.0
-    # via pytest
-invoke==2.1.3
-    # via fabric
-ipykernel==6.24.0
-    # via -r docs.in
+ipykernel==6.25.1
+    # via -r requirements/docs.in
 ipython==8.14.0
     # via
-    #   -r docs.in
+    #   -r requirements/docs.in
     #   ipykernel
-jedi==0.18.2
+jedi==0.19.0
     # via ipython
 jinja2==3.1.2
     # via
@@ -98,9 +59,9 @@ jinja2==3.1.2
     #   nbconvert
     #   nbsphinx
     #   sphinx
-jsonschema==4.18.0
+jsonschema==4.19.0
     # via nbformat
-jsonschema-specifications==2023.6.1
+jsonschema-specifications==2023.7.1
     # via jsonschema
 jupyter-client==8.3.0
     # via
@@ -134,41 +95,30 @@ mdurl==0.1.2
 mistune==3.0.1
     # via nbconvert
 myst-parser==2.0.0
-    # via -r docs.in
+    # via -r requirements/docs.in
 nbclient==0.8.0
     # via nbconvert
-nbconvert==7.6.0
+nbconvert==7.7.4
     # via nbsphinx
-nbformat==5.9.0
+nbformat==5.9.2
     # via
     #   nbclient
     #   nbconvert
     #   nbsphinx
 nbsphinx==0.9.2
-    # via -r docs.in
-nest-asyncio==1.5.6
+    # via -r requirements/docs.in
+nest-asyncio==1.5.7
     # via ipykernel
-packaging==23.1
-    # via
-    #   ipykernel
-    #   nbconvert
-    #   pydata-sphinx-theme
-    #   pytest
-    #   sphinx
 pandocfilters==1.5.0
     # via nbconvert
-paramiko==3.2.0
-    # via fabric
 parso==0.8.3
     # via jedi
 pexpect==4.8.0
     # via ipython
 pickleshare==0.7.5
     # via ipython
-platformdirs==3.8.0
+platformdirs==3.10.0
     # via jupyter-core
-pluggy==1.2.0
-    # via pytest
 prompt-toolkit==3.0.39
     # via ipython
 psutil==5.9.5
@@ -177,72 +127,34 @@ ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.2
     # via stack-data
-pycparser==2.21
-    # via cffi
-pydantic==1.10.11
-    # via
-    #   -r base.in
-    #   autodoc-pydantic
 pydata-sphinx-theme==0.13.3
-    # via -r docs.in
-pyfakefs==5.2.2
-    # via -r test.in
-pygments==2.15.1
+    # via -r requirements/docs.in
+pygments==2.16.1
     # via
     #   accessible-pygments
     #   ipython
     #   nbconvert
     #   pydata-sphinx-theme
     #   sphinx
-pynacl==1.5.0
-    # via paramiko
-pytest==7.4.0
-    # via
-    #   -r test.in
-    #   pytest-randomly
-    #   pytest-xdist
-pytest-randomly==3.12.0
-    # via -r test.in
-pytest-xdist==3.3.1
-    # via -r test.in
-python-dateutil==2.8.2
-    # via
-    #   -r base.in
-    #   jupyter-client
-pyyaml==6.0
-    # via
-    #   -r test.in
-    #   myst-parser
-pyzmq==25.1.0
+pyzmq==25.1.1
     # via
     #   ipykernel
     #   jupyter-client
-referencing==0.29.1
+referencing==0.30.2
     # via
     #   jsonschema
     #   jsonschema-specifications
-requests==2.31.0
-    # via
-    #   -r base.in
-    #   sphinx
-rpds-py==0.8.7
+rpds-py==0.9.2
     # via
     #   jsonschema
     #   referencing
-six==1.16.0
-    # via
-    #   asttokens
-    #   bleach
-    #   python-dateutil
 snowballstemmer==2.2.0
     # via sphinx
-sortedcontainers==2.4.0
-    # via hypothesis
 soupsieve==2.4.1
     # via beautifulsoup4
-sphinx==6.2.1
+sphinx==7.2.0
     # via
-    #   -r docs.in
+    #   -r requirements/docs.in
     #   autodoc-pydantic
     #   myst-parser
     #   nbsphinx
@@ -250,23 +162,28 @@ sphinx==6.2.1
     #   sphinx-autodoc-typehints
     #   sphinx-copybutton
     #   sphinx-design
-sphinx-autodoc-typehints==1.23.0
-    # via -r docs.in
+    #   sphinxcontrib-applehelp
+    #   sphinxcontrib-devhelp
+    #   sphinxcontrib-htmlhelp
+    #   sphinxcontrib-qthelp
+    #   sphinxcontrib-serializinghtml
+sphinx-autodoc-typehints==1.24.0
+    # via -r requirements/docs.in
 sphinx-copybutton==0.5.2
-    # via -r docs.in
-sphinx-design==0.4.1
-    # via -r docs.in
-sphinxcontrib-applehelp==1.0.4
+    # via -r requirements/docs.in
+sphinx-design==0.5.0
+    # via -r requirements/docs.in
+sphinxcontrib-applehelp==1.0.7
     # via sphinx
-sphinxcontrib-devhelp==1.0.2
+sphinxcontrib-devhelp==1.0.5
     # via sphinx
-sphinxcontrib-htmlhelp==2.0.1
+sphinxcontrib-htmlhelp==2.0.4
     # via sphinx
 sphinxcontrib-jsmath==1.0.1
     # via sphinx
-sphinxcontrib-qthelp==1.0.3
+sphinxcontrib-qthelp==1.0.6
     # via sphinx
-sphinxcontrib-serializinghtml==1.1.5
+sphinxcontrib-serializinghtml==1.1.8
     # via sphinx
 stack-data==0.6.2
     # via ipython
@@ -288,12 +205,6 @@ traitlets==5.9.0
     #   nbconvert
     #   nbformat
     #   nbsphinx
-typing-extensions==4.7.1
-    # via
-    #   pydantic
-    #   pydata-sphinx-theme
-urllib3==2.0.3
-    # via requests
 wcwidth==0.2.6
     # via prompt-toolkit
 webencodings==0.5.1
