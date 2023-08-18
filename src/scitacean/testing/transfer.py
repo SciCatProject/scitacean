@@ -9,7 +9,9 @@ from typing import Any, Dict, Iterator, List, Optional, Union
 try:
     from pyfakefs.fake_filesystem import FakeFilesystem
 except ImportError:
-    FakeFilesystem = Any
+    from typing import TypeAlias
+
+    FakeFilesystem: TypeAlias = Any  # type: ignore[no-redef]
 
 from ..dataset import Dataset
 from ..file import File

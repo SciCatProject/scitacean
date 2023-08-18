@@ -62,7 +62,7 @@ def dataset_and_files(data_files):
         ownerGroup="faculty",
         size=sum(f.size for f in data_files[0]),
         datasetId=PID(prefix="UU.000", pid="5125.ab.663.8c9f"),
-        id=PID(prefix="UU.000", pid="0941.66.abff.41de"),
+        _id="0941.66.abff.41de",
         dataFileList=data_files[0],
     )
     dset = Dataset.from_download_models(

@@ -146,12 +146,13 @@ class OrigDatablock:
         :
             A new model for this orig datablock.
         """
+        owner_group = self.owner_group or dataset.owner_group
         return UploadOrigDatablock(
             chkAlg=self.checksum_algorithm,
             size=self.size,
             dataFileList=[file.make_model(for_archive=False) for file in self.files],
-            datasetId=dataset.pid,
-            ownerGroup=self.owner_group or dataset.owner_group,
+            datasetId=dataset.pid,  # type: ignore[arg-type]
+            ownerGroup=owner_group,  # type: ignore[arg-type]
             accessGroups=self.access_groups or dataset.access_groups,
             instrumentGroup=self.instrument_group or dataset.instrument_group,
         )

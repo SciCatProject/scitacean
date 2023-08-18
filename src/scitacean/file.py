@@ -320,7 +320,9 @@ class File:
             self,
             _remote_size=remote_size if remote_size is not None else self.size,
             _remote_checksum=self.checksum(),
-            **{key: val for key, val in args.items() if val is not None},
+            **{
+                key: val for key, val in args.items() if val is not None
+            },  # type: ignore[arg-type]
         )
 
     def downloaded(self, *, local_path: Union[str, Path]) -> File:

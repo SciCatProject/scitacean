@@ -51,7 +51,8 @@ def fake_client(scicat_access: SciCatAccess) -> FakeClient:
         See :mod:`scitacean.testing.backend.seed`.
     """
     client = FakeClient.from_credentials(
-        url=scicat_access.url, **scicat_access.user.credentials
+        url=scicat_access.url,
+        **scicat_access.user.credentials,  # type: ignore[arg-type]
     )
     client.datasets.update(
         {ds.pid: ds for ds in seed.INITIAL_DATASETS.values()}  # type: ignore[misc]
@@ -79,7 +80,8 @@ def real_client(scicat_access: SciCatAccess, scicat_backend: bool) -> Optional[C
     if not scicat_backend:
         return None
     return Client.from_credentials(
-        url=scicat_access.url, **scicat_access.user.credentials
+        url=scicat_access.url,
+        **scicat_access.user.credentials,  # type: ignore[arg-type]
     )
 
 

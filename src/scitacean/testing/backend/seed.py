@@ -16,7 +16,9 @@ from dateutil.parser import parse as parse_datetime
 
 from ... import model
 from ...client import Client
+from ...filesystem import RemotePath
 from ...model import (
+    DatasetType,
     DownloadDataset,
     DownloadOrigDatablock,
     UploadDataFile,
@@ -44,8 +46,8 @@ _DATASETS: Dict[str, Union[UploadRawDataset, UploadDerivedDataset]] = {
         owner="PLACEHOLDER",
         ownerEmail="PLACE@HOLD.ER",
         size=619,
-        sourceFolder="/hex/data/123",
-        type="raw",
+        sourceFolder=RemotePath("/hex/data/123"),
+        type=DatasetType.RAW,
         principalInvestigator="Ponder Stibbons",
         creationLocation=SITE,
         techniques=[UploadTechnique(pid="DM666", name="dark_magic")],
@@ -69,8 +71,8 @@ _DATASETS: Dict[str, Union[UploadRawDataset, UploadDerivedDataset]] = {
         owner="PLACEHOLDER",
         ownerEmail="PLACE@HOLD.ER",
         size=464,
-        sourceFolder="/hex/data/dd",
-        type="derived",
+        sourceFolder=RemotePath("/hex/data/dd"),
+        type=DatasetType.DERIVED,
         investigator="Ponder Stibbons",
         inputDatasets=[],
         usedSoftware=["scitacean"],
@@ -93,8 +95,8 @@ _DATASETS: Dict[str, Union[UploadRawDataset, UploadDerivedDataset]] = {
         owner="PLACEHOLDER",
         ownerEmail="PLACE@HOLD.ER",
         size=64,
-        sourceFolder="/hex/secret/stuff",
-        type="raw",
+        sourceFolder=RemotePath("/hex/secret/stuff"),
+        type=DatasetType.RAW,
         principalInvestigator="Mustrum Ridcully",
         creationLocation=SITE,
         techniques=[UploadTechnique(pid="S", name="shoes")],
@@ -117,8 +119,8 @@ _DATASETS: Dict[str, Union[UploadRawDataset, UploadDerivedDataset]] = {
         owner="PLACEHOLDER",
         ownerEmail="PLACE@HOLD.ER",
         size=-10,
-        sourceFolder="/remote/source",
-        type="derived",
+        sourceFolder=RemotePath("/remote/source"),
+        type=DatasetType.DERIVED,
         investigator="who?!",
         inputDatasets=[],
         usedSoftware=["scitacean"],
