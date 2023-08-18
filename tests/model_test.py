@@ -8,8 +8,13 @@ from dateutil.parser import parse as parse_date
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from scitacean import PID, DatasetType, model
-from scitacean.model import UploadDerivedDataset, UploadRawDataset
+from scitacean import PID, DatasetType, RemotePath, model
+from scitacean.model import (
+    DownloadDataset,
+    DownloadOrigDatablock,
+    UploadDerivedDataset,
+    UploadRawDataset,
+)
 
 T = TypeVar("T")
 
@@ -100,7 +105,7 @@ def test_derived_dataset_default_values(
         numberOfFilesArchived=0,
         owner=scicat_access.user.username,
         ownerGroup=scicat_access.user.group,
-        sourceFolder="/source/folder",
+        sourceFolder=RemotePath("/source/folder"),
         usedSoftware=["software1"],
         type=DatasetType.DERIVED,
     )
@@ -158,7 +163,7 @@ def test_raw_dataset_default_values(real_client, require_scicat_backend, scicat_
         owner=scicat_access.user.username,
         ownerGroup=scicat_access.user.group,
         principalInvestigator="inv@esti.gator",
-        sourceFolder="/source/folder",
+        sourceFolder=RemotePath("/source/folder"),
         type=DatasetType.RAW,
     )
     pid = real_client.scicat.create_dataset_model(dset).pid
@@ -205,3 +210,39 @@ def test_raw_dataset_default_values(real_client, require_scicat_backend, scicat_
     assert finalized.sourceFolderHost is None
     assert finalized.validationStatus is None
     assert finalized.version is None
+
+
+def test_default_masked_fields_are_dropped():
+    mod = DownloadOrigDatablock(  # type: ignore[call-arg]
+        id="abc",
+        _v="123",
+        __v="456",
+    )
+    # Input id dropped but alias 'id' exists and is not initialized.
+    assert mod.id is None
+
+    assert not hasattr(mod, "_v")
+    assert not hasattr(mod, "__v")
+
+
+def test_custom_masked_fields_are_dropped():
+    mod = DownloadDataset(  # type: ignore[call-arg]
+        attachments=[{"id": "abc"}],
+        id="abc",
+        _id="def",
+        _v="123",
+        __v="456",
+    )
+    assert not hasattr(mod, "attachments")
+    assert not hasattr(mod, "id")
+    assert not hasattr(mod, "_id")
+    assert not hasattr(mod, "_v")
+    assert not hasattr(mod, "__v")
+
+
+def test_fields_override_masks():
+    # '_id' is masked but the model has a field 'id' with alias '_id'.
+    mod = DownloadOrigDatablock(
+        _id="abc",
+    )
+    assert mod.id == "abc"
