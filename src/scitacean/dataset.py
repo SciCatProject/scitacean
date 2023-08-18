@@ -25,9 +25,12 @@ from ._dataset_fields import DatasetBase
 from .datablock import OrigDatablock
 from .file import File
 from .model import (
+    Attachment,
     DatasetType,
+    DownloadAttachment,
     DownloadDataset,
     DownloadOrigDatablock,
+    UploadAttachment,
     UploadDerivedDataset,
     UploadOrigDatablock,
     UploadRawDataset,
@@ -41,6 +44,7 @@ class Dataset(DatasetBase):
         cls,
         dataset_model: DownloadDataset,
         orig_datablock_models: List[DownloadOrigDatablock],
+        attachment_models: Optional[Iterable[DownloadAttachment]] = None,
     ) -> Dataset:
         """Construct a new dataset from SciCat download models.
 
@@ -50,6 +54,10 @@ class Dataset(DatasetBase):
             Model of the dataset.
         orig_datablock_models:
             List of all associated original datablock models for the dataset.
+        attachment_models:
+            List of all associated attachment models for the dataset.
+            Use ``None`` if the attachments were not downloaded.
+            Use an empty list if the attachments were downloaded, but there aren't any.
 
         Returns
         -------
@@ -60,6 +68,7 @@ class Dataset(DatasetBase):
         dset = cls(**init_args)
         for key, val in read_only.items():
             setattr(dset, key, val)
+        dset._attachments = _list_field_from_download(attachment_models)
         if orig_datablock_models is not None:
             dset._orig_datablocks.extend(
                 map(OrigDatablock.from_download_model, orig_datablock_models)
@@ -124,7 +133,11 @@ class Dataset(DatasetBase):
             getattr(self, field.name) == getattr(other, field.name)
             for field in Dataset.fields()
         )
-        eq = eq and self._orig_datablocks == other._orig_datablocks
+        eq = (
+            eq
+            and self._orig_datablocks == other._orig_datablocks
+            and self._attachments == other._attachments
+        )
         return eq
 
     @property
@@ -168,6 +181,29 @@ class Dataset(DatasetBase):
                 dblock.files for dblock in self._orig_datablocks
             )
         )
+
+    @property
+    def attachments(self) -> Optional[List[Attachment]]:
+        """List of attachments for this dataset.
+
+        This property can be in two distinct 'falsy' states:
+
+        - ``dset.attachments is None``: It is unknown whether there are attachments.
+          This happens when datasets are downloaded without downloading the attachments.
+        - ``dset.attachments == []``: It is known that there are no attachments.
+          This happens either when downloading datasets or when initializing datasets
+          locally without assigning attachments.
+        """
+        return self._attachments
+
+    @attachments.setter
+    def attachments(self, attachments: Optional[List[Attachment]]) -> None:
+        """List of attachments for this dataset.
+
+        See the docs of the getter for an explanation of ``None`` vs ``[]``.
+        It is unlikely that you ever need to set the attachments to ``None``.
+        """
+        self._attachments = attachments
 
     def add_files(self, *files: File, datablock: Union[int, str, PID] = -1) -> None:
         """Add files to the dataset."""
@@ -244,6 +280,7 @@ class Dataset(DatasetBase):
                 for field in Dataset.fields(read_only=False)
             },
         }
+        attachments = get_val(replacements, "attachments")
         if replacements or _read_only:
             raise TypeError(
                 f"Invalid arguments: {', '.join((*replacements, *_read_only))}"
@@ -254,6 +291,7 @@ class Dataset(DatasetBase):
         dset._orig_datablocks.extend(
             _orig_datablocks if _orig_datablocks is not None else self._orig_datablocks
         )
+        dset._attachments = list(attachments) if attachments is not None else None
         for key, val in read_only.items():
             setattr(dset, "_" + key, val)
         return dset
@@ -431,6 +469,27 @@ class Dataset(DatasetBase):
             ]
         )
 
+    def make_attachment_upload_models(self) -> List[UploadAttachment]:
+        """Build models for all registered attachments.
+
+        Raises
+        ------
+        ValueError
+            If ``self.attachments`` is ``None``,
+            i.e., the attachments are uninitialized.
+
+        Returns
+        -------
+        :
+            List of attachment models.
+        """
+        if self.attachments is None:
+            raise ValueError(
+                "Cannot make upload models for attachments because "
+                "the attachments are uninitialized."
+            )
+        return [a.make_upload_model() for a in self.attachments]
+
     def validate(self) -> None:
         """Validate the fields of the dataset.
 
@@ -450,7 +509,13 @@ class DatablockUploadModels:
     """Orig datablocks"""
 
 
-def _list_field_for_upload(value: Optional[List[Any]]) -> Optional[List[Any]]:
+def _list_field_from_download(value: Optional[Iterable[Any]]) -> Optional[List[Any]]:
+    if value is None:
+        return None
+    return [item.user_model_type().from_download_model(item) for item in value]
+
+
+def _list_field_for_upload(value: Optional[Iterable[Any]]) -> Optional[List[Any]]:
     if value is None:
         return None
     return [item.make_upload_model() for item in value]

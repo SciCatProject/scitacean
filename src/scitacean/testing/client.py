@@ -285,13 +285,37 @@ def _process_orig_datablock(
     return processed
 
 
+def _process_attachment(attachment: model.UploadAttachment) -> model.DownloadAttachment:
+    created_at = datetime.datetime.now(tz=datetime.timezone.utc)
+    # Using strict_validation=False because the input model should already be validated.
+    # If there are validation errors, it was probably intended by the user.
+    fields = _model_dict(attachment)
+    return model.construct(
+        model.DownloadAttachment,
+        _strict_validation=False,
+        createdBy="fake",
+        createdAt=created_at,
+        updatedBy="fake",
+        updatedAt=created_at,
+        **fields,
+    )
+
+
 def process_uploaded_dataset(
     dataset: Union[model.UploadDerivedDataset, model.UploadRawDataset],
     orig_datablocks: Optional[List[model.UploadOrigDatablock]],
-) -> Tuple[model.DownloadDataset, Optional[List[model.DownloadOrigDatablock]]]:
+    attachments: Optional[List[model.UploadAttachment]],
+) -> Tuple[
+    model.DownloadDataset,
+    Optional[List[model.DownloadOrigDatablock]],
+    Optional[List[model.DownloadAttachment]],
+]:
     dblocks = (
         list(map(_process_orig_datablock, orig_datablocks))
         if orig_datablocks is not None
         else None
     )
-    return _process_dataset(dataset), dblocks
+    attachments = (
+        list(map(_process_attachment, attachments)) if attachments is not None else None
+    )
+    return _process_dataset(dataset), dblocks, attachments
