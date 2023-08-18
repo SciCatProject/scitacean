@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import dataclasses
 from datetime import datetime
-from typing import Any, Dict, Iterable, Optional, Tuple, Type, TypeVar, Union
+from typing import Any, ClassVar, Dict, Iterable, Optional, Tuple, Type, TypeVar, Union
 
 import pydantic
 from dateutil.parser import parse as parse_datetime
@@ -16,8 +16,6 @@ from ._internal.pydantic_compat import is_pydantic_v1
 from .filesystem import RemotePath
 from .logging import get_logger
 from .pid import PID
-
-ModelType = TypeVar("ModelType", bound=pydantic.BaseModel)
 
 try:
     # Python 3.11+
@@ -60,7 +58,8 @@ class BaseModel(pydantic.BaseModel):
             extra="forbid",
         )
 
-    _masked_fields: Tuple[str, ...]
+    _user_mask: ClassVar[Tuple[str, ...]]
+    _masked_fields: ClassVar[Optional[Tuple[str, ...]]] = None
 
     # Some schemas contain fields that we don't want to use in Scitacean.
     # Normally, omitting them from the model would result in an error when
@@ -72,19 +71,27 @@ class BaseModel(pydantic.BaseModel):
         cls, /, masked: Optional[Iterable[str]] = None, **kwargs: Any
     ) -> None:
         super().__init_subclass__(**kwargs)
-
-        masked = list(masked) if masked is not None else []
-        field_names = {field.alias for field in cls.get_model_fields().values()}
-        masked.extend(key for key in _IGNORED_KWARGS if key not in field_names)
-        cls._masked_fields = tuple(masked)
+        cls._user_mask = tuple(masked) if masked is not None else ()
 
     def __init__(self, **kwargs: Any) -> None:
         self._delete_ignored_args(kwargs)
         super().__init__(**kwargs)
 
     def _delete_ignored_args(self, args: Dict[str, Any]) -> None:
-        for key in self._masked_fields:
+        if self._masked_fields is None:
+            self._init_mask(self)
+        for key in self._masked_fields:  # type: ignore[union-attr]
             args.pop(key, None)
+
+    # Initializing the mask requires the field names which
+    # are only available on instances.
+    # So initialization needs to be deferred until the first instantiation of the model.
+    # The mask is cached afterward.
+    @classmethod
+    def _init_mask(cls: Type[ModelType], instance: ModelType) -> None:
+        field_names = {field.alias for field in instance.get_model_fields().values()}
+        default_mask = tuple(key for key in _IGNORED_KWARGS if key not in field_names)
+        cls._masked_fields = cls._user_mask + default_mask
 
     @classmethod
     def user_model_type(cls) -> Optional[type]:
@@ -188,12 +195,12 @@ class BaseUserModel:
 
 
 def construct(
-    model: Type[ModelType],
+    model: Type[PydanticModelType],
     *,
     _strict_validation: bool = True,
     _quiet: bool = False,
     **fields: Any,
-) -> ModelType:
+) -> PydanticModelType:
     """Instantiate a SciCat model.
 
     Warning
@@ -318,3 +325,6 @@ def _check_ready_for_upload(user_model: BaseUserModel) -> None:
 #   (Should be the same as id/pid where applicable.)
 # - _v or __v is some version added by Mongoose.
 _IGNORED_KWARGS = ("id", "_id", "_v", "__v")
+
+ModelType = TypeVar("ModelType", bound=BaseModel)
+PydanticModelType = TypeVar("PydanticModelType", bound=pydantic.BaseModel)

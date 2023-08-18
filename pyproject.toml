@@ -84,6 +84,11 @@ module = "tests.*"
 disallow_untyped_defs = false
 disallow_untyped_calls = false
 
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
+
 [tool.ruff]
 line-length = 88
 select = ["B", "D", "E", "F", "I", "S", "T20", "PGH", "FBT003", "RUF"]

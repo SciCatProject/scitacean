@@ -12,7 +12,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Literal, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, Literal, Optional, Tuple, Type, TypeVar, Union
 
 import dateutil.parser
 
@@ -31,6 +31,9 @@ from .model import (
     Technique,
 )
 from .pid import PID
+
+
+M = TypeVar("M", bound=BaseModel)
 
 
 def _parse_datetime(x: Optional[Union[datetime, str]]) -> Optional[datetime]:
@@ -1101,9 +1104,7 @@ def _list_field_from_download(
 
 
 # If validation fails, sub models are not converted automatically by Pydantic.
-def _as_model(
-    mod: Type[BaseModel], value: Union[BaseModel, Dict[str, Any]]
-) -> BaseModel:
+def _as_model(mod: Type[M], value: Union[M, Dict[str, Any]]) -> M:
     if isinstance(value, dict):
         return construct(mod, **value, _strict_validation=False)
     return value
