@@ -275,7 +275,7 @@ class DownloadAttachment(BaseModel):
     accessGroups: Optional[List[str]] = None
     createdAt: Optional[datetime] = None
     createdBy: Optional[str] = None
-    datasetId: Optional[str] = None
+    datasetId: Optional[PID] = None
     id: Optional[str] = None
     instrumentGroup: Optional[str] = None
     proposalId: Optional[str] = None
@@ -301,7 +301,7 @@ class UploadAttachment(BaseModel):
     caption: str
     ownerGroup: str
     accessGroups: Optional[List[str]] = None
-    datasetId: Optional[str] = None
+    datasetId: Optional[PID] = None
     id: Optional[str] = None
     instrumentGroup: Optional[str] = None
     proposalId: Optional[str] = None
@@ -588,7 +588,7 @@ class Attachment(BaseUserModel):
     caption: str
     owner_group: str
     access_groups: Optional[List[str]] = None
-    dataset_id: Optional[str] = None
+    dataset_id: Optional[PID] = None
     id: Optional[str] = None
     instrument_group: Optional[str] = None
     proposal_id: Optional[str] = None
