@@ -521,7 +521,8 @@ class ScicatClient:
         Parameters
         ----------
         pid:
-            Unique ID of the dataset. Must include the facility ID.
+            Unique ID of the dataset.
+            Must include the facility ID.
         strict_validation:
             If ``True``, the dataset must pass validation.
             If ``False``, a dataset is still returned if validation fails.
@@ -543,6 +544,11 @@ class ScicatClient:
             url=f"datasets/{quote_plus(str(pid))}",
             operation="get_dataset_model",
         )
+        if not dset_json:
+            raise ScicatCommError(
+                f"Cannot get dataset with {pid=}, "
+                f"no such dataset in SciCat at {self._base_url}."
+            )
         return model.construct(
             model.DownloadDataset,
             _strict_validation=strict_validation,
@@ -557,7 +563,8 @@ class ScicatClient:
         Parameters
         ----------
         pid:
-            Unique ID of the *dataset*. Must include the facility ID.
+            Unique ID of the *dataset*.
+            Must include the facility ID.
         strict_validation:
             If ``True``, the datablocks must pass validation.
             If ``False``, datablocks are still returned if validation fails.
@@ -572,8 +579,7 @@ class ScicatClient:
         Raises
         ------
         scitacean.ScicatCommError
-            If the datablock does not exist or communication
-            fails for some other reason.
+            If communication fails.
         """
         dblock_json = self._call_endpoint(
             cmd="get",
@@ -583,6 +589,46 @@ class ScicatClient:
         return [
             _make_orig_datablock(dblock, strict_validation=strict_validation)
             for dblock in dblock_json
+        ]
+
+    def get_attachments_for_dataset(
+        self, pid: PID, strict_validation: bool = False
+    ) -> List[model.DownloadAttachment]:
+        """Fetch all attachments from SciCat for a given dataset.
+
+        Parameters
+        ----------
+        pid:
+            Unique ID of the *dataset*.
+            Must include the facility ID.
+        strict_validation:
+            If ``True``, the attachments must pass validation.
+            If ``False``, attachments are still returned if validation fails.
+            Note that some fields may have a bad value or type.
+            A warning will be logged if validation fails.
+
+        Returns
+        -------
+        :
+            Models of the attachments.
+
+        Raises
+        ------
+        scitacean.ScicatCommError
+            If communication fails.
+        """
+        attachment_json = self._call_endpoint(
+            cmd="get",
+            url=f"datasets/{quote_plus(str(pid))}/attachments",
+            operation="get_attachments_for_dataset",
+        )
+        return [
+            model.construct(
+                model.DownloadAttachment,
+                _strict_validation=strict_validation,
+                **attachment,
+            )
+            for attachment in attachment_json
         ]
 
     def create_dataset_model(
@@ -658,6 +704,62 @@ class ScicatClient:
             model.DownloadOrigDatablock, _strict_validation=False, **uploaded
         )
 
+    def create_attachment_for_dataset(
+        self,
+        attachment: model.UploadAttachment,
+        *,
+        dataset_id: Optional[PID] = None,
+    ) -> model.DownloadAttachment:
+        """Create a new attachment for a dataset in SciCat.
+
+        The attachment ID must be either
+
+        - ``None``, in which case SciCat assigns an ID.
+        - An unused id, in which case SciCat uses it for the new attachment.
+
+        If the ID already exists, creation will fail without
+        modification to the database.
+
+        Parameters
+        ----------
+        attachment:
+            Model of the attachment to create.
+        dataset_id:
+            ID of the dataset to which the attachment belongs.
+            If ``None``, the ID stored in the attachment will be used.
+
+        Raises
+        ------
+        scitacean.ScicatCommError
+            If SciCat refuses the attachment or communication
+            fails for some other reason.
+        ValueError
+            If the dataset ID cannot be determined.
+        """
+        if dataset_id is None:
+            dataset_id = attachment.datasetId
+        if dataset_id is None:
+            raise ValueError(
+                "Cannot determine the dataset ID for attachment. "
+                "Specify the ID as a function argument or in the attachment."
+            )
+
+        uploaded = self._call_endpoint(
+            cmd="post",
+            url=f"datasets/{quote_plus(str(dataset_id))}/attachments",
+            data=attachment,
+            operation="create_attachment",
+        )
+        if not uploaded:
+            raise ScicatCommError(
+                f"Failed to upload attachment for dataset with pid={dataset_id}. "
+                "The server reported success but did not return a finalized attachment."
+                " This likely means that there is no dataset with this ID."
+            )
+        return model.construct(
+            model.DownloadAttachment, _strict_validation=False, **uploaded
+        )
+
     def _send_to_scicat(
         self, *, cmd: str, url: str, data: Optional[model.BaseModel] = None
     ) -> requests.Response:
@@ -709,7 +811,7 @@ class ScicatClient:
         logger.info("Calling SciCat API at %s for operation '%s'", full_url, operation)
 
         response = self._send_to_scicat(cmd=cmd, url=full_url, data=data)
-        if not response.ok or not response.text:
+        if not response.ok:
             logger.error(
                 "SciCat API call to %s failed: %s %s: %s",
                 full_url,
@@ -722,15 +824,8 @@ class ScicatClient:
                 f"{response.reason}: {response.text}"
             )
         logger.info("API call successful for operation '%s'", operation)
-        res = response.json()  # TODO can fail
-        # TODO should this raise? This happens e.g. when listing all
-        #  datasets but there are none
-        if not res:
-            raise ScicatCommError(
-                f"Internal SciCat communication error: {cmd.upper()} request to "
-                f"{full_url} succeeded but did not return anything."
-            )
-        return res
+
+        return None if not response.text else response.json()
 
 
 def _url_concat(a: str, b: str) -> str:

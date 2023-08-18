@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import datetime
 import functools
+import uuid
 from copy import deepcopy
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
@@ -41,7 +42,10 @@ class FakeClient(Client):
             :class:`dict` of :class:`scitacean.model.DownloadDataset`,
             indexed by dataset PID.
     - ``FakeClient.orig_datablocks``:
-            :class:`dict` of lists of :class:`scitacean.model.OrigDatablock`,
+            :class:`dict` of lists of :class:`scitacean.model.DownloadOrigDatablock`,
+            indexed by the *dataset* ID.
+    - ``FakeClient.attachments``:
+            :class:`dict` of lists of :class:`scitacean.model.DownloadAttachment`,
             indexed by the *dataset* ID.
 
     Individual functions can be disabled (that is, made to raise an exception)
@@ -121,6 +125,7 @@ class FakeClient(Client):
         self.disabled = {} if disable is None else dict(disable)
         self.datasets: Dict[PID, model.DownloadDataset] = {}
         self.orig_datablocks: Dict[PID, List[model.DownloadOrigDatablock]] = {}
+        self.attachments: Dict[PID, List[model.DownloadAttachment]] = {}
 
     @classmethod
     def from_token(
@@ -192,6 +197,13 @@ class FakeScicatClient(ScicatClient):
             ) from None
 
     @_conditionally_disabled
+    def get_attachments_for_dataset(
+        self, pid: PID, strict_validation: bool = False
+    ) -> List[model.DownloadAttachment]:
+        _ = strict_validation  # unused by fake
+        return self.main.attachments.get(pid) or []
+
+    @_conditionally_disabled
     def create_dataset_model(
         self, dset: Union[model.UploadDerivedDataset, model.UploadRawDataset]
     ) -> model.DownloadDataset:
@@ -209,6 +221,26 @@ class FakeScicatClient(ScicatClient):
         if dataset_id not in self.main.datasets:
             raise ScicatCommError(f"No dataset with id {dataset_id}")
         self.main.orig_datablocks.setdefault(dataset_id, []).append(ingested)
+        return ingested
+
+    @_conditionally_disabled
+    def create_attachment_for_dataset(
+        self,
+        attachment: model.UploadAttachment,
+        dataset_id: Optional[PID] = None,
+    ) -> model.DownloadAttachment:
+        if dataset_id is None:
+            dataset_id = attachment.datasetId
+        if dataset_id is None:
+            raise ValueError(
+                "Cannot determine the dataset ID for attachment. "
+                "Specify the ID as a function argument or in the attachment."
+            )
+
+        ingested = _process_attachment(attachment, dataset_id)
+        if dataset_id not in self.main.datasets:
+            raise ScicatCommError(f"No dataset with id {dataset_id}")
+        self.main.attachments.setdefault(dataset_id, []).append(ingested)
         return ingested
 
 
@@ -285,11 +317,17 @@ def _process_orig_datablock(
     return processed
 
 
-def _process_attachment(attachment: model.UploadAttachment) -> model.DownloadAttachment:
+def _process_attachment(
+    attachment: model.UploadAttachment, dataset_id: Optional[PID] = None
+) -> model.DownloadAttachment:
     created_at = datetime.datetime.now(tz=datetime.timezone.utc)
     # Using strict_validation=False because the input model should already be validated.
     # If there are validation errors, it was probably intended by the user.
     fields = _model_dict(attachment)
+    if fields.get("id") is None:
+        fields["id"] = uuid.uuid4().hex
+    if dataset_id is not None:
+        fields["datasetId"] = dataset_id
     return model.construct(
         model.DownloadAttachment,
         _strict_validation=False,
