@@ -766,7 +766,7 @@ class ScicatClient:
         if self._token is not None:
             token = self._token.get_str()
             params = {"access_token": token}
-            headers = {"Authorization": "Bearer {}".format(token)}
+            headers = {"Authorization": f"Bearer {token}"}
         else:
             token = ""
             params = {}
