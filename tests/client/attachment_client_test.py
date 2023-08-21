@@ -10,6 +10,7 @@ from dateutil.parser import parse as parse_date
 from scitacean import PID, Client, ScicatCommError
 from scitacean.client import ScicatClient
 from scitacean.model import (
+    Attachment,
     DatasetType,
     UploadAttachment,
     UploadDerivedDataset,
@@ -60,7 +61,7 @@ def compare_attachment_after_upload(uploaded, downloaded):
             assert expected == dict(downloaded)[key], f"key = {key}"
 
 
-def test_create_attachments(scicat_client, attachment, derived_dataset):
+def test_create_attachment_for_dataset(scicat_client, attachment, derived_dataset):
     attachment1 = deepcopy(attachment)
     attachment2 = deepcopy(attachment)
     attachment2.caption = "Another attachment"
@@ -80,7 +81,7 @@ def test_create_attachments(scicat_client, attachment, derived_dataset):
     compare_attachment_after_upload(attachment2, finalized2)
 
 
-def test_create_attachment_with_existing_id(
+def test_create_attachment_for_dataset_with_existing_id(
     real_client, attachment, derived_dataset, require_scicat_backend
 ):
     scicat_client = real_client.scicat
@@ -93,14 +94,16 @@ def test_create_attachment_with_existing_id(
         scicat_client.create_attachment_for_dataset(attachment, dataset_id=dataset_id)
 
 
-def test_cannot_create_attachment_for_nonexistent_dataset(scicat_client, attachment):
+def test_cannot_create_attachment_for_dataset_for_nonexistent_dataset(
+    scicat_client, attachment
+):
     with pytest.raises(ScicatCommError):
         scicat_client.create_attachment_for_dataset(
             attachment, dataset_id=PID(pid="nonexistent-id")
         )
 
 
-def test_create_attachment_for_dataset_populates_ids(
+def test_create_attachment_for_dataset_for_dataset_populates_ids(
     scicat_client, attachment, derived_dataset
 ):
     assert attachment.id is None
@@ -120,14 +123,44 @@ def test_create_attachment_for_dataset_populates_ids(
     assert finalized.proposalId is None
 
 
-def test_get_attachment_models(scicat_client):
+def test_get_attachments_for_dataset(scicat_client):
     dset = INITIAL_DATASETS["derived"]
     attachments = scicat_client.get_attachments_for_dataset(dset.pid)
     assert attachments == INITIAL_ATTACHMENTS["derived"]
 
 
-def test_get_attachment_models_no_attachments(scicat_client):
+def test_get_attachments_for_dataset_no_attachments(scicat_client):
     assert INITIAL_ATTACHMENTS.get("raw") is None
     dset = INITIAL_DATASETS["raw"]
     attachments = scicat_client.get_attachments_for_dataset(dset.pid)
     assert attachments == []
+
+
+@pytest.mark.parametrize("key", ("raw", "derived"))
+def test_get_dataset_does_not_initialise_attachments(client, key):
+    dset = INITIAL_DATASETS["derived"]
+    downloaded = client.get_dataset(dset.pid)
+    assert downloaded.attachments is None
+
+
+@pytest.mark.parametrize("key", ("raw", "derived"))
+def test_download_attachments_for_dataset(client, key):
+    dset = INITIAL_DATASETS[key]
+    downloaded = client.get_dataset(dset.pid)
+    with_attachments = client.download_attachments_for(downloaded)
+    expected = [
+        Attachment.from_download_model(attachment)
+        for attachment in INITIAL_ATTACHMENTS.get(key, ())
+    ]
+    assert with_attachments.attachments == expected
+
+
+@pytest.mark.parametrize("key", ("raw", "derived"))
+def test_get_dataset_with_attachments(client, key):
+    dset = INITIAL_DATASETS[key]
+    downloaded = client.get_dataset(dset.pid, attachments=True)
+    expected = [
+        Attachment.from_download_model(attachment)
+        for attachment in INITIAL_ATTACHMENTS.get(key, ())
+    ]
+    assert downloaded.attachments == expected
