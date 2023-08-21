@@ -34,14 +34,14 @@ jobs:
     name: Deploy packages
     needs: [build_wheels]
     runs-on: ubuntu-22.04
+    environment: release
+    permissions:
+      id-token: write
     if: github.event_name == 'release' && github.event.action == 'published'
 
     steps:
       - uses: actions/download-artifact@v2
       - uses: pypa/gh-action-pypi-publish@v1.8.10
-        with:
-          user: __token__
-          password: ${{ secrets.PYPI_TOKEN }}
 
   docs:
     needs: upload_packages
