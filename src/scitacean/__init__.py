@@ -14,11 +14,12 @@ from .dataset import Dataset
 from .error import FileUploadError, IntegrityError, ScicatCommError, ScicatLoginError
 from .file import File
 from .filesystem import RemotePath
-from .model import DatasetType
+from .model import Attachment, DatasetType
 from .pid import PID
 from .warning import VisibleDeprecationWarning
 
 __all__ = (
+    "Attachment",
     "Client",
     "Dataset",
     "DatasetType",
