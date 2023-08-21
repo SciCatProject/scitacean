@@ -307,7 +307,8 @@ def seed_database(*, client: Client, scicat_access: SciCatAccess) -> None:
     download_attachments = {
         key: [
             client.scicat.create_attachment_for_dataset(
-                attachment, dataset_id=download_datasets[key].pid
+                attachment,
+                dataset_id=download_datasets[key].pid,  # type: ignore[arg-type]
             )
             for attachment in attachments
         ]

@@ -353,7 +353,7 @@ def process_uploaded_dataset(
         if orig_datablocks is not None
         else None
     )
-    attachments = (
+    atts = (
         list(map(_process_attachment, attachments)) if attachments is not None else None
     )
-    return _process_dataset(dataset), dblocks, attachments
+    return _process_dataset(dataset), dblocks, atts

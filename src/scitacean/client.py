@@ -708,7 +708,7 @@ class ScicatClient:
         self,
         attachment: model.UploadAttachment,
         *,
-        dataset_id: Optional[PID] = None,
+        dataset_id: PID,
     ) -> model.DownloadAttachment:
         """Create a new attachment for a dataset in SciCat.
 
