@@ -21,6 +21,7 @@ from typing import (
     Union,
 )
 
+from ._base_model import convert_download_to_user_model, convert_user_to_upload_model
 from ._dataset_fields import DatasetBase
 from .datablock import OrigDatablock
 from .file import File
@@ -68,7 +69,9 @@ class Dataset(DatasetBase):
         dset = cls(**init_args)
         for key, val in read_only.items():
             setattr(dset, key, val)
-        dset._attachments = _list_field_from_download(attachment_models)
+        dset._attachments = convert_download_to_user_model(  # type: ignore[assignment]
+            attachment_models
+        )
         if orig_datablock_models is not None:
             dset._orig_datablocks.extend(
                 map(OrigDatablock.from_download_model, orig_datablock_models)
@@ -443,8 +446,12 @@ class Dataset(DatasetBase):
             size=self.size,
             packedSize=self.packed_size,
             scientificMetadata=self._meta or None,
-            techniques=_list_field_for_upload(self.techniques),
-            relationships=_list_field_for_upload(self.relationships),
+            techniques=convert_user_to_upload_model(  # type: ignore[arg-type]
+                self.techniques
+            ),
+            relationships=convert_user_to_upload_model(  # type: ignore[arg-type]
+                self.relationships
+            ),
             **{
                 field.scicat_name: value
                 for field in self.fields()
@@ -507,15 +514,3 @@ class DatablockUploadModels:
     # datablocks: Optional[List[UploadDatablock]]
     orig_datablocks: Optional[List[UploadOrigDatablock]]
     """Orig datablocks"""
-
-
-def _list_field_from_download(value: Optional[Iterable[Any]]) -> Optional[List[Any]]:
-    if value is None:
-        return None
-    return [item.user_model_type().from_download_model(item) for item in value]
-
-
-def _list_field_for_upload(value: Optional[Iterable[Any]]) -> Optional[List[Any]]:
-    if value is None:
-        return None
-    return [item.make_upload_model() for item in value]
