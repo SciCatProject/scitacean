@@ -249,11 +249,10 @@ def _apply_config_orig_datablock(
 
 
 def _apply_config_attachment(
-    attachment: UploadAttachment, dset: DownloadDataset, user: SciCatUser
+    attachment: UploadAttachment, user: SciCatUser
 ) -> UploadAttachment:
     attachment = deepcopy(attachment)
     attachment.ownerGroup = user.group
-    attachment.datasetId = dset.pid
     return attachment
 
 
@@ -300,16 +299,16 @@ def seed_database(*, client: Client, scicat_access: SciCatAccess) -> None:
 
     upload_attachments = {
         key: [
-            _apply_config_attachment(
-                attachment, download_datasets[key], scicat_access.user
-            )
+            _apply_config_attachment(attachment, scicat_access.user)
             for attachment in attachments
         ]
         for key, attachments in _ATTACHMENTS.items()
     }
     download_attachments = {
         key: [
-            client.scicat.create_attachment_for_dataset(attachment)
+            client.scicat.create_attachment_for_dataset(
+                attachment, dataset_id=download_datasets[key].pid
+            )
             for attachment in attachments
         ]
         for key, attachments in upload_attachments.items()

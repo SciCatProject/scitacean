@@ -177,17 +177,18 @@ def test_create_attachments(scicat_client, attachment, derived_dataset):
     attachment2.caption = "Another attachment"
 
     dataset_id = scicat_client.create_dataset_model(derived_dataset).pid
+
+    finalized1 = scicat_client.create_attachment_for_dataset(
+        attachment1, dataset_id=dataset_id
+    )
     attachment1.datasetId = dataset_id
+    _compare_attachment_after_upload(attachment1, finalized1)
+
+    finalized2 = scicat_client.create_attachment_for_dataset(
+        attachment2, dataset_id=dataset_id
+    )
     attachment2.datasetId = dataset_id
-
-    scicat_client.create_attachment_for_dataset(attachment1)
-    (downloaded1,) = scicat_client.get_attachments_for_dataset(dataset_id)
-    _compare_attachment_after_upload(attachment1, downloaded1)
-
-    scicat_client.create_attachment_for_dataset(attachment2)
-    downloaded1, downloaded2 = scicat_client.get_attachments_for_dataset(dataset_id)
-    _compare_attachment_after_upload(attachment1, downloaded1)
-    _compare_attachment_after_upload(attachment2, downloaded2)
+    _compare_attachment_after_upload(attachment2, finalized2)
 
 
 def test_create_attachment_with_existing_id(
@@ -196,52 +197,30 @@ def test_create_attachment_with_existing_id(
     scicat_client = real_client.scicat
 
     dataset_id = scicat_client.create_dataset_model(derived_dataset).pid
-    attachment.datasetId = dataset_id
     attachment.id = "attachment-id"
-    scicat_client.create_attachment_for_dataset(attachment)
+    scicat_client.create_attachment_for_dataset(attachment, dataset_id=dataset_id)
 
     with pytest.raises(ScicatCommError):
-        scicat_client.create_attachment_for_dataset(attachment)
+        scicat_client.create_attachment_for_dataset(attachment, dataset_id=dataset_id)
 
 
-def test_create_attachment_manual_dataset_id(
+def test_cannot_create_attachment_for_nonexistent_dataset(scicat_client, attachment):
+    with pytest.raises(ScicatCommError):
+        scicat_client.create_attachment_for_dataset(
+            attachment, dataset_id=PID(pid="nonexistent-id")
+        )
+
+
+def test_create_attachment_for_dataset_populates_id(
     scicat_client, attachment, derived_dataset
 ):
     dataset_id = scicat_client.create_dataset_model(derived_dataset).pid
 
-    attachment.datasetId = None
-    scicat_client.create_attachment_for_dataset(attachment, dataset_id=dataset_id)
-    (downloaded,) = scicat_client.get_attachments_for_dataset(dataset_id)
-    _compare_attachment_after_upload(attachment, downloaded)
-
-
-def test_create_attachment_manual_dataset_id_overrides_model_field(
-    scicat_client, attachment, derived_dataset
-):
-    dataset_id1 = scicat_client.create_dataset_model(derived_dataset).pid
-    dataset_id2 = scicat_client.create_dataset_model(derived_dataset).pid
-
-    attachment.datasetId = dataset_id1
-    scicat_client.create_attachment_for_dataset(attachment, dataset_id=dataset_id2)
-
-    downloaded1 = scicat_client.get_attachments_for_dataset(dataset_id1)
-    assert not downloaded1
-
-    (downloaded2,) = scicat_client.get_attachments_for_dataset(dataset_id2)
-    attachment.datasetId = dataset_id2
-    _compare_attachment_after_upload(attachment, downloaded2)
-
-
-def test_cannot_create_attachment_without_dataset_id(scicat_client, attachment):
-    attachment.datasetId = None
-    with pytest.raises(ValueError):
-        scicat_client.create_attachment_for_dataset(attachment)
-
-
-def test_cannot_create_attachment_for_nonexistent_dataset(scicat_client, attachment):
-    attachment.datasetId = PID(pid="nonexistent-id")
-    with pytest.raises(ScicatCommError):
-        scicat_client.create_attachment_for_dataset(attachment)
+    finalized = scicat_client.create_attachment_for_dataset(
+        attachment, dataset_id=dataset_id
+    )
+    assert attachment.id is None
+    assert finalized.id is not None
 
 
 def test_get_dataset(client):
@@ -311,7 +290,23 @@ def test_get_broken_dataset_strict_validation(real_client, require_scicat_backen
         real_client.get_dataset(dset.pid, strict_validation=True)
 
 
-# TODo get_attachment
+def test_get_attachments_for_dataset(scicat_client, attachment, derived_dataset):
+    attachment1 = deepcopy(attachment)
+    attachment2 = deepcopy(attachment)
+    attachment2.caption = "Another attachment"
+
+    dataset_id = scicat_client.create_dataset_model(derived_dataset).pid
+
+    scicat_client.create_attachment_for_dataset(attachment1, dataset_id=dataset_id)
+    attachment1.datasetId = dataset_id
+    (downloaded1,) = scicat_client.get_attachments_for_dataset(dataset_id)
+    _compare_attachment_after_upload(attachment1, downloaded1)
+
+    scicat_client.create_attachment_for_dataset(attachment2, dataset_id=dataset_id)
+    attachment2.datasetId = dataset_id
+    downloaded1, downloaded2 = scicat_client.get_attachments_for_dataset(dataset_id)
+    _compare_attachment_after_upload(attachment1, downloaded1)
+    _compare_attachment_after_upload(attachment2, downloaded2)
 
 
 def test_cannot_pickle_client_credentials_manual_token_str():

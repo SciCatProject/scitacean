@@ -726,24 +726,13 @@ class ScicatClient:
             Model of the attachment to create.
         dataset_id:
             ID of the dataset to which the attachment belongs.
-            If ``None``, the ID stored in the attachment will be used.
 
         Raises
         ------
         scitacean.ScicatCommError
             If SciCat refuses the attachment or communication
             fails for some other reason.
-        ValueError
-            If the dataset ID cannot be determined.
         """
-        if dataset_id is None:
-            dataset_id = attachment.datasetId
-        if dataset_id is None:
-            raise ValueError(
-                "Cannot determine the dataset ID for attachment. "
-                "Specify the ID as a function argument or in the attachment."
-            )
-
         uploaded = self._call_endpoint(
             cmd="post",
             url=f"datasets/{quote_plus(str(dataset_id))}/attachments",
