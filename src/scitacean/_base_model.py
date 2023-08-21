@@ -89,7 +89,12 @@ class BaseModel(pydantic.BaseModel):
     # The mask is cached afterward.
     @classmethod
     def _init_mask(cls: Type[ModelType], instance: ModelType) -> None:
-        field_names = {field.alias for field in instance.get_model_fields().values()}
+        def get_name(name: str, field: Any) -> Any:
+            return field.alias if field.alias is not None else name
+
+        field_names = {
+            get_name(name, field) for name, field in instance.get_model_fields().items()
+        }
         default_mask = tuple(key for key in _IGNORED_KWARGS if key not in field_names)
         cls._masked_fields = cls._user_mask + default_mask
 
