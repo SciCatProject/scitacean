@@ -220,6 +220,12 @@ class Client:
         To this end, the input dataset's ID is ignored and a new one is
         assigned automatically.
 
+        Attachments are also uploaded automatically.
+        This happens after the upload of files and the dataset itself.
+        So if uploading the attachments fails, check the dataset in SciCat to
+        determine which attachments you need to re-upload
+        (using :meth:`ScicatClient.create_attachment_for_dataset`).
+
         Parameters
         ----------
         dataset:
@@ -259,21 +265,25 @@ class Client:
                 raise
 
         with_new_pid = dataset.replace(_read_only={"pid": finalized_model.pid})
-        datablock_models = with_new_pid.make_datablock_upload_models()
         finalized_orig_datablocks = self._upload_orig_datablocks(
-            datablock_models.orig_datablocks
+            with_new_pid.make_datablock_upload_models().orig_datablocks
+        )
+        finalized_attachments = self._upload_attachments_for_dataset(
+            with_new_pid.make_attachment_upload_models(),
+            dataset_id=with_new_pid.pid,  # type: ignore[arg-type]
         )
 
         return Dataset.from_download_models(
             dataset_model=finalized_model,
-            orig_datablock_models=finalized_orig_datablocks or [],
+            orig_datablock_models=finalized_orig_datablocks,
+            attachment_models=finalized_attachments,
         )
 
     def _upload_orig_datablocks(
         self, orig_datablocks: Optional[List[model.UploadOrigDatablock]]
-    ) -> Optional[List[model.DownloadOrigDatablock]]:
-        if orig_datablocks is None:
-            return None
+    ) -> List[model.DownloadOrigDatablock]:
+        if not orig_datablocks:
+            return []
 
         try:
             return [
@@ -286,6 +296,23 @@ class Client:
                 f"{orig_datablocks[0].datasetId}:"
                 f"\n{exc.args}\nThe dataset and data files were successfully uploaded "
                 "but are not linked with each other. Please fix the dataset manually!"
+            ) from exc
+
+    def _upload_attachments_for_dataset(
+        self, attachments: List[model.UploadAttachment], *, dataset_id: PID
+    ) -> List[model.DownloadAttachment]:
+        try:
+            return [
+                self.scicat.create_attachment_for_dataset(
+                    attachment, dataset_id=dataset_id
+                )
+                for attachment in attachments
+            ]
+        except ScicatCommError as exc:
+            raise RuntimeError(
+                f"Failed to upload attachments for SciCat dataset {dataset_id}:"
+                f"\n{exc.args}\nThe dataset and data files were successfully uploaded "
+                "and will not be reverted. Please upload the attachments manually!"
             ) from exc
 
     @contextmanager
