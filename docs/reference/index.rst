@@ -43,7 +43,8 @@ Auxiliary classes
    dataset.DatablockUploadModels
    PID
    RemotePath
-   model.DatasetType
+   Thumbnail
+   DatasetType
 
 Exceptions
 ~~~~~~~~~~

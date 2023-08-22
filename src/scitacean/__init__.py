@@ -16,6 +16,7 @@ from .file import File
 from .filesystem import RemotePath
 from .model import Attachment, DatasetType
 from .pid import PID
+from .thumbnail import Thumbnail
 from .warning import VisibleDeprecationWarning
 
 __all__ = (
@@ -31,5 +32,6 @@ __all__ = (
     "RemotePath",
     "ScicatCommError",
     "ScicatLoginError",
+    "Thumbnail",
     "VisibleDeprecationWarning",
 )
