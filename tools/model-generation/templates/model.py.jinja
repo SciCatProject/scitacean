@@ -112,6 +112,7 @@ from ._internal.dataclass_wrapper import dataclass_optional_args
 from ._internal.pydantic_compat import field_validator
 from .filesystem import RemotePath
 from .pid import PID
+from .thumbnail import Thumbnail
 
 {% set fields = dset_spec.fields_for("download") -%}
 class DownloadDataset(BaseModel{{ mask_keyword(dset_spec, "download") }}):

@@ -30,6 +30,7 @@ from ...model import (
     UploadTechnique,
 )
 from ...pid import PID
+from ...thumbnail import Thumbnail
 from .config import SITE, SciCatAccess, SciCatUser
 
 # Dataset models to upload to the database.
@@ -209,14 +210,14 @@ _ATTACHMENTS: Dict[str, List[UploadAttachment]] = {
             ownerGroup="PLACEHOLDER",
             accessGroups=["uu"],
             datasetId=PID(pid="PLACEHOLDER"),
-            thumbnail="nag;aso;i",
+            thumbnail=Thumbnail(mime="image/png", data=b"nag;aso;i"),
         ),
         UploadAttachment(
             caption="Pretty picture no 1",
             ownerGroup="PLACEHOLDER",
             accessGroups=["uu", "faculty"],
             datasetId=PID(pid="PLACEHOLDER"),
-            thumbnail="gj0ajs93jka2jv89a",
+            thumbnail=Thumbnail(mime="image/jpeg", data=b"gj0ajs93jka2jv89a"),
             sampleId="kjsdf",
         ),
     ]

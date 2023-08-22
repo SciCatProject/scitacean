@@ -100,6 +100,7 @@ from ._internal.dataclass_wrapper import dataclass_optional_args
 from ._internal.pydantic_compat import field_validator
 from .filesystem import RemotePath
 from .pid import PID
+from .thumbnail import Thumbnail
 
 
 class DownloadDataset(
@@ -280,7 +281,7 @@ class DownloadAttachment(BaseModel):
     instrumentGroup: Optional[str] = None
     proposalId: Optional[str] = None
     sampleId: Optional[str] = None
-    thumbnail: Optional[str] = None
+    thumbnail: Optional[Thumbnail] = None
     updatedAt: Optional[datetime] = None
     updatedBy: Optional[str] = None
 
@@ -306,7 +307,7 @@ class UploadAttachment(BaseModel):
     instrumentGroup: Optional[str] = None
     proposalId: Optional[str] = None
     sampleId: Optional[str] = None
-    thumbnail: Optional[str] = None
+    thumbnail: Optional[Thumbnail] = None
 
     @classmethod
     def user_model_type(cls) -> Type[Attachment]:
@@ -593,7 +594,7 @@ class Attachment(BaseUserModel):
     instrument_group: Optional[str] = None
     proposal_id: Optional[str] = None
     sample_id: Optional[str] = None
-    thumbnail: Optional[str] = None
+    thumbnail: Optional[Thumbnail] = None
     _created_at: Optional[datetime] = None
     _created_by: Optional[str] = None
     _updated_at: Optional[datetime] = None

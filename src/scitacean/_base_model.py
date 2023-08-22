@@ -28,6 +28,7 @@ from ._internal.pydantic_compat import is_pydantic_v1
 from .filesystem import RemotePath
 from .logging import get_logger
 from .pid import PID
+from .thumbnail import Thumbnail
 
 try:
     # Python 3.11+
@@ -63,6 +64,7 @@ class BaseModel(pydantic.BaseModel):
             json_encoders = {  # noqa: RUF012
                 PID: lambda v: str(v),
                 RemotePath: lambda v: v.posix,
+                Thumbnail: lambda v: v.serialize(),
             }
 
     else:

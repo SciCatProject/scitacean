@@ -6,7 +6,14 @@ from contextlib import contextmanager
 import pytest
 from dateutil.parser import parse as parse_date
 
-from scitacean import Attachment, Client, Dataset, DatasetType, ScicatCommError
+from scitacean import (
+    Attachment,
+    Client,
+    Dataset,
+    DatasetType,
+    ScicatCommError,
+    Thumbnail,
+)
 from scitacean.testing.client import FakeClient
 from scitacean.testing.transfer import FakeFileTransfer
 
@@ -53,10 +60,14 @@ def dataset_with_files(dataset, fs):
 def attachments():
     return [
         Attachment(
-            caption="Attachment no 1", owner_group="uu", thumbnail="840109725761"
+            caption="Attachment no 1",
+            owner_group="uu",
+            thumbnail=Thumbnail(mime="png/jpeg", data=b"840109725761"),
         ),
         Attachment(
-            caption="Second attachment", owner_group="uu", thumbnail="5189762957"
+            caption="Second attachment",
+            owner_group="uu",
+            thumbnail=Thumbnail(mime=None, data=b"5189762957"),
         ),
     ]
 

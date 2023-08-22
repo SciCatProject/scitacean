@@ -7,7 +7,7 @@ from copy import deepcopy
 import pytest
 from dateutil.parser import parse as parse_date
 
-from scitacean import PID, Client, ScicatCommError
+from scitacean import PID, Client, ScicatCommError, Thumbnail
 from scitacean.client import ScicatClient
 from scitacean.model import (
     Attachment,
@@ -47,7 +47,7 @@ def derived_dataset(scicat_access):
 def attachment(scicat_access):
     return UploadAttachment(
         caption="An attachment",
-        thumbnail="9278c78a904jh",
+        thumbnail=Thumbnail(mime="image/png", data=b"9278c78a904jh"),
         ownerGroup=scicat_access.user.group,
         accessGroups=["group1", "2nd_group"],
     )
