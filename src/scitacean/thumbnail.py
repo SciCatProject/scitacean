@@ -8,7 +8,7 @@ import base64
 import mimetypes
 import os
 import re
-from typing import Callable, Generator, Optional, Union
+from typing import Callable, Dict, Generator, Optional, Union
 
 import pydantic
 
@@ -204,10 +204,21 @@ class Thumbnail:
         return base64.b64decode(self._encoded_data)
 
     def __str__(self) -> str:
-        return f"Thumbnail({self.mime}, len:{len(self.encoded_data())})"
+        return f"Thumbnail({self.mime}, len:{len(self.encoded_data())}B)"
 
     def __repr__(self) -> str:
         return f"Thumbnail(mime={self.mime}, data={self.decoded_data()!r})"
+
+    def _repr_mimebundle_(
+        self, include: Any = None, exclude: Any = None
+    ) -> Dict[str, bytes]:
+        reprs = {}
+        if self.mime in {"image/png", "image/jpeg", "image/svg+xml", "application/pdf"}:
+            reprs[self.mime] = self.decoded_data()
+            reprs["text/html"] = f"<img src={self.serialize()}>"
+        else:
+            reprs["text/plain"] = str(self)
+        return reprs
 
     if is_pydantic_v1():
 
