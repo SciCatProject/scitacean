@@ -211,14 +211,30 @@ class Thumbnail:
 
     def _repr_mimebundle_(
         self, include: Any = None, exclude: Any = None
-    ) -> Dict[str, bytes]:
-        reprs = {}
-        if self.mime in {"image/png", "image/jpeg", "image/svg+xml", "application/pdf"}:
-            reprs[self.mime] = self.decoded_data()
-            reprs["text/html"] = f"<img src={self.serialize()}>"
-        else:
-            reprs["text/plain"] = str(self)
-        return reprs
+    ) -> Dict[str, Union[bytes, str]]:
+        def decoded() -> bytes:
+            return self.decoded_data()
+
+        repr_fns = {
+            "image/png": decoded,
+            "image/jpeg": decoded,
+            "image/svg+xml": decoded,
+            "application/pdf": decoded,
+            "text/html": lambda: f"<img src={self.serialize()}>",
+            "text/plain": self.__str__,
+        }
+        if include is not None:
+            repr_fns = {k: v for k, v in repr_fns.items() if k in include}
+        if exclude is not None:
+            repr_fns = {k: v for k, v in repr_fns.items() if k not in exclude}
+
+        if self.mime in repr_fns:
+            return {self.mime: repr_fns[self.mime]()}
+        return {
+            mime: fn()
+            for mime in {"text/html", "text/plain"}
+            if (fn := repr_fns.get(mime))
+        }
 
     if is_pydantic_v1():
 

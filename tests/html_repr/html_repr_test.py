@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
 
-from scitacean import Dataset, RemotePath
+from scitacean import Attachment, Dataset, RemotePath, Thumbnail
 
 
 # We don't want to test the concrete layout as that may change
@@ -28,3 +28,17 @@ def test_dataset_html_repr():
     assert "used_software" in res
     assert "temperature" in res
     assert "unit" in res
+
+
+def test_attachment_html_repr():
+    att = Attachment(
+        caption="THE_CAPTION.jpg",
+        owner_group="ThePeople",
+        thumbnail=Thumbnail(mime="image/jpeg", _encoded_data="YWJjZA=="),
+    )
+
+    res = att._repr_html_()
+
+    assert "THE_CAPTION.jpg" in res
+    assert "ThePeople" in res
+    assert "YWJjZA==" in res

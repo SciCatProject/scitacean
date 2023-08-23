@@ -215,6 +215,12 @@ class BaseUserModel:
         # All child classes must implement this function.
         raise NotImplementedError("Function does not exist for BaseUserModel")
 
+    def _repr_html_(self) -> Optional[str]:
+        """Return an HTML representation of the model if possible."""
+        from ._html_repr import user_model_html_repr
+
+        return user_model_html_repr(self)
+
 
 def construct(
     model: Type[PydanticModelType],
