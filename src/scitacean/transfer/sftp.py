@@ -448,3 +448,6 @@ def _compute_remote_checksum(
             if "Operation unsupported" in exc.args:
                 return None
             raise
+
+
+__all__ = ["SFTPFileTransfer", "SFTPUploadConnection", "SFTPDownloadConnection"]
