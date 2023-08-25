@@ -134,6 +134,15 @@ class RemotePath:
             return None
         return "." + parts[1]
 
+    @property
+    def parent(self) -> RemotePath:
+        """The logical parent of the path."""
+        parts = self._path.rstrip("/").rsplit("/", 1)
+        base = "/" if self._path.startswith("/") else "."
+        if len(parts) == 1:
+            return RemotePath(base)
+        return RemotePath(parts[0] or base)
+
     def truncated(self, max_length: int = 255) -> RemotePath:
         """Return a new remote path with all path segments truncated.
 

@@ -143,6 +143,18 @@ def test_remote_path_suffix():
     assert RemotePath("source/file").suffix is None
 
 
+def test_remote_path_parent():
+    assert RemotePath("/").parent == RemotePath("/")
+    assert RemotePath("/folder").parent == RemotePath("/")
+    assert RemotePath("/folder/").parent == RemotePath("/")
+    assert RemotePath("/folder/sub").parent == RemotePath("/folder")
+
+    assert RemotePath("").parent == RemotePath(".")
+    assert RemotePath(".").parent == RemotePath(".")
+    assert RemotePath("relative").parent == RemotePath(".")
+    assert RemotePath("relative/sub").parent == RemotePath("relative")
+
+
 def test_remote_path_truncated():
     assert RemotePath("something-long.txt").truncated(10) == "someth.txt"
     assert RemotePath("longlonglong/short").truncated(5) == "longl/short"
