@@ -245,6 +245,7 @@ class SFTPFileTransfer:
         host: str,
         port: Optional[int] = None,
         source_folder: Optional[Union[str, RemotePath]] = None,
+        connect: Optional[Callable[..., Connection]] = None,
     ) -> None:
         """Construct a new SFTP file transfer.
 
@@ -258,27 +259,6 @@ class SFTPFileTransfer:
             Upload files to this folder if set.
             Otherwise, upload to the dataset's source_folder.
             Ignored when downloading files.
-        """
-        self._host = host
-        self._port = port
-        self._source_folder_pattern = (
-            RemotePath(source_folder)
-            if isinstance(source_folder, str)
-            else source_folder
-        )
-
-    def source_folder_for(self, dataset: Dataset) -> RemotePath:
-        """Return the source folder used for the given dataset."""
-        return source_folder_for(dataset, self._source_folder_pattern)
-
-    @contextmanager
-    def connect_for_download(
-        self, connect: Optional[Callable[..., Connection]] = None
-    ) -> Iterator[SFTPDownloadConnection]:
-        """Create a connection for downloads, use as a context manager.
-
-        Parameters
-        ----------
         connect:
             A function that creates and returns a :class:`fabric.connection.Connection`
             object.
@@ -291,16 +271,30 @@ class SFTPFileTransfer:
             call or any other exception in the 1st signals failure of
             ``connect_for_download``.
         """
-        con = _connect(self._host, self._port, connect=connect)
+        self._host = host
+        self._port = port
+        self._source_folder_pattern = (
+            RemotePath(source_folder)
+            if isinstance(source_folder, str)
+            else source_folder
+        )
+        self._connect = connect
+
+    def source_folder_for(self, dataset: Dataset) -> RemotePath:
+        """Return the source folder used for the given dataset."""
+        return source_folder_for(dataset, self._source_folder_pattern)
+
+    @contextmanager
+    def connect_for_download(self) -> Iterator[SFTPDownloadConnection]:
+        """Create a connection for downloads, use as a context manager."""
+        con = _connect(self._host, self._port, connect=self._connect)
         try:
             yield SFTPDownloadConnection(connection=con)
         finally:
             con.close()
 
     @contextmanager
-    def connect_for_upload(
-        self, dataset: Dataset, connect: Optional[Callable[..., Connection]] = None
-    ) -> Iterator[SFTPUploadConnection]:
+    def connect_for_upload(self, dataset: Dataset) -> Iterator[SFTPUploadConnection]:
         """Create a connection for uploads, use as a context manager.
 
         Parameters
@@ -308,20 +302,9 @@ class SFTPFileTransfer:
         dataset:
             The connection will be used to upload files of this dataset.
             Used to determine the target folder.
-        connect:
-            A function that creates and returns a :class:`fabric.connection.Connection`
-            object.
-            Will first be called with only ``host`` and ``port``.
-            If this fails (by raising
-            :class:`paramiko.ssh_exception.AuthenticationException`), the function is
-            called with ``host``, ``port``, and, optionally, ``user`` and
-            ``connection_kwargs`` depending on the authentication method.
-            Raising :class:`paramiko.ssh_exception.AuthenticationException` in the 2nd
-            call or any other exception in the 1st signals failure of
-            ``connect_for_upload``.
         """
         source_folder = self.source_folder_for(dataset)
-        con = _connect(self._host, self._port, connect=connect)
+        con = _connect(self._host, self._port, connect=self._connect)
         try:
             yield SFTPUploadConnection(
                 connection=con,
