@@ -145,7 +145,7 @@ def sftp_connection_config() -> fabric.config.Config:
 def sftp_connect_with_username_password(
     sftp_access: SFTPAccess, sftp_connection_config: fabric.config.Config
 ) -> Callable[..., fabric.Connection]:
-    """Fixture that returns a function to create a connection to the testing SFTP server.
+    """Fixture that returns a function to connect to the testing SFTP server.
 
     Uses username+password and rejects any other authentication attempt.
 
@@ -162,7 +162,9 @@ def sftp_connect_with_username_password(
 
     .. code-block:: python
 
-        def test_sftp(sftp_access, sftp_connect_with_username_password, sftp_fileserver):
+        def test_sftp(sftp_access,
+                      sftp_connect_with_username_password,
+                      sftp_fileserver):
             sftp = SFTPFileTransfer(host=sftp_access.host, port=sftp_access.port)
             with sftp.connect_for_download(
                 connect=sftp_connect_with_username_password
