@@ -32,11 +32,8 @@ Release notes
    Stability, Maintainability, and Testing
    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-vYY.0M.MICRO (Unreleased)
--------------------------
-
-Security
-~~~~~~~~
+v23.08.0 (2023-08-28)
+---------------------
 
 Features
 ~~~~~~~~
@@ -46,24 +43,15 @@ Features
 * Added ``SFTPFileTransfer`` which is similar to ``SSHFileTransfer`` but relies only on SFTP.
 * Added support for attachments.
 
-Breaking changes
-~~~~~~~~~~~~~~~~
-
 Bugfixes
 ~~~~~~~~
 
 * Fields of derived datasets are no longer initialized when downloading raw datasets and vice versa.
 
-Documentation
-~~~~~~~~~~~~~
-
 Deprecations
 ~~~~~~~~~~~~
 
 * Deprecated ``SSHFileTransfer`` in favor of ``SFTPFileTransfer``.
-
-Stability, Maintainability, and Testing
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 v23.07.0 (2023-07-07)
 ---------------------
