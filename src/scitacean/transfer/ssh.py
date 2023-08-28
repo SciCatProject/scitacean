@@ -2,6 +2,7 @@
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
 
 import os
+import warnings
 from contextlib import contextmanager
 from datetime import datetime, timedelta
 from getpass import getpass
@@ -21,10 +22,15 @@ from ..error import FileUploadError
 from ..file import File
 from ..filesystem import RemotePath
 from ..logging import get_logger
+from ..warning import VisibleDeprecationWarning
 from .util import source_folder_for
 
-# TODO pass pid in put/revert?
-#      downloading does not need a pid, so it should not be required in the constructor/
+warnings.warn(
+    "SSHFileTransfer is deprecated and scheduled for removal in Scitacean v23.11.0."
+    "Use SFTPFileTransfer instead.",
+    VisibleDeprecationWarning,
+    stacklevel=0,
+)
 
 
 class SSHDownloadConnection:

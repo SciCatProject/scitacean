@@ -16,6 +16,7 @@ from .file import File
 from .filesystem import RemotePath
 from .model import DatasetType
 from .pid import PID
+from .warning import VisibleDeprecationWarning
 
 __all__ = (
     "Client",
@@ -29,4 +30,5 @@ __all__ = (
     "RemotePath",
     "ScicatCommError",
     "ScicatLoginError",
+    "VisibleDeprecationWarning",
 )
