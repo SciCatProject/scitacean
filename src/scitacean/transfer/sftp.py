@@ -5,7 +5,7 @@ import os
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Callable, Iterator, List, Optional, Tuple, Union
+from typing import Callable, Iterator, List, Optional, Union
 
 from invoke.exceptions import UnexpectedExit
 from paramiko import SFTPAttributes, SFTPClient, SSHClient
@@ -66,17 +66,13 @@ class SFTPUploadConnection:
         self._make_source_folder()
         uploaded = []
         try:
-            for file in files:
-                up, exc = self._upload_file(file)
-                uploaded.append(up)  # need to add this file in order to revert it
-                if exc is not None:
-                    raise exc
+            uploaded.extend(self._upload_file(file) for file in files)
         except Exception:
             self.revert_upload(*uploaded)
             raise
         return uploaded
 
-    def _upload_file(self, file: File) -> Tuple[File, Optional[Exception]]:
+    def _upload_file(self, file: File) -> File:
         if file.local_path is None:
             raise ValueError(
                 f"Cannot upload file to {file.remote_path}, "
@@ -92,38 +88,12 @@ class SFTPUploadConnection:
         st = self._sftp_client.put(
             remotepath=remote_path.posix, localpath=os.fspath(file.local_path)
         )
-        if (exc := self._validate_upload(file)) is not None:
-            return file, exc
-        return (
-            file.uploaded(
-                remote_gid=str(st.st_gid),
-                remote_uid=str(st.st_uid),
-                remote_creation_time=datetime.now().astimezone(timezone.utc),
-                remote_perm=str(st.st_mode),
-                remote_size=st.st_size,
-            ),
-            None,
-        )
-
-    def _validate_upload(self, file: File) -> Optional[Exception]:
-        if (checksum := self._compute_checksum(file)) is None:
-            return None
-        if checksum != file.checksum():
-            return FileUploadError(
-                f"Upload of file {file.remote_path} failed: "
-                f"Checksum of uploaded file ({checksum}) does not "
-                f"match checksum of local file ({file.checksum()}) "
-                f"using algorithm {file.checksum_algorithm}"
-            )
-        return None
-
-    def _compute_checksum(self, file: File) -> Optional[str]:
-        if file.checksum_algorithm is None:
-            return None
-        return _compute_remote_checksum(
-            self._sftp_client,
-            self.remote_path(file.remote_path),
-            file.checksum_algorithm,
+        return file.uploaded(
+            remote_gid=str(st.st_gid),
+            remote_uid=str(st.st_uid),
+            remote_creation_time=datetime.now().astimezone(timezone.utc),
+            remote_perm=str(st.st_mode),
+            remote_size=st.st_size,
         )
 
     def revert_upload(self, *files: File) -> None:
@@ -359,20 +329,6 @@ def _is_remote_dir(st_stat: SFTPAttributes) -> bool:
     if st_stat.st_mode is None:
         return True  # Assume it is a dir and let downstream code fail if it isn't.
     return st_stat.st_mode & 0o040000 == 0o040000
-
-
-def _compute_remote_checksum(
-    sftp: SFTPClient, path: RemotePath, checksum_algorithm: str
-) -> Optional[str]:
-    with sftp.open(path.posix, "r") as f:
-        try:
-            return f.check(checksum_algorithm).decode("utf-8")
-        except OSError as exc:
-            # Many servers don't support this.
-            # See https://docs.paramiko.org/en/latest/api/sftp.html
-            if "Operation unsupported" in exc.args:
-                return None
-            raise
 
 
 __all__ = ["SFTPFileTransfer", "SFTPUploadConnection", "SFTPDownloadConnection"]

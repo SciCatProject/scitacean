@@ -12,7 +12,7 @@ from typing import Iterator
 import paramiko
 import pytest
 
-from scitacean import Dataset, File, FileUploadError, RemotePath
+from scitacean import Dataset, File, RemotePath
 from scitacean.testing.client import FakeClient
 from scitacean.testing.sftp import IgnorePolicy, skip_if_not_sftp
 from scitacean.transfer.sftp import (
@@ -314,35 +314,6 @@ def sftp_corrupting_connect(sftp_access, sftp_connection_config):
         return client.open_sftp()
 
     return connect
-
-
-@pytest.mark.skip(reason="Checksums not supported on the test server")
-def test_upload_file_detects_checksum_mismatch(
-    sftp_access, sftp_corrupting_connect, tmp_path, sftp_data_dir
-):
-    ds = Dataset(
-        type="raw",
-        source_folder=RemotePath("/data/upload7"),
-        checksum_algorithm="blake2b",
-    )
-    tmp_path.joinpath("file7.txt").write_text("File to test upload no 7")
-
-    sftp = SFTPFileTransfer(
-        host=sftp_access.host, port=sftp_access.port, connect=sftp_corrupting_connect
-    )
-    with sftp.connect_for_upload(dataset=ds) as con:
-        with pytest.raises(FileUploadError):
-            con.upload_files(
-                dataclasses.replace(
-                    File.from_local(
-                        path=tmp_path / "file7.txt",
-                        remote_path=RemotePath("upload_7.txt"),
-                    ),
-                    checksum_algorithm="blake2b",
-                )
-            )
-
-    assert "upload7" not in (p.name for p in sftp_data_dir.iterdir())
 
 
 class RaisingSFTP(paramiko.SFTPClient):
