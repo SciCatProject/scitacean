@@ -22,8 +22,6 @@ from scitacean.transfer.sftp import (
 )
 
 
-# TODo deep source folder
-# TODO existing source folder
 @pytest.fixture(scope="session", autouse=True)
 def server(request, sftp_fileserver):
     skip_if_not_sftp(request)
