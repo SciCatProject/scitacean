@@ -1,0 +1,26 @@
+version: "2.1"
+services:
+  scitacean-test-sftp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile-sftp-server
+    container_name: scitacean-test-sftp
+    hostname: scitacean-test-sftp-server
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=CET  # Not UTC on purpose to test timezone detection
+#      - PUBLIC_KEY=yourpublickey #optional
+#      - PUBLIC_KEY_FILE=/path/to/file #optional
+#      - PUBLIC_KEY_DIR=/path/to/directory/containing/_only_/pubkeys #optional
+#      - PUBLIC_KEY_URL=https://github.com/username.keys #optional
+      - SUDO_ACCESS=false
+      - PASSWORD_ACCESS=true
+      - USER_NAME=the-scitacean
+      - USER_PASSWORD=sup3r-str0ng
+    volumes:  # configured in Python
+      - ${DATA_DIR}:/data
+      - ${SEED_DIR}:/data/seed
+    ports:
+      - "2222:2222"
+    restart: unless-stopped

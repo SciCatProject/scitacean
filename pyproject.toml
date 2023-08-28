@@ -42,6 +42,7 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 ssh = ["fabric"]
+sftp = ["paramiko"]
 test = ["filelock", "hypothesis", "pyyaml"]
 
 [tool.setuptools_scm]
@@ -60,6 +61,8 @@ filterwarnings = [
     "error",
     # Many tests don't set a checksum, so File raises this warning.
     "ignore:Cannot check if local file:UserWarning",
+    # Internal deprecations.
+    "ignore:SSHFileTransfer is deprecated:scitacean.VisibleDeprecationWarning",
     # From fabric / invoke
     "ignore:_SixMetaPathImporter:ImportWarning",
     "ignore:the imp module is deprecated in favour of importlib:DeprecationWarning",
