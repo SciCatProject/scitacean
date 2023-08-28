@@ -4,15 +4,13 @@
 import os
 from contextlib import contextmanager
 from datetime import datetime, timezone
-from getpass import getpass
 from pathlib import Path
-from typing import Any, Callable, Iterator, List, Optional, Tuple, Union
+from typing import Callable, Iterator, List, Optional, Tuple, Union
 
 # Note that invoke and paramiko are dependencies of fabric.
 from fabric import Connection
 from invoke.exceptions import UnexpectedExit
 from paramiko import SFTPAttributes, SFTPClient
-from paramiko.ssh_exception import AuthenticationException, PasswordRequiredException
 
 from ..dataset import Dataset
 from ..error import FileUploadError
@@ -245,7 +243,7 @@ class SFTPFileTransfer:
         host: str,
         port: Optional[int] = None,
         source_folder: Optional[Union[str, RemotePath]] = None,
-        connect: Optional[Callable[..., Connection]] = None,
+        connect: Optional[Callable[[str, Optional[int]], Connection]] = None,
     ) -> None:
         """Construct a new SFTP file transfer.
 
@@ -260,16 +258,11 @@ class SFTPFileTransfer:
             Otherwise, upload to the dataset's source_folder.
             Ignored when downloading files.
         connect:
-            A function that creates and returns a :class:`fabric.connection.Connection`
-            object.
-            Will first be called with only ``host`` and ``port``.
-            If this fails (by raising
-            :class:`paramiko.ssh_exception.AuthenticationException`), the function is
-            called with ``host``, ``port``, and, optionally, ``user`` and
-            ``connection_kwargs`` depending on the authentication method.
-            Raising :class:`paramiko.ssh_exception.AuthenticationException` in the 2nd
-            call or any other exception in the 1st signals failure of
-            ``connect_for_download``.
+            If this argument is set, it will be called to establish a connection
+            to the server instead of the builtin method.
+            The connection will be opened (by calling ``con.open()``) automatically.
+            The function arguments are ``host`` and ``port`` as determined by the
+            arguments to ``__init__`` shown above.
         """
         self._host = host
         self._port = port
@@ -314,77 +307,30 @@ class SFTPFileTransfer:
             con.close()
 
 
-def _ask_for_key_passphrase() -> str:
-    return getpass("The private key is encrypted, enter passphrase: ")
-
-
-def _ask_for_credentials(host: str) -> Tuple[str, str]:
-    print(f"You need to authenticate to access {host}")  # noqa: T201
-    username = input("Username: ")
-    password = getpass("Password: ")
-    return username, password
-
-
-def _generic_connect(
+def _do_connect(
     host: str,
     port: Optional[int],
-    connect: Optional[Callable[..., Connection]],
-    **kwargs: Any,
+    connect: Optional[Callable[[str, Optional[int]], Connection]],
 ) -> Connection:
     if connect is None:
-        con = Connection(host=host, port=port, **kwargs)
+        con = Connection(host=host, port=port)
     else:
-        con = connect(host=host, port=port, **kwargs)
+        con = connect(host, port)
     con.open()
     return con
 
 
-def _unauthenticated_connect(
-    host: str, port: Optional[int], connect: Optional[Callable[..., Connection]]
-) -> Connection:
-    return _generic_connect(host=host, port=port, connect=connect)
-
-
-def _authenticated_connect(
+def _connect(
     host: str,
     port: Optional[int],
-    connect: Optional[Callable[..., Connection]],
-    exc: AuthenticationException,
-) -> Connection:
-    # TODO fail fast if output going to file
-    if isinstance(exc, PasswordRequiredException) and "encrypted" in exc.args[0]:
-        # TODO does not work anymore, exception is always AuthenticationException
-        return _generic_connect(
-            host=host,
-            port=port,
-            connect=connect,
-            connect_kwargs={"passphrase": _ask_for_key_passphrase()},
-        )
-    else:
-        username, password = _ask_for_credentials(host)
-        return _generic_connect(
-            host=host,
-            port=port,
-            connect=connect,
-            user=username,
-            connect_kwargs={"password": password},
-        )
-
-
-def _connect(
-    host: str, port: Optional[int], connect: Optional[Callable[..., Connection]]
+    connect: Optional[Callable[[str, Optional[int]], Connection]],
 ) -> Connection:
     try:
-        try:
-            return _unauthenticated_connect(host, port, connect)
-        except AuthenticationException as exc:
-            return _authenticated_connect(host, port, connect, exc)
+        return _do_connect(host, port, connect)
     except Exception as exc:
         # We pass secrets as arguments to functions called in this block, and those
         # can be leaked through exception handlers. So catch all exceptions
         # and strip the backtrace up to this point to hide those secrets.
-        raise type(exc)(exc.args) from None
-    except BaseException as exc:
         raise type(exc)(exc.args) from None
 
 

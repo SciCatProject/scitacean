@@ -165,19 +165,14 @@ def sftp_connect_with_username_password(
         def test_sftp(sftp_access,
                       sftp_connect_with_username_password,
                       sftp_fileserver):
-            sftp = SFTPFileTransfer(host=sftp_access.host, port=sftp_access.port)
-            with sftp.connect_for_download(
-                connect=sftp_connect_with_username_password
-            ) as connection:
+            sftp = SFTPFileTransfer(host=sftp_access.host,
+                                    port=sftp_access.port,
+                                    connect=sftp_connect_with_username_password)
+            with sftp.connect_for_download() as connection:
                 # use connection
     """
 
-    def connect(host: str, port: int, **kwargs):
-        if kwargs:
-            raise ValueError(
-                "sftp_connect_with_username_password must only be"
-                f" used without extra arguments. Got {kwargs=}"
-            )
+    def connect(host: str, port: int):
         connection = fabric.Connection(
             host=host,
             port=port,
