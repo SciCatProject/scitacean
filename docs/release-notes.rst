@@ -44,7 +44,6 @@ Features
 * File downloads now use the checksum algorithm stored in SciCat when possible.
   So it is no longer necessary to specify it by hand in many cases.
 * Added ``SFTPFileTransfer`` which is similar to ``SSHFileTransfer`` but relies only on SFTP.
-  ``SSHFileTransfer`` may be removed in the future.
 
 Breaking changes
 ~~~~~~~~~~~~~~~~
@@ -59,6 +58,8 @@ Documentation
 
 Deprecations
 ~~~~~~~~~~~~
+
+* Deprecated ``SSHFileTransfer`` in favor of ``SFTPFileTransfer``.
 
 Stability, Maintainability, and Testing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
