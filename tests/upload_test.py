@@ -6,7 +6,14 @@ from contextlib import contextmanager
 import pytest
 from dateutil.parser import parse as parse_date
 
-from scitacean import Client, Dataset, DatasetType, ScicatCommError
+from scitacean import (
+    Attachment,
+    Client,
+    Dataset,
+    DatasetType,
+    ScicatCommError,
+    Thumbnail,
+)
 from scitacean.testing.client import FakeClient
 from scitacean.testing.transfer import FakeFileTransfer
 
@@ -50,6 +57,22 @@ def dataset_with_files(dataset, fs):
 
 
 @pytest.fixture
+def attachments():
+    return [
+        Attachment(
+            caption="Attachment no 1",
+            owner_group="uu",
+            thumbnail=Thumbnail(mime="png/jpeg", data=b"840109725761"),
+        ),
+        Attachment(
+            caption="Second attachment",
+            owner_group="uu",
+            thumbnail=Thumbnail(mime=None, data=b"5189762957"),
+        ),
+    ]
+
+
+@pytest.fixture
 def client(fs, scicat_access):
     return FakeClient.from_credentials(
         url="",
@@ -58,9 +81,24 @@ def client(fs, scicat_access):
     )
 
 
-def test_upload_returns_updated_dataset(client, dataset_with_files):
+def test_upload_returns_updated_dataset_no_attachments(client, dataset_with_files):
     finalized = client.upload_new_dataset_now(dataset_with_files)
-    expected = client.get_dataset(finalized.pid).replace(
+    expected = client.get_dataset(finalized.pid, attachments=True).replace(
+        # The backend may update the dataset after upload
+        _read_only={
+            "updated_at": finalized.updated_at,
+            "updated_by": finalized.updated_by,
+        }
+    )
+    assert finalized == expected
+
+
+def test_upload_returns_updated_dataset_with_attachments(
+    client, dataset_with_files, attachments
+):
+    dataset_with_files.attachments = attachments
+    finalized = client.upload_new_dataset_now(dataset_with_files)
+    expected = client.get_dataset(finalized.pid, attachments=True).replace(
         # The backend may update the dataset after upload
         _read_only={
             "updated_at": finalized.updated_at,
@@ -72,7 +110,7 @@ def test_upload_returns_updated_dataset(client, dataset_with_files):
 
 def test_upload_without_files_creates_dataset(client, dataset):
     finalized = client.upload_new_dataset_now(dataset)
-    expected = client.get_dataset(finalized.pid).replace(
+    expected = client.get_dataset(finalized.pid, attachments=True).replace(
         # The backend may update the dataset after upload
         _read_only={
             "updated_at": finalized.updated_at,
@@ -94,6 +132,20 @@ def test_upload_creates_dataset_and_datablock(client, dataset_with_files):
     assert client.orig_datablocks[finalized.pid][0].createdBy == finalized.created_by
     assert client.orig_datablocks[finalized.pid][0].datasetId == finalized.pid
     assert client.orig_datablocks[finalized.pid][0].size == finalized.size
+
+
+def test_upload_creates_attachments(client, dataset, attachments):
+    dataset.attachments = attachments
+    finalized = client.upload_new_dataset_now(dataset)
+
+    uploaded = client.attachments[finalized.pid]
+    assert len(uploaded) == len(attachments)
+    assert uploaded[0].caption == attachments[0].caption
+    assert uploaded[0].ownerGroup == attachments[0].owner_group
+    assert uploaded[0].thumbnail == attachments[0].thumbnail
+    assert uploaded[1].caption == attachments[1].caption
+    assert uploaded[1].ownerGroup == attachments[1].owner_group
+    assert uploaded[1].thumbnail == attachments[1].thumbnail
 
 
 def test_upload_uploads_files_to_source_folder(client, dataset_with_files):
@@ -128,6 +180,7 @@ def test_upload_does_not_create_dataset_if_file_upload_fails(dataset_with_files,
 
     assert not client.datasets
     assert not client.orig_datablocks
+    assert not client.attachments
 
 
 def test_upload_cleans_up_files_if_dataset_ingestion_fails(dataset_with_files, fs):
@@ -153,6 +206,55 @@ def test_failed_datablock_upload_does_not_revert(dataset_with_files, fs):
     assert uploaded_dset.owner == "PonderStibbons"
     assert uploaded_dset.datasetName == "Data A38"
     assert uploaded_dset.usedSoftware == ["EasyScience"]
+
+    assert get_file_transfer(client).files
+    assert not get_file_transfer(client).reverted
+
+
+def test_upload_does_not_create_attachments_if_dataset_ingestion_fails(
+    attachments, dataset
+):
+    dataset.attachments = attachments
+    client = FakeClient(
+        disable={"create_dataset_model": ScicatCommError("Ingestion failed")},
+        file_transfer=FakeFileTransfer(),
+    )
+    with pytest.raises(ScicatCommError):
+        client.upload_new_dataset_now(dataset)
+
+    assert not client.attachments
+
+
+def test_upload_does_not_create_attachments_if_datablock_ingestion_fails(
+    attachments, dataset_with_files, fs
+):
+    dataset_with_files.attachments = attachments
+    client = FakeClient(
+        disable={"create_orig_datablock": ScicatCommError("Ingestion failed")},
+        file_transfer=FakeFileTransfer(fs=fs),
+    )
+    with pytest.raises(RuntimeError):
+        client.upload_new_dataset_now(dataset_with_files)
+
+    assert not client.attachments
+
+
+def test_failed_attachment_upload_does_not_revert(attachments, dataset_with_files, fs):
+    dataset_with_files.attachments = attachments
+    client = FakeClient(
+        disable={"create_attachment_for_dataset": ScicatCommError("Ingestion failed")},
+        file_transfer=FakeFileTransfer(fs=fs),
+    )
+    with pytest.raises(RuntimeError):
+        client.upload_new_dataset_now(dataset_with_files)
+
+    uploaded_dset = next(iter(client.datasets.values()))
+    assert uploaded_dset.owner == "PonderStibbons"
+    assert uploaded_dset.datasetName == "Data A38"
+    assert uploaded_dset.usedSoftware == ["EasyScience"]
+
+    (uploaded_dblock,) = next(iter(client.orig_datablocks.values()))
+    assert uploaded_dblock.datasetId == uploaded_dset.pid
 
     assert get_file_transfer(client).files
     assert not get_file_transfer(client).reverted

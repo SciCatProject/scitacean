@@ -3,6 +3,9 @@
 # Entries in this file override the specified types.
 # Field names must be SciCat names (camelCase).
 
+Attachment:
+  datasetId: PID
+  thumbnail: Thumbnail
 Dataset:
   history: None  # because history is dropped (see field-validations.yml)
   inputDatasets: List[PID]

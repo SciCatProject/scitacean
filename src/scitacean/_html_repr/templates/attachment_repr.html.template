@@ -1,0 +1,23 @@
+<div>
+    ${style_sheet}
+    <div class="cean-attachment">
+        <div class="cean-attachment-info">
+            <div class="cean-info-line">${caption}</div>
+            <details class="cean-attachment-details">
+                <summary><span>Fields</span></summary>
+                <table class="cean-attachment-table">
+                    <tr class="cean-header">
+                        <th class="cean-field-flag"></th>
+                        <th class="cean-field-name">Name</th>
+                        <th class="cean-field-type">Type</th>
+                        <th class="cean-field-value">Value</th>
+                    </tr>
+                    ${rows}
+                </table>
+            </details>
+        </div>
+        <div class="cean-thumbnail">
+            ${thumbnail}
+        </div>
+    </div>
+</div>

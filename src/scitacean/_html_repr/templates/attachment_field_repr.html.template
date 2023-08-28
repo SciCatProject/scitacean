@@ -1,0 +1,6 @@
+<tr class="field">
+    <td class="cean-field-flag">${flag}</td>
+    <td class="cean-field-name">${name}</td>
+    <td class="cean-field-type">${type}</td>
+    <td class="cean-field-value"><span>${value}</span></td>
+</tr>

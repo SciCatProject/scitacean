@@ -10,6 +10,7 @@ from hypothesis import strategies as st
 
 from scitacean import PID, DatasetType, RemotePath, model
 from scitacean.model import (
+    DownloadAttachment,
     DownloadDataset,
     DownloadOrigDatablock,
     UploadDerivedDataset,
@@ -242,7 +243,19 @@ def test_custom_masked_fields_are_dropped():
 
 def test_fields_override_masks():
     # '_id' is masked but the model has a field 'id' with alias '_id'.
-    mod = DownloadOrigDatablock(
+    mod = DownloadOrigDatablock(  # type: ignore[call-arg]
         _id="abc",
+        id="def",
     )
     assert mod.id == "abc"
+    assert not hasattr(mod, "_id")
+
+
+def test_fields_override_masks_att():
+    # 'id' is masked but the model has a field 'id' without alias
+    mod = DownloadAttachment(  # type: ignore[call-arg]
+        _id="abc",
+        id="def",
+    )
+    assert mod.id == "def"
+    assert not hasattr(mod, "_id")

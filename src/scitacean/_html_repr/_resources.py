@@ -53,8 +53,24 @@ def metadata_template() -> Template:
 
 
 @lru_cache(maxsize=1)
+def attachment_repr_template() -> Template:
+    return Template(_read_text("attachment_repr.html.template", "templates"))
+
+
+@lru_cache(maxsize=1)
+def attachment_field_repr_template() -> Template:
+    return Template(_read_text("attachment_field_repr.html.template", "templates"))
+
+
+@lru_cache(maxsize=1)
 def dataset_style() -> str:
     sheet = _preprocess_style(_read_text("dataset.css", "styles"))
+    return f"<style>{sheet}</style>"
+
+
+@lru_cache(maxsize=1)
+def attachment_style() -> str:
+    sheet = _preprocess_style(_read_text("attachment.css", "styles"))
     return f"<style>{sheet}</style>"
 
 

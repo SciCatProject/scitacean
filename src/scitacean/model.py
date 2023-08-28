@@ -81,7 +81,7 @@ Pydantic models sent to SciCat in uploads.
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Type
 
 import pydantic
 from pydantic import NonNegativeInt
@@ -100,6 +100,7 @@ from ._internal.dataclass_wrapper import dataclass_optional_args
 from ._internal.pydantic_compat import field_validator
 from .filesystem import RemotePath
 from .pid import PID
+from .thumbnail import Thumbnail
 
 
 class DownloadDataset(
@@ -275,12 +276,12 @@ class DownloadAttachment(BaseModel):
     accessGroups: Optional[List[str]] = None
     createdAt: Optional[datetime] = None
     createdBy: Optional[str] = None
-    datasetId: Optional[str] = None
+    datasetId: Optional[PID] = None
     id: Optional[str] = None
     instrumentGroup: Optional[str] = None
     proposalId: Optional[str] = None
     sampleId: Optional[str] = None
-    thumbnail: Optional[str] = None
+    thumbnail: Optional[Thumbnail] = None
     updatedAt: Optional[datetime] = None
     updatedBy: Optional[str] = None
 
@@ -289,11 +290,11 @@ class DownloadAttachment(BaseModel):
         return validate_datetime(value)
 
     @classmethod
-    def user_model_type(cls) -> Optional[type]:
+    def user_model_type(cls) -> Type[Attachment]:
         return Attachment
 
     @classmethod
-    def upload_model_type(cls) -> Optional[type]:
+    def upload_model_type(cls) -> Type[UploadAttachment]:
         return UploadAttachment
 
 
@@ -301,19 +302,19 @@ class UploadAttachment(BaseModel):
     caption: str
     ownerGroup: str
     accessGroups: Optional[List[str]] = None
-    datasetId: Optional[str] = None
+    datasetId: Optional[PID] = None
     id: Optional[str] = None
     instrumentGroup: Optional[str] = None
     proposalId: Optional[str] = None
     sampleId: Optional[str] = None
-    thumbnail: Optional[str] = None
+    thumbnail: Optional[Thumbnail] = None
 
     @classmethod
-    def user_model_type(cls) -> Optional[type]:
+    def user_model_type(cls) -> Type[Attachment]:
         return Attachment
 
     @classmethod
-    def download_model_type(cls) -> Optional[type]:
+    def download_model_type(cls) -> Type[DownloadAttachment]:
         return DownloadAttachment
 
 
@@ -336,7 +337,7 @@ class DownloadOrigDatablock(BaseModel):
         return validate_datetime(value)
 
     @classmethod
-    def upload_model_type(cls) -> Optional[type]:
+    def upload_model_type(cls) -> Type[UploadOrigDatablock]:
         return UploadOrigDatablock
 
 
@@ -350,7 +351,7 @@ class UploadOrigDatablock(BaseModel):
     instrumentGroup: Optional[str] = None
 
     @classmethod
-    def download_model_type(cls) -> Optional[type]:
+    def download_model_type(cls) -> Type[DownloadOrigDatablock]:
         return DownloadOrigDatablock
 
 
@@ -376,7 +377,7 @@ class DownloadDatablock(BaseModel):
         return validate_datetime(value)
 
     @classmethod
-    def upload_model_type(cls) -> Optional[type]:
+    def upload_model_type(cls) -> Type[UploadDatablock]:
         return UploadDatablock
 
 
@@ -389,7 +390,7 @@ class UploadDatablock(BaseModel):
     chkAlg: Optional[str] = None
 
     @classmethod
-    def download_model_type(cls) -> Optional[type]:
+    def download_model_type(cls) -> Type[DownloadDatablock]:
         return DownloadDatablock
 
 
@@ -420,7 +421,7 @@ class DownloadLifecycle(BaseModel):
         return validate_datetime(value)
 
     @classmethod
-    def user_model_type(cls) -> Optional[type]:
+    def user_model_type(cls) -> Type[Lifecycle]:
         return Lifecycle
 
 
@@ -429,11 +430,11 @@ class DownloadTechnique(BaseModel):
     pid: Optional[str] = None
 
     @classmethod
-    def user_model_type(cls) -> Optional[type]:
+    def user_model_type(cls) -> Type[Technique]:
         return Technique
 
     @classmethod
-    def upload_model_type(cls) -> Optional[type]:
+    def upload_model_type(cls) -> Type[UploadTechnique]:
         return UploadTechnique
 
 
@@ -442,11 +443,11 @@ class UploadTechnique(BaseModel):
     pid: str
 
     @classmethod
-    def user_model_type(cls) -> Optional[type]:
+    def user_model_type(cls) -> Type[Technique]:
         return Technique
 
     @classmethod
-    def download_model_type(cls) -> Optional[type]:
+    def download_model_type(cls) -> Type[DownloadTechnique]:
         return DownloadTechnique
 
 
@@ -455,11 +456,11 @@ class DownloadRelationship(BaseModel):
     relationship: Optional[str] = None
 
     @classmethod
-    def user_model_type(cls) -> Optional[type]:
+    def user_model_type(cls) -> Type[Relationship]:
         return Relationship
 
     @classmethod
-    def upload_model_type(cls) -> Optional[type]:
+    def upload_model_type(cls) -> Type[UploadRelationship]:
         return UploadRelationship
 
 
@@ -468,11 +469,11 @@ class UploadRelationship(BaseModel):
     relationship: str
 
     @classmethod
-    def user_model_type(cls) -> Optional[type]:
+    def user_model_type(cls) -> Type[Relationship]:
         return Relationship
 
     @classmethod
-    def download_model_type(cls) -> Optional[type]:
+    def download_model_type(cls) -> Type[DownloadRelationship]:
         return DownloadRelationship
 
 
@@ -486,7 +487,7 @@ class DownloadHistory(BaseModel):
         return validate_datetime(value)
 
     @classmethod
-    def user_model_type(cls) -> Optional[type]:
+    def user_model_type(cls) -> Type[History]:
         return History
 
 
@@ -504,7 +505,7 @@ class DownloadDataFile(BaseModel):
         return validate_datetime(value)
 
     @classmethod
-    def upload_model_type(cls) -> Optional[type]:
+    def upload_model_type(cls) -> Type[UploadDataFile]:
         return UploadDataFile
 
 
@@ -522,7 +523,7 @@ class UploadDataFile(BaseModel):
         return validate_datetime(value)
 
     @classmethod
-    def download_model_type(cls) -> Optional[type]:
+    def download_model_type(cls) -> Type[DownloadDataFile]:
         return DownloadDataFile
 
 
@@ -533,7 +534,7 @@ class DownloadInstrument(BaseModel):
     uniqueName: Optional[str] = None
 
     @classmethod
-    def user_model_type(cls) -> Optional[type]:
+    def user_model_type(cls) -> Type[Instrument]:
         return Instrument
 
 
@@ -556,11 +557,11 @@ class DownloadSample(BaseModel):
         return validate_datetime(value)
 
     @classmethod
-    def user_model_type(cls) -> Optional[type]:
+    def user_model_type(cls) -> Type[Sample]:
         return Sample
 
     @classmethod
-    def upload_model_type(cls) -> Optional[type]:
+    def upload_model_type(cls) -> Type[UploadSample]:
         return UploadSample
 
 
@@ -575,11 +576,11 @@ class UploadSample(BaseModel):
     sampleId: Optional[str] = None
 
     @classmethod
-    def user_model_type(cls) -> Optional[type]:
+    def user_model_type(cls) -> Type[Sample]:
         return Sample
 
     @classmethod
-    def download_model_type(cls) -> Optional[type]:
+    def download_model_type(cls) -> Type[DownloadSample]:
         return DownloadSample
 
 
@@ -588,12 +589,12 @@ class Attachment(BaseUserModel):
     caption: str
     owner_group: str
     access_groups: Optional[List[str]] = None
-    dataset_id: Optional[str] = None
+    dataset_id: Optional[PID] = None
     id: Optional[str] = None
     instrument_group: Optional[str] = None
     proposal_id: Optional[str] = None
     sample_id: Optional[str] = None
-    thumbnail: Optional[str] = None
+    thumbnail: Optional[Thumbnail] = None
     _created_at: Optional[datetime] = None
     _created_by: Optional[str] = None
     _updated_at: Optional[datetime] = None
@@ -625,11 +626,11 @@ class Attachment(BaseUserModel):
         return UploadAttachment(**self._upload_model_dict())
 
     @classmethod
-    def upload_model_type(cls) -> Optional[type]:
+    def upload_model_type(cls) -> Type[UploadAttachment]:
         return UploadAttachment
 
     @classmethod
-    def download_model_type(cls) -> type:
+    def download_model_type(cls) -> Type[DownloadAttachment]:
         return DownloadAttachment
 
 
@@ -712,7 +713,7 @@ class Lifecycle(BaseUserModel):
         return cls(**cls._download_model_dict(download_model))
 
     @classmethod
-    def download_model_type(cls) -> type:
+    def download_model_type(cls) -> Type[DownloadLifecycle]:
         return DownloadLifecycle
 
 
@@ -731,11 +732,11 @@ class Technique(BaseUserModel):
         return UploadTechnique(**self._upload_model_dict())
 
     @classmethod
-    def upload_model_type(cls) -> Optional[type]:
+    def upload_model_type(cls) -> Type[UploadTechnique]:
         return UploadTechnique
 
     @classmethod
-    def download_model_type(cls) -> type:
+    def download_model_type(cls) -> Type[DownloadTechnique]:
         return DownloadTechnique
 
 
@@ -754,11 +755,11 @@ class Relationship(BaseUserModel):
         return UploadRelationship(**self._upload_model_dict())
 
     @classmethod
-    def upload_model_type(cls) -> Optional[type]:
+    def upload_model_type(cls) -> Type[UploadRelationship]:
         return UploadRelationship
 
     @classmethod
-    def download_model_type(cls) -> type:
+    def download_model_type(cls) -> Type[DownloadRelationship]:
         return DownloadRelationship
 
 
@@ -786,7 +787,7 @@ class History(BaseUserModel):
         return cls(**cls._download_model_dict(download_model))
 
     @classmethod
-    def download_model_type(cls) -> type:
+    def download_model_type(cls) -> Type[DownloadHistory]:
         return DownloadHistory
 
 
@@ -819,7 +820,7 @@ class Instrument(BaseUserModel):
         return cls(**cls._download_model_dict(download_model))
 
     @classmethod
-    def download_model_type(cls) -> type:
+    def download_model_type(cls) -> Type[DownloadInstrument]:
         return DownloadInstrument
 
 
@@ -864,11 +865,11 @@ class Sample(BaseUserModel):
         return UploadSample(**self._upload_model_dict())
 
     @classmethod
-    def upload_model_type(cls) -> Optional[type]:
+    def upload_model_type(cls) -> Type[UploadSample]:
         return UploadSample
 
     @classmethod
-    def download_model_type(cls) -> type:
+    def download_model_type(cls) -> Type[DownloadSample]:
         return DownloadSample
 
 

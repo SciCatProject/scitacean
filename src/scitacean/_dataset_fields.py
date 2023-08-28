@@ -22,6 +22,7 @@ from .datablock import OrigDatablock
 from .filesystem import RemotePath
 from .model import (
     construct,
+    Attachment,
     BaseModel,
     BaseUserModel,
     DownloadDataset,
@@ -565,6 +566,7 @@ class DatasetBase:
         "_type",
         "_default_checksum_algorithm",
         "_orig_datablocks",
+        "_attachments",
     )
 
     def __init__(
@@ -655,6 +657,7 @@ class DatasetBase:
             checksum_algorithm
         )
         self._orig_datablocks: List[OrigDatablock] = []
+        self._attachments: Optional[List[Attachment]] = []
 
     @property
     def access_groups(self) -> Optional[List[str]]:

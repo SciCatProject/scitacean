@@ -306,8 +306,9 @@ def test_can_set_default_checksum_algorithm(typ, algorithm, fs):
 def test_dataset_models_roundtrip(initial):
     dataset_model = initial.make_upload_model()
     dblock_models = initial.make_datablock_upload_models().orig_datablocks
-    dataset_model, dblock_models = process_uploaded_dataset(
-        dataset_model, dblock_models
+    attachment_models = initial.make_attachment_upload_models()
+    dataset_model, dblock_models, attachment_models = process_uploaded_dataset(
+        dataset_model, dblock_models, attachment_models
     )
     dataset_model.createdAt = None
     dataset_model.createdBy = None
@@ -315,7 +316,9 @@ def test_dataset_models_roundtrip(initial):
     dataset_model.updatedBy = None
     dataset_model.pid = None
     rebuilt = Dataset.from_download_models(
-        dataset_model=dataset_model, orig_datablock_models=dblock_models
+        dataset_model=dataset_model,
+        orig_datablock_models=dblock_models,
+        attachment_models=attachment_models,
     )
     assert initial == rebuilt
 
@@ -343,6 +346,92 @@ def test_make_scicat_models_datablock_with_one_file(dataset):
     assert block.dataFileList == [model.UploadDataFile(**file_model.model_dump())]
 
 
+def test_attachments_are_empty_by_default():
+    dataset = Dataset(
+        type="raw",
+        owner="ridcully",
+    )
+    assert dataset.attachments == []
+
+
+def test_attachments_are_none_after_from_download_models(dataset_download_model):
+    dataset = Dataset.from_download_models(dataset_download_model, [])
+    assert dataset.attachments is None
+
+
+def test_attachments_initialized_in_from_download_models(dataset_download_model):
+    dataset = Dataset.from_download_models(
+        dataset_download_model,
+        [],
+        attachment_models=[
+            model.DownloadAttachment(
+                caption="The attachment",
+                ownerGroup="att-owner",
+            )
+        ],
+    )
+
+    assert dataset.attachments == [
+        model.Attachment(
+            caption="The attachment",
+            owner_group="att-owner",
+        )
+    ]
+
+
+def test_can_add_attachment():
+    dataset = Dataset(type="raw", owner_group="dset-owner")
+    dataset.attachments.append(
+        model.Attachment(
+            caption="The attachment",
+            owner_group="att-owner",
+        )
+    )
+    assert dataset.attachments == [
+        model.Attachment(
+            caption="The attachment",
+            owner_group="att-owner",
+        )
+    ]
+
+
+def test_can_assign_attachments():
+    dataset = Dataset(type="derived", owner_group="dset-owner")
+
+    dataset.attachments = [
+        model.Attachment(
+            caption="The attachment",
+            owner_group="att-owner",
+        )
+    ]
+    assert dataset.attachments == [
+        model.Attachment(
+            caption="The attachment",
+            owner_group="att-owner",
+        )
+    ]
+
+    dataset.attachments = [
+        model.Attachment(
+            caption="Attachment 2",
+            owner_group="other_owner",
+        )
+    ]
+    assert dataset.attachments == [
+        model.Attachment(
+            caption="Attachment 2",
+            owner_group="other_owner",
+        )
+    ]
+
+
+def test_make_attachment_upload_models_fails_when_attachments_are_none():
+    dataset = Dataset(type="derived", owner_group="dset-owner")
+    dataset.attachments = None
+    with pytest.raises(ValueError, match="attachment"):
+        dataset.make_attachment_upload_models()
+
+
 @given(sst.datasets())
 @settings(max_examples=10)
 def test_eq_self(dset):
@@ -351,6 +440,9 @@ def test_eq_self(dset):
             local_path=None,
             model=model.DownloadDataFile(path="path", size=94571, time=datetime.now()),
         )
+    )
+    dset.attachments.append(
+        model.Attachment(caption="The attachment", owner_group="owner")
     )
     assert dset == dset
 
@@ -378,6 +470,7 @@ def test_neq_single_mismatched_field_writable(field, initial, data):
     assume(new_val != getattr(initial, field.name))
     modified = initial.replace(**{field.name: new_val})
     assert modified != initial
+    assert initial != modified
 
 
 @given(sst.datasets())
@@ -399,6 +492,7 @@ def test_neq_single_mismatched_file(initial):
         )
     )
     assert modified != initial
+    assert initial != modified
 
 
 @given(sst.datasets())
@@ -413,6 +507,43 @@ def test_neq_extra_file(initial):
             ),
         )
     )
+    assert modified != initial
+    assert initial != modified
+
+
+@given(sst.datasets())
+@settings(max_examples=1)
+def test_neq_attachment_none_vs_empty(initial):
+    initial.attachments = []
+    modified = initial.replace()
+    modified.attachments = None
+    assert initial != modified
+    assert modified != initial
+
+
+@given(sst.datasets())
+@settings(max_examples=1)
+def test_neq_extra_attachment(initial):
+    initial.attachments = []
+    modified = initial.replace()
+    modified.attachments.append(
+        model.Attachment(caption="The attachment", owner_group="owner")
+    )
+    assert initial != modified
+    assert modified != initial
+
+
+@given(sst.datasets())
+@settings(max_examples=1)
+def test_neq_mismatched_attachment(initial):
+    initial.attachments = [
+        (model.Attachment(caption="The attachment", owner_group="owner"))
+    ]
+    modified = initial.replace()
+    modified.attachments[0] = model.Attachment(
+        caption="Another attachment", owner_group="owner"
+    )
+    assert initial != modified
     assert modified != initial
 
 
@@ -516,6 +647,33 @@ def test_replace_does_not_change_files_with_input_files(initial):
     assert list(replaced.files) == list(initial.files)
 
 
+@pytest.mark.parametrize(
+    "attachments",
+    (None, [], [model.Attachment(caption="Attachment 1", owner_group="owner")]),
+)
+@given(initial=sst.datasets())
+@settings(max_examples=1)
+def test_replace_preserves_attachments(initial, attachments):
+    initial.attachments = attachments
+    replaced = initial.replace(owner="a-new-owner")
+    assert replaced.attachments == attachments
+
+
+@pytest.mark.parametrize(
+    "attachments",
+    (None, [], [model.Attachment(caption="Attachment 1", owner_group="owner")]),
+)
+@pytest.mark.parametrize(
+    "target_attachments",
+    (None, [], [model.Attachment(caption="Attachment 2", owner_group="owner")]),
+)
+@given(initial=sst.datasets())
+@settings(max_examples=1)
+def test_replace_attachments(initial, attachments, target_attachments):
+    replaced = initial.replace(attachments=target_attachments)
+    assert replaced.attachments == target_attachments
+
+
 @given(sst.datasets())
 @settings(max_examples=5)
 def test_as_new(initial):
@@ -595,3 +753,15 @@ def test_derive_keep_nothing(initial):
 def test_derive_requires_pid(initial):
     with pytest.raises(ValueError):
         initial.derive()
+
+
+@pytest.mark.parametrize(
+    "attachments",
+    (None, [], [model.Attachment(caption="Attachment 1", owner_group="owner")]),
+)
+@given(initial=sst.datasets(pid=PID(pid="some-id")))
+@settings(max_examples=1)
+def test_derive_removes_attachments(initial, attachments):
+    initial.attachments = attachments
+    derived = initial.derive()
+    assert derived.attachments == []

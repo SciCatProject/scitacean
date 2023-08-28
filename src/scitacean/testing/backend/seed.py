@@ -19,8 +19,10 @@ from ...client import Client
 from ...filesystem import RemotePath
 from ...model import (
     DatasetType,
+    DownloadAttachment,
     DownloadDataset,
     DownloadOrigDatablock,
+    UploadAttachment,
     UploadDataFile,
     UploadDerivedDataset,
     UploadOrigDatablock,
@@ -28,6 +30,7 @@ from ...model import (
     UploadTechnique,
 )
 from ...pid import PID
+from ...thumbnail import Thumbnail
 from .config import SITE, SciCatAccess, SciCatUser
 
 # Dataset models to upload to the database.
@@ -200,10 +203,31 @@ _ORIG_DATABLOCKS: Dict[str, List[UploadOrigDatablock]] = {
     ],
 }
 
+_ATTACHMENTS: Dict[str, List[UploadAttachment]] = {
+    "derived": [
+        UploadAttachment(
+            caption="Process Overview",
+            ownerGroup="PLACEHOLDER",
+            accessGroups=["uu"],
+            datasetId=PID(pid="PLACEHOLDER"),
+            thumbnail=Thumbnail(mime="image/png", data=b"nag;aso;i"),
+        ),
+        UploadAttachment(
+            caption="Pretty picture no 1",
+            ownerGroup="PLACEHOLDER",
+            accessGroups=["uu", "faculty"],
+            datasetId=PID(pid="PLACEHOLDER"),
+            thumbnail=Thumbnail(mime="image/jpeg", data=b"gj0ajs93jka2jv89a"),
+            sampleId="kjsdf",
+        ),
+    ]
+}
+
 INITIAL_DATASETS: Dict[str, DownloadDataset] = {}
 """Initial datasets in the testing database."""
 INITIAL_ORIG_DATABLOCKS: Dict[str, List[DownloadOrigDatablock]] = {}
 """Initial orig datablocks in the testing database."""
+INITIAL_ATTACHMENTS: Dict[str, List[DownloadAttachment]] = {}
 
 
 def _apply_config_dataset(
@@ -225,6 +249,14 @@ def _apply_config_orig_datablock(
     return dblock
 
 
+def _apply_config_attachment(
+    attachment: UploadAttachment, user: SciCatUser
+) -> UploadAttachment:
+    attachment = deepcopy(attachment)
+    attachment.ownerGroup = user.group
+    return attachment
+
+
 def _create_dataset_model(
     client: Client, dset: Union[UploadRawDataset, UploadDerivedDataset]
 ) -> DownloadDataset:
@@ -238,8 +270,8 @@ def seed_database(*, client: Client, scicat_access: SciCatAccess) -> None:
     """Seed the database for testing.
 
     Uses the provided client to upload the datasets.
-    Initializes ``INITIAL_DATASETS`` and ``INITIAL_ORIG_DATABLOCKS``
-    with finalized datasets returned by the client.
+    Initializes ``INITIAL_DATASETS``, ``INITIAL_ORIG_DATABLOCKS``,
+    and ``INITIAL_ATTACHMENTS`` with finalized datasets returned by the client.
     """
     upload_datasets = {
         key: _apply_config_dataset(dset, scicat_access.user)
@@ -266,12 +298,35 @@ def seed_database(*, client: Client, scicat_access: SciCatAccess) -> None:
     }
     INITIAL_ORIG_DATABLOCKS.update(download_orig_datablocks)
 
+    upload_attachments = {
+        key: [
+            _apply_config_attachment(attachment, scicat_access.user)
+            for attachment in attachments
+        ]
+        for key, attachments in _ATTACHMENTS.items()
+    }
+    download_attachments = {
+        key: [
+            client.scicat.create_attachment_for_dataset(
+                attachment,
+                dataset_id=download_datasets[key].pid,  # type: ignore[arg-type]
+            )
+            for attachment in attachments
+        ]
+        for key, attachments in upload_attachments.items()
+    }
+    INITIAL_ATTACHMENTS.update(download_attachments)
+
 
 def save_seed(target_dir: Path) -> None:
     """Save the processed seed to a file."""
     with open(target_dir / "seed", "wb") as f:
         pickle.dump(
-            {"datasets": INITIAL_DATASETS, "orig_datablocks": INITIAL_ORIG_DATABLOCKS},
+            {
+                "datasets": INITIAL_DATASETS,
+                "orig_datablocks": INITIAL_ORIG_DATABLOCKS,
+                "attachments": INITIAL_ATTACHMENTS,
+            },
             f,
         )
 
@@ -282,3 +337,4 @@ def seed_worker(target_dir: Path) -> None:
         loaded = pickle.load(f)  # noqa: S301
         INITIAL_DATASETS.update(loaded["datasets"])
         INITIAL_ORIG_DATABLOCKS.update(loaded["orig_datablocks"])
+        INITIAL_ATTACHMENTS.update(loaded["attachments"])

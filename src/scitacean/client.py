@@ -7,6 +7,7 @@ from __future__ import annotations
 import dataclasses
 import datetime
 import re
+import warnings
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple, Union
@@ -15,6 +16,7 @@ from urllib.parse import quote_plus
 import requests
 
 from . import model
+from ._base_model import convert_download_to_user_model
 from .dataset import Dataset
 from .error import ScicatCommError, ScicatLoginError
 from .file import File
@@ -142,8 +144,24 @@ class Client:
             client=ScicatClient.without_login(url=url), file_transfer=file_transfer
         )
 
+    @property
+    def scicat(self) -> ScicatClient:
+        """Low-level client for SciCat.
+
+        Should typically not be used by users of Scitacean!
+        """
+        return self._client
+
+    @property
+    def file_transfer(self) -> Optional[FileTransfer]:
+        """Stored handler for file down-/uploads."""
+        return self._file_transfer
+
     def get_dataset(
-        self, pid: Union[str, PID], strict_validation: bool = False
+        self,
+        pid: Union[str, PID],
+        strict_validation: bool = False,
+        attachments: bool = False,
     ) -> Dataset:
         """Download a dataset from SciCat.
 
@@ -159,6 +177,10 @@ class Client:
             If ``False``, a dataset is still returned if validation fails.
             Note that some dataset fields may have a bad value or type.
             A warning will be logged if validation fails.
+        attachments:
+            Select whether to download attachments.
+            If this is ``False``, the attachments of the returned dataset are ``None``.
+            They can be downloaded later using :meth:`Client.download_attachments_for`.
 
         Returns
         -------
@@ -166,6 +188,10 @@ class Client:
             A new dataset.
         """
         pid = PID.parse(pid)
+        dataset = self.scicat.get_dataset_model(
+            pid, strict_validation=strict_validation
+        )
+
         try:
             orig_datablocks = self.scicat.get_orig_datablocks(
                 pid, strict_validation=strict_validation
@@ -175,11 +201,15 @@ class Client:
             #   communication succeeded and the dataset exists but there simply
             #   are no datablocks.
             orig_datablocks = None
+
+        attachment_models = (
+            self.scicat.get_attachments_for_dataset(pid) if attachments else None
+        )
+
         return Dataset.from_download_models(
-            dataset_model=self.scicat.get_dataset_model(
-                pid, strict_validation=strict_validation
-            ),
+            dataset_model=dataset,
             orig_datablock_models=orig_datablocks or [],
+            attachment_models=attachment_models,
         )
 
     def upload_new_dataset_now(self, dataset: Dataset) -> Dataset:
@@ -189,6 +219,12 @@ class Client:
         never overwrite existing data.
         To this end, the input dataset's ID is ignored and a new one is
         assigned automatically.
+
+        Attachments are also uploaded automatically.
+        This happens after the upload of files and the dataset itself.
+        So if uploading the attachments fails, check the dataset in SciCat to
+        determine which attachments you need to re-upload
+        (using :meth:`ScicatClient.create_attachment_for_dataset`).
 
         Parameters
         ----------
@@ -229,21 +265,25 @@ class Client:
                 raise
 
         with_new_pid = dataset.replace(_read_only={"pid": finalized_model.pid})
-        datablock_models = with_new_pid.make_datablock_upload_models()
         finalized_orig_datablocks = self._upload_orig_datablocks(
-            datablock_models.orig_datablocks
+            with_new_pid.make_datablock_upload_models().orig_datablocks
+        )
+        finalized_attachments = self._upload_attachments_for_dataset(
+            with_new_pid.make_attachment_upload_models(),
+            dataset_id=with_new_pid.pid,  # type: ignore[arg-type]
         )
 
         return Dataset.from_download_models(
             dataset_model=finalized_model,
-            orig_datablock_models=finalized_orig_datablocks or [],
+            orig_datablock_models=finalized_orig_datablocks,
+            attachment_models=finalized_attachments,
         )
 
     def _upload_orig_datablocks(
         self, orig_datablocks: Optional[List[model.UploadOrigDatablock]]
-    ) -> Optional[List[model.DownloadOrigDatablock]]:
-        if orig_datablocks is None:
-            return None
+    ) -> List[model.DownloadOrigDatablock]:
+        if not orig_datablocks:
+            return []
 
         try:
             return [
@@ -258,6 +298,23 @@ class Client:
                 "but are not linked with each other. Please fix the dataset manually!"
             ) from exc
 
+    def _upload_attachments_for_dataset(
+        self, attachments: List[model.UploadAttachment], *, dataset_id: PID
+    ) -> List[model.DownloadAttachment]:
+        try:
+            return [
+                self.scicat.create_attachment_for_dataset(
+                    attachment, dataset_id=dataset_id
+                )
+                for attachment in attachments
+            ]
+        except ScicatCommError as exc:
+            raise RuntimeError(
+                f"Failed to upload attachments for SciCat dataset {dataset_id}:"
+                f"\n{exc.args}\nThe dataset and data files were successfully uploaded "
+                "and will not be reverted. Please upload the attachments manually!"
+            ) from exc
+
     @contextmanager
     def _connect_for_file_upload(self, dataset: Dataset) -> Iterator[UploadConnection]:
         with self._expect_file_transfer().connect_for_upload(dataset) as con:
@@ -270,19 +327,6 @@ class Client:
                 "Specify one when constructing a client."
             )
         return self.file_transfer
-
-    @property
-    def scicat(self) -> ScicatClient:
-        """Low level client for SciCat.
-
-        Should typically not be used by users of Scitacean!
-        """
-        return self._client
-
-    @property
-    def file_transfer(self) -> Optional[FileTransfer]:
-        """Stored handler for file down-/uploads."""
-        return self._file_transfer
 
     def download_files(
         self,
@@ -404,6 +448,42 @@ class Client:
         with self.file_transfer.connect_for_download() as con:
             yield con
 
+    def download_attachments_for(self, target: Dataset) -> Dataset:
+        """Download all attachments for a given object.
+
+        The target object must have an ID, that is, it must represent an entry
+        in SciCat and not just a locally created object.
+
+        If the input already has attachments, they will be overwritten and a
+        ``UserWarning`` will be raised.
+
+        Parameters
+        ----------
+        target:
+            Download attachments for this object.
+
+        Returns
+        -------
+        :
+            A copy of the input dataset with attachments replaced
+            with the downloaded models.
+        """
+        if target.pid is None:
+            raise ValueError(
+                "Cannot download attachments because the dataset has no PID."
+            )
+        if target.attachments is not None:
+            warnings.warn(
+                "Downloading attachments for a dataset that already has "
+                "attachments. The existing attachments will be overwritten.",
+                stacklevel=2,
+            )
+        return target.replace(
+            attachments=convert_download_to_user_model(
+                self.scicat.get_attachments_for_dataset(target.pid)
+            )
+        )
+
 
 class ScicatClient:
     """Low-level client to call the SciCat API."""
@@ -521,7 +601,8 @@ class ScicatClient:
         Parameters
         ----------
         pid:
-            Unique ID of the dataset. Must include the facility ID.
+            Unique ID of the dataset.
+            Must include the facility ID.
         strict_validation:
             If ``True``, the dataset must pass validation.
             If ``False``, a dataset is still returned if validation fails.
@@ -543,6 +624,11 @@ class ScicatClient:
             url=f"datasets/{quote_plus(str(pid))}",
             operation="get_dataset_model",
         )
+        if not dset_json:
+            raise ScicatCommError(
+                f"Cannot get dataset with {pid=}, "
+                f"no such dataset in SciCat at {self._base_url}."
+            )
         return model.construct(
             model.DownloadDataset,
             _strict_validation=strict_validation,
@@ -557,7 +643,8 @@ class ScicatClient:
         Parameters
         ----------
         pid:
-            Unique ID of the *dataset*. Must include the facility ID.
+            Unique ID of the *dataset*.
+            Must include the facility ID.
         strict_validation:
             If ``True``, the datablocks must pass validation.
             If ``False``, datablocks are still returned if validation fails.
@@ -572,8 +659,7 @@ class ScicatClient:
         Raises
         ------
         scitacean.ScicatCommError
-            If the datablock does not exist or communication
-            fails for some other reason.
+            If communication fails.
         """
         dblock_json = self._call_endpoint(
             cmd="get",
@@ -583,6 +669,46 @@ class ScicatClient:
         return [
             _make_orig_datablock(dblock, strict_validation=strict_validation)
             for dblock in dblock_json
+        ]
+
+    def get_attachments_for_dataset(
+        self, pid: PID, strict_validation: bool = False
+    ) -> List[model.DownloadAttachment]:
+        """Fetch all attachments from SciCat for a given dataset.
+
+        Parameters
+        ----------
+        pid:
+            Unique ID of the *dataset*.
+            Must include the facility ID.
+        strict_validation:
+            If ``True``, the attachments must pass validation.
+            If ``False``, attachments are still returned if validation fails.
+            Note that some fields may have a bad value or type.
+            A warning will be logged if validation fails.
+
+        Returns
+        -------
+        :
+            Models of the attachments.
+
+        Raises
+        ------
+        scitacean.ScicatCommError
+            If communication fails.
+        """
+        attachment_json = self._call_endpoint(
+            cmd="get",
+            url=f"datasets/{quote_plus(str(pid))}/attachments",
+            operation="get_attachments_for_dataset",
+        )
+        return [
+            model.construct(
+                model.DownloadAttachment,
+                _strict_validation=strict_validation,
+                **attachment,
+            )
+            for attachment in attachment_json
         ]
 
     def create_dataset_model(
@@ -658,13 +784,58 @@ class ScicatClient:
             model.DownloadOrigDatablock, _strict_validation=False, **uploaded
         )
 
+    def create_attachment_for_dataset(
+        self,
+        attachment: model.UploadAttachment,
+        *,
+        dataset_id: PID,
+    ) -> model.DownloadAttachment:
+        """Create a new attachment for a dataset in SciCat.
+
+        The attachment ID must be either
+
+        - ``None``, in which case SciCat assigns an ID.
+        - An unused id, in which case SciCat uses it for the new attachment.
+
+        If the ID already exists, creation will fail without
+        modification to the database.
+
+        Parameters
+        ----------
+        attachment:
+            Model of the attachment to create.
+        dataset_id:
+            ID of the dataset to which the attachment belongs.
+
+        Raises
+        ------
+        scitacean.ScicatCommError
+            If SciCat refuses the attachment or communication
+            fails for some other reason.
+        """
+        uploaded = self._call_endpoint(
+            cmd="post",
+            url=f"datasets/{quote_plus(str(dataset_id))}/attachments",
+            data=attachment,
+            operation="create_attachment",
+        )
+        if not uploaded:
+            raise ScicatCommError(
+                f"Failed to upload attachment for dataset with pid={dataset_id}. "
+                "The server reported success but did not return a finalized attachment."
+                " This likely means that there is no dataset with this ID."
+            )
+        return model.construct(
+            model.DownloadAttachment, _strict_validation=False, **uploaded
+        )
+
     def _send_to_scicat(
         self, *, cmd: str, url: str, data: Optional[model.BaseModel] = None
     ) -> requests.Response:
         if self._token is not None:
             token = self._token.get_str()
             params = {"access_token": token}
-            headers = {"Authorization": "Bearer {}".format(token)}
+            headers = {"Authorization": f"Bearer {token}"}
         else:
             token = ""
             params = {}
@@ -709,7 +880,7 @@ class ScicatClient:
         logger.info("Calling SciCat API at %s for operation '%s'", full_url, operation)
 
         response = self._send_to_scicat(cmd=cmd, url=full_url, data=data)
-        if not response.ok or not response.text:
+        if not response.ok:
             logger.error(
                 "SciCat API call to %s failed: %s %s: %s",
                 full_url,
@@ -722,15 +893,8 @@ class ScicatClient:
                 f"{response.reason}: {response.text}"
             )
         logger.info("API call successful for operation '%s'", operation)
-        res = response.json()  # TODO can fail
-        # TODO should this raise? This happens e.g. when listing all
-        #  datasets but there are none
-        if not res:
-            raise ScicatCommError(
-                f"Internal SciCat communication error: {cmd.upper()} request to "
-                f"{full_url} succeeded but did not return anything."
-            )
-        return res
+
+        return None if not response.text else response.json()
 
 
 def _url_concat(a: str, b: str) -> str:

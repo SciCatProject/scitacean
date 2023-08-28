@@ -6,7 +6,19 @@ from __future__ import annotations
 
 import dataclasses
 from datetime import datetime
-from typing import Any, ClassVar, Dict, Iterable, Optional, Tuple, Type, TypeVar, Union
+from typing import (
+    Any,
+    ClassVar,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
+    overload,
+)
 
 import pydantic
 from dateutil.parser import parse as parse_datetime
@@ -16,6 +28,7 @@ from ._internal.pydantic_compat import is_pydantic_v1
 from .filesystem import RemotePath
 from .logging import get_logger
 from .pid import PID
+from .thumbnail import Thumbnail
 
 try:
     # Python 3.11+
@@ -51,6 +64,7 @@ class BaseModel(pydantic.BaseModel):
             json_encoders = {  # noqa: RUF012
                 PID: lambda v: str(v),
                 RemotePath: lambda v: v.posix,
+                Thumbnail: lambda v: v.serialize(),
             }
 
     else:
@@ -89,12 +103,17 @@ class BaseModel(pydantic.BaseModel):
     # The mask is cached afterward.
     @classmethod
     def _init_mask(cls: Type[ModelType], instance: ModelType) -> None:
-        field_names = {field.alias for field in instance.get_model_fields().values()}
+        def get_name(name: str, field: Any) -> Any:
+            return field.alias if field.alias is not None else name
+
+        field_names = {
+            get_name(name, field) for name, field in instance.get_model_fields().items()
+        }
         default_mask = tuple(key for key in _IGNORED_KWARGS if key not in field_names)
         cls._masked_fields = cls._user_mask + default_mask
 
     @classmethod
-    def user_model_type(cls) -> Optional[type]:
+    def user_model_type(cls) -> Optional[Type[BaseUserModel]]:
         """Return the user model type for this model.
 
         Returns ``None`` if there is no user model, e.g., for ``Dataset``
@@ -103,7 +122,7 @@ class BaseModel(pydantic.BaseModel):
         return None
 
     @classmethod
-    def upload_model_type(cls) -> Optional[type]:
+    def upload_model_type(cls) -> Optional[Type[BaseModel]]:
         """Return the upload model type for this model.
 
         Returns ``None`` if the model cannot be uploaded or this is an upload model.
@@ -111,7 +130,7 @@ class BaseModel(pydantic.BaseModel):
         return None
 
     @classmethod
-    def download_model_type(cls) -> Optional[type]:
+    def download_model_type(cls) -> Optional[Type[BaseModel]]:
         """Return the download model type for this model.
 
         Returns ``None`` if this is a download model.
@@ -177,8 +196,11 @@ class BaseUserModel:
     def from_download_model(cls, download_model: Any) -> BaseUserModel:
         raise NotImplementedError("Function does not exist for BaseUserModel")
 
+    def make_upload_model(self) -> BaseModel:
+        raise NotImplementedError("Function does not exist for BaseUserModel")
+
     @classmethod
-    def upload_model_type(cls) -> Optional[type]:
+    def upload_model_type(cls) -> Optional[Type[BaseModel]]:
         """Return the upload model type for this user model.
 
         Returns ``None`` if the model cannot be uploaded.
@@ -186,12 +208,18 @@ class BaseUserModel:
         return None
 
     @classmethod
-    def download_model_type(cls) -> type:
+    def download_model_type(cls) -> Type[BaseModel]:
         """Return the download model type for this user model."""
         # There is no sensible default value here as there always exists a download
         # model.
         # All child classes must implement this function.
         raise NotImplementedError("Function does not exist for BaseUserModel")
+
+    def _repr_html_(self) -> Optional[str]:
+        """Return an HTML representation of the model if possible."""
+        from ._html_repr import user_model_html_repr
+
+        return user_model_html_repr(self)
 
 
 def construct(
@@ -279,6 +307,64 @@ def validate_orcids(value: Optional[str]) -> Optional[str]:
         "value is not a valid ORCID, "
         "note that ORCIDs must be prefixed with 'https://orcid.org'."
     )
+
+
+@overload
+def convert_download_to_user_model(download_model: None) -> None:
+    ...
+
+
+@overload
+def convert_download_to_user_model(download_model: BaseModel) -> BaseUserModel:
+    ...
+
+
+@overload
+def convert_download_to_user_model(
+    download_model: Iterable[BaseModel],
+) -> List[BaseUserModel]:
+    ...
+
+
+def convert_download_to_user_model(
+    download_model: Optional[Union[BaseModel, Iterable[BaseModel]]]
+) -> Optional[Union[BaseUserModel, List[BaseUserModel]]]:
+    """Construct user models from download models."""
+    if download_model is None:
+        return download_model
+    if isinstance(download_model, BaseModel):
+        if (user_type := download_model.user_model_type()) is None:
+            raise TypeError("Cannot convert to user model in this way.")
+        return user_type.from_download_model(download_model)
+    return list(map(convert_download_to_user_model, download_model))
+
+
+@overload
+def convert_user_to_upload_model(user_model: None) -> None:
+    ...
+
+
+@overload
+def convert_user_to_upload_model(user_model: BaseUserModel) -> BaseModel:
+    ...
+
+
+@overload
+def convert_user_to_upload_model(
+    user_model: Iterable[BaseUserModel],
+) -> List[BaseModel]:
+    ...
+
+
+def convert_user_to_upload_model(
+    user_model: Optional[Union[BaseUserModel, Iterable[BaseUserModel]]]
+) -> Optional[Union[BaseModel, List[BaseModel]]]:
+    """Construct upload models from user models."""
+    if user_model is None:
+        return None
+    if isinstance(user_model, BaseUserModel):
+        return user_model.make_upload_model()
+    return list(map(convert_user_to_upload_model, user_model))
 
 
 def _model_field_name_of(cls_name: str, name: str) -> str:
