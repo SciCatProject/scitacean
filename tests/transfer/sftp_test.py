@@ -9,7 +9,6 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Iterator
 
-import fabric
 import paramiko
 import pytest
 
@@ -300,25 +299,19 @@ class CorruptingTransfer(paramiko.Transport):
 
 @pytest.fixture()
 def sftp_corrupting_connect(sftp_access, sftp_connection_config):
-    def connect(host: str, port: int, **kwargs):
-        if kwargs:
-            raise ValueError(
-                "connect_with_username_password must only be"
-                f" used without extra arguments. Got {kwargs=}"
-            )
-        connection = fabric.Connection(
-            host=host,
+    def connect(host: str, port: int) -> paramiko.SFTPClient:
+        client = paramiko.SSHClient()
+        client.set_missing_host_key_policy(IgnorePolicy())
+        client.connect(
+            hostname=host,
             port=port,
-            user=sftp_access.user.username,
-            config=sftp_connection_config,
-            connect_kwargs={
-                "password": sftp_access.user.password,
-                "transport_factory": CorruptingTransfer,
-                **sftp_connection_config.connect_kwargs,
-            },
+            username=sftp_access.user.username,
+            password=sftp_access.user.password,
+            allow_agent=False,
+            look_for_keys=False,
+            transport_factory=CorruptingTransfer,
         )
-        connection.client.set_missing_host_key_policy(IgnorePolicy())
-        return connection
+        return client.open_sftp()
 
     return connect
 
@@ -363,26 +356,20 @@ class RaisingTransfer(paramiko.Transport):
 
 
 @pytest.fixture()
-def sftp_raising_connect(sftp_access, sftp_connection_config):
-    def connect(host: str, port: int, **kwargs):
-        if kwargs:
-            raise ValueError(
-                "connect_with_username_password must only be"
-                f" used without extra arguments. Got {kwargs=}"
-            )
-        connection = fabric.Connection(
-            host=host,
+def sftp_raising_connect(sftp_access):
+    def connect(host: str, port: int) -> paramiko.SFTPClient:
+        client = paramiko.SSHClient()
+        client.set_missing_host_key_policy(IgnorePolicy())
+        client.connect(
+            hostname=host,
             port=port,
-            user=sftp_access.user.username,
-            config=sftp_connection_config,
-            connect_kwargs={
-                "password": sftp_access.user.password,
-                "transport_factory": RaisingTransfer,
-                **sftp_connection_config.connect_kwargs,
-            },
+            username=sftp_access.user.username,
+            password=sftp_access.user.password,
+            allow_agent=False,
+            look_for_keys=False,
+            transport_factory=RaisingTransfer,
         )
-        connection.client.set_missing_host_key_policy(IgnorePolicy())
-        return connection
+        return client.open_sftp()
 
     return connect
 

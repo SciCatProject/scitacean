@@ -7,9 +7,8 @@ import logging
 from pathlib import Path
 from typing import Callable, Generator, Optional
 
-import fabric
-import fabric.config
 import pytest
+from paramiko import SFTPClient, SSHClient
 
 from ..._internal import docker
 from .._pytest_helpers import init_work_dir, root_tmp_dir
@@ -127,38 +126,22 @@ def sftp_fileserver(
 
 
 @pytest.fixture(scope="session")
-def sftp_connection_config() -> fabric.config.Config:
-    """Fixture that returns the configuration for fabric.Connection for tests.
-
-    Can be used to open SFTP connections if ``SFTPFileTransfer`` is not enough.
-    """
-    config = fabric.config.Config()
-    config["load_sftp_configs"] = False
-    config["connect_kwargs"] = {
-        "allow_agent": False,
-        "look_for_keys": False,
-    }
-    return config
-
-
-@pytest.fixture(scope="session")
 def sftp_connect_with_username_password(
-    sftp_access: SFTPAccess, sftp_connection_config: fabric.config.Config
-) -> Callable[..., fabric.Connection]:
+    sftp_access: SFTPAccess,
+) -> Callable[[str, int], SFTPClient]:
     """Fixture that returns a function to connect to the testing SFTP server.
 
-    Uses username+password and rejects any other authentication attempt.
+    Uses username+password from the test config.
 
     Returns
     -------
     :
-        A function to pass as the ``connect`` argument to
-        :meth:`scitacean.transfer.sftp.SFTPFileTransfer.connect_for_download`
-        or :meth:`scitacean.transfer.sftp.SFTPFileTransfer.connect_for_upload`.
+        A function to pass as the ``connect`` argument when constructing a
+        :class:`scitacean.transfer.sftp.SFTPFileTransfer`.
 
     Examples
     --------
-    Explicitly connect to the
+    Explicitly connect to the test server:
 
     .. code-block:: python
 
@@ -172,19 +155,18 @@ def sftp_connect_with_username_password(
                 # use connection
     """
 
-    def connect(host: str, port: int):
-        connection = fabric.Connection(
-            host=host,
+    def connect(host: str, port: int) -> SFTPClient:
+        client = SSHClient()
+        client.set_missing_host_key_policy(IgnorePolicy())
+        client.connect(
+            hostname=host,
             port=port,
-            user=sftp_access.user.username,
-            config=sftp_connection_config,
-            connect_kwargs={
-                "password": sftp_access.user.password,
-                **sftp_connection_config.connect_kwargs,
-            },
+            username=sftp_access.user.username,
+            password=sftp_access.user.password,
+            allow_agent=False,
+            look_for_keys=False,
         )
-        connection.client.set_missing_host_key_policy(IgnorePolicy())
-        return connection
+        return client.open_sftp()
 
     return connect
 

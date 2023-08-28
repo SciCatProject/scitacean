@@ -7,10 +7,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable, Iterator, List, Optional, Tuple, Union
 
-# Note that invoke and paramiko are dependencies of fabric.
-from fabric import Connection
 from invoke.exceptions import UnexpectedExit
-from paramiko import SFTPAttributes, SFTPClient
+from paramiko import SFTPAttributes, SFTPClient, SSHClient
 
 from ..dataset import Dataset
 from ..error import FileUploadError
@@ -21,8 +19,9 @@ from .util import source_folder_for
 
 
 class SFTPDownloadConnection:
-    def __init__(self, *, connection: Connection) -> None:
-        self._connection = connection
+    def __init__(self, *, sftp_client: SFTPClient, host: str) -> None:
+        self._sftp_client = sftp_client
+        self._host = host
 
     def download_files(self, *, remote: List[RemotePath], local: List[Path]) -> None:
         """Download files from the given remote path."""
@@ -33,20 +32,19 @@ class SFTPDownloadConnection:
         get_logger().info(
             "Downloading file %s from host %s to %s",
             remote,
-            self._connection.host,
+            self._host,
             local,
         )
-        self._connection.get(remote=remote.posix, local=os.fspath(local))
+        self._sftp_client.get(remotepath=remote.posix, localpath=os.fspath(local))
 
 
 class SFTPUploadConnection:
-    def __init__(self, *, connection: Connection, source_folder: RemotePath) -> None:
-        self._connection = connection
+    def __init__(
+        self, *, sftp_client: SFTPClient, source_folder: RemotePath, host: str
+    ) -> None:
+        self._sftp_client = sftp_client
         self._source_folder = source_folder
-
-    @property
-    def _sftp(self) -> SFTPClient:
-        return self._connection.sftp()  # type: ignore[no-any-return]
+        self._host = host
 
     @property
     def source_folder(self) -> RemotePath:
@@ -57,7 +55,7 @@ class SFTPUploadConnection:
 
     def _make_source_folder(self) -> None:
         try:
-            _mkdir_remote(self._sftp, self.source_folder)
+            _mkdir_remote(self._sftp_client, self.source_folder)
         except OSError as exc:
             raise FileUploadError(
                 f"Failed to create source folder {self.source_folder}: {exc.args}"
@@ -89,9 +87,9 @@ class SFTPUploadConnection:
             "Uploading file %s to %s on host %s",
             file.local_path,
             remote_path,
-            self._connection.host,
+            self._host,
         )
-        st = self._sftp.put(
+        st = self._sftp_client.put(
             remotepath=remote_path.posix, localpath=os.fspath(file.local_path)
         )
         if (exc := self._validate_upload(file)) is not None:
@@ -123,7 +121,9 @@ class SFTPUploadConnection:
         if file.checksum_algorithm is None:
             return None
         return _compute_remote_checksum(
-            self._sftp, self.remote_path(file.remote_path), file.checksum_algorithm
+            self._sftp_client,
+            self.remote_path(file.remote_path),
+            file.checksum_algorithm,
         )
 
     def revert_upload(self, *files: File) -> None:
@@ -131,19 +131,19 @@ class SFTPUploadConnection:
         for file in files:
             self._revert_upload_single(remote=file.remote_path, local=file.local_path)
 
-        if _remote_folder_is_empty(self._sftp, self.source_folder):
+        if _remote_folder_is_empty(self._sftp_client, self.source_folder):
             try:
                 get_logger().info(
                     "Removing empty remote directory %s on host %s",
                     self.source_folder,
-                    self._connection.host,
+                    self._host,
                 )
-                self._sftp.rmdir(self.source_folder.posix)
+                self._sftp_client.rmdir(self.source_folder.posix)
             except UnexpectedExit as exc:
                 get_logger().warning(
                     "Failed to remove empty remote directory %s on host:\n%s",
                     self.source_folder,
-                    self._connection.host,
+                    self._host,
                     exc.result,
                 )
 
@@ -155,11 +155,11 @@ class SFTPUploadConnection:
             "Reverting upload of file %s to %s on host %s",
             local,
             remote_path,
-            self._connection.host,
+            self._host,
         )
 
         try:
-            self._sftp.remove(remote_path.posix)
+            self._sftp_client.remove(remote_path.posix)
         except UnexpectedExit as exc:
             get_logger().warning(
                 "Error reverting file %s:\n%s", remote_path, exc.result
@@ -243,7 +243,7 @@ class SFTPFileTransfer:
         host: str,
         port: Optional[int] = None,
         source_folder: Optional[Union[str, RemotePath]] = None,
-        connect: Optional[Callable[[str, Optional[int]], Connection]] = None,
+        connect: Optional[Callable[[str, Optional[int]], SFTPClient]] = None,
     ) -> None:
         """Construct a new SFTP file transfer.
 
@@ -258,9 +258,8 @@ class SFTPFileTransfer:
             Otherwise, upload to the dataset's source_folder.
             Ignored when downloading files.
         connect:
-            If this argument is set, it will be called to establish a connection
-            to the server instead of the builtin method.
-            The connection will be opened (by calling ``con.open()``) automatically.
+            If this argument is set, it will be called to create a client
+            for the server instead of the builtin method.
             The function arguments are ``host`` and ``port`` as determined by the
             arguments to ``__init__`` shown above.
         """
@@ -280,11 +279,11 @@ class SFTPFileTransfer:
     @contextmanager
     def connect_for_download(self) -> Iterator[SFTPDownloadConnection]:
         """Create a connection for downloads, use as a context manager."""
-        con = _connect(self._host, self._port, connect=self._connect)
+        sftp_client = _connect(self._host, self._port, connect=self._connect)
         try:
-            yield SFTPDownloadConnection(connection=con)
+            yield SFTPDownloadConnection(sftp_client=sftp_client, host=self._host)
         finally:
-            con.close()
+            sftp_client.close()
 
     @contextmanager
     def connect_for_upload(self, dataset: Dataset) -> Iterator[SFTPUploadConnection]:
@@ -297,36 +296,34 @@ class SFTPFileTransfer:
             Used to determine the target folder.
         """
         source_folder = self.source_folder_for(dataset)
-        con = _connect(self._host, self._port, connect=self._connect)
+        sftp_client = _connect(self._host, self._port, connect=self._connect)
         try:
             yield SFTPUploadConnection(
-                connection=con,
-                source_folder=source_folder,
+                sftp_client=sftp_client, source_folder=source_folder, host=self._host
             )
         finally:
-            con.close()
+            sftp_client.close()
 
 
-def _do_connect(
-    host: str,
-    port: Optional[int],
-    connect: Optional[Callable[[str, Optional[int]], Connection]],
-) -> Connection:
-    if connect is None:
-        con = Connection(host=host, port=port)
+def _default_connect(host: str, port: Optional[int]) -> SFTPClient:
+    client = SSHClient()
+    client.load_system_host_keys()
+    if port is not None:
+        client.connect(hostname=host, port=port)
     else:
-        con = connect(host, port)
-    con.open()
-    return con
+        client.connect(hostname=host)
+    return client.open_sftp()
 
 
 def _connect(
     host: str,
     port: Optional[int],
-    connect: Optional[Callable[[str, Optional[int]], Connection]],
-) -> Connection:
+    connect: Optional[Callable[[str, Optional[int]], SFTPClient]],
+) -> SFTPClient:
     try:
-        return _do_connect(host, port, connect)
+        if connect is None:
+            connect = _default_connect
+        return connect(host, port)
     except Exception as exc:
         # We pass secrets as arguments to functions called in this block, and those
         # can be leaked through exception handlers. So catch all exceptions
