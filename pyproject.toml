@@ -42,6 +42,7 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 ssh = ["fabric"]
+sftp = ["paramiko"]
 test = ["filelock", "hypothesis", "pyyaml"]
 
 [tool.setuptools_scm]
