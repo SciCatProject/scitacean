@@ -359,10 +359,9 @@ def _try_remote_stat(sftp: SFTPClient, path: RemotePath) -> Optional[SFTPAttribu
 
 
 def _is_remote_dir(st_stat: SFTPAttributes) -> bool:
-    try:
-        return st_stat.st_mode & 0o040000 == 0o040000
-    except FileNotFoundError:
-        return False
+    if st_stat.st_mode is None:
+        return True  # Assume it is a dir and let downstream code fail if it isn't.
+    return st_stat.st_mode & 0o040000 == 0o040000
 
 
 def _compute_remote_checksum(
