@@ -211,7 +211,7 @@ class SFTPFileTransfer:
         self,
         *,
         host: str,
-        port: Optional[int] = None,
+        port: int = 22,
         source_folder: Optional[Union[str, RemotePath]] = None,
         connect: Optional[Callable[[str, Optional[int]], SFTPClient]] = None,
     ) -> None:
@@ -275,19 +275,16 @@ class SFTPFileTransfer:
             sftp_client.close()
 
 
-def _default_connect(host: str, port: Optional[int]) -> SFTPClient:
+def _default_connect(host: str, port: int) -> SFTPClient:
     client = SSHClient()
     client.load_system_host_keys()
-    if port is not None:
-        client.connect(hostname=host, port=port)
-    else:
-        client.connect(hostname=host)
+    client.connect(hostname=host, port=port)
     return client.open_sftp()
 
 
 def _connect(
     host: str,
-    port: Optional[int],
+    port: int,
     connect: Optional[Callable[[str, Optional[int]], SFTPClient]],
 ) -> SFTPClient:
     try:
