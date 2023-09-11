@@ -44,6 +44,9 @@ def derived_dataset(scicat_access):
 def test_get_dataset_model(scicat_client, key):
     dset = INITIAL_DATASETS[key]
     downloaded = scicat_client.get_dataset_model(dset.pid)
+    # The backend may update the dataset after upload.
+    # We cannot easily predict when that happens.
+    downloaded.updatedAt = dset.updatedAt
     assert downloaded == dset
 
 
