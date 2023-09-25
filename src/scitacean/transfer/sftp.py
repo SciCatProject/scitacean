@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
+"""SFTP file transfer."""
 
 import os
 from contextlib import contextmanager
@@ -19,6 +20,12 @@ from .util import source_folder_for
 
 
 class SFTPDownloadConnection:
+    """Connection for downloading files with SFTP.
+
+    Should be created using
+    :meth:`scitacean.transfer.sftp.SFTPFileTransfer.connect_for_download`.
+    """
+
     def __init__(self, *, sftp_client: SFTPClient, host: str) -> None:
         self._sftp_client = sftp_client
         self._host = host
@@ -29,6 +36,7 @@ class SFTPDownloadConnection:
             self.download_file(remote=r, local=l)
 
     def download_file(self, *, remote: RemotePath, local: Path) -> None:
+        """Download a file from the given remote path."""
         get_logger().info(
             "Downloading file %s from host %s to %s",
             remote,
@@ -39,6 +47,12 @@ class SFTPDownloadConnection:
 
 
 class SFTPUploadConnection:
+    """Connection for uploading files with SFTP.
+
+    Should be created using
+    :meth:`scitacean.transfer.sftp.SFTPFileTransfer.connect_for_upload`.
+    """
+
     def __init__(
         self, *, sftp_client: SFTPClient, source_folder: RemotePath, host: str
     ) -> None:
@@ -48,9 +62,11 @@ class SFTPUploadConnection:
 
     @property
     def source_folder(self) -> RemotePath:
+        """The source folder this connection uploads to."""
         return self._source_folder
 
     def remote_path(self, filename: Union[str, RemotePath]) -> RemotePath:
+        """Return the complete remote path for a given path."""
         return self.source_folder / filename
 
     def _make_source_folder(self) -> None:
@@ -147,15 +163,13 @@ class SFTPFileTransfer:
     This may be
 
     - a full url such as ``some.fileserver.edu``,
-    - an IP address like ``127.0.0.1``,
-    - or a host defined in the user's openSFTP config file.
+    - or an IP address like ``127.0.0.1``.
 
-    The file transfer can authenticate using username+password.
-    It will ask for those on the command line.
-    However, it is **highly recommended to set up a key and use an SFTP agent!**
-    This increases security as Scitacean no longer has to handle credentials itself.
-    And it is required for automated programs where a user cannot enter credentials
-    on a command line.
+    The file transfer can currently only authenticate through an SSH agent.
+    The agent must be set up for the chosen host and hold a valid key.
+    If this is not the case, it is possible to inject a custom ``connect`` function
+    that authenticates in a different way.
+    See the examples below.
 
     Upload folder
     -------------
@@ -192,7 +206,7 @@ class SFTPFileTransfer:
     .. code-block:: python
 
         file_transfer = SFTPFileTransfer(host="fileserver",
-                                        source_folder="transfer/folder")
+                                         source_folder="transfer/folder")
 
     This uploads to ``/transfer/my-dataset``:
     (Note that ``{name}`` is replaced by ``dset.name``.)
@@ -202,9 +216,32 @@ class SFTPFileTransfer:
         file_transfer = SFTPFileTransfer(host="fileserver",
                                         source_folder="transfer/{name}")
 
-    A useful approach is to include a unique ID in the source folder, for example
+    A useful approach is to include a unique ID in the source folder, for example,
     ``"/some/base/folder/{uid}"``, to avoid clashes between different datasets.
     Scitacean will fill in the ``"{uid}"`` placeholder with a new UUID4.
+
+    The connection and authentication method can be customized
+    using the ``connect`` argument.
+    For example, to use a specific username + SSH key file, use the following:
+
+    .. code-block:: python
+
+        def connect(host, port):
+            from paramiko import SSHClient
+
+            client = SSHClient()
+            client.load_system_host_keys()
+            client.connect(
+                hostname=host,
+                port=port,
+                username="<username>",
+                key_filename="<key-file-name>",
+            )
+            return client.open_sftp()
+
+        file_transfer = SFTPFileTransfer(host="fileserver", connect=connect)
+
+    The :class:`paramiko.client.SSHClient` can be configured as needed in this function.
     """
 
     def __init__(

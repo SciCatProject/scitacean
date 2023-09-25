@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
+"""Helper type for handling persistent identifiers."""
+
 from __future__ import annotations
 
 import uuid
@@ -30,7 +32,7 @@ if not is_pydantic_v1():
 
 
 class PID:
-    """Stores the ID of database item.
+    """Stores the persistent identifier of a database item.
 
     The ID is split into a prefix and the main identifier.
     The prefix identifies an instance of SciCat and the main identifier a dataset.

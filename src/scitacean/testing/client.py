@@ -178,6 +178,7 @@ class FakeScicatClient(ScicatClient):
     def get_dataset_model(
         self, pid: PID, strict_validation: bool = False
     ) -> model.DownloadDataset:
+        """Fetch a dataset from SciCat."""
         _ = strict_validation  # unused by fake
         try:
             return self.main.datasets[pid]
@@ -187,7 +188,8 @@ class FakeScicatClient(ScicatClient):
     @_conditionally_disabled
     def get_orig_datablocks(
         self, pid: PID, strict_validation: bool = False
-    ) -> List[model.DownloadOrigDatablock]:  # TODO here and rest of classes
+    ) -> List[model.DownloadOrigDatablock]:
+        """Fetch an orig datablock from SciCat."""
         _ = strict_validation  # unused by fake
         try:
             return self.main.orig_datablocks[pid]
@@ -200,6 +202,7 @@ class FakeScicatClient(ScicatClient):
     def get_attachments_for_dataset(
         self, pid: PID, strict_validation: bool = False
     ) -> List[model.DownloadAttachment]:
+        """Fetch all attachments from SciCat for a given dataset."""
         _ = strict_validation  # unused by fake
         return self.main.attachments.get(pid) or []
 
@@ -207,6 +210,7 @@ class FakeScicatClient(ScicatClient):
     def create_dataset_model(
         self, dset: Union[model.UploadDerivedDataset, model.UploadRawDataset]
     ) -> model.DownloadDataset:
+        """Create a new dataset in SciCat."""
         ingested = _process_dataset(dset)
         pid: PID = ingested.pid  # type: ignore[assignment]
         self.main.datasets[pid] = ingested
@@ -216,6 +220,7 @@ class FakeScicatClient(ScicatClient):
     def create_orig_datablock(
         self, dblock: model.UploadOrigDatablock
     ) -> model.DownloadOrigDatablock:
+        """Create a new orig datablock in SciCat."""
         ingested = _process_orig_datablock(dblock)
         dataset_id = ingested.datasetId
         if dataset_id not in self.main.datasets:
@@ -229,6 +234,7 @@ class FakeScicatClient(ScicatClient):
         attachment: model.UploadAttachment,
         dataset_id: Optional[PID] = None,
     ) -> model.DownloadAttachment:
+        """Create a new attachment for a dataset in SciCat."""
         if dataset_id is None:
             dataset_id = attachment.datasetId
         if dataset_id is None:
@@ -348,6 +354,12 @@ def process_uploaded_dataset(
     Optional[List[model.DownloadOrigDatablock]],
     Optional[List[model.DownloadAttachment]],
 ]:
+    """Process a dataset as if it was uploaded to SciCat.
+
+    This function attempts to mimic how SciCat converts uploaded dataset
+    (and associated) models to the in-database (and download) models.
+    It is not completely faithful to the real SciCat but only an approximation.
+    """
     dblocks = (
         list(map(_process_orig_datablock, orig_datablocks))
         if orig_datablocks is not None

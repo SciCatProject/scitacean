@@ -40,6 +40,8 @@ from .pid import PID
 
 
 class Dataset(DatasetBase):
+    """Metadata and linked data files for a measurement, simulation, or analysis."""
+
     @classmethod
     def from_download_models(
         cls,

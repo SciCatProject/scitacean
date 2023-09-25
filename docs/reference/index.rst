@@ -28,7 +28,7 @@ File transfer
    :template: scitacean-class-template.rst
    :recursive:
 
-   transfer.ssh.SFTPFileTransfer
+   transfer.sftp.SFTPFileTransfer
    transfer.ssh.SSHFileTransfer
 
 Auxiliary classes

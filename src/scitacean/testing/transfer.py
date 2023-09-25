@@ -27,6 +27,7 @@ class FakeDownloadConnection:
         self.fs = fs
 
     def download_file(self, *, remote: RemotePath, local: Path) -> None:
+        """Download a single file."""
         if self.fs is not None:
             self.fs.create_file(local, contents=self.files[remote])
         else:
@@ -34,6 +35,7 @@ class FakeDownloadConnection:
                 f.write(self.files[remote])
 
     def download_files(self, *, remote: List[RemotePath], local: List[Path]) -> None:
+        """Download multiple files."""
         for r, l in zip(remote, local):
             self.download_file(remote=r, local=l)
 
@@ -63,11 +65,13 @@ class FakeUploadConnection:
         return remote
 
     def upload_files(self, *files: File) -> List[File]:
+        """Upload files."""
         for file in files:
             self._upload_file(remote=file.remote_path, local=file.local_path)
         return list(files)
 
     def revert_upload(self, *files: File) -> None:
+        """Remove uploaded files."""
         for file in files:
             remote = self._remote_path(file.remote_path)
             self.reverted[remote] = self.files.pop(remote)
@@ -134,14 +138,17 @@ class FakeFileTransfer:
         self._source_folder_pattern = source_folder
 
     def source_folder_for(self, dataset: Dataset) -> RemotePath:
+        """Return the source folder for a given dataset."""
         return source_folder_for(dataset, self._source_folder_pattern)
 
     @contextmanager
     def connect_for_download(self) -> Iterator[FakeDownloadConnection]:
+        """Open a connection for downloads."""
         yield FakeDownloadConnection(fs=self.fs, files=self.files)
 
     @contextmanager
     def connect_for_upload(self, dataset: Dataset) -> Iterator[FakeUploadConnection]:
+        """Open a connection for uploads."""
         yield FakeUploadConnection(
             files=self.files,
             reverted=self.reverted,
