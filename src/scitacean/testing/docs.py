@@ -79,6 +79,7 @@ def _create_raw_dataset(client: FakeClient) -> None:
 
 
 def setup_fake_client() -> FakeClient:
+    """Create a fake client for use in the user guide."""
     client = FakeClient.from_token(
         url="fake-url.sci/api/v3",
         token="fake-token",  # noqa: S106

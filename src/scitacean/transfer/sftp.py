@@ -20,6 +20,12 @@ from .util import source_folder_for
 
 
 class SFTPDownloadConnection:
+    """Connection for downloading files with SFTP.
+
+    Should be created using
+    :meth:`scitacean.transfer.sftp.SFTPFileTransfer.connect_for_download`.
+    """
+
     def __init__(self, *, sftp_client: SFTPClient, host: str) -> None:
         self._sftp_client = sftp_client
         self._host = host
@@ -30,6 +36,7 @@ class SFTPDownloadConnection:
             self.download_file(remote=r, local=l)
 
     def download_file(self, *, remote: RemotePath, local: Path) -> None:
+        """Download a file from the given remote path."""
         get_logger().info(
             "Downloading file %s from host %s to %s",
             remote,
@@ -40,6 +47,12 @@ class SFTPDownloadConnection:
 
 
 class SFTPUploadConnection:
+    """Connection for uploading files with SFTP.
+
+    Should be created using
+    :meth:`scitacean.transfer.sftp.SFTPFileTransfer.connect_for_upload`.
+    """
+
     def __init__(
         self, *, sftp_client: SFTPClient, source_folder: RemotePath, host: str
     ) -> None:
@@ -49,9 +62,11 @@ class SFTPUploadConnection:
 
     @property
     def source_folder(self) -> RemotePath:
+        """The source folder this connection uploads to."""
         return self._source_folder
 
     def remote_path(self, filename: Union[str, RemotePath]) -> RemotePath:
+        """Return the complete remote path for a given path."""
         return self.source_folder / filename
 
     def _make_source_folder(self) -> None:

@@ -59,6 +59,8 @@ class DatasetPathFormatter(Formatter):
             Optional[StrOrLiteralStr],
         ]
     ]:
+        """Parse a format string."""
+
         def add0(field_name: Optional[str]) -> Optional[str]:
             if field_name == "uid":
                 return field_name
@@ -69,6 +71,7 @@ class DatasetPathFormatter(Formatter):
         return ((t[0], add0(t[1]), t[2], t[3]) for t in super().parse(format_string))
 
     def format_field(self, value: Any, format_spec: str) -> str:
+        """Format a field with the given spec."""
         if value is None:
             raise ValueError("Cannot format path, dataset field is None")
         formatted: str = super().format_field(value, format_spec)

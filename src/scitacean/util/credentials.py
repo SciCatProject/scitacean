@@ -112,6 +112,7 @@ class TimeLimitedStr(StrStorage):
         self._expires_at = expires_at - tolerance
 
     def get_str(self) -> str:
+        """Return the stored plain str object."""
         if self._is_expired():
             raise RuntimeError("Login has expired")
         return super().get_str()
