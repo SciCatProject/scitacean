@@ -1,6 +1,6 @@
 email-validator
 fabric
 paramiko
-pydantic < 2  # autodoc_pydantic is not compatible with pydantic 2
+pydantic >= 2
 python-dateutil
 requests
