@@ -81,14 +81,6 @@ code.literal {
     color: var(--cean-color-header-text);
 }
 
-.navbar-header-items {
-    justify-content: space-between;
-}
-
-.navbar-header-items__center {
-    margin-right: 0 !important;
-}
-
 .theme-switch-button {
     border: none;
 }
@@ -135,5 +127,18 @@ a.headerlink {
 
 .search-button-field {
     border: none;
-    border-radius: var(--bs-btn-border-radius);
+    border-radius: 0;
+    background: inherit;
+    color: inherit;
+}
+
+.search-button-field:hover {
+    border: none;
+    color: var(--pst-color-primary);
+    box-shadow: 0 max(3px,.1875rem,.12em) 0 var(--pst-color-link-hover);
+}
+
+.search-button-field > span {
+    display: none;
+    visibility: hidden;
 }
