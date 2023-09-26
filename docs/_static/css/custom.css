@@ -85,22 +85,6 @@ code.literal {
     border: none;
 }
 
-footer.bd-footer {
-    background: var(--pst-color-on-background) !important;
-    background: linear-gradient(60deg, #1e4855 0%, #1e1e1e 8%, #1e1e1e 40%, #7a3636 100%) !important;
-    color: #cecece;
-}
-
-footer.bd-footer > div {
-    /* Make sure the text does not overlap the gradient */
-    margin-left: 0;
-    padding-left: 8%;
-}
-
-footer.bd-footer p {
-    color: #cecece;
-}
-
 .table td {
     border-top: none;
 }
