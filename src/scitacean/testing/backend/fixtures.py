@@ -217,7 +217,7 @@ def _backend_docker_up(target_dir: Path) -> None:
     configure(docker_compose_file)
     docker.docker_compose_up(docker_compose_file)
     log.info("Waiting for SciCat docker to become accessible")
-    wait_until_backend_is_live(max_time=20, n_tries=20)
+    wait_until_backend_is_live(max_time=60, n_tries=40)
     log.info("Successfully connected to SciCat backend")
 
 
