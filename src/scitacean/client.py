@@ -249,7 +249,8 @@ class Client:
         dataset = dataset.replace(
             source_folder=self._expect_file_transfer().source_folder_for(dataset)
         )
-        self.scicat.validate_dataset_model(dataset)
+        dset_model = dataset.make_upload_model()
+        self.scicat.validate_dataset_model(dset_model)
         # TODO skip if there are no files
         with self._connect_for_file_upload(dataset) as con:
             # TODO check if any remote file is out of date.
@@ -257,9 +258,7 @@ class Client:
             uploaded_files = con.upload_files(*dataset.files)
             dataset = dataset.replace_files(*uploaded_files)
             try:
-                finalized_model = self.scicat.create_dataset_model(
-                    dataset.make_upload_model()
-                )
+                finalized_model = self.scicat.create_dataset_model(dset_model)
             except ScicatCommError:
                 con.revert_upload(*uploaded_files)
                 raise
