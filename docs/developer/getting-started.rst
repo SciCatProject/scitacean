@@ -61,7 +61,7 @@ Running tests
 
         .. code-block:: sh
 
-            pytest --backend-tests --ssh-tests
+            pytest --backend-tests --sftp-tests
 
         Note that the setup and teardown of the backend takes several seconds.
 
@@ -73,11 +73,11 @@ Running tests
 
             tox -e py310
 
-        Or to also run backend tests use
+        Or to also run backend and SFTP tests use
 
         .. code-block:: sh
 
-            tox -e py310-backend
+            tox -e py310-full
 
 Building the docs
 -----------------
