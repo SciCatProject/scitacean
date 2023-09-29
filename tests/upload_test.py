@@ -3,7 +3,6 @@
 
 from contextlib import contextmanager
 
-import pydantic
 import pytest
 from dateutil.parser import parse as parse_date
 

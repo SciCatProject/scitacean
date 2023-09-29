@@ -13,7 +13,6 @@ from pathlib import Path
 from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple, Union
 from urllib.parse import quote_plus
 
-import pydantic
 import requests
 
 from . import model
