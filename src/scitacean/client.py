@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import dataclasses
 import datetime
+import pydantic
 import re
 import warnings
 from contextlib import contextmanager
@@ -249,8 +250,7 @@ class Client:
         dataset = dataset.replace(
             source_folder=self._expect_file_transfer().source_folder_for(dataset)
         )
-        dset_model = dataset.make_upload_model()
-        self.scicat.validate_dataset_model(dset_model)
+        self.scicat.validate_dataset_model(dataset.make_upload_model())
         # TODO skip if there are no files
         with self._connect_for_file_upload(dataset) as con:
             # TODO check if any remote file is out of date.
@@ -258,7 +258,9 @@ class Client:
             uploaded_files = con.upload_files(*dataset.files)
             dataset = dataset.replace_files(*uploaded_files)
             try:
-                finalized_model = self.scicat.create_dataset_model(dset_model)
+                finalized_model = self.scicat.create_dataset_model(
+                    dataset.make_upload_model()
+                )
             except ScicatCommError:
                 con.revert_upload(*uploaded_files)
                 raise
@@ -850,7 +852,9 @@ class ScicatClient:
             operation="validate_dataset_model",
         )
         if not response["valid"]:
-            raise ValueError(f"Dataset {dset} did not pass validation in SciCat.")
+            raise pydantic.ValidationError(
+                f"Dataset {dset} did not pass validation in SciCat."
+            )
 
     def _send_to_scicat(
         self, *, cmd: str, url: str, data: Optional[model.BaseModel] = None

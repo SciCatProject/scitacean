@@ -67,7 +67,7 @@ def test_create_dataset_model(scicat_client, derived_dataset):
 
 def test_validate_dataset_model(real_client, require_scicat_backend, derived_dataset):
     real_client.scicat.validate_dataset_model(derived_dataset)
-    derived_dataset.type = "banana"
+    derived_dataset.contactEmail = "NotAnEmail"
     with pytest.raises(ValueError):
         real_client.scicat.validate_dataset_model(derived_dataset)
 
