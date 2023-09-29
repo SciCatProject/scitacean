@@ -3,6 +3,7 @@
 
 from contextlib import contextmanager
 
+import pydantic
 import pytest
 from dateutil.parser import parse as parse_date
 
@@ -191,6 +192,22 @@ def test_upload_cleans_up_files_if_dataset_ingestion_fails(dataset_with_files, f
     with pytest.raises(ScicatCommError):
         client.upload_new_dataset_now(dataset_with_files)
 
+    assert not get_file_transfer(client).files
+
+
+def test_upload_does_not_create_dataset_if_validation_fails(dataset_with_files, fs):
+    client = FakeClient(
+        disable={
+            "validate_dataset_model": pydantic.ValidationError("Validation failed")
+        },
+        file_transfer=FakeFileTransfer(fs=fs),
+    )
+    with pytest.raises(pydantic.ValidationError):
+        client.upload_new_dataset_now(dataset_with_files)
+
+    assert not client.datasets
+    assert not client.orig_datablocks
+    assert not client.attachments
     assert not get_file_transfer(client).files
 
 

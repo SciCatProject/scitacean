@@ -842,7 +842,7 @@ class ScicatClient:
 
         Raises
         ------
-        ValueError
+        pydantic.ValidationError
             If the dataset does not pass validation.
         """
         response = self._call_endpoint(
