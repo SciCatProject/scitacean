@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import dataclasses
 import datetime
-import pydantic
 import re
 import warnings
 from contextlib import contextmanager
@@ -14,6 +13,7 @@ from pathlib import Path
 from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple, Union
 from urllib.parse import quote_plus
 
+import pydantic
 import requests
 
 from . import model
