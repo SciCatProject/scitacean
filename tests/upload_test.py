@@ -197,12 +197,10 @@ def test_upload_cleans_up_files_if_dataset_ingestion_fails(dataset_with_files, f
 
 def test_upload_does_not_create_dataset_if_validation_fails(dataset_with_files, fs):
     client = FakeClient(
-        disable={
-            "validate_dataset_model": pydantic.ValidationError("Validation failed")
-        },
+        disable={"validate_dataset_model": ValueError},
         file_transfer=FakeFileTransfer(fs=fs),
     )
-    with pytest.raises(pydantic.ValidationError):
+    with pytest.raises(ValueError):
         client.upload_new_dataset_now(dataset_with_files)
 
     assert not client.datasets

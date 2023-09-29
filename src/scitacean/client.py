@@ -842,7 +842,7 @@ class ScicatClient:
 
         Raises
         ------
-        pydantic.ValidationError
+        ValueError
             If the dataset does not pass validation.
         """
         response = self._call_endpoint(
@@ -852,9 +852,7 @@ class ScicatClient:
             operation="validate_dataset_model",
         )
         if not response["valid"]:
-            raise pydantic.ValidationError(
-                f"Dataset {dset} did not pass validation in SciCat."
-            )
+            raise ValueError(f"Dataset {dset} did not pass validation in SciCat.")
 
     def _send_to_scicat(
         self, *, cmd: str, url: str, data: Optional[model.BaseModel] = None
