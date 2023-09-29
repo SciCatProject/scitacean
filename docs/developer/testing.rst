@@ -21,11 +21,17 @@ In addition, the fakes are relatively complex and may diverge from the real impl
 
 To mitigate these problems, the fake client is tested alongside a real client.
 But to (mostly) avoid the downsides stated in the beginning, the real client is connected to a local SciCat server.
-See ``src/testing/backend.py`` and ``tests/conftest.py`` for the concrete setup.
+See the |backend folder|_ folder and |conftest file|_ for the concrete setup.
 The backend is launched in a docker container with the image of the latest release of the SciCat backend.
 Tests in ``tests/client`` are then run with both the fake and the real client to ensure that both produce the same results.
 
 Use ``--backend-tests`` with ``pytest`` to run these tests.
+
+.. |backend folder| replace:: ``src/scitacean/backend``
+.. _backend folder: https://github.com/SciCatProject/scitacean/tree/main/src/scitacean/testing/backend
+
+.. |conftest file| replace:: ``tests/conftest.py``
+.. _conftest file: https://github.com/SciCatProject/scitacean/blob/main/tests/conftest.py
 
 SFTP file transfer
 ------------------
