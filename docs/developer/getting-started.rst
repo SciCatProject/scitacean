@@ -61,7 +61,7 @@ Running tests
 
         .. code-block:: sh
 
-            pytest --backend-tests --ssh-tests
+            pytest --backend-tests --sftp-tests
 
         Note that the setup and teardown of the backend takes several seconds.
 
