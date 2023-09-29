@@ -65,6 +65,10 @@ def test_create_dataset_model(scicat_client, derived_dataset):
             assert expected == dict(downloaded)[key], f"key = {key}"
 
 
+def test_validate_dataset_model(scicat_client, derived_dataset):
+    scicat_client.validate_dataset_model(derived_dataset)
+
+
 def test_get_dataset(client):
     dset = INITIAL_DATASETS["raw"]
     dblock = INITIAL_ORIG_DATABLOCKS["raw"][0]
