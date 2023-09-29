@@ -765,3 +765,81 @@ def test_derive_removes_attachments(initial, attachments):
     initial.attachments = attachments
     derived = initial.derive()
     assert derived.attachments == []
+
+
+@pytest.fixture(params=[DatasetType.RAW, DatasetType.DERIVED])
+def my_type(request):
+    return request.param
+
+
+@pytest.fixture
+def invalid_field_example(my_type) -> tuple[str, str]:
+    if my_type == DatasetType.DERIVED:
+        return "data_format", "sth_not_None"
+    elif my_type == DatasetType.RAW:
+        return "job_log_data", "sth_not_None"
+    else:
+        raise ValueError(my_type, " is not valid DatasetType.")
+
+
+def test_dataset_dict_like_keys_per_type(my_type):
+    ds = Dataset(type=my_type)
+    my_names = set(
+        field.name for field in Dataset._FIELD_SPEC if field.used_by(my_type)
+    )
+    assert set(ds.keys()) == my_names
+
+
+def test_dataset_dict_like_keys_including_invalid_field(
+    my_type, invalid_field_example: tuple[str, str]
+):
+    invalid_name, invalid_value = invalid_field_example
+
+    my_names = set(
+        field.name for field in Dataset._FIELD_SPEC if field.used_by(my_type)
+    )
+    assert invalid_name not in my_names
+    my_names.add(invalid_name)
+
+    ds = Dataset(type=my_type)
+    setattr(ds, invalid_name, invalid_value)
+
+    assert set(ds.keys()) == my_names
+
+
+def test_dataset_dict_like_values(my_type):
+    ds = Dataset(type=my_type, comment="This is an example.")
+    for key, value in zip(ds.keys(), ds.values()):
+        assert value == getattr(ds, key)
+
+
+def test_dataset_dict_like_values_with_invalid_field(
+    my_type, invalid_field_example: tuple[str, str]
+):
+    ds = Dataset(type=my_type, comment="This is an example.")
+    setattr(ds, *invalid_field_example)
+    for key, value in zip(ds.keys(), ds.values()):
+        assert value == getattr(ds, key)
+
+
+def test_dataset_dict_like_items_with_invalid_field(
+    my_type, invalid_field_example: tuple[str, str]
+):
+    ds = Dataset(type=my_type, comment="This is an example.")
+    setattr(ds, *invalid_field_example)
+    for key, value in ds.items():
+        assert value == getattr(ds, key)
+
+
+def test_dataset_dict_like_getitem(my_type):
+    ds = Dataset(type=my_type)
+    assert ds["type"] == my_type
+    assert ds["comment"] is None
+
+
+def test_dataset_dict_like_setdefault(my_type):
+    sample_comment = "This is an example."
+    ds = Dataset(type=my_type)
+    assert ds["comment"] is None
+    assert ds.setdefault("comment", sample_comment) == sample_comment
+    assert ds["comment"] == sample_comment
