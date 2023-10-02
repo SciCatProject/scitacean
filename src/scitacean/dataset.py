@@ -510,6 +510,8 @@ class Dataset(DatasetBase):
     def keys(self) -> Iterable[str]:
         """Dict-like keys(names of fields) method.
 
+        .. versionadded:: RELEASE_PLACEHOLDER
+
         Returns
         -------
         :
@@ -530,6 +532,8 @@ class Dataset(DatasetBase):
     def values(self) -> Iterable[Any]:
         """Dict-like values(values of fields) method.
 
+        .. versionadded:: RELEASE_PLACEHOLDER
+
         Returns
         -------
         :
@@ -540,6 +544,8 @@ class Dataset(DatasetBase):
 
     def items(self) -> Iterable[tuple[str, Any]]:
         """Dict-like items(name and value pairs of fields) method.
+
+        .. versionadded:: RELEASE_PLACEHOLDER
 
         Returns
         -------
@@ -557,6 +563,11 @@ class Dataset(DatasetBase):
         If ``field_name`` is a ``name`` of any
         :class:`DatasetBase.Field` objects in ``self.fields()``.
 
+        Parameters
+        ----------
+        field_name:
+            Name of the field to validate.
+
         Raises
         ------
         :
@@ -567,6 +578,13 @@ class Dataset(DatasetBase):
 
     def __getitem__(self, field_name: str) -> Any:
         """Dict-like get-item method.
+
+        .. versionadded:: RELEASE_PLACEHOLDER
+
+        Parameters
+        ----------
+        field_name:
+            Name of the field to retrieve.
 
         Returns
         -------
@@ -586,6 +604,16 @@ class Dataset(DatasetBase):
 
         Set the value of the field with name ``field_name`` as ``field_value``.
 
+        .. versionadded:: RELEASE_PLACEHOLDER
+
+        Parameters
+        ----------
+        field_name:
+            Name of the field to set.
+
+        default_value:
+            Value of the field to set.
+
         Raises
         ------
         :
@@ -599,6 +627,16 @@ class Dataset(DatasetBase):
 
         Set the value of the field with name ``field_name`` as ``default_value``
         only if the value of ``field_name`` is ``None``.
+
+        .. versionadded:: RELEASE_PLACEHOLDER
+
+        Parameters
+        ----------
+        field_name:
+            Name of the field to retrieve or set a default value if needed.
+
+        default_value:
+            Value of the field to set if not set (is ``None``).
 
         Returns
         -------
