@@ -249,7 +249,7 @@ class Client:
         dataset = dataset.replace(
             source_folder=self._expect_file_transfer().source_folder_for(dataset)
         )
-        dataset.validate()
+        self.scicat.validate_dataset_model(dataset.make_upload_model())
         # TODO skip if there are no files
         with self._connect_for_file_upload(dataset) as con:
             # TODO check if any remote file is out of date.
@@ -828,6 +828,30 @@ class ScicatClient:
         return model.construct(
             model.DownloadAttachment, _strict_validation=False, **uploaded
         )
+
+    def validate_dataset_model(
+        self, dset: Union[model.UploadDerivedDataset, model.UploadRawDataset]
+    ) -> None:
+        """Validate a dataset in SciCat.
+
+        Parameters
+        ----------
+        dset:
+            Model of the dataset to validate.
+
+        Raises
+        ------
+        ValueError
+            If the dataset does not pass validation.
+        """
+        response = self._call_endpoint(
+            cmd="post",
+            url="datasets/isValid",
+            data=dset,
+            operation="validate_dataset_model",
+        )
+        if not response["valid"]:
+            raise ValueError(f"Dataset {dset} did not pass validation in SciCat.")
 
     def _send_to_scicat(
         self, *, cmd: str, url: str, data: Optional[model.BaseModel] = None
