@@ -1054,11 +1054,6 @@ class DatasetBase:
         """Characterize type of dataset, either 'raw' or 'derived'. Autofilled when choosing the proper inherited models."""
         return self._type
 
-    @type.setter
-    def type(self, type: Union[DatasetType, Literal["raw", "derived"]]) -> None:
-        """Characterize type of dataset, either 'raw' or 'derived'. Autofilled when choosing the proper inherited models."""
-        self._type = DatasetType(type)
-
     @staticmethod
     def _prepare_fields_from_download(
         download_model: DownloadDataset,
