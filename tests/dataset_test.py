@@ -773,7 +773,7 @@ def my_type(request):
 
 
 @pytest.fixture
-def invalid_field_example(my_type) -> tuple[str, str]:
+def invalid_field_example(my_type):
     if my_type == DatasetType.DERIVED:
         return "data_format", "sth_not_None"
     elif my_type == DatasetType.RAW:
@@ -790,9 +790,7 @@ def test_dataset_dict_like_keys_per_type(my_type):
     assert set(ds.keys()) == my_names
 
 
-def test_dataset_dict_like_keys_including_invalid_field(
-    my_type, invalid_field_example: tuple[str, str]
-):
+def test_dataset_dict_like_keys_including_invalid_field(my_type, invalid_field_example):
     invalid_name, invalid_value = invalid_field_example
 
     my_names = set(
@@ -813,18 +811,14 @@ def test_dataset_dict_like_values(my_type):
         assert value == getattr(ds, key)
 
 
-def test_dataset_dict_like_values_with_invalid_field(
-    my_type, invalid_field_example: tuple[str, str]
-):
+def test_dataset_dict_like_values_with_invalid_field(my_type, invalid_field_example):
     ds = Dataset(type=my_type, comment="This is an example.")
     setattr(ds, *invalid_field_example)
     for key, value in zip(ds.keys(), ds.values()):
         assert value == getattr(ds, key)
 
 
-def test_dataset_dict_like_items_with_invalid_field(
-    my_type, invalid_field_example: tuple[str, str]
-):
+def test_dataset_dict_like_items_with_invalid_field(my_type, invalid_field_example):
     ds = Dataset(type=my_type, comment="This is an example.")
     setattr(ds, *invalid_field_example)
     for key, value in ds.items():
@@ -882,9 +876,7 @@ def test_dataset_dict_like_setitem(my_type):
     assert ds["comment"] == sample_comment
 
 
-def test_dataset_dict_like_setitem_invalid_field(
-    my_type, invalid_field_example: tuple[str, str]
-):
+def test_dataset_dict_like_setitem_invalid_field(my_type, invalid_field_example):
     # ``__setitem__`` doesn't check if the item is invalid for the current type or not.
     ds = Dataset(type=my_type)
     invalid_field, invalid_value = invalid_field_example
