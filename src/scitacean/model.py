@@ -321,7 +321,6 @@ class UploadAttachment(BaseModel):
 class DownloadOrigDatablock(BaseModel):
     dataFileList: Optional[List[DownloadDataFile]] = None
     datasetId: Optional[PID] = None
-    ownerGroup: Optional[str] = None
     size: Optional[NonNegativeInt] = None
     id: Optional[str] = pydantic.Field(alias="_id", default=None)
     accessGroups: Optional[List[str]] = None
@@ -329,6 +328,7 @@ class DownloadOrigDatablock(BaseModel):
     createdAt: Optional[datetime] = None
     createdBy: Optional[str] = None
     instrumentGroup: Optional[str] = None
+    ownerGroup: Optional[str] = None
     updatedAt: Optional[datetime] = None
     updatedBy: Optional[str] = None
 
@@ -344,11 +344,11 @@ class DownloadOrigDatablock(BaseModel):
 class UploadOrigDatablock(BaseModel):
     dataFileList: List[UploadDataFile]
     datasetId: PID
-    ownerGroup: str
     size: NonNegativeInt
     accessGroups: Optional[List[str]] = None
     chkAlg: Optional[str] = None
     instrumentGroup: Optional[str] = None
+    ownerGroup: Optional[str] = None
 
     @classmethod
     def download_model_type(cls) -> Type[DownloadOrigDatablock]:

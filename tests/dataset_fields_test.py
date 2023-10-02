@@ -27,6 +27,8 @@ from scitacean.model import (
 # Fields whose types are not supported by hypothesis.
 # E.g. because they contain `Any`.
 _UNGENERATABLE_FIELDS = ("job_parameters", "meta")
+# Fields that are readonly, but still required in the constructor.
+_NOT_SETTABLE_FIELDS = ("type",)
 
 
 def test_init_dataset_with_only_type():
@@ -107,7 +109,11 @@ def test_can_init_writable_fields(field, data):
 
 @pytest.mark.parametrize(
     "field",
-    (f for f in Dataset.fields(read_only=False) if f.name not in _UNGENERATABLE_FIELDS),
+    (
+        f
+        for f in Dataset.fields(read_only=False)
+        if f.name not in _UNGENERATABLE_FIELDS and f.name not in _NOT_SETTABLE_FIELDS
+    ),
     ids=lambda f: f.name,
 )
 @given(st.data())
