@@ -598,7 +598,7 @@ class Dataset(DatasetBase):
         """Dict-like setdefault method.
 
         Set the value of the field with name ``field_name`` as ``default_value``
-        only if value of ``field_name`` is ``None``.
+        only if the value of ``field_name`` is ``None``.
 
         Returns
         -------
