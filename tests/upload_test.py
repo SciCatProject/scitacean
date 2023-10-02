@@ -194,6 +194,20 @@ def test_upload_cleans_up_files_if_dataset_ingestion_fails(dataset_with_files, f
     assert not get_file_transfer(client).files
 
 
+def test_upload_does_not_create_dataset_if_validation_fails(dataset_with_files, fs):
+    client = FakeClient(
+        disable={"validate_dataset_model": ValueError},
+        file_transfer=FakeFileTransfer(fs=fs),
+    )
+    with pytest.raises(ValueError):
+        client.upload_new_dataset_now(dataset_with_files)
+
+    assert not client.datasets
+    assert not client.orig_datablocks
+    assert not client.attachments
+    assert not get_file_transfer(client).files
+
+
 def test_failed_datablock_upload_does_not_revert(dataset_with_files, fs):
     client = FakeClient(
         disable={"create_orig_datablock": ScicatCommError("Ingestion failed")},

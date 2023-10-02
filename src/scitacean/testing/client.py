@@ -249,6 +249,14 @@ class FakeScicatClient(ScicatClient):
         self.main.attachments.setdefault(dataset_id, []).append(ingested)
         return ingested
 
+    @_conditionally_disabled
+    def validate_dataset_model(
+        self, dset: Union[model.UploadDerivedDataset, model.UploadRawDataset]
+    ):
+        """Validate model remotely in SciCat."""
+        # Models were locally validated on construction, assume they are valid.
+        pass
+
 
 def _model_dict(mod: model.BaseModel) -> Dict[str, Any]:
     return {
