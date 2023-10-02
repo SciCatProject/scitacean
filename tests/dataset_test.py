@@ -837,9 +837,72 @@ def test_dataset_dict_like_getitem(my_type):
     assert ds["comment"] is None
 
 
+@pytest.mark.parametrize(
+    ("is_attr", "wrong_field"), ((True, "size"), (False, "OBVIOUSLYWRONGNAME"))
+)
+def test_dataset_dict_like_getitem_wrong_field_raises(is_attr, wrong_field):
+    # 'size' should be included in the field later.
+    # It is now excluded because it is ``manual`` field. See issue#151.
+    ds = Dataset(type="raw")
+    assert hasattr(ds, wrong_field) == is_attr
+    with pytest.raises(KeyError, match=f"{wrong_field} is not a valid field name."):
+        ds[wrong_field]
+
+
 def test_dataset_dict_like_setdefault(my_type):
     sample_comment = "This is an example."
     ds = Dataset(type=my_type)
     assert ds["comment"] is None
     assert ds.setdefault("comment", sample_comment) == sample_comment
     assert ds["comment"] == sample_comment
+
+
+def test_dataset_dict_like_setdefault_existing_key():
+    original_comment = "This is the original comment."
+    default_comment = "This is an example."
+    ds = Dataset(type="raw", comment=original_comment)
+    assert ds["comment"] == original_comment
+    assert ds.setdefault("comment", default_comment) == original_comment
+
+
+def test_dataset_dict_like_setdefault_object():
+    ds = Dataset(type="raw")
+    assert ds["shared_with"] is None
+    default_list = []
+    shared_with = ds.setdefault("shared_with", default_list)
+    assert default_list is shared_with
+    assert ds["shared_with"] is default_list
+
+
+def test_dataset_dict_like_setitem(my_type):
+    sample_comment = "This is an example."
+    ds = Dataset(type=my_type)
+    assert ds["comment"] is None
+    ds["comment"] = sample_comment
+    assert ds["comment"] == sample_comment
+
+
+def test_dataset_dict_like_setitem_invalid_field(
+    my_type, invalid_field_example: tuple[str, str]
+):
+    # ``__setitem__`` doesn't check if the item is invalid for the current type or not.
+    ds = Dataset(type=my_type)
+    invalid_field, invalid_value = invalid_field_example
+    assert ds[invalid_field] is None
+    ds[invalid_field] = invalid_value
+    assert ds[invalid_field] == invalid_value
+
+
+@pytest.mark.parametrize(
+    ("is_attr", "wrong_field", "wrong_value"),
+    ((True, "size", 10), (False, "OBVIOUSLYWRONGNAME", "OBVIOUSLYWRONGVALUE")),
+)
+def test_dataset_dict_like_setitem_wrong_field_raises(
+    is_attr, wrong_field, wrong_value
+):
+    # ``manual`` fields such as ``size`` should raise with ``__setitem__``.
+    # However, it may need more specific error message.
+    ds = Dataset(type="raw")
+    assert hasattr(ds, wrong_field) == is_attr
+    with pytest.raises(KeyError, match=f"{wrong_field} is not a valid field name."):
+        ds[wrong_field] = wrong_value
