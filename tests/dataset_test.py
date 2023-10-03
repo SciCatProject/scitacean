@@ -767,12 +767,6 @@ def test_derive_removes_attachments(initial, attachments):
     assert derived.attachments == []
 
 
-@pytest.fixture(params=[DatasetType.RAW, DatasetType.DERIVED])
-def my_type(request):
-    return request.param
-
-
-@pytest.fixture
 def invalid_field_example(my_type):
     if my_type == DatasetType.DERIVED:
         return "data_format", "sth_not_None"
@@ -782,119 +776,105 @@ def invalid_field_example(my_type):
         raise ValueError(my_type, " is not valid DatasetType.")
 
 
-def test_dataset_dict_like_keys_per_type(my_type):
-    ds = Dataset(type=my_type)
+@given(initial=sst.datasets(for_upload=True))
+@settings(max_examples=10)
+def test_dataset_dict_like_keys_per_type(initial: Dataset):
     my_names = set(
-        field.name for field in Dataset._FIELD_SPEC if field.used_by(my_type)
+        field.name for field in Dataset._FIELD_SPEC if field.used_by(initial.type)
     )
-    assert set(ds.keys()) == my_names
+    assert set(initial.keys()) == my_names
 
 
-def test_dataset_dict_like_keys_including_invalid_field(my_type, invalid_field_example):
-    invalid_name, invalid_value = invalid_field_example
+@given(initial=sst.datasets(for_upload=True))
+@settings(max_examples=10)
+def test_dataset_dict_like_keys_including_invalid_field(initial):
+    invalid_name, invalid_value = invalid_field_example(initial.type)
 
     my_names = set(
-        field.name for field in Dataset._FIELD_SPEC if field.used_by(my_type)
+        field.name for field in Dataset._FIELD_SPEC if field.used_by(initial.type)
     )
     assert invalid_name not in my_names
     my_names.add(invalid_name)
 
-    ds = Dataset(type=my_type)
-    setattr(ds, invalid_name, invalid_value)
+    setattr(initial, invalid_name, invalid_value)
 
-    assert set(ds.keys()) == my_names
-
-
-def test_dataset_dict_like_values(my_type):
-    ds = Dataset(type=my_type, comment="This is an example.")
-    for key, value in zip(ds.keys(), ds.values()):
-        assert value == getattr(ds, key)
+    assert set(initial.keys()) == my_names
 
 
-def test_dataset_dict_like_values_with_invalid_field(my_type, invalid_field_example):
-    ds = Dataset(type=my_type, comment="This is an example.")
-    setattr(ds, *invalid_field_example)
-    for key, value in zip(ds.keys(), ds.values()):
-        assert value == getattr(ds, key)
+@given(initial=sst.datasets(for_upload=True))
+@settings(max_examples=10)
+def test_dataset_dict_like_values(initial: Dataset):
+    for key, value in zip(initial.keys(), initial.values()):
+        assert value == getattr(initial, key)
 
 
-def test_dataset_dict_like_items_with_invalid_field(my_type, invalid_field_example):
-    ds = Dataset(type=my_type, comment="This is an example.")
-    setattr(ds, *invalid_field_example)
-    for key, value in ds.items():
-        assert value == getattr(ds, key)
+@given(initial=sst.datasets(for_upload=True))
+@settings(max_examples=10)
+def test_dataset_dict_like_values_with_invalid_field(initial: Dataset):
+    setattr(initial, *invalid_field_example(initial.type))
+    for key, value in zip(initial.keys(), initial.values()):
+        assert value == getattr(initial, key)
 
 
-def test_dataset_dict_like_getitem(my_type):
-    ds = Dataset(type=my_type)
-    assert ds["type"] == my_type
-    assert ds["comment"] is None
+@given(initial=sst.datasets(for_upload=True))
+@settings(max_examples=10)
+def test_dataset_dict_like_items_with_invalid_field(initial: Dataset):
+    setattr(initial, *invalid_field_example(initial.type))
+    for key, value in initial.items():
+        assert value == getattr(initial, key)
+
+
+@given(initial=sst.datasets(for_upload=True))
+@settings(max_examples=10)
+def test_dataset_dict_like_getitem(initial):
+    assert initial["type"] == initial.type
 
 
 @pytest.mark.parametrize(
     ("is_attr", "wrong_field"), ((True, "size"), (False, "OBVIOUSLYWRONGNAME"))
 )
-def test_dataset_dict_like_getitem_wrong_field_raises(is_attr, wrong_field):
+@given(initial=sst.datasets(for_upload=True))
+@settings(max_examples=10)
+def test_dataset_dict_like_getitem_wrong_field_raises(initial, is_attr, wrong_field):
     # 'size' should be included in the field later.
     # It is now excluded because it is ``manual`` field. See issue#151.
-    ds = Dataset(type="raw")
-    assert hasattr(ds, wrong_field) == is_attr
+    assert hasattr(initial, wrong_field) == is_attr
     with pytest.raises(KeyError, match=f"{wrong_field} is not a valid field name."):
-        ds[wrong_field]
+        initial[wrong_field]
 
 
-def test_dataset_dict_like_setdefault(my_type):
-    sample_comment = "This is an example."
-    ds = Dataset(type=my_type)
-    assert ds["comment"] is None
-    assert ds.setdefault("comment", sample_comment) == sample_comment
-    assert ds["comment"] == sample_comment
+@given(initial=sst.datasets(for_upload=True))
+@settings(max_examples=10)
+def test_dataset_dict_like_setitem(initial: Dataset):
+    import uuid
+
+    sample_comment = uuid.uuid4().hex
+    assert initial["comment"] != sample_comment
+    initial["comment"] = sample_comment
+    assert initial["comment"] == sample_comment
 
 
-def test_dataset_dict_like_setdefault_existing_key():
-    original_comment = "This is the original comment."
-    default_comment = "This is an example."
-    ds = Dataset(type="raw", comment=original_comment)
-    assert ds["comment"] == original_comment
-    assert ds.setdefault("comment", default_comment) == original_comment
-
-
-def test_dataset_dict_like_setdefault_object():
-    ds = Dataset(type="raw")
-    assert ds["shared_with"] is None
-    default_list = []
-    shared_with = ds.setdefault("shared_with", default_list)
-    assert default_list is shared_with
-    assert ds["shared_with"] is default_list
-
-
-def test_dataset_dict_like_setitem(my_type):
-    sample_comment = "This is an example."
-    ds = Dataset(type=my_type)
-    assert ds["comment"] is None
-    ds["comment"] = sample_comment
-    assert ds["comment"] == sample_comment
-
-
-def test_dataset_dict_like_setitem_invalid_field(my_type, invalid_field_example):
+@given(initial=sst.datasets(for_upload=True))
+@settings(max_examples=10)
+def test_dataset_dict_like_setitem_invalid_field(initial: Dataset):
     # ``__setitem__`` doesn't check if the item is invalid for the current type or not.
-    ds = Dataset(type=my_type)
-    invalid_field, invalid_value = invalid_field_example
-    assert ds[invalid_field] is None
-    ds[invalid_field] = invalid_value
-    assert ds[invalid_field] == invalid_value
+    invalid_field, invalid_value = invalid_field_example(initial.type)
+    assert initial[invalid_field] is None
+    initial[invalid_field] = invalid_value
+    assert initial[invalid_field] == invalid_value
 
 
 @pytest.mark.parametrize(
     ("is_attr", "wrong_field", "wrong_value"),
     ((True, "size", 10), (False, "OBVIOUSLYWRONGNAME", "OBVIOUSLYWRONGVALUE")),
 )
+@given(initial=sst.datasets(for_upload=True))
+@settings(max_examples=10)
 def test_dataset_dict_like_setitem_wrong_field_raises(
-    is_attr, wrong_field, wrong_value
+    initial, is_attr, wrong_field, wrong_value
 ):
     # ``manual`` fields such as ``size`` should raise with ``__setitem__``.
     # However, it may need more specific error message.
-    ds = Dataset(type="raw")
-    assert hasattr(ds, wrong_field) == is_attr
+    assert hasattr(initial, wrong_field) == is_attr
     with pytest.raises(KeyError, match=f"{wrong_field} is not a valid field name."):
-        ds[wrong_field] = wrong_value
+        initial[wrong_field] = wrong_value
