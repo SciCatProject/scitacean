@@ -510,13 +510,13 @@ class Dataset(DatasetBase):
     def keys(self) -> Iterable[str]:
         """Dict-like keys(names of fields) method.
 
-        .. versionadded:: RELEASE_PLACEHOLDER
-
         Returns
         -------
         :
             Generator of names of all fields corresponding to ``self.type``
             and other fields that are not ``None``.
+
+        .. versionadded:: RELEASE_PLACEHOLDER
         """
         from itertools import chain
 
@@ -532,20 +532,18 @@ class Dataset(DatasetBase):
     def values(self) -> Iterable[Any]:
         """Dict-like values(values of fields) method.
 
-        .. versionadded:: RELEASE_PLACEHOLDER
-
         Returns
         -------
         :
             Generator of values of all fields corresponding to ``self.type``
             and other fields that are not ``None``.
+
+        .. versionadded:: RELEASE_PLACEHOLDER
         """
         return (getattr(self, field_name) for field_name in self.keys())
 
     def items(self) -> Iterable[tuple[str, Any]]:
         """Dict-like items(name and value pairs of fields) method.
-
-        .. versionadded:: RELEASE_PLACEHOLDER
 
         Returns
         -------
@@ -553,6 +551,8 @@ class Dataset(DatasetBase):
             Generator of (Name, Value) pairs of all fields
             corresponding to ``self.type``
             and other fields that are not ``None``.
+
+        .. versionadded:: RELEASE_PLACEHOLDER
         """
         return ((key, getattr(self, key)) for key in self.keys())
 
@@ -579,8 +579,6 @@ class Dataset(DatasetBase):
     def __getitem__(self, field_name: str) -> Any:
         """Dict-like get-item method.
 
-        .. versionadded:: RELEASE_PLACEHOLDER
-
         Parameters
         ----------
         field_name:
@@ -595,6 +593,8 @@ class Dataset(DatasetBase):
         ------
         :
             :class:`KeyError` if ``field_name`` does not mach any names of fields.
+
+        .. versionadded:: RELEASE_PLACEHOLDER
         """
         self._validate_field_name(field_name)
         return getattr(self, field_name)
@@ -603,8 +603,6 @@ class Dataset(DatasetBase):
         """Dict-like set-item method.
 
         Set the value of the field with name ``field_name`` as ``field_value``.
-
-        .. versionadded:: RELEASE_PLACEHOLDER
 
         Parameters
         ----------
@@ -618,40 +616,11 @@ class Dataset(DatasetBase):
         ------
         :
             :class:`KeyError` if ``field_name`` does not mach any names of fields.
+
+        .. versionadded:: RELEASE_PLACEHOLDER
         """
         self._validate_field_name(field_name)
         setattr(self, field_name, field_value)
-
-    def setdefault(self, field_name: str, default_value: Any) -> Any:
-        """Dict-like setdefault method.
-
-        Set the value of the field with name ``field_name`` as ``default_value``
-        only if the value of ``field_name`` is ``None``.
-
-        .. versionadded:: RELEASE_PLACEHOLDER
-
-        Parameters
-        ----------
-        field_name:
-            Name of the field to retrieve or set a default value if needed.
-
-        default_value:
-            Value of the field to set if not set (is ``None``).
-
-        Returns
-        -------
-        :
-            Value of the field with name ``field_name``.
-
-        Raises
-        ------
-        :
-            :class:`KeyError` if ``field_name`` does not mach any names of fields.
-        """
-        self._validate_field_name(field_name)
-        if getattr(self, field_name) is None:
-            setattr(self, field_name, default_value)
-        return getattr(self, field_name)
 
 
 @dataclasses.dataclass
