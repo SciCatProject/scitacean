@@ -8,8 +8,8 @@ Release notes
 
 .. Template, copy this to create a new section after a release:
 
-   vYY.0M.MICRO (Unreleased)
-   -------------------------
+   vRELEASE_PLACEHOLDER
+   --------------------
 
    Security
    ~~~~~~~~
@@ -31,6 +31,32 @@ Release notes
 
    Stability, Maintainability, and Testing
    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+vRELEASE_PLACEHOLDER
+--------------------
+
+Security
+~~~~~~~~
+
+Features
+~~~~~~~~
+
+Breaking changes
+~~~~~~~~~~~~~~~~
+
+* ``Dataset.type`` is now read only.
+
+Bugfixes
+~~~~~~~~
+
+Documentation
+~~~~~~~~~~~~~
+
+Deprecations
+~~~~~~~~~~~~
+
+Stability, Maintainability, and Testing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 v23.08.0 (2023-08-28)
 ---------------------
