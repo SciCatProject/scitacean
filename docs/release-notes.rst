@@ -41,6 +41,9 @@ Security
 Features
 ~~~~~~~~
 
+* Added dict-like methods, :meth:`Dataset.keys`, :meth:`Dataset.values` and :meth:`Dataset.items`.
+* Added dict-like item setter/getter, :meth:`Dataset.__getitem__` and :meth:`Dataset.__setitem__`.
+
 Breaking changes
 ~~~~~~~~~~~~~~~~
 
