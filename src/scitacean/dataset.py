@@ -611,7 +611,7 @@ class Dataset(DatasetBase):
         field_name:
             Name of the field to set.
 
-        default_value:
+        field_value:
             Value of the field to set.
 
         Raises
