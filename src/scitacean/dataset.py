@@ -570,8 +570,8 @@ class Dataset(DatasetBase):
 
         Raises
         ------
-        :
-            :class:`KeyError` if validation fails.
+        KeyError
+            If validation fails.
         """
         if field_name not in (field.name for field in cls.fields()):
             raise KeyError(f"{field_name} is not a valid field name.")
