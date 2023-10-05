@@ -63,6 +63,9 @@ The example below shows how docstrings should be laid out in scitacean including
 
           >>> scitacean.foo(1, 3)
           6
+
+
+        .. versionadded:: v23.08.0
         """
 
 The order of sections is fixed as shown in the example.
@@ -105,6 +108,8 @@ The order of sections is fixed as shown in the example.
 * **Examples** (*optional*) Example code given using ``>>>`` as the Python prompt.
   May include text before, after, and between code blocks.
   Note the spacing in the example.
+* **Version info** (*optional*) ``versionadded``, ``versionchanged``, and ``deprecated`` directives are placed at the end.
+  They must be separated from the previous section by *two* empty lines in order to render properly.
 
 Some functions can be sufficiently described by a single sentence.
 In this case, the 'Parameters' and 'Returns' sections may be omitted and the docstring should be laid out on a single line.
