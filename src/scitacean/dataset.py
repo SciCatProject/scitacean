@@ -507,6 +507,126 @@ class Dataset(DatasetBase):
         """
         self.make_upload_model()
 
+    def keys(self) -> Iterable[str]:
+        """Dict-like keys(names of fields) method.
+
+        Returns
+        -------
+        :
+            Generator of names of all fields corresponding to ``self.type``
+            and other fields that are not ``None``.
+
+
+        .. versionadded:: RELEASE_PLACEHOLDER
+        """
+        from itertools import chain
+
+        all_fields = set((field.name for field in self.fields()))
+        my_fields = set((field.name for field in self.fields(dataset_type=self.type)))
+        other_fields = all_fields - my_fields
+        invalid_fields = (
+            f_name for f_name in other_fields if getattr(self, f_name) is not None
+        )
+
+        return chain(my_fields, invalid_fields)
+
+    def values(self) -> Iterable[Any]:
+        """Dict-like values(values of fields) method.
+
+        Returns
+        -------
+        :
+            Generator of values of all fields corresponding to ``self.type``
+            and other fields that are not ``None``.
+
+
+        .. versionadded:: RELEASE_PLACEHOLDER
+        """
+        return (getattr(self, field_name) for field_name in self.keys())
+
+    def items(self) -> Iterable[tuple[str, Any]]:
+        """Dict-like items(name and value pairs of fields) method.
+
+        Returns
+        -------
+        :
+            Generator of (Name, Value) pairs of all fields
+            corresponding to ``self.type``
+            and other fields that are not ``None``.
+
+
+        .. versionadded:: RELEASE_PLACEHOLDER
+        """
+        return ((key, getattr(self, key)) for key in self.keys())
+
+    @classmethod
+    def _validate_field_name(cls, field_name: str) -> None:
+        """Validate ``field_name``.
+
+        If ``field_name`` is a ``name`` of any
+        :class:`DatasetBase.Field` objects in ``self.fields()``.
+
+        Parameters
+        ----------
+        field_name:
+            Name of the field to validate.
+
+        Raises
+        ------
+        KeyError
+            If validation fails.
+        """
+        if field_name not in (field.name for field in cls.fields()):
+            raise KeyError(f"{field_name} is not a valid field name.")
+
+    def __getitem__(self, field_name: str) -> Any:
+        """Dict-like get-item method.
+
+        Parameters
+        ----------
+        field_name:
+            Name of the field to retrieve.
+
+        Returns
+        -------
+        :
+            Value of the field with the name ``field_name``.
+
+        Raises
+        ------
+        :
+            :class:`KeyError` if ``field_name`` does not mach any names of fields.
+
+
+        .. versionadded:: RELEASE_PLACEHOLDER
+        """
+        self._validate_field_name(field_name)
+        return getattr(self, field_name)
+
+    def __setitem__(self, field_name: str, field_value: Any) -> None:
+        """Dict-like set-item method.
+
+        Set the value of the field with name ``field_name`` as ``field_value``.
+
+        Parameters
+        ----------
+        field_name:
+            Name of the field to set.
+
+        field_value:
+            Value of the field to set.
+
+        Raises
+        ------
+        :
+            :class:`KeyError` if ``field_name`` does not mach any names of fields.
+
+
+        .. versionadded:: RELEASE_PLACEHOLDER
+        """
+        self._validate_field_name(field_name)
+        setattr(self, field_name, field_value)
+
 
 @dataclasses.dataclass
 class DatablockUploadModels:

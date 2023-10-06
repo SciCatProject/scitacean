@@ -765,3 +765,116 @@ def test_derive_removes_attachments(initial, attachments):
     initial.attachments = attachments
     derived = initial.derive()
     assert derived.attachments == []
+
+
+def invalid_field_example(my_type):
+    if my_type == DatasetType.DERIVED:
+        return "data_format", "sth_not_None"
+    elif my_type == DatasetType.RAW:
+        return "job_log_data", "sth_not_None"
+    else:
+        raise ValueError(my_type, " is not valid DatasetType.")
+
+
+@given(initial=sst.datasets(for_upload=True))
+@settings(max_examples=10)
+def test_dataset_dict_like_keys_per_type(initial: Dataset):
+    my_names = set(
+        field.name for field in Dataset._FIELD_SPEC if field.used_by(initial.type)
+    )
+    assert set(initial.keys()) == my_names
+
+
+@given(initial=sst.datasets(for_upload=True))
+@settings(max_examples=10)
+def test_dataset_dict_like_keys_including_invalid_field(initial):
+    invalid_name, invalid_value = invalid_field_example(initial.type)
+
+    my_names = set(
+        field.name for field in Dataset._FIELD_SPEC if field.used_by(initial.type)
+    )
+    assert invalid_name not in my_names
+    my_names.add(invalid_name)
+
+    setattr(initial, invalid_name, invalid_value)
+
+    assert set(initial.keys()) == my_names
+
+
+@given(initial=sst.datasets(for_upload=True))
+@settings(max_examples=10)
+def test_dataset_dict_like_values(initial: Dataset):
+    for key, value in zip(initial.keys(), initial.values()):
+        assert value == getattr(initial, key)
+
+
+@given(initial=sst.datasets(for_upload=True))
+@settings(max_examples=10)
+def test_dataset_dict_like_values_with_invalid_field(initial: Dataset):
+    setattr(initial, *invalid_field_example(initial.type))
+    for key, value in zip(initial.keys(), initial.values()):
+        assert value == getattr(initial, key)
+
+
+@given(initial=sst.datasets(for_upload=True))
+@settings(max_examples=10)
+def test_dataset_dict_like_items_with_invalid_field(initial: Dataset):
+    setattr(initial, *invalid_field_example(initial.type))
+    for key, value in initial.items():
+        assert value == getattr(initial, key)
+
+
+@given(initial=sst.datasets(for_upload=True))
+@settings(max_examples=10)
+def test_dataset_dict_like_getitem(initial):
+    assert initial["type"] == initial.type
+
+
+@pytest.mark.parametrize(
+    ("is_attr", "wrong_field"), ((True, "size"), (False, "OBVIOUSLYWRONGNAME"))
+)
+@given(initial=sst.datasets(for_upload=True))
+@settings(max_examples=10)
+def test_dataset_dict_like_getitem_wrong_field_raises(initial, is_attr, wrong_field):
+    # 'size' should be included in the field later.
+    # It is now excluded because it is ``manual`` field. See issue#151.
+    assert hasattr(initial, wrong_field) == is_attr
+    with pytest.raises(KeyError, match=f"{wrong_field} is not a valid field name."):
+        initial[wrong_field]
+
+
+@given(initial=sst.datasets(for_upload=True))
+@settings(max_examples=10)
+def test_dataset_dict_like_setitem(initial: Dataset):
+    import uuid
+
+    sample_comment = uuid.uuid4().hex
+    assert initial["comment"] != sample_comment
+    initial["comment"] = sample_comment
+    assert initial["comment"] == sample_comment
+
+
+@given(initial=sst.datasets(for_upload=True))
+@settings(max_examples=10)
+def test_dataset_dict_like_setitem_invalid_field(initial: Dataset):
+    # ``__setitem__`` doesn't check if the item is invalid for the current type or not.
+    invalid_field, invalid_value = invalid_field_example(initial.type)
+    assert initial[invalid_field] is None
+    initial[invalid_field] = invalid_value
+    assert initial[invalid_field] == invalid_value
+
+
+@pytest.mark.parametrize(
+    ("is_attr", "wrong_field", "wrong_value"),
+    ((True, "size", 10), (False, "OBVIOUSLYWRONGNAME", "OBVIOUSLYWRONGVALUE")),
+)
+@given(initial=sst.datasets(for_upload=True))
+@settings(max_examples=10)
+def test_dataset_dict_like_setitem_wrong_field_raises(
+    initial, is_attr, wrong_field, wrong_value
+):
+    # ``manual`` fields such as ``size`` should raise with ``__setitem__``.
+    # However, it may need more specific error message.
+    assert hasattr(initial, wrong_field) == is_attr
+    with pytest.raises(KeyError, match=f"{wrong_field} is not a valid field name."):
+        initial[wrong_field] = wrong_value
