@@ -113,6 +113,57 @@ def test_file_from_local_remote_path_uses_forward_slash(fs):
     assert file.make_model().path == "file.dat"
 
 
+def test_file_from_remote_default_args():
+    file = File.from_remote(
+        remote_path="/remote/source/file.nxs",
+        size=6123,
+        creation_time="2023-09-27T16:00:15Z",
+    )
+    assert file.local_path is None
+    assert isinstance(file.remote_path, RemotePath)
+    assert file.remote_path == "/remote/source/file.nxs"
+    assert file.size == 6123
+    assert isinstance(file.creation_time, datetime)
+    assert file.creation_time == parse_date("2023-09-27T16:00:15Z")
+    assert file.checksum() is None
+    assert file.checksum_algorithm is None
+    assert file.remote_uid is None
+    assert file.remote_gid is None
+    assert file.remote_perm is None
+
+
+def test_file_from_remote_all_args():
+    file = File.from_remote(
+        remote_path="/remote/image.png",
+        size=9,
+        creation_time=parse_date("2023-10-09T08:12:59Z"),
+        checksum="abcde",
+        checksum_algorithm="md5",
+        remote_uid="user-usy",
+        remote_gid="groupy-group",
+        remote_perm="wrx",
+    )
+    assert file.local_path is None
+    assert file.remote_path == "/remote/image.png"
+    assert file.size == 9
+    assert file.creation_time == parse_date("2023-10-09T08:12:59Z")
+    assert file.checksum() == "abcde"
+    assert file.checksum_algorithm == "md5"
+    assert file.remote_uid == "user-usy"
+    assert file.remote_gid == "groupy-group"
+    assert file.remote_perm == "wrx"
+
+
+def test_file_from_remote_checksum_requires_algorithm():
+    with pytest.raises(TypeError, match="checksum"):
+        File.from_remote(
+            remote_path="/remote/image.png",
+            size=9,
+            creation_time="2023-10-09T08:12:59Z",
+            checksum="abcde",
+        )
+
+
 def test_file_from_download_model():
     model = DownloadDataFile(
         path="dir/image.jpg", size=12345, time=parse_date("2022-06-22T15:42:53.123Z")
