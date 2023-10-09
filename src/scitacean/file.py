@@ -10,6 +10,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import NoReturn, Optional, Union, cast
 
+import dateutil.parser
+
 from .error import IntegrityError
 from .filesystem import RemotePath, checksum_of_file, file_modification_time, file_size
 from .logging import get_logger
@@ -92,7 +94,7 @@ class File:
         Parameters
         ----------
         path:
-            Full path the local file.
+            Full path of the local file.
         base_path:
             Only use ``path.relative_to(base_path)`` to determine the remote location.
         remote_path:
@@ -103,6 +105,11 @@ class File:
             Group ID on the remote. Will be determined automatically on upload.
         remote_perm:
             File permissions on the remote. Will be determined automatically on upload.
+
+        Returns
+        -------
+        :
+            A new file object.
         """
         path = Path(path)
         if not remote_path:
@@ -114,6 +121,73 @@ class File:
             remote_perm=remote_perm,
             remote_uid=remote_uid,
             _checksum_cache=_Checksum(),
+        )
+
+    @classmethod
+    def from_remote(
+        cls,
+        remote_path: Union[str, RemotePath],
+        size: int,
+        creation_time: Union[datetime, str],
+        checksum: Optional[str] = None,
+        checksum_algorithm: Optional[str] = None,
+        remote_uid: Optional[str] = None,
+        remote_gid: Optional[str] = None,
+        remote_perm: Optional[str] = None,
+    ):
+        """Construct a new file object for a remote file.
+
+        The local path of the returned ``File`` is ``None``.
+
+        Parameters
+        ----------
+        remote_path:
+            Path the remote file relative to the dataset's source folder.
+        size:
+            Size in bytes on the remote filesystem.
+        creation_time:
+            Date and time the file was created on the remote filesystem.
+            If a ``str``, it is parsed using ``dateutil.parser.parse``.
+        checksum:
+            Checksum of the file.
+        checksum_algorithm:
+            Algorithm used to compute the given checksum.
+            Must be passed when ``checksum is not None``.
+        remote_uid:
+            User ID on the remote.
+        remote_gid:
+            Group ID on the remote.
+        remote_perm:
+            File permissions on the remote.
+
+        Returns
+        -------
+        :
+            A new file object.
+
+
+        .. versionadded:: RELEASE_PLACEHOLDER
+        """
+        if checksum is not None and checksum_algorithm is None:
+            raise TypeError(
+                "Must specify checksum_algorithm when providing a checksum."
+            )
+
+        creation_time = (
+            creation_time
+            if isinstance(creation_time, datetime)
+            else dateutil.parser.parse(creation_time)
+        )
+        return File(
+            local_path=None,
+            remote_path=RemotePath(remote_path),
+            remote_uid=remote_uid,
+            remote_gid=remote_gid,
+            remote_perm=remote_perm,
+            _remote_size=size,
+            _remote_creation_time=creation_time,
+            _remote_checksum=checksum,
+            checksum_algorithm=checksum_algorithm,
         )
 
     @classmethod

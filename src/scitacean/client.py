@@ -10,7 +10,7 @@ import re
 import warnings
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Tuple, Union
 from urllib.parse import quote_plus
 
 import requests
@@ -20,6 +20,7 @@ from ._base_model import convert_download_to_user_model
 from .dataset import Dataset
 from .error import ScicatCommError, ScicatLoginError
 from .file import File
+from .filesystem import RemotePath
 from .logging import get_logger
 from .pid import PID
 from .typing import DownloadConnection, FileTransfer, UploadConnection
@@ -246,15 +247,13 @@ class Client:
             and some files or a partial dataset are left on the servers.
             Note the error message if that happens.
         """
-        dataset = dataset.replace(
-            source_folder=self._expect_file_transfer().source_folder_for(dataset)
-        )
+        dataset = dataset.replace(source_folder=self._source_folder_for(dataset))
+        files_to_upload = _files_to_upload(dataset.files)
         self.scicat.validate_dataset_model(dataset.make_upload_model())
-        # TODO skip if there are no files
-        with self._connect_for_file_upload(dataset) as con:
+        with self._connect_for_file_upload(dataset, files_to_upload) as con:
             # TODO check if any remote file is out of date.
             #  if so, raise an error. We never overwrite remote files!
-            uploaded_files = con.upload_files(*dataset.files)
+            uploaded_files = con.upload_files(*files_to_upload)
             dataset = dataset.replace_files(*uploaded_files)
             try:
                 finalized_model = self.scicat.create_dataset_model(
@@ -316,9 +315,24 @@ class Client:
             ) from exc
 
     @contextmanager
-    def _connect_for_file_upload(self, dataset: Dataset) -> Iterator[UploadConnection]:
-        with self._expect_file_transfer().connect_for_upload(dataset) as con:
-            yield con
+    def _connect_for_file_upload(
+        self, dataset: Dataset, files_to_upload: Iterable[File]
+    ) -> Iterator[UploadConnection]:
+        if not files_to_upload:
+            yield _NullUploadConnection()
+        else:
+            with self._expect_file_transfer().connect_for_upload(dataset) as con:
+                yield con
+
+    def _source_folder_for(self, dataset: Dataset) -> RemotePath:
+        if self._file_transfer is not None:
+            return self._file_transfer.source_folder_for(dataset)
+        if dataset.source_folder is None:
+            raise ValueError(
+                "Cannot determine source_folder for dataset because "
+                "the dataset's source_folder is None and there is no file transfer."
+            )
+        return dataset.source_folder
 
     def _expect_file_transfer(self) -> FileTransfer:
         if self.file_transfer is None:
@@ -1062,3 +1076,34 @@ def _remove_up_to_date_local_files(
             file.local_path.exists() and is_up_to_date(file)  # type: ignore[union-attr]
         )
     ]
+
+
+def _files_to_upload(files: Iterable[File]) -> List[File]:
+    for file in files:
+        if file.is_on_local and file.is_on_remote:
+            raise ValueError(
+                f"Refusing to upload file at remote_path={file.remote_path} "
+                "because it is both on local and remote and it is unclear what "
+                "to do. If you want to perform the upload, set the local path to None."
+            )
+    return [file for file in files if file.local_path is not None]
+
+
+class _NullUploadConnection:
+    """File-upload connection that does not upload anything.
+
+    Raises if called with files because uit should only be used by Client
+    when there are no files to upload.
+    """
+
+    def upload_files(self, *files: File) -> List[File]:
+        """Raise if given files."""
+        if files:
+            raise RuntimeError("Internal error: Bad upload connection")
+        return []
+
+    def revert_upload(self, *files: File) -> None:
+        """Raise if given files."""
+        if files:
+            raise RuntimeError("Internal error: Bad upload connection")
+        return []
