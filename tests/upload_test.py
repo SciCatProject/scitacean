@@ -122,6 +122,30 @@ def test_upload_without_files_creates_dataset(client, dataset):
         client.scicat.get_orig_datablocks(finalized.pid)
 
 
+def test_upload_without_files_does_not_need_file_transfer(dataset):
+    client = FakeClient()
+    finalized = client.upload_new_dataset_now(dataset)
+    expected = client.get_dataset(finalized.pid, attachments=True).replace(
+        # The backend may update the dataset after upload
+        _read_only={
+            "updated_at": finalized.updated_at,
+            "updated_by": finalized.updated_by,
+        }
+    )
+    assert finalized == expected
+    with pytest.raises(ScicatCommError):
+        client.scicat.get_orig_datablocks(finalized.pid)
+
+
+def test_upload_without_files_does_not_need_revert_files(dataset):
+    client = FakeClient(
+        disable={"create_dataset_model": ScicatCommError("Ingestion failed")}
+    )
+    with pytest.raises(ScicatCommError):
+        # Does not raise from attempting to access the file transfer.
+        client.upload_new_dataset_now(dataset)
+
+
 def test_upload_creates_dataset_and_datablock(client, dataset_with_files):
     finalized = client.upload_new_dataset_now(dataset_with_files)
     assert client.datasets[finalized.pid].createdAt == finalized.created_at
