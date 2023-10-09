@@ -6,7 +6,22 @@ import pydantic
 
 
 def is_pydantic_v1() -> bool:
-    return pydantic.__version__.split(".", 1)[0] == "1"
+    if pydantic.__version__.split(".", 1)[0] == "1":
+        import warnings
+
+        from ..warning import VisibleDeprecationWarning
+
+        warnings.warn(
+            "Support for Pydantic v1 is deprecated in Scitacean"
+            "RELEASE_PLACEHOLDER and will be removed in Scitacean v23.12.0."
+            "If you cannot update your Pydantic version, please comment in this issue:"
+            " https://github.com/SciCatProject/scitacean/issues/158",
+            VisibleDeprecationWarning,
+            stacklevel=2,
+        )
+        return True
+
+    return False
 
 
 def field_validator(
