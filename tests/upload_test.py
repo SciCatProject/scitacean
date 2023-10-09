@@ -11,6 +11,7 @@ from scitacean import (
     Client,
     Dataset,
     DatasetType,
+    File,
     ScicatCommError,
     Thumbnail,
 )
@@ -144,6 +145,62 @@ def test_upload_without_files_does_not_need_revert_files(dataset):
     with pytest.raises(ScicatCommError):
         # Does not raise from attempting to access the file transfer.
         client.upload_new_dataset_now(dataset)
+
+
+def test_upload_with_only_remote_files_does_not_need_file_transfer(dataset):
+    dataset.add_files(
+        File.from_remote(
+            remote_path="source/file1.h5", size=512, creation_time=dataset.creation_time
+        )
+    )
+
+    client = FakeClient()
+    finalized = client.upload_new_dataset_now(dataset)
+    expected = client.get_dataset(finalized.pid, attachments=True).replace(
+        # The backend may update the dataset after upload
+        _read_only={
+            "updated_at": finalized.updated_at,
+            "updated_by": finalized.updated_by,
+        }
+    )
+    assert finalized == expected
+
+
+def test_upload_with_both_remote_and_local_files(client, dataset_with_files):
+    original_file_names = set(
+        dataset_with_files.source_folder / file.remote_path
+        for file in dataset_with_files.files
+    )
+    dataset_with_files.add_files(
+        File.from_remote(
+            remote_path="file1.h5", size=6123, creation_time="2019-09-09T19:29:39Z"
+        )
+    )
+
+    finalized = client.upload_new_dataset_now(dataset_with_files)
+    expected = client.get_dataset(finalized.pid, attachments=True).replace(
+        # The backend may update the dataset after upload
+        _read_only={
+            "updated_at": finalized.updated_at,
+            "updated_by": finalized.updated_by,
+        }
+    )
+    assert finalized == expected
+    # Does not include the remote file "file1.h5"
+    assert get_file_transfer(client).files.keys() == original_file_names
+
+
+def test_upload_with_file_with_both_remote_and_local_path(client, dataset_with_files):
+    file = File.from_remote(
+        remote_path="file1.h5", size=6123, creation_time="2019-09-09T19:29:39Z"
+    )
+    file = file.downloaded(local_path="/local/file1.h5")
+    dataset_with_files.add_files(file)
+
+    # Client w/o file transfer to ensure that the client never attempts to upload.
+    client = FakeClient()
+    with pytest.raises(ValueError, match="path"):
+        client.upload_new_dataset_now(dataset_with_files)
 
 
 def test_upload_creates_dataset_and_datablock(client, dataset_with_files):

@@ -10,7 +10,7 @@ import re
 import warnings
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Tuple, Union
 from urllib.parse import quote_plus
 
 import requests
@@ -248,12 +248,11 @@ class Client:
             Note the error message if that happens.
         """
         dataset = dataset.replace(source_folder=self._source_folder_for(dataset))
+        files_to_upload = _files_to_upload(dataset.files)
         self.scicat.validate_dataset_model(dataset.make_upload_model())
-        # TODO skip if there are no files
-        with self._connect_for_file_upload(dataset) as con:
+        with self._connect_for_file_upload(dataset, files_to_upload) as con:
             # TODO check if any remote file is out of date.
             #  if so, raise an error. We never overwrite remote files!
-            files_to_upload = dataset.files
             uploaded_files = con.upload_files(*files_to_upload)
             dataset = dataset.replace_files(*uploaded_files)
             try:
@@ -316,8 +315,10 @@ class Client:
             ) from exc
 
     @contextmanager
-    def _connect_for_file_upload(self, dataset: Dataset) -> Iterator[UploadConnection]:
-        if not dataset.files:
+    def _connect_for_file_upload(
+        self, dataset: Dataset, files_to_upload: Iterable[File]
+    ) -> Iterator[UploadConnection]:
+        if not files_to_upload:
             yield _NullUploadConnection()
         else:
             with self._expect_file_transfer().connect_for_upload(dataset) as con:
@@ -1075,6 +1076,17 @@ def _remove_up_to_date_local_files(
             file.local_path.exists() and is_up_to_date(file)  # type: ignore[union-attr]
         )
     ]
+
+
+def _files_to_upload(files: Iterable[File]) -> List[File]:
+    for file in files:
+        if file.is_on_local and file.is_on_remote:
+            raise ValueError(
+                f"Refusing to upload file at remote_path={file.remote_path} "
+                "because it is both on local and remote and it is unclear what "
+                "to do. If you want to perform the upload, set the local path to None."
+            )
+    return [file for file in files if file.local_path is not None]
 
 
 class _NullUploadConnection:
