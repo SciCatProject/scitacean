@@ -52,6 +52,8 @@ Breaking changes
 Bugfixes
 ~~~~~~~~
 
+* :class:`scitacean.Client` no longer requires a file transfer during upload if the dataset has no files that need to be uploaded.
+
 Documentation
 ~~~~~~~~~~~~~
 
