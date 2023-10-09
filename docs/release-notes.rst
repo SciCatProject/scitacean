@@ -76,6 +76,7 @@ Bugfixes
 ~~~~~~~~
 
 * Fields of derived datasets are no longer initialized when downloading raw datasets and vice versa.
+* Consistent table styling implemented for Jupyter notebooks in browser and vscode for both dark and light themes.
 
 Deprecations
 ~~~~~~~~~~~~

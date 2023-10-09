@@ -1,0 +1,36 @@
+/* 'data-jp-theme' is Jupyter's way of toggling dark/light theme */
+body[data-jp-theme-light="true"],
+body[data-jp-theme-light="false"] {
+  --cean-font-color-field-type: var(--jp-content-font-color2);
+  --cean-font-color-field-description: var(--jp-content-font-color1);
+  --cean-font-color-file-info-size: var(--jp-content-font-color1);
+  --cean-font-color-empty: var(--jp-content-font-color2);
+  --cean-lock-fill: var(--jp-content-font-color2);
+  --cean-error-color: var(--jp-error-color0);
+  --cean-layout-color-border: var(--jp-layout-color3);
+  --cean-layout-color-background: var(--jp-layout-color0);
+}
+
+/* 'data-vscode-theme' is vscodes way of toggling dark/light theme */
+body[data-vscode-theme-kind="vscode-dark"],
+body[data-vscode-theme-kind="vscode-light"] {
+  --cean-error-color: var(--vscode-editorError-foreground);
+  --cean-layout-color-border: var(--vscode-editorWidget-border);
+  --cean-layout-color-background: var(--vscode-editorWidget-background);
+}
+
+body[data-vscode-theme-kind="vscode-dark"] {
+  --cean-font-color-field-type: rgba(204, 204, 204, 0.54);
+  --cean-font-color-field-description: rgba(204, 204, 204, 0.87);
+  --cean-font-color-file-info-size: rgba(204, 204, 204, 0.87);
+  --cean-font-color-empty: rgba(204, 204, 204, 0.54);
+  --cean-lock-fill: rgba(204, 204, 204, 0.54);
+}
+
+body[data-vscode-theme-kind="vscode-light"] {
+  --cean-font-color-field-type: rgba(59, 59, 59, 0.54);
+  --cean-font-color-field-description: rgba(59, 59, 59, 0.87);
+  --cean-font-color-file-info-size: rgba(59, 59, 59, 0.87);
+  --cean-font-color-empty: rgba(59, 59, 59, 0.54);
+  --cean-lock-fill: rgba(59, 59, 59, 0.54);
+}

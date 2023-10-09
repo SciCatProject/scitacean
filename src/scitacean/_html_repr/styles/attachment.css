@@ -1,10 +1,10 @@
 tr.cean-header {
-    border-bottom: 2px solid var(--jp-layout-color3);
+    border-bottom: 2px solid var(--cean-layout-color-border);
 }
 
 .jp-RenderedHTMLCommon tbody tr.cean-header:hover {
     /* disable hover color in table header */
-    background: var(--jp-layout-color0);
+    background: var(--cean-layout-color-background);
 }
 
 .cean-attachment .cean-info-line {
@@ -42,7 +42,7 @@ tr.cean-header {
 }
 
 td.cean-field-type {
-    color: var(--jp-content-font-color2);
+    color: var(--cean-font-color-field-type);
 }
 
 .cean-field-value {
@@ -56,7 +56,7 @@ td.cean-field-type {
 }
 
 td.cean-field-description {
-    color: var(--jp-content-font-color1);
+    color: var(--cean-font-color-field-description);
 }
 
 .cean-field-value:hover span,
@@ -66,7 +66,7 @@ td.cean-field-description {
 }
 
 .cean-empty-field {
-    color: var(--jp-content-font-color2);
+    color: var(--cean-font-color-empty);
 }
 
 table.cean-attachment-table {
@@ -108,5 +108,5 @@ details summary {
 .cean-lock path {
     /* Override the color used in the SVG.
        This requires there to be only a single fill color. */
-    fill: var(--jp-content-font-color2) !important;
+    fill: var(--cean-lock-fill) !important;
 }

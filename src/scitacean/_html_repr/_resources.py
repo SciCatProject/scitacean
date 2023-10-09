@@ -63,15 +63,21 @@ def attachment_field_repr_template() -> Template:
 
 
 @lru_cache(maxsize=1)
+def common_style() -> str:
+    sheet = _preprocess_style(_read_text("common.css", "styles"))
+    return f"<style>{sheet}</style>"
+
+
+@lru_cache(maxsize=1)
 def dataset_style() -> str:
     sheet = _preprocess_style(_read_text("dataset.css", "styles"))
-    return f"<style>{sheet}</style>"
+    return f"{common_style()}<style>{sheet}</style>"
 
 
 @lru_cache(maxsize=1)
 def attachment_style() -> str:
     sheet = _preprocess_style(_read_text("attachment.css", "styles"))
-    return f"<style>{sheet}</style>"
+    return f"{common_style()}<style>{sheet}</style>"
 
 
 @lru_cache()
