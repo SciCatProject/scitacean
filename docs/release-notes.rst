@@ -60,6 +60,8 @@ Documentation
 Deprecations
 ~~~~~~~~~~~~
 
+* Deprecated support for Pydantic v1. It is scheduled for full removal in release 23.12.0.
+
 Stability, Maintainability, and Testing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
