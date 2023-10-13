@@ -8,7 +8,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable, Iterator, List, Optional, Union
 
-from invoke.exceptions import UnexpectedExit
 from paramiko import SFTPAttributes, SFTPClient, SSHClient
 
 from ..dataset import Dataset
@@ -125,12 +124,12 @@ class SFTPUploadConnection:
                     self._host,
                 )
                 self._sftp_client.rmdir(self.source_folder.posix)
-            except UnexpectedExit as exc:
+            except IOError as exc:
                 get_logger().warning(
-                    "Failed to remove empty remote directory %s on host:\n%s",
+                    "Failed to remove empty remote directory %s on host %s:\n%s",
                     self.source_folder,
                     self._host,
-                    exc.result,
+                    exc,
                 )
 
     def _revert_upload_single(
@@ -146,10 +145,8 @@ class SFTPUploadConnection:
 
         try:
             self._sftp_client.remove(remote_path.posix)
-        except UnexpectedExit as exc:
-            get_logger().warning(
-                "Error reverting file %s:\n%s", remote_path, exc.result
-            )
+        except IOError as exc:
+            get_logger().warning("Error reverting file %s:\n%s", remote_path, exc)
             return
 
 
