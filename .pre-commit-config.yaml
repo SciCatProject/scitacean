@@ -21,11 +21,11 @@ repos:
       types: ["jupyter"]
       args: ["--drop-empty-cells",
              "--extra-keys 'metadata.language_info.version cell.metadata.jp-MarkdownHeadingCollapsed cell.metadata.pycharm'"]
-- repo: https://github.com/charliermarsh/ruff-pre-commit
-  rev: 'v0.0.291'
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.1.0
   hooks:
     - id: ruff
-      args: ["--fix"]
+      args: [--fix, --exit-non-zero-on-fix]
 - repo: https://github.com/codespell-project/codespell
   rev: v2.2.5
   hooks:
