@@ -8,16 +8,11 @@ from string import Template
 
 
 def _read_text(filename: str, group: str) -> str:
-    if hasattr(importlib.resources, "files"):
-        # Use new API added in Python 3.9
-        return (
-            importlib.resources.files(f"scitacean._html_repr.{group}")
-            .joinpath(filename)
-            .read_text()
-        )
-    # Old API, deprecated as of Python 3.11
-    # When this is removed, also remove the __init__.py files in the resource folders.
-    return importlib.resources.read_text(f"scitacean._html_repr.{group}", filename)
+    return (
+        importlib.resources.files(f"scitacean._html_repr.{group}")
+        .joinpath(filename)
+        .read_text()
+    )
 
 
 def _preprocess_style(css: str) -> str:
