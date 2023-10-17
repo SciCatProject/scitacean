@@ -59,6 +59,8 @@ addopts = """
 """
 filterwarnings = [
     "error",
+    # From dateutil. This needs to be first because it is triggered by pytest itself.
+    'ignore:datetime.datetime.utcfromtimestamp:DeprecationWarning',
     # Many tests don't set a checksum, so File raises this warning.
     "ignore:Cannot check if local file:UserWarning",
     # Internal deprecations.
