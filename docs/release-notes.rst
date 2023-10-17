@@ -41,14 +41,15 @@ Security
 Features
 ~~~~~~~~
 
+* Python 3.12 is officially supported.
 * Added dict-like methods, :meth:`Dataset.keys`, :meth:`Dataset.values` and :meth:`Dataset.items`.
 * Added dict-like item setter/getter, :meth:`Dataset.__getitem__` and :meth:`Dataset.__setitem__`.
 
 Breaking changes
 ~~~~~~~~~~~~~~~~
 
-* ``Dataset.type`` is now read only.
 * **Dropped support for Python 3.8.**
+* ``Dataset.type`` is now read only.
 
 Bugfixes
 ~~~~~~~~
