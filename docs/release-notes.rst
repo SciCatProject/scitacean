@@ -48,6 +48,7 @@ Breaking changes
 ~~~~~~~~~~~~~~~~
 
 * ``Dataset.type`` is now read only.
+* **Dropped support for Python 3.8.**
 
 Bugfixes
 ~~~~~~~~
