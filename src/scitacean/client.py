@@ -1106,4 +1106,3 @@ class _NullUploadConnection:
         """Raise if given files."""
         if files:
             raise RuntimeError("Internal error: Bad upload connection")
-        return []

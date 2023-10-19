@@ -54,6 +54,10 @@ def format_value(val: Any) -> str:
 
 def format_type(typ: Any) -> str:
     """Return a concise str repr for a type."""
+    # Types are strings model.py because of
+    # from __future__ import annotations
+    if isinstance(typ, str) and typ.startswith("Optional["):
+        typ = typ[9:-1]
     try:
         return _TYPE_NAME[typ]
     except KeyError:

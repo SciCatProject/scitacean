@@ -68,6 +68,8 @@ Deprecations
 Stability, Maintainability, and Testing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+* The codebase now gets type-checked in CI.
+
 v23.08.0 (2023-08-28)
 ---------------------
 

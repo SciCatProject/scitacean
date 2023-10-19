@@ -134,7 +134,7 @@ class File:
         remote_uid: Optional[str] = None,
         remote_gid: Optional[str] = None,
         remote_perm: Optional[str] = None,
-    ):
+    ) -> File:
         """Construct a new file object for a remote file.
 
         The local path of the returned ``File`` is ``None``.

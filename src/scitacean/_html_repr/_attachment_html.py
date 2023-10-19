@@ -16,9 +16,11 @@ def attachment_html_repr(attachment: Attachment) -> str:
     template = _resources.attachment_repr_template()
     style_sheet = _resources.attachment_style()
     rows = "\n".join(_format_field(field) for field in _get_fields(attachment))
-    thumbnail = attachment.thumbnail._repr_mimebundle_(include=("text/html",))[
-        "text/html"
-    ]
+    if attachment.thumbnail is None:
+        thumbnail = ""
+    else:
+        bundle = attachment.thumbnail._repr_mimebundle_(include=("text/html",))
+        thumbnail = bundle["text/html"]  # type: ignore[assignment]
     return template.substitute(
         style_sheet=style_sheet,
         caption=format_value(attachment.caption),
@@ -30,7 +32,7 @@ def attachment_html_repr(attachment: Attachment) -> str:
 def _format_field(field: Field) -> str:
     name = field.name
     flag = format_field_flag(field)
-    typ = _format_type(field.type)
+    typ = format_type(field.type)
     value = format_value(field.value)
 
     template = _resources.attachment_field_repr_template()
@@ -40,14 +42,6 @@ def _format_field(field: Field) -> str:
         type=typ,
         value=value,
     )
-
-
-# Types are strings in Attachment because of
-# from __future__ import annotations
-def _format_type(typ: str) -> str:
-    if typ.startswith("Optional["):
-        typ = typ[9:-1]
-    return format_type(typ)
 
 
 _EXCLUDED_FIELDS = {

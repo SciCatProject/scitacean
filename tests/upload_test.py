@@ -2,11 +2,13 @@
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
 
 from contextlib import contextmanager
+from typing import cast
 
 import pytest
 from dateutil.parser import parse as parse_date
 
 from scitacean import (
+    PID,
     Attachment,
     Client,
     Dataset,
@@ -126,7 +128,8 @@ def test_upload_without_files_creates_dataset(client, dataset):
 def test_upload_without_files_does_not_need_file_transfer(dataset):
     client = FakeClient()
     finalized = client.upload_new_dataset_now(dataset)
-    expected = client.get_dataset(finalized.pid, attachments=True).replace(
+    pid = cast(PID, finalized.pid)
+    expected = client.get_dataset(pid, attachments=True).replace(
         # The backend may update the dataset after upload
         _read_only={
             "updated_at": finalized.updated_at,
@@ -135,7 +138,7 @@ def test_upload_without_files_does_not_need_file_transfer(dataset):
     )
     assert finalized == expected
     with pytest.raises(ScicatCommError):
-        client.scicat.get_orig_datablocks(finalized.pid)
+        client.scicat.get_orig_datablocks(pid)
 
 
 def test_upload_without_files_does_not_need_revert_files(dataset):
@@ -156,7 +159,8 @@ def test_upload_with_only_remote_files_does_not_need_file_transfer(dataset):
 
     client = FakeClient()
     finalized = client.upload_new_dataset_now(dataset)
-    expected = client.get_dataset(finalized.pid, attachments=True).replace(
+    pid = cast(PID, finalized.pid)
+    expected = client.get_dataset(pid, attachments=True).replace(
         # The backend may update the dataset after upload
         _read_only={
             "updated_at": finalized.updated_at,
@@ -277,7 +281,7 @@ def test_upload_cleans_up_files_if_dataset_ingestion_fails(dataset_with_files, f
 
 def test_upload_does_not_create_dataset_if_validation_fails(dataset_with_files, fs):
     client = FakeClient(
-        disable={"validate_dataset_model": ValueError},
+        disable={"validate_dataset_model": ValueError("Validation failed")},
         file_transfer=FakeFileTransfer(fs=fs),
     )
     with pytest.raises(ValueError):

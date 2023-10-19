@@ -778,7 +778,7 @@ def invalid_field_example(my_type):
 
 @given(initial=sst.datasets(for_upload=True))
 @settings(max_examples=10)
-def test_dataset_dict_like_keys_per_type(initial: Dataset):
+def test_dataset_dict_like_keys_per_type(initial: Dataset) -> None:
     my_names = set(
         field.name for field in Dataset._FIELD_SPEC if field.used_by(initial.type)
     )
@@ -803,14 +803,14 @@ def test_dataset_dict_like_keys_including_invalid_field(initial):
 
 @given(initial=sst.datasets(for_upload=True))
 @settings(max_examples=10)
-def test_dataset_dict_like_values(initial: Dataset):
+def test_dataset_dict_like_values(initial: Dataset) -> None:
     for key, value in zip(initial.keys(), initial.values()):
         assert value == getattr(initial, key)
 
 
 @given(initial=sst.datasets(for_upload=True))
 @settings(max_examples=10)
-def test_dataset_dict_like_values_with_invalid_field(initial: Dataset):
+def test_dataset_dict_like_values_with_invalid_field(initial: Dataset) -> None:
     setattr(initial, *invalid_field_example(initial.type))
     for key, value in zip(initial.keys(), initial.values()):
         assert value == getattr(initial, key)
@@ -818,7 +818,7 @@ def test_dataset_dict_like_values_with_invalid_field(initial: Dataset):
 
 @given(initial=sst.datasets(for_upload=True))
 @settings(max_examples=10)
-def test_dataset_dict_like_items_with_invalid_field(initial: Dataset):
+def test_dataset_dict_like_items_with_invalid_field(initial: Dataset) -> None:
     setattr(initial, *invalid_field_example(initial.type))
     for key, value in initial.items():
         assert value == getattr(initial, key)
@@ -845,7 +845,7 @@ def test_dataset_dict_like_getitem_wrong_field_raises(initial, is_attr, wrong_fi
 
 @given(initial=sst.datasets(for_upload=True))
 @settings(max_examples=10)
-def test_dataset_dict_like_setitem(initial: Dataset):
+def test_dataset_dict_like_setitem(initial: Dataset) -> None:
     import uuid
 
     sample_comment = uuid.uuid4().hex
@@ -856,7 +856,7 @@ def test_dataset_dict_like_setitem(initial: Dataset):
 
 @given(initial=sst.datasets(for_upload=True))
 @settings(max_examples=10)
-def test_dataset_dict_like_setitem_invalid_field(initial: Dataset):
+def test_dataset_dict_like_setitem_invalid_field(initial: Dataset) -> None:
     # ``__setitem__`` doesn't check if the item is invalid for the current type or not.
     invalid_field, invalid_value = invalid_field_example(initial.type)
     assert initial[invalid_field] is None

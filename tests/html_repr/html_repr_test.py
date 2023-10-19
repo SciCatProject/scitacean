@@ -38,6 +38,7 @@ def test_attachment_html_repr():
     )
 
     res = att._repr_html_()
+    assert isinstance(res, str)
 
     assert "THE_CAPTION.jpg" in res
     assert "ThePeople" in res

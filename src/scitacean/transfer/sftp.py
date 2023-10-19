@@ -79,7 +79,7 @@ class SFTPUploadConnection:
     def upload_files(self, *files: File) -> List[File]:
         """Upload files to the remote folder."""
         self._make_source_folder()
-        uploaded = []
+        uploaded: list[File] = []
         try:
             uploaded.extend(self._upload_file(file) for file in files)
         except Exception:
@@ -309,10 +309,13 @@ class SFTPFileTransfer:
             sftp_client.close()
 
 
-def _default_connect(host: str, port: int) -> SFTPClient:
+def _default_connect(host: str, port: Optional[int]) -> SFTPClient:
     client = SSHClient()
     client.load_system_host_keys()
-    client.connect(hostname=host, port=port)
+    if port is not None:
+        client.connect(hostname=host, port=port)
+    else:
+        client.connect(hostname=host)
     return client.open_sftp()
 
 

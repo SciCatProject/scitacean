@@ -1,0 +1,8 @@
+-r test.in
+mypy
+
+types-docutils
+types-paramiko
+types-python-dateutil
+types-PyYAML
+types-requests
