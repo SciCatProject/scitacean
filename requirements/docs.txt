@@ -15,7 +15,7 @@ asttokens==2.4.0
     # via stack-data
 autodoc-pydantic==2.0.1
     # via -r requirements/docs.in
-babel==2.12.1
+babel==2.13.0
     # via
     #   pydata-sphinx-theme
     #   sphinx
@@ -25,7 +25,7 @@ beautifulsoup4==4.12.2
     # via
     #   nbconvert
     #   pydata-sphinx-theme
-bleach==6.0.0
+bleach==6.1.0
     # via nbconvert
 comm==0.1.4
     # via ipykernel
@@ -39,19 +39,19 @@ docutils==0.20.1
     #   nbsphinx
     #   pydata-sphinx-theme
     #   sphinx
-executing==1.2.0
+executing==2.0.0
     # via stack-data
-fastjsonschema==2.18.0
+fastjsonschema==2.18.1
     # via nbformat
 imagesize==1.4.1
     # via sphinx
 ipykernel==6.25.2
     # via -r requirements/docs.in
-ipython==8.15.0
+ipython==8.16.1
     # via
     #   -r requirements/docs.in
     #   ipykernel
-jedi==0.19.0
+jedi==0.19.1
     # via ipython
 jinja2==3.1.2
     # via
@@ -63,11 +63,11 @@ jsonschema==4.19.1
     # via nbformat
 jsonschema-specifications==2023.7.1
     # via jsonschema
-jupyter-client==8.3.1
+jupyter-client==8.4.0
     # via
     #   ipykernel
     #   nbclient
-jupyter-core==5.3.1
+jupyter-core==5.4.0
     # via
     #   ipykernel
     #   jupyter-client
@@ -92,13 +92,13 @@ mdit-py-plugins==0.4.0
     # via myst-parser
 mdurl==0.1.2
     # via markdown-it-py
-mistune==3.0.1
+mistune==3.0.2
     # via nbconvert
 myst-parser==2.0.0
     # via -r requirements/docs.in
 nbclient==0.8.0
     # via nbconvert
-nbconvert==7.8.0
+nbconvert==7.9.2
     # via nbsphinx
 nbformat==5.9.2
     # via
@@ -117,11 +117,11 @@ pexpect==4.8.0
     # via ipython
 pickleshare==0.7.5
     # via ipython
-platformdirs==3.10.0
+platformdirs==3.11.0
     # via jupyter-core
 prompt-toolkit==3.0.39
     # via ipython
-psutil==5.9.5
+psutil==5.9.6
     # via ipykernel
 ptyprocess==0.7.0
     # via pexpect
@@ -148,7 +148,7 @@ referencing==0.30.2
     # via
     #   jsonschema
     #   jsonschema-specifications
-rpds-py==0.10.3
+rpds-py==0.10.6
     # via
     #   jsonschema
     #   referencing
@@ -189,7 +189,7 @@ sphinxcontrib-qthelp==1.0.6
     # via sphinx
 sphinxcontrib-serializinghtml==1.1.9
     # via sphinx
-stack-data==0.6.2
+stack-data==0.6.3
     # via ipython
 tinycss2==1.2.1
     # via nbconvert
@@ -197,7 +197,7 @@ tornado==6.3.3
     # via
     #   ipykernel
     #   jupyter-client
-traitlets==5.10.0
+traitlets==5.11.2
     # via
     #   comm
     #   ipykernel
@@ -209,7 +209,7 @@ traitlets==5.10.0
     #   nbconvert
     #   nbformat
     #   nbsphinx
-wcwidth==0.2.6
+wcwidth==0.2.8
     # via prompt-toolkit
 webencodings==0.5.1
     # via
