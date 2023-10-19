@@ -215,7 +215,7 @@ class Thumbnail:
         def decoded() -> bytes:
             return self.decoded_data()
 
-        repr_fns = {
+        repr_fns: dict[str, Callable[[], Union[bytes, str]]] = {
             "image/png": decoded,
             "image/jpeg": decoded,
             "image/svg+xml": decoded,

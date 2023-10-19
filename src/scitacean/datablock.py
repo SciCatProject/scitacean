@@ -152,7 +152,7 @@ class OrigDatablock:
             size=self.size,
             dataFileList=[file.make_model(for_archive=False) for file in self.files],
             datasetId=dataset.pid,  # type: ignore[arg-type]
-            ownerGroup=owner_group,  # type: ignore[arg-type]
+            ownerGroup=owner_group,
             accessGroups=self.access_groups or dataset.access_groups,
             instrumentGroup=self.instrument_group or dataset.instrument_group,
         )

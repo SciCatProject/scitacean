@@ -42,9 +42,9 @@ def _read_resource_yaml(filename: str) -> Any:
 
 @lru_cache(maxsize=1)
 def _docker_compose_file() -> Dict[str, Any]:
-    return _read_resource_yaml(
+    return _read_resource_yaml(  # type: ignore[no-any-return]
         "docker-compose-sftp-server.yaml"
-    )  # type: ignore[no-any-return]
+    )
 
 
 @lru_cache(maxsize=1)
