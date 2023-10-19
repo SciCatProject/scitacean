@@ -8,8 +8,8 @@ Release notes
 
 .. Template, copy this to create a new section after a release:
 
-   vRELEASE_PLACEHOLDER
-   --------------------
+   vversion
+   --------
 
    Security
    ~~~~~~~~
@@ -32,8 +32,8 @@ Release notes
    Stability, Maintainability, and Testing
    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-vRELEASE_PLACEHOLDER
---------------------
+vversion
+--------
 
 Security
 ~~~~~~~~
