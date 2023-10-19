@@ -55,6 +55,7 @@ Bugfixes
 ~~~~~~~~
 
 * :class:`scitacean.Client` no longer requires a file transfer during upload if the dataset has no files that need to be uploaded.
+* The HTML representation of datasets no longer flags read-only fields with a value as broken.
 
 Documentation
 ~~~~~~~~~~~~~

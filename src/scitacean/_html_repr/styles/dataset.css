@@ -94,6 +94,11 @@ td.cean-field-description {
     border-right: var(--cean-error-color) 4px solid !important;
 }
 
+.cean-missing-value .cean-empty-field,
+.cean-error .cean-field-value {
+    color: var(--cean-error-color);
+}
+
 table.cean-dataset {
     /* space between details marker and table */
     margin-left: 1em !important;
