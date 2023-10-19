@@ -207,6 +207,9 @@ def _human_readable_size(size_in_bytes: int) -> str:
 def _row_highlight_classes(field: Field) -> str:
     if field.required and field.value is None:
         return "cean-missing-value"
-    if field.error:
+    # Do not flag read-only fields with a value as errors.
+    # Validation is geared towards uploading where such fields must be None.
+    # But here, we don't want to flag downloaded datasets as bad because of this.
+    if field.error and not (field.read_only and field.error.startswith("Extra inputs")):
         return "cean-error"
     return ""
