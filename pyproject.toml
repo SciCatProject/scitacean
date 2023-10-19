@@ -53,6 +53,8 @@ testpaths = "tests"
 addopts = """
 --strict-config
 --strict-markers
+--disable-socket
+--allow-hosts=127.0.0.1,::1
 -ra
 -v
 --hypothesis-profile=scitacean

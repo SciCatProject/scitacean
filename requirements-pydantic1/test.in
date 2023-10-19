@@ -4,5 +4,6 @@ hypothesis
 pyfakefs
 pytest
 pytest-randomly
+pytest-socket
 pytest-xdist
 pyyaml
