@@ -156,10 +156,8 @@ def _get_fields(dset: Dataset) -> List[Field]:
 
 
 def _check_error(field: Dataset.Field, validation: Dict[str, str]) -> Optional[str]:
-    if field.name in validation:
-        # TODO validation uses model names (camelCase)
-        return validation[field.name]
-    return None
+    field_spec = next(filter(lambda f: f.name == field.name, Dataset.fields()))
+    return validation.get(field_spec.scicat_name, None)
 
 
 def _validate(dset: Dataset) -> Dict[str, str]:
