@@ -3,6 +3,7 @@
 import hashlib
 import re
 from contextlib import contextmanager
+from copy import deepcopy
 from pathlib import Path
 from typing import Union
 
@@ -56,6 +57,10 @@ def dataset_and_files(data_files):
         size=sum(f.size for f in data_files[0]),
         sourceFolder=RemotePath("/src/stibbons/774"),
         type=DatasetType.RAW,
+        scientificMetadata={
+            "height": {"value": 0.3, "unit": "m"},
+            "mass": "hefty",
+        },
     )
     block = DownloadOrigDatablock(
         chkAlg="md5",
@@ -188,11 +193,18 @@ def test_download_files_creates_local_files_select_one_by_predicate(
 
 def test_download_files_returns_updated_dataset(fs, dataset_and_files):
     dataset, contents = dataset_and_files
+    original = deepcopy(dataset)
     client = Client.without_login(
         url="/", file_transfer=FakeFileTransfer(fs=fs, files=contents)
     )
     finalized = client.download_files(dataset, target="./download")
 
+    assert dataset == original
+    assert all(
+        getattr(finalized, field.name) == getattr(original, field.name)
+        for field in original.fields()
+    )
+    assert finalized.meta == original.meta
     for f in finalized.files:
         assert f.is_on_local
     for f in dataset.files:

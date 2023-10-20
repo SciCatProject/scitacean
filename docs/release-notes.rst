@@ -56,6 +56,8 @@ Bugfixes
 
 * :class:`scitacean.Client` no longer requires a file transfer during upload if the dataset has no files that need to be uploaded.
 * The HTML representation of datasets no longer flags read-only fields with a value as broken.
+* Preserve ``meta`` in ``Dataset.replace`` and allow replacing it.
+  This also affects ``Dataset.replace_files`` and ``Client.download_files``.
 
 Documentation
 ~~~~~~~~~~~~~
