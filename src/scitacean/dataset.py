@@ -286,12 +286,15 @@ class Dataset(DatasetBase):
             },
         }
         attachments = get_val(replacements, "attachments")
+        meta = get_val(replacements, "meta")
+
         if replacements or _read_only:
             raise TypeError(
                 f"Invalid arguments: {', '.join((*replacements, *_read_only))}"
             )
         dset = Dataset(
             **kwargs,
+            meta=meta,
         )
         dset._orig_datablocks.extend(
             _orig_datablocks if _orig_datablocks is not None else self._orig_datablocks

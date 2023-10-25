@@ -647,6 +647,35 @@ def test_replace_does_not_change_files_with_input_files(initial):
     assert list(replaced.files) == list(initial.files)
 
 
+@given(sst.datasets())
+@settings(max_examples=1)
+def test_replace_preserves_meta(initial):
+    initial.meta["key"] = "val"
+    replaced = initial.replace(owner="a-new-owner")
+    assert replaced.meta == {"key": "val"}
+
+
+@given(sst.datasets())
+@settings(max_examples=1)
+def test_replace_meta(initial):
+    initial.meta["key"] = {"value": 2, "unit": "m"}
+    initial.meta["old-key"] = "old-val"
+    replaced = initial.replace(
+        owner="a-new-owner",
+        meta={"key": {"value": 3, "unit": "m"}, "new-key": "new-val"},
+    )
+    assert replaced.meta == {"key": {"value": 3, "unit": "m"}, "new-key": "new-val"}
+
+
+@given(sst.datasets())
+@settings(max_examples=1)
+def test_replace_remove_meta(initial):
+    initial.meta["key"] = {"value": 2, "unit": "m"}
+    initial.meta["old-key"] = "old-val"
+    replaced = initial.replace(owner="a-new-owner", meta=None)
+    assert replaced.meta == {}
+
+
 @pytest.mark.parametrize(
     "attachments",
     (None, [], [model.Attachment(caption="Attachment 1", owner_group="owner")]),
