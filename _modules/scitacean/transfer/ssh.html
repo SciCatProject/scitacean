@@ -1,0 +1,1049 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>scitacean.transfer.ssh &#8212; Scitacean</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=927b94d3fcb96560df09" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=927b94d3fcb96560df09" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=927b94d3fcb96560df09" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=927b94d3fcb96560df09" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=7acdffbc" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=927b94d3fcb96560df09" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=927b94d3fcb96560df09" />
+  <script src="../../../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=927b94d3fcb96560df09"></script>
+
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=edb9b5f2"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=36754332"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/scitacean/transfer/ssh';</script>
+    <link rel="icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/logo.svg" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../../../_static/logo-dark.svg" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../user-guide/index.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../reference/index.html">
+                        API reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../developer/index.html">
+                        Developer documentation
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../release-notes.html">
+                        Release notes
+                      </a>
+                    </li>
+                
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="pst-header-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-header-nav-more-links" class="dropdown-menu">
+                    
+                <li class="nav-item">
+                  <a class="nav-link dropdown-item nav-external" href="https://scicatproject.github.io/">
+                    SciCat
+                  </a>
+                </li>
+                
+
+                <li class="nav-item">
+                  <a class="nav-link dropdown-item nav-external" href="https://scicatproject.github.io/documentation/">
+                    SciCat backend
+                  </a>
+                </li>
+                
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__kbd-shortcut">Search</span>
+    <span><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SciCatProject/scitacean" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/scitacean/" title="PyPI" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://anaconda.org/conda-forge/scitacean" title="Conda" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/anaconda-logo.svg" class="icon-link-image" alt="Conda"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__kbd-shortcut">Search</span>
+    <span><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../user-guide/index.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../reference/index.html">
+                        API reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../developer/index.html">
+                        Developer documentation
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../release-notes.html">
+                        Release notes
+                      </a>
+                    </li>
+                
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="pst-header-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-header-nav-more-links" class="dropdown-menu">
+                    
+                <li class="nav-item">
+                  <a class="nav-link dropdown-item nav-external" href="https://scicatproject.github.io/">
+                    SciCat
+                  </a>
+                </li>
+                
+
+                <li class="nav-item">
+                  <a class="nav-link dropdown-item nav-external" href="https://scicatproject.github.io/documentation/">
+                    SciCat backend
+                  </a>
+                </li>
+                
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SciCatProject/scitacean" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/scitacean/" title="PyPI" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://anaconda.org/conda-forge/scitacean" title="Conda" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/anaconda-logo.svg" class="icon-link-image" alt="Conda"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">scitacean.transfer.ssh</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <h1>Source code for scitacean.transfer.ssh</h1><div class="highlight"><pre>
+<span></span><span class="c1"># SPDX-License-Identifier: BSD-3-Clause</span>
+<span class="c1"># Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)</span>
+<span class="c1"># ruff: noqa: D100, D101, D102, D103</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">contextmanager</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">from</span> <span class="nn">getpass</span> <span class="kn">import</span> <span class="n">getpass</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span> <span class="nn">dateutil.tz</span> <span class="kn">import</span> <span class="n">tzoffset</span>
+
+<span class="c1"># Note that invoke and paramiko are dependencies of fabric.</span>
+<span class="kn">from</span> <span class="nn">fabric</span> <span class="kn">import</span> <span class="n">Connection</span>
+<span class="kn">from</span> <span class="nn">invoke.exceptions</span> <span class="kn">import</span> <span class="n">UnexpectedExit</span>
+<span class="kn">from</span> <span class="nn">paramiko</span> <span class="kn">import</span> <span class="n">SFTPClient</span>
+<span class="kn">from</span> <span class="nn">paramiko.ssh_exception</span> <span class="kn">import</span> <span class="n">AuthenticationException</span><span class="p">,</span> <span class="n">PasswordRequiredException</span>
+
+<span class="kn">from</span> <span class="nn">..dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span> <span class="nn">..error</span> <span class="kn">import</span> <span class="n">FileUploadError</span>
+<span class="kn">from</span> <span class="nn">..file</span> <span class="kn">import</span> <span class="n">File</span>
+<span class="kn">from</span> <span class="nn">..filesystem</span> <span class="kn">import</span> <span class="n">RemotePath</span>
+<span class="kn">from</span> <span class="nn">..logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span> <span class="nn">..warning</span> <span class="kn">import</span> <span class="n">VisibleDeprecationWarning</span>
+<span class="kn">from</span> <span class="nn">.util</span> <span class="kn">import</span> <span class="n">source_folder_for</span>
+
+<span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+    <span class="s2">&quot;SSHFileTransfer is deprecated and scheduled for removal in Scitacean v23.11.0.&quot;</span>
+    <span class="s2">&quot;Use SFTPFileTransfer instead.&quot;</span><span class="p">,</span>
+    <span class="n">VisibleDeprecationWarning</span><span class="p">,</span>
+    <span class="n">stacklevel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">SSHDownloadConnection</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">connection</span><span class="p">:</span> <span class="n">Connection</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span> <span class="o">=</span> <span class="n">connection</span>
+
+    <span class="k">def</span> <span class="nf">download_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">remote</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">RemotePath</span><span class="p">],</span> <span class="n">local</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Download files from the given remote path.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">remote</span><span class="p">,</span> <span class="n">local</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="n">remote</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">local</span><span class="o">=</span><span class="n">l</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">download_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">remote</span><span class="p">:</span> <span class="n">RemotePath</span><span class="p">,</span> <span class="n">local</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;Downloading file </span><span class="si">%s</span><span class="s2"> from host </span><span class="si">%s</span><span class="s2"> to </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">remote</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">host</span><span class="p">,</span>
+            <span class="n">local</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">remote</span><span class="o">=</span><span class="n">remote</span><span class="o">.</span><span class="n">posix</span><span class="p">,</span> <span class="n">local</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">fspath</span><span class="p">(</span><span class="n">local</span><span class="p">))</span>
+
+
+<span class="k">class</span> <span class="nc">SSHUploadConnection</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">connection</span><span class="p">:</span> <span class="n">Connection</span><span class="p">,</span> <span class="n">source_folder</span><span class="p">:</span> <span class="n">RemotePath</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span> <span class="o">=</span> <span class="n">connection</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_source_folder</span> <span class="o">=</span> <span class="n">source_folder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_remote_timezone</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_remote_timezone</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_sftp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SFTPClient</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">sftp</span><span class="p">()</span>  <span class="c1"># type: ignore[no-any-return]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">source_folder</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RemotePath</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source_folder</span>
+
+    <span class="k">def</span> <span class="nf">remote_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">RemotePath</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">RemotePath</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_folder</span> <span class="o">/</span> <span class="n">filename</span>
+
+    <span class="k">def</span> <span class="nf">_make_source_folder</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;mkdir -p </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">source_folder</span><span class="o">.</span><span class="n">posix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">hide</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">in_stream</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">FileUploadError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Failed to create source folder </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">source_folder</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">args</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span> <span class="kn">from</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">upload_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">files</span><span class="p">:</span> <span class="n">File</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">File</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Upload files to the remote folder.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_make_source_folder</span><span class="p">()</span>
+        <span class="n">uploaded</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                <span class="n">up</span><span class="p">,</span> <span class="n">exc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_upload_file</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+                <span class="n">uploaded</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">up</span><span class="p">)</span>  <span class="c1"># need to add this file in order to revert it</span>
+                <span class="k">if</span> <span class="n">exc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">exc</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">revert_upload</span><span class="p">(</span><span class="o">*</span><span class="n">uploaded</span><span class="p">)</span>
+            <span class="k">raise</span>
+        <span class="k">return</span> <span class="n">uploaded</span>
+
+    <span class="k">def</span> <span class="nf">_upload_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="n">File</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">File</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="ne">Exception</span><span class="p">]]:</span>
+        <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">local_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Cannot upload file to </span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">remote_path</span><span class="si">}</span><span class="s2">, &quot;</span>
+                <span class="s2">&quot;the file has no local path&quot;</span>
+            <span class="p">)</span>
+        <span class="n">remote_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">remote_path</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">remote_path</span><span class="p">)</span>
+        <span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;Uploading file </span><span class="si">%s</span><span class="s2"> to </span><span class="si">%s</span><span class="s2"> on host </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">local_path</span><span class="p">,</span>
+            <span class="n">remote_path</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">host</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">st</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sftp</span><span class="o">.</span><span class="n">put</span><span class="p">(</span>
+            <span class="n">remotepath</span><span class="o">=</span><span class="n">remote_path</span><span class="o">.</span><span class="n">posix</span><span class="p">,</span> <span class="n">localpath</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">fspath</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">local_path</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">exc</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_upload</span><span class="p">(</span><span class="n">file</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">file</span><span class="p">,</span> <span class="n">exc</span>
+        <span class="n">creation_time</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">st</span><span class="o">.</span><span class="n">st_mtime</span><span class="p">,</span> <span class="n">tz</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_remote_timezone</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">st</span><span class="o">.</span><span class="n">st_mtime</span>
+            <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">uploaded</span><span class="p">(</span>
+                <span class="n">remote_gid</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">st</span><span class="o">.</span><span class="n">st_gid</span><span class="p">),</span>
+                <span class="n">remote_uid</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">st</span><span class="o">.</span><span class="n">st_uid</span><span class="p">),</span>
+                <span class="n">remote_creation_time</span><span class="o">=</span><span class="n">creation_time</span><span class="p">,</span>
+                <span class="n">remote_perm</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">st</span><span class="o">.</span><span class="n">st_mode</span><span class="p">),</span>
+                <span class="n">remote_size</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">st_size</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="kc">None</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_validate_upload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="n">File</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="ne">Exception</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">checksum</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_checksum</span><span class="p">(</span><span class="n">file</span><span class="p">))</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">checksum</span> <span class="o">!=</span> <span class="n">file</span><span class="o">.</span><span class="n">checksum</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">FileUploadError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Upload of file </span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">remote_path</span><span class="si">}</span><span class="s2"> failed: &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Checksum of uploaded file (</span><span class="si">{</span><span class="n">checksum</span><span class="si">}</span><span class="s2">) does not &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;match checksum of local file (</span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">checksum</span><span class="p">()</span><span class="si">}</span><span class="s2">) &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;using algorithm </span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">checksum_algorithm</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_compute_checksum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="n">File</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">hash_exe</span> <span class="o">:=</span> <span class="n">_coreutils_checksum_for</span><span class="p">(</span><span class="n">file</span><span class="p">))</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">hash_exe</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">remote_path</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">remote_path</span><span class="p">)</span><span class="o">.</span><span class="n">posix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">hide</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">in_stream</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="n">UnexpectedExit</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">exc</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">return_code</span> <span class="o">==</span> <span class="mi">127</span><span class="p">:</span>
+                <span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">&quot;Cannot validate checksum of uploaded file </span><span class="si">%s</span><span class="s2"> because checksum &quot;</span>
+                    <span class="s2">&quot;algorithm &#39;</span><span class="si">%s</span><span class="s2">&#39; is not implemented on the server.&quot;</span><span class="p">,</span>
+                    <span class="n">file</span><span class="o">.</span><span class="n">remote_path</span><span class="p">,</span>
+                    <span class="n">file</span><span class="o">.</span><span class="n">checksum_algorithm</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">raise</span>
+        <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># type: ignore[no-any-return]</span>
+
+    <span class="k">def</span> <span class="nf">_get_remote_timezone</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tzoffset</span><span class="p">:</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="s1">&#39;date +&quot;%Z|%::z&quot;&#39;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">tz_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="n">cmd</span><span class="p">,</span> <span class="n">hide</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">in_stream</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">UnexpectedExit</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">FileUploadError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Failed to get timezone of fileserver: </span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">args</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span> <span class="kn">from</span> <span class="kc">None</span>
+        <span class="n">tz</span> <span class="o">=</span> <span class="n">_parse_remote_timezone</span><span class="p">(</span><span class="n">tz_str</span><span class="p">)</span>
+        <span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Detected timezone of fileserver: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">tz</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tz</span>
+
+    <span class="k">def</span> <span class="nf">revert_upload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">files</span><span class="p">:</span> <span class="n">File</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove uploaded files from the remote folder.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_revert_upload_single</span><span class="p">(</span><span class="n">remote</span><span class="o">=</span><span class="n">file</span><span class="o">.</span><span class="n">remote_path</span><span class="p">,</span> <span class="n">local</span><span class="o">=</span><span class="n">file</span><span class="o">.</span><span class="n">local_path</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">_folder_is_empty</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_folder</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s2">&quot;Removing empty remote directory </span><span class="si">%s</span><span class="s2"> on host </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">source_folder</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">host</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_sftp</span><span class="o">.</span><span class="n">rmdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source_folder</span><span class="o">.</span><span class="n">posix</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">UnexpectedExit</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">&quot;Failed to remove empty remote directory </span><span class="si">%s</span><span class="s2"> on host:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">source_folder</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">host</span><span class="p">,</span>
+                    <span class="n">exc</span><span class="o">.</span><span class="n">result</span><span class="p">,</span>
+                <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_revert_upload_single</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">remote</span><span class="p">:</span> <span class="n">RemotePath</span><span class="p">,</span> <span class="n">local</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">remote_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">remote_path</span><span class="p">(</span><span class="n">remote</span><span class="p">)</span>
+        <span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;Reverting upload of file </span><span class="si">%s</span><span class="s2"> to </span><span class="si">%s</span><span class="s2"> on host </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">local</span><span class="p">,</span>
+            <span class="n">remote_path</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">host</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sftp</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">remote_path</span><span class="o">.</span><span class="n">posix</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">UnexpectedExit</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Error reverting file </span><span class="si">%s</span><span class="s2">:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">remote_path</span><span class="p">,</span> <span class="n">exc</span><span class="o">.</span><span class="n">result</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+
+
+<div class="viewcode-block" id="SSHFileTransfer"><a class="viewcode-back" href="../../../generated/classes/scitacean.transfer.ssh.SSHFileTransfer.html#scitacean.transfer.ssh.SSHFileTransfer">[docs]</a><span class="k">class</span> <span class="nc">SSHFileTransfer</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Upload / download files using SSH.</span>
+
+<span class="sd">    Configuration &amp; Authentication</span>
+<span class="sd">    ------------------------------</span>
+<span class="sd">    The file transfer connects to the server at the address given</span>
+<span class="sd">    as the ``host`` constructor argument.</span>
+<span class="sd">    This may be</span>
+
+<span class="sd">    - a full url such as ``some.fileserver.edu``,</span>
+<span class="sd">    - an IP address like ``127.0.0.1``,</span>
+<span class="sd">    - or a host defined in the user&#39;s openSSH config file.</span>
+
+<span class="sd">    The file transfer can authenticate using username+password.</span>
+<span class="sd">    It will ask for those on the command line.</span>
+<span class="sd">    However, it is **highly recommended to set up a key and use an SSH agent!**</span>
+<span class="sd">    This increases security as Scitacean no longer has to handle credentials itself.</span>
+<span class="sd">    And it is required for automated programs where a user cannot enter credentials</span>
+<span class="sd">    on a command line.</span>
+
+<span class="sd">    Upload folder</span>
+<span class="sd">    -------------</span>
+<span class="sd">    The file transfer can take an optional ``source_folder`` as a constructor argument.</span>
+<span class="sd">    If it is given, ``SSHFileTransfer`` uploads all files to it and ignores the</span>
+<span class="sd">    source folder set in the dataset.</span>
+<span class="sd">    If it is not given, ``SSHFileTransfer`` uses the dataset&#39;s source folder.</span>
+
+<span class="sd">    The source folder argument to ``SSHFileTransfer`` may be a Python format string.</span>
+<span class="sd">    In that case, all format fields are replaced by the corresponding fields</span>
+<span class="sd">    of the dataset.</span>
+<span class="sd">    All non-ASCII characters and most special ASCII characters are replaced.</span>
+<span class="sd">    This should avoid broken paths from essentially random contents in datasets.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Given</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        dset = Dataset(type=&quot;raw&quot;,</span>
+<span class="sd">                       name=&quot;my-dataset&quot;,</span>
+<span class="sd">                       source_folder=&quot;/dataset/source&quot;,</span>
+<span class="sd">                       )</span>
+
+<span class="sd">    This uploads to ``/dataset/source``:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        file_transfer = SSHFileTransfer(host=&quot;fileserver&quot;)</span>
+
+<span class="sd">    This uploads to ``/transfer/folder``:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        file_transfer = SSHFileTransfer(host=&quot;fileserver&quot;,</span>
+<span class="sd">                                        source_folder=&quot;transfer/folder&quot;)</span>
+
+<span class="sd">    This uploads to ``/transfer/my-dataset``:</span>
+<span class="sd">    (Note that ``{name}`` is replaced by ``dset.name``.)</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        file_transfer = SSHFileTransfer(host=&quot;fileserver&quot;,</span>
+<span class="sd">                                        source_folder=&quot;transfer/{name}&quot;)</span>
+
+<span class="sd">    A useful approach is to include a unique ID in the source folder, for example</span>
+<span class="sd">    ``&quot;/some/base/folder/{uid}&quot;``, to avoid clashes between different datasets.</span>
+<span class="sd">    Scitacean will fill in the ``&quot;{uid}&quot;`` placeholder with a new UUID4.</span>
+
+<span class="sd">    .. deprecated:: 23.08.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SSHFileTransfer.__init__"><a class="viewcode-back" href="../../../generated/classes/scitacean.transfer.ssh.SSHFileTransfer.html#scitacean.transfer.ssh.SSHFileTransfer.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">port</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">source_folder</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">RemotePath</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct a new SSH file transfer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        host:</span>
+<span class="sd">            URL or name of the server to connect to.</span>
+<span class="sd">        port:</span>
+<span class="sd">            Port of the server.</span>
+<span class="sd">        source_folder:</span>
+<span class="sd">            Upload files to this folder if set.</span>
+<span class="sd">            Otherwise, upload to the dataset&#39;s source_folder.</span>
+<span class="sd">            Ignored when downloading files.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_host</span> <span class="o">=</span> <span class="n">host</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_port</span> <span class="o">=</span> <span class="n">port</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_source_folder_pattern</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">RemotePath</span><span class="p">(</span><span class="n">source_folder</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source_folder</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+            <span class="k">else</span> <span class="n">source_folder</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="SSHFileTransfer.source_folder_for"><a class="viewcode-back" href="../../../generated/classes/scitacean.transfer.ssh.SSHFileTransfer.html#scitacean.transfer.ssh.SSHFileTransfer.source_folder_for">[docs]</a>    <span class="k">def</span> <span class="nf">source_folder_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RemotePath</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the source folder used for the given dataset.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">source_folder_for</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source_folder_pattern</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SSHFileTransfer.connect_for_download"><a class="viewcode-back" href="../../../generated/classes/scitacean.transfer.ssh.SSHFileTransfer.html#scitacean.transfer.ssh.SSHFileTransfer.connect_for_download">[docs]</a>    <span class="nd">@contextmanager</span>
+    <span class="k">def</span> <span class="nf">connect_for_download</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">connect</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Connection</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">SSHDownloadConnection</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a connection for downloads, use as a context manager.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        connect:</span>
+<span class="sd">            A function that creates and returns a :class:`fabric.connection.Connection`</span>
+<span class="sd">            object.</span>
+<span class="sd">            Will first be called with only ``host`` and ``port``.</span>
+<span class="sd">            If this fails (by raising</span>
+<span class="sd">            :class:`paramiko.ssh_exception.AuthenticationException`), the function is</span>
+<span class="sd">            called with ``host``, ``port``, and, optionally, ``user`` and</span>
+<span class="sd">            ``connection_kwargs`` depending on the authentication method.</span>
+<span class="sd">            Raising :class:`paramiko.ssh_exception.AuthenticationException` in the 2nd</span>
+<span class="sd">            call or any other exception in the 1st signals failure of</span>
+<span class="sd">            ``connect_for_download``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">con</span> <span class="o">=</span> <span class="n">_connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_port</span><span class="p">,</span> <span class="n">connect</span><span class="o">=</span><span class="n">connect</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">SSHDownloadConnection</span><span class="p">(</span><span class="n">connection</span><span class="o">=</span><span class="n">con</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">con</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="SSHFileTransfer.connect_for_upload"><a class="viewcode-back" href="../../../generated/classes/scitacean.transfer.ssh.SSHFileTransfer.html#scitacean.transfer.ssh.SSHFileTransfer.connect_for_upload">[docs]</a>    <span class="nd">@contextmanager</span>
+    <span class="k">def</span> <span class="nf">connect_for_upload</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">connect</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Connection</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">SSHUploadConnection</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a connection for uploads, use as a context manager.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dataset:</span>
+<span class="sd">            The connection will be used to upload files of this dataset.</span>
+<span class="sd">            Used to determine the target folder.</span>
+<span class="sd">        connect:</span>
+<span class="sd">            A function that creates and returns a :class:`fabric.connection.Connection`</span>
+<span class="sd">            object.</span>
+<span class="sd">            Will first be called with only ``host`` and ``port``.</span>
+<span class="sd">            If this fails (by raising</span>
+<span class="sd">            :class:`paramiko.ssh_exception.AuthenticationException`), the function is</span>
+<span class="sd">            called with ``host``, ``port``, and, optionally, ``user`` and</span>
+<span class="sd">            ``connection_kwargs`` depending on the authentication method.</span>
+<span class="sd">            Raising :class:`paramiko.ssh_exception.AuthenticationException` in the 2nd</span>
+<span class="sd">            call or any other exception in the 1st signals failure of</span>
+<span class="sd">            ``connect_for_upload``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">source_folder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_folder_for</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+        <span class="n">con</span> <span class="o">=</span> <span class="n">_connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_port</span><span class="p">,</span> <span class="n">connect</span><span class="o">=</span><span class="n">connect</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">SSHUploadConnection</span><span class="p">(</span>
+                <span class="n">connection</span><span class="o">=</span><span class="n">con</span><span class="p">,</span>
+                <span class="n">source_folder</span><span class="o">=</span><span class="n">source_folder</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">con</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_ask_for_key_passphrase</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">getpass</span><span class="p">(</span><span class="s2">&quot;The private key is encrypted, enter passphrase: &quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_ask_for_credentials</span><span class="p">(</span><span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;You need to authenticate to access </span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># noqa: T201</span>
+    <span class="n">username</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Username: &quot;</span><span class="p">)</span>
+    <span class="n">password</span> <span class="o">=</span> <span class="n">getpass</span><span class="p">(</span><span class="s2">&quot;Password: &quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span>
+
+
+<span class="k">def</span> <span class="nf">_generic_connect</span><span class="p">(</span>
+    <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">port</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">connect</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Connection</span><span class="p">]],</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Connection</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">connect</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">con</span> <span class="o">=</span> <span class="n">Connection</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">con</span> <span class="o">=</span> <span class="n">connect</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">con</span><span class="o">.</span><span class="n">open</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">con</span>
+
+
+<span class="k">def</span> <span class="nf">_unauthenticated_connect</span><span class="p">(</span>
+    <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">port</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">connect</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Connection</span><span class="p">]]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Connection</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">_generic_connect</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span> <span class="n">connect</span><span class="o">=</span><span class="n">connect</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_authenticated_connect</span><span class="p">(</span>
+    <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">port</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">connect</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Connection</span><span class="p">]],</span>
+    <span class="n">exc</span><span class="p">:</span> <span class="n">AuthenticationException</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Connection</span><span class="p">:</span>
+    <span class="c1"># TODO fail fast if output going to file</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">PasswordRequiredException</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;encrypted&quot;</span> <span class="ow">in</span> <span class="n">exc</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="c1"># TODO does not work anymore, exception is always AuthenticationException</span>
+        <span class="k">return</span> <span class="n">_generic_connect</span><span class="p">(</span>
+            <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span>
+            <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span>
+            <span class="n">connect</span><span class="o">=</span><span class="n">connect</span><span class="p">,</span>
+            <span class="n">connect_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;passphrase&quot;</span><span class="p">:</span> <span class="n">_ask_for_key_passphrase</span><span class="p">()},</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">username</span><span class="p">,</span> <span class="n">password</span> <span class="o">=</span> <span class="n">_ask_for_credentials</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_generic_connect</span><span class="p">(</span>
+            <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span>
+            <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span>
+            <span class="n">connect</span><span class="o">=</span><span class="n">connect</span><span class="p">,</span>
+            <span class="n">user</span><span class="o">=</span><span class="n">username</span><span class="p">,</span>
+            <span class="n">connect_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;password&quot;</span><span class="p">:</span> <span class="n">password</span><span class="p">},</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_connect</span><span class="p">(</span>
+    <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">port</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">connect</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Connection</span><span class="p">]]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Connection</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_unauthenticated_connect</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">connect</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">AuthenticationException</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_authenticated_connect</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">connect</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="c1"># We pass secrets as arguments to functions called in this block, and those</span>
+        <span class="c1"># can be leaked through exception handlers. So catch all exceptions</span>
+        <span class="c1"># and strip the backtrace up to this point to hide those secrets.</span>
+        <span class="k">raise</span> <span class="nb">type</span><span class="p">(</span><span class="n">exc</span><span class="p">)(</span><span class="n">exc</span><span class="o">.</span><span class="n">args</span><span class="p">)</span> <span class="kn">from</span> <span class="kc">None</span>
+    <span class="k">except</span> <span class="ne">BaseException</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="nb">type</span><span class="p">(</span><span class="n">exc</span><span class="p">)(</span><span class="n">exc</span><span class="o">.</span><span class="n">args</span><span class="p">)</span> <span class="kn">from</span> <span class="kc">None</span>
+
+
+<span class="k">def</span> <span class="nf">_folder_is_empty</span><span class="p">(</span><span class="n">con</span><span class="p">:</span> <span class="n">Connection</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">RemotePath</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">ls</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ls </span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">posix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">hide</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">in_stream</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">stdout</span>
+        <span class="k">return</span> <span class="n">ls</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">except</span> <span class="n">UnexpectedExit</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># no further processing is needed in this case</span>
+
+
+<span class="k">def</span> <span class="nf">_coreutils_checksum_for</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="n">File</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="c1"># blake2s is not supported because `b2sum -l 256` produces a different digest</span>
+    <span class="c1"># and I don&#39;t know why.</span>
+    <span class="n">supported</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;md5&quot;</span><span class="p">:</span> <span class="s2">&quot;md5sum -b&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sha256&quot;</span><span class="p">:</span> <span class="s2">&quot;sha256sum -b&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sha384&quot;</span><span class="p">:</span> <span class="s2">&quot;sha384sum -b&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sha512&quot;</span><span class="p">:</span> <span class="s2">&quot;sha512sum -b&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;blake2b&quot;</span><span class="p">:</span> <span class="s2">&quot;b2sum -l 512 -b&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">algorithm</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">checksum_algorithm</span>
+    <span class="k">if</span> <span class="n">algorithm</span> <span class="o">==</span> <span class="s2">&quot;blake2s&quot;</span> <span class="ow">or</span> <span class="n">algorithm</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">supported</span><span class="p">:</span>
+        <span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;Cannot validate checksum of uploaded file </span><span class="si">%s</span><span class="s2"> because checksum algorithm &quot;</span>
+            <span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39; is not supported by scitacean for remote files.&quot;</span><span class="p">,</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">remote_path</span><span class="p">,</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">checksum_algorithm</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">supported</span><span class="p">[</span><span class="n">algorithm</span><span class="p">]</span>
+
+
+<span class="c1"># Using `date +&quot;%Z&quot;` returns a timezone abbreviation like CET or EST.</span>
+<span class="c1"># dateutil.tz.gettz can parse this abbreviation and return a tzinfo object.</span>
+<span class="c1"># However, on Windows, it returns `None` if the string refers to the local timezone.</span>
+<span class="c1"># This is indistinguishable from an unrecognised timezone,</span>
+<span class="c1"># where gettz also returns `None`.</span>
+<span class="c1"># To avoid this, use an explicit offset obtained from `date +&quot;%::z&quot;`.</span>
+<span class="c1"># The timezone name is only used for debugging and not interpreted by</span>
+<span class="c1"># dateutil or datetime.</span>
+<span class="k">def</span> <span class="nf">_parse_remote_timezone</span><span class="p">(</span><span class="n">tz_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tzoffset</span><span class="p">:</span>
+    <span class="c1"># tz_str is expected to be of the form</span>
+    <span class="c1"># &lt;tzname&gt;|&lt;hours&gt;:&lt;minutes&gt;:&lt;seconds&gt;</span>
+    <span class="c1"># as produced by `date +&quot;%Z|%::z&quot;`</span>
+    <span class="n">name</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">tz_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;|&quot;</span><span class="p">)</span>
+    <span class="n">hours</span><span class="p">,</span> <span class="n">minutes</span><span class="p">,</span> <span class="n">seconds</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">offset</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">tzoffset</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="n">hours</span><span class="p">,</span> <span class="n">minutes</span><span class="o">=</span><span class="n">minutes</span><span class="p">,</span> <span class="n">seconds</span><span class="o">=</span><span class="n">seconds</span><span class="p">))</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  <!-- Previous / next buttons -->
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=927b94d3fcb96560df09"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=927b94d3fcb96560df09"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright 2023 SciCat Project.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

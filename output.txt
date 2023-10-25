@@ -1,0 +1,4 @@
+generated/modules/scitacean.testing.client.FakeClient.rst:6: [redirected permanently] https://docs.pydantic.dev/ to https://docs.pydantic.dev/latest/
+generated/modules/scitacean.testing.backend.rst:3: [redirected with Found] https://docs.pytest.org to https://docs.pytest.org/en/7.4.x/
+user-guide/testing.ipynb:596: [redirected with Found] https://docs.pytest.org/ to https://docs.pytest.org/en/7.4.x/
+developer/index.rst:10: [redirected with Found] https://github.com/SciCatProject/scitacean/issues/new to https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2FSciCatProject%2Fscitacean%2Fissues%2Fnew

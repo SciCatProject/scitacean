@@ -1,0 +1,877 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Release notes &#8212; Scitacean</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=927b94d3fcb96560df09" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=927b94d3fcb96560df09" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=927b94d3fcb96560df09" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=927b94d3fcb96560df09" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=7acdffbc" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=927b94d3fcb96560df09" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=927b94d3fcb96560df09" />
+  <script src="_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=927b94d3fcb96560df09"></script>
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=edb9b5f2"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/design-tabs.js?v=36754332"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'release-notes';</script>
+    <link rel="icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Testing" href="developer/testing.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo.svg" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="_static/logo-dark.svg" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="user-guide/index.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="reference/index.html">
+                        API reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="developer/index.html">
+                        Developer documentation
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="#">
+                        Release notes
+                      </a>
+                    </li>
+                
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="pst-header-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-header-nav-more-links" class="dropdown-menu">
+                    
+                <li class="nav-item">
+                  <a class="nav-link dropdown-item nav-external" href="https://scicatproject.github.io/">
+                    SciCat
+                  </a>
+                </li>
+                
+
+                <li class="nav-item">
+                  <a class="nav-link dropdown-item nav-external" href="https://scicatproject.github.io/documentation/">
+                    SciCat backend
+                  </a>
+                </li>
+                
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__kbd-shortcut">Search</span>
+    <span><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SciCatProject/scitacean" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/scitacean/" title="PyPI" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://anaconda.org/conda-forge/scitacean" title="Conda" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="_static/anaconda-logo.svg" class="icon-link-image" alt="Conda"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__kbd-shortcut">Search</span>
+    <span><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="user-guide/index.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="reference/index.html">
+                        API reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="developer/index.html">
+                        Developer documentation
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="#">
+                        Release notes
+                      </a>
+                    </li>
+                
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="pst-header-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-header-nav-more-links" class="dropdown-menu">
+                    
+                <li class="nav-item">
+                  <a class="nav-link dropdown-item nav-external" href="https://scicatproject.github.io/">
+                    SciCat
+                  </a>
+                </li>
+                
+
+                <li class="nav-item">
+                  <a class="nav-link dropdown-item nav-external" href="https://scicatproject.github.io/documentation/">
+                    SciCat backend
+                  </a>
+                </li>
+                
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SciCatProject/scitacean" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/scitacean/" title="PyPI" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://anaconda.org/conda-forge/scitacean" title="Conda" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="_static/anaconda-logo.svg" class="icon-link-image" alt="Conda"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v23-10-0">v23.10.0</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#features">Features</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#breaking-changes">Breaking changes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bugfixes">Bugfixes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deprecations">Deprecations</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#stability-maintainability-and-testing">Stability, Maintainability, and Testing</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v23-08-0-2023-08-28">v23.08.0 (2023-08-28)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Features</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Bugfixes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Deprecations</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v23-07-0-2023-07-07">v23.07.0 (2023-07-07)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Features</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">Breaking changes</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v23-05-0-2023-05-15">v23.05.0 (2023-05-15)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">Features</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">Breaking changes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">Bugfixes</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v23-04-0-2023-04-05">v23.04.0 (2023-04-05)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">Features</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">Breaking changes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">Bugfixes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">Stability, Maintainability, and Testing</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v23-03-2-2023-03-17">v23.03.2 (2023-03-17)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">Bugfixes</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v23-03-1-2023-03-16">v23.03.1 (2023-03-16)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#security">Security</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v23-03-0-2023-03-08">v23.03.0 (2023-03-08)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">Features</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">Breaking changes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">Bugfixes</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v23-03-1-2023-03-15">v23.03.1 (2023-03-15)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">Security</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v23-01-1-2023-01-20">v23.01.1 (2023-01-20)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id19">Bugfixes</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v23-01-0-2023-01-10">v23.01.0 (2023-01-10)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id20">Features</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id21">Breaking changes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id22">Bugfixes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation">Documentation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id23">Stability, Maintainability, and Testing</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v22-11-0-2022-11-16">v22.11.0 (2022-11-16)</a></li>
+</ul>
+  </nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+  <div class="tocsection sourcelink">
+    <a href="_sources/release-notes.rst">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Release notes</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="release-notes">
+<span id="id1"></span><h1>Release notes<a class="headerlink" href="#release-notes" title="Permalink to this heading">#</a></h1>
+<section id="v23-10-0">
+<h2>v23.10.0<a class="headerlink" href="#v23-10-0" title="Permalink to this heading">#</a></h2>
+<section id="features">
+<h3>Features<a class="headerlink" href="#features" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Python 3.12 is officially supported.</p></li>
+<li><p>Added dict-like methods, <a class="reference internal" href="generated/classes/scitacean.Dataset.html#scitacean.Dataset.keys" title="scitacean.Dataset.keys"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Dataset.keys()</span></code></a>, <a class="reference internal" href="generated/classes/scitacean.Dataset.html#scitacean.Dataset.values" title="scitacean.Dataset.values"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Dataset.values()</span></code></a> and <a class="reference internal" href="generated/classes/scitacean.Dataset.html#scitacean.Dataset.items" title="scitacean.Dataset.items"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Dataset.items()</span></code></a>.</p></li>
+<li><p>Added dict-like item setter/getter, <code class="xref py py-meth docutils literal notranslate"><span class="pre">Dataset.__getitem__()</span></code> and <code class="xref py py-meth docutils literal notranslate"><span class="pre">Dataset.__setitem__()</span></code>.</p></li>
+</ul>
+</section>
+<section id="breaking-changes">
+<h3>Breaking changes<a class="headerlink" href="#breaking-changes" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Dropped support for Python 3.8.</strong></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Dataset.type</span></code> is now read only.</p></li>
+</ul>
+</section>
+<section id="bugfixes">
+<h3>Bugfixes<a class="headerlink" href="#bugfixes" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="generated/classes/scitacean.Client.html#scitacean.Client" title="scitacean.Client"><code class="xref py py-class docutils literal notranslate"><span class="pre">scitacean.Client</span></code></a> no longer requires a file transfer during upload if the dataset has no files that need to be uploaded.</p></li>
+<li><p>The HTML representation of datasets no longer flags read-only fields with a value as broken.</p></li>
+<li><p>Preserve <code class="docutils literal notranslate"><span class="pre">meta</span></code> in <code class="docutils literal notranslate"><span class="pre">Dataset.replace</span></code> and allow replacing it.
+This also affects <code class="docutils literal notranslate"><span class="pre">Dataset.replace_files</span></code> and <code class="docutils literal notranslate"><span class="pre">Client.download_files</span></code>.</p></li>
+</ul>
+</section>
+<section id="deprecations">
+<h3>Deprecations<a class="headerlink" href="#deprecations" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Deprecated support for Pydantic v1. It is scheduled for full removal in release 23.12.0.</p></li>
+</ul>
+</section>
+<section id="stability-maintainability-and-testing">
+<h3>Stability, Maintainability, and Testing<a class="headerlink" href="#stability-maintainability-and-testing" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The codebase now gets type-checked in CI.</p></li>
+</ul>
+</section>
+</section>
+<section id="v23-08-0-2023-08-28">
+<h2>v23.08.0 (2023-08-28)<a class="headerlink" href="#v23-08-0-2023-08-28" title="Permalink to this heading">#</a></h2>
+<section id="id2">
+<h3>Features<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>File downloads now use the checksum algorithm stored in SciCat when possible.
+So it is no longer necessary to specify it by hand in many cases.</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">SFTPFileTransfer</span></code> which is similar to <code class="docutils literal notranslate"><span class="pre">SSHFileTransfer</span></code> but relies only on SFTP.</p></li>
+<li><p>Added support for attachments.</p></li>
+</ul>
+</section>
+<section id="id3">
+<h3>Bugfixes<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Fields of derived datasets are no longer initialized when downloading raw datasets and vice versa.</p></li>
+<li><p>Consistent table styling implemented for Jupyter notebooks in browser and vscode for both dark and light themes.</p></li>
+</ul>
+</section>
+<section id="id4">
+<h3>Deprecations<a class="headerlink" href="#id4" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Deprecated <code class="docutils literal notranslate"><span class="pre">SSHFileTransfer</span></code> in favor of <code class="docutils literal notranslate"><span class="pre">SFTPFileTransfer</span></code>.</p></li>
+</ul>
+</section>
+</section>
+<section id="v23-07-0-2023-07-07">
+<h2>v23.07.0 (2023-07-07)<a class="headerlink" href="#v23-07-0-2023-07-07" title="Permalink to this heading">#</a></h2>
+<section id="id5">
+<h3>Features<a class="headerlink" href="#id5" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Proper support for the new SciCat backend version 4.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">scitacean.testing</span></code> now contains tools for managing locally deployed SciCat servers and SSH servers.</p></li>
+<li><p>Pydantic version 2 is not supported in addition to version 1.
+Prior versions of Scitacean are incompatible with Pydantic version 2 and users need to ensure to install a compatible version.</p></li>
+</ul>
+</section>
+<section id="id6">
+<h3>Breaking changes<a class="headerlink" href="#id6" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Models have been split into ‘download’ and ‘upload’ models for communication with SciCat as well as ‘user’ models that are exposed in the high level interface.
+For users, this mostly affects tests with <code class="docutils literal notranslate"><span class="pre">FakeClient</span></code>.</p></li>
+</ul>
+</section>
+</section>
+<section id="v23-05-0-2023-05-15">
+<h2>v23.05.0 (2023-05-15)<a class="headerlink" href="#v23-05-0-2023-05-15" title="Permalink to this heading">#</a></h2>
+<section id="id7">
+<h3>Features<a class="headerlink" href="#id7" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Early support for the new SciCat backend version 4.
+It is possible to upload and download datasets as before.
+But the new fields added in v4 are not supported yet.</p></li>
+</ul>
+</section>
+<section id="id8">
+<h3>Breaking changes<a class="headerlink" href="#id8" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>It is no longer possible to set the dataset PID during upload.</p></li>
+</ul>
+</section>
+<section id="id9">
+<h3>Bugfixes<a class="headerlink" href="#id9" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Fixed a bug in <code class="docutils literal notranslate"><span class="pre">Client.download_files</span></code> where if a file already existed on local, its local path was not set. This was introduced in v23.04.0.</p></li>
+</ul>
+</section>
+</section>
+<section id="v23-04-0-2023-04-05">
+<h2>v23.04.0 (2023-04-05)<a class="headerlink" href="#v23-04-0-2023-04-05" title="Permalink to this heading">#</a></h2>
+<section id="id10">
+<h3>Features<a class="headerlink" href="#id10" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Better HTML formatting of ESS-style scientific metadata.</p></li>
+<li><p>Added the <code class="docutils literal notranslate"><span class="pre">force</span></code> argument to <a class="reference internal" href="generated/classes/scitacean.Client.html#scitacean.Client.download_files" title="scitacean.Client.download_files"><code class="xref py py-func docutils literal notranslate"><span class="pre">scitacean.Client.download_files()</span></code></a>.</p></li>
+<li><p>Try the default checksum algorithm if the dataset has no algorithm set to check if a local</p></li>
+</ul>
+</section>
+<section id="id11">
+<h3>Breaking changes<a class="headerlink" href="#id11" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Changed default checksum algorithm from md5 to blake2b.</p></li>
+</ul>
+</section>
+<section id="id12">
+<h3>Bugfixes<a class="headerlink" href="#id12" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Fixed getting the timezone of a file server on Windows if it is the local timezone.</p></li>
+</ul>
+</section>
+<section id="id13">
+<h3>Stability, Maintainability, and Testing<a class="headerlink" href="#id13" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Added testing for <code class="docutils literal notranslate"><span class="pre">SSHFileTransfer</span></code>.</p></li>
+<li><p>Fixed bug in CI setup that meant that all tests were running on Ubuntu.</p></li>
+</ul>
+</section>
+</section>
+<section id="v23-03-2-2023-03-17">
+<h2>v23.03.2 (2023-03-17)<a class="headerlink" href="#v23-03-2-2023-03-17" title="Permalink to this heading">#</a></h2>
+<section id="id14">
+<h3>Bugfixes<a class="headerlink" href="#id14" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Remove <code class="docutils literal notranslate"><span class="pre">instrument_id</span></code> from <code class="docutils literal notranslate"><span class="pre">keep</span></code> argument of <a class="reference internal" href="generated/classes/scitacean.Dataset.html#scitacean.Dataset.derive" title="scitacean.Dataset.derive"><code class="xref py py-func docutils literal notranslate"><span class="pre">scitacean.Dataset.derive()</span></code></a>.
+The instrument id is not allowed in derived datasets.</p></li>
+</ul>
+</section>
+</section>
+<section id="v23-03-1-2023-03-16">
+<h2>v23.03.1 (2023-03-16)<a class="headerlink" href="#v23-03-1-2023-03-16" title="Permalink to this heading">#</a></h2>
+<section id="security">
+<h3>Security<a class="headerlink" href="#security" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Hide user tokens in exceptions raised on HTTP connection failures.</p></li>
+</ul>
+</section>
+</section>
+<section id="v23-03-0-2023-03-08">
+<h2>v23.03.0 (2023-03-08)<a class="headerlink" href="#v23-03-0-2023-03-08" title="Permalink to this heading">#</a></h2>
+<section id="id15">
+<h3>Features<a class="headerlink" href="#id15" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Added <a class="reference internal" href="generated/classes/scitacean.Dataset.html#scitacean.Dataset.as_new" title="scitacean.Dataset.as_new"><code class="xref py py-func docutils literal notranslate"><span class="pre">scitacean.Dataset.as_new()</span></code></a> and <a class="reference internal" href="generated/classes/scitacean.Dataset.html#scitacean.Dataset.derive" title="scitacean.Dataset.derive"><code class="xref py py-func docutils literal notranslate"><span class="pre">scitacean.Dataset.derive()</span></code></a>.</p></li>
+</ul>
+</section>
+<section id="id16">
+<h3>Breaking changes<a class="headerlink" href="#id16" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">remote_base_path</span></code> argument of <code class="docutils literal notranslate"><span class="pre">SSHFileTransfer</span></code> has been replaced with <code class="docutils literal notranslate"><span class="pre">source_folder</span></code> which may now contain format specifiers.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Dataset.investigator</span></code> is no longer required to be an email address as this does not match common usage.</p></li>
+<li><p>For raw datasets, <code class="docutils literal notranslate"><span class="pre">Dataset.investigator</span></code> has been replaced with <code class="docutils literal notranslate"><span class="pre">Dataset.principal_investigator</span></code> to match the names in SciCat.</p></li>
+</ul>
+</section>
+<section id="id17">
+<h3>Bugfixes<a class="headerlink" href="#id17" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Removed <code class="docutils literal notranslate"><span class="pre">Dataset.instrument_id</span></code> for derived datasets.</p></li>
+</ul>
+</section>
+</section>
+<section id="v23-03-1-2023-03-15">
+<h2>v23.03.1 (2023-03-15)<a class="headerlink" href="#v23-03-1-2023-03-15" title="Permalink to this heading">#</a></h2>
+<section id="id18">
+<h3>Security<a class="headerlink" href="#id18" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Remove user token from error messages.</p></li>
+</ul>
+</section>
+</section>
+<section id="v23-01-1-2023-01-20">
+<h2>v23.01.1 (2023-01-20)<a class="headerlink" href="#v23-01-1-2023-01-20" title="Permalink to this heading">#</a></h2>
+<section id="id19">
+<h3>Bugfixes<a class="headerlink" href="#id19" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Store file creation times as proper datetimes with the timezone of the fileserver.</p></li>
+</ul>
+</section>
+</section>
+<section id="v23-01-0-2023-01-10">
+<h2>v23.01.0 (2023-01-10)<a class="headerlink" href="#v23-01-0-2023-01-10" title="Permalink to this heading">#</a></h2>
+<section id="id20">
+<h3>Features<a class="headerlink" href="#id20" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Added <a class="reference internal" href="generated/classes/scitacean.Dataset.html#scitacean.Dataset.fields" title="scitacean.Dataset.fields"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Dataset.fields()</span></code></a> to inspect dataset fields.</p></li>
+<li><p>Added <a class="reference internal" href="generated/classes/scitacean.Client.html#scitacean.Client.without_login" title="scitacean.Client.without_login"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Client.without_login()</span></code></a> to create a client without login credentials which can only download public datasets.</p></li>
+</ul>
+</section>
+<section id="id21">
+<h3>Breaking changes<a class="headerlink" href="#id21" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>A number of attributes of Dataset are now read only.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Dataset.new</span></code> was removed, use the regular <code class="docutils literal notranslate"><span class="pre">__init__</span></code> method instead.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">File.provide_locally</span></code> was removed in favor of <a class="reference internal" href="generated/classes/scitacean.Client.html#scitacean.Client.download_files" title="scitacean.Client.download_files"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Client.download_files()</span></code></a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ESSTestFileTransfer</span></code> was renamed to <a class="reference internal" href="generated/classes/scitacean.transfer.ssh.SSHFileTransfer.html#scitacean.transfer.ssh.SSHFileTransfer" title="scitacean.transfer.ssh.SSHFileTransfer"><code class="xref py py-class docutils literal notranslate"><span class="pre">transfer.ssh.SSHFileTransfer</span></code></a>.</p></li>
+</ul>
+</section>
+<section id="id22">
+<h3>Bugfixes<a class="headerlink" href="#id22" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>It is not possible to log in with username+password as a non-functional user.</p></li>
+<li><p>Added and fixed a number of type annotations.</p></li>
+</ul>
+</section>
+<section id="documentation">
+<h3>Documentation<a class="headerlink" href="#documentation" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Document fakes for testing.</p></li>
+</ul>
+</section>
+<section id="id23">
+<h3>Stability, Maintainability, and Testing<a class="headerlink" href="#id23" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Removed dependency on PySciCat by reimplementing the relevant parts.</p></li>
+<li><p>Added tests to verify SciCat models and assumptions on them.</p></li>
+</ul>
+</section>
+</section>
+<section id="v22-11-0-2022-11-16">
+<h2>v22.11.0 (2022-11-16)<a class="headerlink" href="#v22-11-0-2022-11-16" title="Permalink to this heading">#</a></h2>
+<p>Initial release</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  <!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="developer/testing.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Testing</p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=927b94d3fcb96560df09"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=927b94d3fcb96560df09"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright 2023 SciCat Project.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
