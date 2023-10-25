@@ -13,7 +13,7 @@ def is_pydantic_v1() -> bool:
 
         warnings.warn(
             "Support for Pydantic v1 is deprecated in Scitacean"
-            "RELEASE_PLACEHOLDER and will be removed in Scitacean v23.12.0."
+            "23.10.0 and will be removed in Scitacean v23.12.0."
             "If you cannot update your Pydantic version, please comment in this issue:"
             " https://github.com/SciCatProject/scitacean/issues/158",
             VisibleDeprecationWarning,

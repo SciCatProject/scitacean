@@ -166,7 +166,7 @@ class File:
             A new file object.
 
 
-        .. versionadded:: RELEASE_PLACEHOLDER
+        .. versionadded:: 23.10.0
         """
         if checksum is not None and checksum_algorithm is None:
             raise TypeError(

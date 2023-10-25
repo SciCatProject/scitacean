@@ -32,11 +32,8 @@ Release notes
    Stability, Maintainability, and Testing
    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-vversion
+v23.10.0
 --------
-
-Security
-~~~~~~~~
 
 Features
 ~~~~~~~~
@@ -58,9 +55,6 @@ Bugfixes
 * The HTML representation of datasets no longer flags read-only fields with a value as broken.
 * Preserve ``meta`` in ``Dataset.replace`` and allow replacing it.
   This also affects ``Dataset.replace_files`` and ``Client.download_files``.
-
-Documentation
-~~~~~~~~~~~~~
 
 Deprecations
 ~~~~~~~~~~~~

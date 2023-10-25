@@ -520,7 +520,7 @@ class Dataset(DatasetBase):
             and other fields that are not ``None``.
 
 
-        .. versionadded:: RELEASE_PLACEHOLDER
+        .. versionadded:: 23.10.0
         """
         from itertools import chain
 
@@ -543,7 +543,7 @@ class Dataset(DatasetBase):
             and other fields that are not ``None``.
 
 
-        .. versionadded:: RELEASE_PLACEHOLDER
+        .. versionadded:: 23.10.0
         """
         return (getattr(self, field_name) for field_name in self.keys())
 
@@ -558,7 +558,7 @@ class Dataset(DatasetBase):
             and other fields that are not ``None``.
 
 
-        .. versionadded:: RELEASE_PLACEHOLDER
+        .. versionadded:: 23.10.0
         """
         return ((key, getattr(self, key)) for key in self.keys())
 
@@ -601,7 +601,7 @@ class Dataset(DatasetBase):
             :class:`KeyError` if ``field_name`` does not mach any names of fields.
 
 
-        .. versionadded:: RELEASE_PLACEHOLDER
+        .. versionadded:: 23.10.0
         """
         self._validate_field_name(field_name)
         return getattr(self, field_name)
@@ -625,7 +625,7 @@ class Dataset(DatasetBase):
             :class:`KeyError` if ``field_name`` does not mach any names of fields.
 
 
-        .. versionadded:: RELEASE_PLACEHOLDER
+        .. versionadded:: 23.10.0
         """
         self._validate_field_name(field_name)
         setattr(self, field_name, field_value)
