@@ -99,7 +99,7 @@ warn_required_dynamic_aliases = true
 
 [tool.ruff]
 line-length = 88
-select = ["B", "D", "E", "F", "I", "S", "T20", "PGH", "FBT003", "RUF"]
+select = ["B", "D", "E", "F", "G", "I", "S", "T20", "PGH", "FBT003", "RUF"]
 ignore = [
     "B905", # `zip()` without an explicit `strict=` parameter
     "S324", # insecure hsh function; we don't use hashing for security
