@@ -10,7 +10,7 @@ import os
 import subprocess
 from typing import Any, Union
 
-_PathLike = Union[str, os.PathLike]
+_PathLike = Union[str, os.PathLike[str]]
 
 
 def docker_compose_up(config_file: _PathLike, *services: str) -> None:

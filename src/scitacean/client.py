@@ -1036,7 +1036,7 @@ def _get_token(
 
 
 FileSelector = Union[
-    bool, str, List[str], Tuple[str], re.Pattern, Callable[[File], bool]
+    bool, str, List[str], Tuple[str], re.Pattern[str], Callable[[File], bool]
 ]
 
 
@@ -1048,11 +1048,9 @@ def _file_selector(select: FileSelector) -> Callable[[File], bool]:
     if isinstance(select, str):
         return lambda f: f.remote_path == select
     if isinstance(select, (list, tuple)):
-        return lambda f: f.remote_path in select  # type: ignore[operator]
+        return lambda f: f.remote_path in select
     if isinstance(select, re.Pattern):
-        return lambda f: (
-            select.search(f.remote_path.posix) is not None  # type: ignore[union-attr]
-        )
+        return lambda f: (select.search(f.remote_path.posix) is not None)
     return select
 
 

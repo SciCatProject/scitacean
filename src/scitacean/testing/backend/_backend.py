@@ -13,7 +13,7 @@ import yaml
 from ..._internal.docker import docker_compose_down, docker_compose_up
 from . import config
 
-_PathLike = Union[str, os.PathLike]
+_PathLike = Union[str, os.PathLike[str]]
 
 
 def _read_yaml(filename: str) -> Any:
