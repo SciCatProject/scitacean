@@ -6,7 +6,7 @@ ipython!=8.7.0  # Breaks syntax highlighting in Jupyter code cells.
 myst-parser
 nbsphinx
 pydata-sphinx-theme==0.14
-sphinx==7.1  # 7.2 is not compatible with theme
+sphinx
 sphinx-autodoc-typehints
 sphinx-copybutton
 sphinx-design
