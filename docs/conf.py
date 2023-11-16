@@ -108,6 +108,7 @@ html_theme = "pydata_sphinx_theme"
 html_theme_options = {
     "primary_sidebar_end": ["edit-this-page", "sourcelink"],
     "secondary_sidebar_items": [],
+    "navbar_persistent": ["search-button"],
     "show_nav_level": 1,
     "header_links_before_dropdown": 4,
     "pygment_light_style": "github-light-high-contrast",

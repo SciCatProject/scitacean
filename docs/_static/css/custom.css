@@ -95,20 +95,10 @@ a.headerlink {
     color: var(--pst-color-primary);
 }
 
-.search-button-field {
-    border: none;
-    border-radius: 0;
-    background: inherit;
-    color: inherit;
+.search-button {
+    padding: 0;
 }
 
-.search-button-field:hover {
-    border: none;
+.search-button:hover > svg {
     color: var(--pst-color-primary);
-    box-shadow: 0 max(3px,.1875rem,.12em) 0 var(--pst-color-link-hover);
-}
-
-.search-button-field > span {
-    display: none;
-    visibility: hidden;
 }
