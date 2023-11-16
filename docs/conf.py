@@ -139,8 +139,8 @@ html_theme_options = {
         {
             "name": "Conda",
             "url": "https://anaconda.org/conda-forge/scitacean",
-            "icon": "_static/anaconda-logo.svg",
-            "type": "local",
+            "icon": "fa-custom fa-anaconda",
+            "type": "fontawesome",
         },
     ],
 }
@@ -160,6 +160,7 @@ html_favicon = "_static/favicon.ico"
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 html_css_files = ["css/custom.css"]
+html_js_files = ["anaconda-icon.js"]
 
 # -- Options for HTMLHelp output ------------------------------------------
 
