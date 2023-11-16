@@ -127,6 +127,7 @@ _DATASETS: Dict[str, Union[UploadRawDataset, UploadDerivedDataset]] = {
         investigator="who?!",
         inputDatasets=[],
         usedSoftware=["scitacean"],
+        techniques=[UploadTechnique(pid="DM666", name="dark_magic")],
     ),
 }
 

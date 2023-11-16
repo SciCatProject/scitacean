@@ -10,6 +10,7 @@ from scitacean import PID, Client, RemotePath, ScicatCommError
 from scitacean.client import ScicatClient
 from scitacean.model import (
     DatasetType,
+    Technique,
     UploadDerivedDataset,
 )
 from scitacean.testing.backend.seed import (
@@ -121,6 +122,12 @@ def test_get_broken_dataset(client):
     # Intact field; was properly converted to RemotePath
     assert isinstance(downloaded.source_folder, RemotePath)
     assert downloaded.source_folder == "/remote/source"
+
+    # Intact field; was properly converted to List[Technique]
+    assert len(downloaded.techniques) == 1
+    assert isinstance(downloaded.techniques[0], Technique)
+    assert downloaded.techniques[0].pid == "DM666"
+    assert downloaded.techniques[0].name == "dark_magic"
 
     # Broken fields loaded
     assert isinstance(downloaded.orcid_of_owner, str)
