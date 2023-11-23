@@ -24,11 +24,7 @@ import pydantic
 from dateutil.parser import parse as parse_datetime
 
 from ._internal.orcid import is_valid_orcid
-from ._internal.pydantic_compat import is_pydantic_v1
-from .filesystem import RemotePath
 from .logging import get_logger
-from .pid import PID
-from .thumbnail import Thumbnail
 
 try:
     # Python 3.11+
@@ -57,20 +53,9 @@ except ImportError:
 class BaseModel(pydantic.BaseModel):
     """Base class for Pydantic models for communication with SciCat."""
 
-    if is_pydantic_v1():
-
-        class Config:
-            extra = pydantic.Extra.forbid
-            json_encoders = {  # noqa: RUF012
-                PID: lambda v: str(v),
-                RemotePath: lambda v: v.posix,
-                Thumbnail: lambda v: v.serialize(),
-            }
-
-    else:
-        model_config = pydantic.ConfigDict(
-            extra="forbid",
-        )
+    model_config = pydantic.ConfigDict(
+        extra="forbid",
+    )
 
     _user_mask: ClassVar[Tuple[str, ...]]
     _masked_fields: ClassVar[Optional[Tuple[str, ...]]] = None
@@ -107,7 +92,7 @@ class BaseModel(pydantic.BaseModel):
             return field.alias if field.alias is not None else name
 
         field_names = {
-            get_name(name, field) for name, field in instance.get_model_fields().items()
+            get_name(name, field) for name, field in instance.model_fields.items()
         }
         default_mask = tuple(key for key in _IGNORED_KWARGS if key not in field_names)
         cls._masked_fields = cls._user_mask + default_mask
@@ -136,34 +121,6 @@ class BaseModel(pydantic.BaseModel):
         Returns ``None`` if this is a download model.
         """
         return None
-
-    if is_pydantic_v1():
-
-        @classmethod
-        def get_model_fields(cls) -> Dict[str, Any]:
-            return cls.__fields__  # type: ignore[return-value]
-
-        def model_dump(self, *args: Any, **kwargs: Any) -> Dict[str, Any]:
-            return self.dict(*args, **kwargs)
-
-        def model_dump_json(self, *args: Any, **kwargs: Any) -> str:
-            return self.json(*args, **kwargs)
-
-        @classmethod
-        def model_construct(
-            cls: Type[ModelType], *args: Any, **kwargs: Any
-        ) -> ModelType:
-            return cls.construct(*args, **kwargs)
-
-        @classmethod
-        def model_rebuild(cls, *args: Any, **kwargs: Any) -> Optional[bool]:
-            return cls.update_forward_refs(*args, **kwargs)
-
-    else:
-
-        @classmethod
-        def get_model_fields(cls) -> Dict[str, pydantic.fields.FieldInfo]:
-            return cls.model_fields
 
 
 @dataclasses.dataclass

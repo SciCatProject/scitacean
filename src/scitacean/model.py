@@ -97,7 +97,6 @@ from ._base_model import (
     validate_orcids,
 )
 from ._internal.dataclass_wrapper import dataclass_optional_args
-from ._internal.pydantic_compat import field_validator
 from .filesystem import RemotePath
 from .pid import PID
 from .thumbnail import Thumbnail
@@ -155,19 +154,21 @@ class DownloadDataset(
     updatedBy: Optional[str] = None
     validationStatus: Optional[str] = None
 
-    @field_validator("creationTime", "createdAt", "endTime", "updatedAt", mode="before")
+    @pydantic.field_validator(
+        "creationTime", "createdAt", "endTime", "updatedAt", mode="before"
+    )
     def _validate_datetime(cls, value: Any) -> Any:
         return validate_datetime(value)
 
-    @field_validator("history", mode="before")
+    @pydantic.field_validator("history", mode="before")
     def _validate_drop(cls, value: Any) -> Any:
         return validate_drop(value)
 
-    @field_validator("contactEmail", "ownerEmail", mode="before")
+    @pydantic.field_validator("contactEmail", "ownerEmail", mode="before")
     def _validate_emails(cls, value: Any) -> Any:
         return validate_emails(value)
 
-    @field_validator("orcidOfOwner", mode="before")
+    @pydantic.field_validator("orcidOfOwner", mode="before")
     def _validate_orcids(cls, value: Any) -> Any:
         return validate_orcids(value)
 
@@ -207,15 +208,15 @@ class UploadDerivedDataset(BaseModel):
     techniques: Optional[List[UploadTechnique]] = None
     validationStatus: Optional[str] = None
 
-    @field_validator("creationTime", mode="before")
+    @pydantic.field_validator("creationTime", mode="before")
     def _validate_datetime(cls, value: Any) -> Any:
         return validate_datetime(value)
 
-    @field_validator("contactEmail", "ownerEmail", mode="before")
+    @pydantic.field_validator("contactEmail", "ownerEmail", mode="before")
     def _validate_emails(cls, value: Any) -> Any:
         return validate_emails(value)
 
-    @field_validator("orcidOfOwner", mode="before")
+    @pydantic.field_validator("orcidOfOwner", mode="before")
     def _validate_orcids(cls, value: Any) -> Any:
         return validate_orcids(value)
 
@@ -257,15 +258,15 @@ class UploadRawDataset(BaseModel):
     techniques: Optional[List[UploadTechnique]] = None
     validationStatus: Optional[str] = None
 
-    @field_validator("creationTime", "endTime", mode="before")
+    @pydantic.field_validator("creationTime", "endTime", mode="before")
     def _validate_datetime(cls, value: Any) -> Any:
         return validate_datetime(value)
 
-    @field_validator("contactEmail", "ownerEmail", mode="before")
+    @pydantic.field_validator("contactEmail", "ownerEmail", mode="before")
     def _validate_emails(cls, value: Any) -> Any:
         return validate_emails(value)
 
-    @field_validator("orcidOfOwner", mode="before")
+    @pydantic.field_validator("orcidOfOwner", mode="before")
     def _validate_orcids(cls, value: Any) -> Any:
         return validate_orcids(value)
 
@@ -285,7 +286,7 @@ class DownloadAttachment(BaseModel):
     updatedAt: Optional[datetime] = None
     updatedBy: Optional[str] = None
 
-    @field_validator("createdAt", "updatedAt", mode="before")
+    @pydantic.field_validator("createdAt", "updatedAt", mode="before")
     def _validate_datetime(cls, value: Any) -> Any:
         return validate_datetime(value)
 
@@ -332,7 +333,7 @@ class DownloadOrigDatablock(BaseModel):
     updatedAt: Optional[datetime] = None
     updatedBy: Optional[str] = None
 
-    @field_validator("createdAt", "updatedAt", mode="before")
+    @pydantic.field_validator("createdAt", "updatedAt", mode="before")
     def _validate_datetime(cls, value: Any) -> Any:
         return validate_datetime(value)
 
@@ -372,7 +373,7 @@ class DownloadDatablock(BaseModel):
     updatedAt: Optional[datetime] = None
     updatedBy: Optional[str] = None
 
-    @field_validator("createdAt", "updatedAt", mode="before")
+    @pydantic.field_validator("createdAt", "updatedAt", mode="before")
     def _validate_datetime(cls, value: Any) -> Any:
         return validate_datetime(value)
 
@@ -410,7 +411,7 @@ class DownloadLifecycle(BaseModel):
     retrieveReturnMessage: Optional[Dict[str, Any]] = None
     retrieveStatusMessage: Optional[str] = None
 
-    @field_validator(
+    @pydantic.field_validator(
         "archiveRetentionTime",
         "dateOfDiskPurging",
         "dateOfPublishing",
@@ -482,7 +483,7 @@ class DownloadHistory(BaseModel):
     updatedAt: Optional[datetime] = None
     updatedBy: Optional[datetime] = None
 
-    @field_validator("updatedAt", mode="before")
+    @pydantic.field_validator("updatedAt", mode="before")
     def _validate_datetime(cls, value: Any) -> Any:
         return validate_datetime(value)
 
@@ -500,7 +501,7 @@ class DownloadDataFile(BaseModel):
     perm: Optional[str] = None
     uid: Optional[str] = None
 
-    @field_validator("time", mode="before")
+    @pydantic.field_validator("time", mode="before")
     def _validate_datetime(cls, value: Any) -> Any:
         return validate_datetime(value)
 
@@ -518,7 +519,7 @@ class UploadDataFile(BaseModel):
     perm: Optional[str] = None
     uid: Optional[str] = None
 
-    @field_validator("time", mode="before")
+    @pydantic.field_validator("time", mode="before")
     def _validate_datetime(cls, value: Any) -> Any:
         return validate_datetime(value)
 
@@ -552,7 +553,7 @@ class DownloadSample(BaseModel):
     updatedAt: Optional[datetime] = None
     updatedBy: Optional[str] = None
 
-    @field_validator("createdAt", "updatedAt", mode="before")
+    @pydantic.field_validator("createdAt", "updatedAt", mode="before")
     def _validate_datetime(cls, value: Any) -> Any:
         return validate_datetime(value)
 
