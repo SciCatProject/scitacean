@@ -41,7 +41,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - {python: '3.11', os: ubuntu-22.04, tox: pydantic1-full}
           - {python: '3.12', os: ubuntu-22.04, tox: py312-full}
           - {python: '3.11', os: ubuntu-22.04, tox: py311-full}
           - {python: '3.10', os: ubuntu-22.04, tox: py310-full}
