@@ -29,7 +29,7 @@ classifiers = [
 requires-python = ">=3.9"
 dependencies = [
     "email-validator",
-    "pydantic >= 1.9",
+    "pydantic >= 2",
     "python-dateutil",
     "requests >= 2.31",
 ]
