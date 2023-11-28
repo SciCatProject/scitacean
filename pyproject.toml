@@ -13,6 +13,7 @@ authors = [{ name = "Scitacean contributors" }]
 readme = "README.md"
 keywords = ["scicat"]
 classifiers = [
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: BSD License",
     "Natural Language :: English",
