@@ -73,4 +73,4 @@ def _strip_leading_underscore(s: str) -> str:
 
 
 def _is_read_only(field_name: str) -> bool:
-    return field_name not in UploadAttachment.get_model_fields()
+    return field_name not in UploadAttachment.model_fields

@@ -1,9 +1,0 @@
--r base.in
-filelock[typing]
-hypothesis
-pyfakefs
-pytest
-pytest-randomly
-pytest-socket
-pytest-xdist
-pyyaml

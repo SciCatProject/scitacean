@@ -16,30 +16,10 @@ import os
 import re
 from datetime import datetime, timezone
 from pathlib import Path, PurePath
-from typing import Any, Callable, Generator, Optional, TypeVar, Union
+from typing import Any, Optional, TypeVar, Union
 
-from ._internal.pydantic_compat import is_pydantic_v1
-
-if not is_pydantic_v1():
-    from typing import Type
-
-    from pydantic import GetCoreSchemaHandler
-    from pydantic_core import core_schema
-
-    def _get_remote_path_core_schema(
-        cls: Type[RemotePath], _source_type: Any, _handler: GetCoreSchemaHandler
-    ) -> core_schema.CoreSchema:
-        return core_schema.no_info_after_validator_function(
-            cls,
-            core_schema.union_schema(
-                [core_schema.is_instance_schema(RemotePath), core_schema.str_schema()]
-            ),
-            serialization=core_schema.plain_serializer_function_ser_schema(
-                lambda p: p.posix if isinstance(p, RemotePath) else str(p),
-                info_arg=False,
-                return_schema=core_schema.str_schema(),
-            ),
-        )
+from pydantic import GetCoreSchemaHandler
+from pydantic_core import core_schema
 
 
 class RemotePath:
@@ -176,16 +156,21 @@ class RemotePath:
         """Pydantic validator for RemotePath fields."""
         return RemotePath(value)
 
-    if is_pydantic_v1():
-
-        @classmethod
-        def __get_validators__(
+    @classmethod
+    def __get_pydantic_core_schema__(
+        cls, _source_type: Any, _handler: GetCoreSchemaHandler
+    ) -> core_schema.CoreSchema:
+        return core_schema.no_info_after_validator_function(
             cls,
-        ) -> Generator[Callable[[Union[str, RemotePath]], RemotePath], None, None]:
-            yield cls.validate
-
-    else:
-        __get_pydantic_core_schema__ = classmethod(_get_remote_path_core_schema)
+            core_schema.union_schema(
+                [core_schema.is_instance_schema(RemotePath), core_schema.str_schema()]
+            ),
+            serialization=core_schema.plain_serializer_function_ser_schema(
+                lambda p: p.posix if isinstance(p, RemotePath) else str(p),
+                info_arg=False,
+                return_schema=core_schema.str_schema(),
+            ),
+        )
 
 
 def _posix(path: Union[str, RemotePath]) -> str:
