@@ -35,7 +35,7 @@ idna==3.4
     #   requests
 invoke==2.2.0
     # via fabric
-paramiko==3.3.1
+paramiko==3.4.0
     # via
     #   -r base.in
     #   fabric
