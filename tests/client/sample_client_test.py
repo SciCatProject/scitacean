@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
 
+import dataclasses
+
 import pytest
 
 from scitacean import Client, ScicatCommError
@@ -26,7 +28,7 @@ def sample(scicat_access):
     )
 
 
-def compare_sample_after_upload(uploaded, downloaded):
+def compare_sample_model_after_upload(uploaded, downloaded):
     for key, expected in uploaded:
         # The database populates a number of fields that are None in uploaded.
         # But we don't want to test those here as we don't want to test the database.
@@ -34,18 +36,29 @@ def compare_sample_after_upload(uploaded, downloaded):
             assert expected == dict(downloaded)[key], f"key = {key}"
 
 
+def compare_sample_after_upload(uploaded, downloaded):
+    for field in dataclasses.fields(uploaded):
+        # The database populates a number of fields that are None in uploaded.
+        # But we don't want to test those here as we don't want to test the database.
+        expected = getattr(uploaded, field.name)
+        if expected is not None:
+            assert expected == getattr(downloaded, field.name), f"key = {field.name}"
+
+
 def test_create_sample_model_roundtrip(scicat_client, sample):
     upload_sample = sample.make_upload_model()
     finalized = scicat_client.create_sample_model(upload_sample)
     downloaded = scicat_client.get_sample_model(finalized.sampleId)
-    compare_sample_after_upload(upload_sample, downloaded)
-    compare_sample_after_upload(finalized, downloaded)
+    compare_sample_model_after_upload(upload_sample, downloaded)
+    compare_sample_model_after_upload(finalized, downloaded)
 
 
 def test_create_sample_model_roundtrip_existing_id(scicat_client, sample):
     upload_sample = sample.make_upload_model()
-    upload_sample.sampleId = "my-sample-id"
-    scicat_client.create_sample_model(upload_sample)
+    finalized = scicat_client.create_sample_model(upload_sample)
+    upload_sample.sampleId = finalized.sampleId
+    # SciCat might accept an identical sample, so change it.
+    upload_sample.description = "A new sample with the same id"
     with pytest.raises(ScicatCommError):
         scicat_client.create_sample_model(upload_sample)
 
@@ -56,3 +69,14 @@ def test_create_sample_model_populates_id(scicat_client, sample):
     downloaded = scicat_client.get_sample_model(finalized.sampleId)
     assert finalized.sampleId is not None
     assert downloaded.sampleId == finalized.sampleId
+
+
+def test_upload_sample_roundtrip(client, sample):
+    finalized = client.upload_new_sample_now(sample)
+    compare_sample_after_upload(sample, finalized)
+
+
+def test_upload_sample_overrides_id(client, sample):
+    sample.sample_id = "my_sample-id"
+    finalized = client.upload_new_sample_now(sample)
+    assert finalized.sample_id != sample.sample_id

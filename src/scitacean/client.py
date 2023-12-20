@@ -213,13 +213,38 @@ class Client:
             attachment_models=attachment_models,
         )
 
+    def get_sample(
+        self,
+        sample_id: str,
+        strict_validation: bool = False,
+    ) -> model.Sample:
+        """Download a sample from SciCat.
+
+        Parameters
+        ----------
+        sample_id:
+            ID of the sample.
+        strict_validation:
+            If ``True``, the sample must pass validation.
+            If ``False``, a sample is still returned if validation fails.
+            Note that some sample fields may have a bad value or type.
+            A warning will be logged if validation fails.
+
+        Returns
+        -------
+        :
+            The downloaded sample.
+        """
+        sample_model = self.scicat.get_sample_model(
+            sample_id, strict_validation=strict_validation
+        )
+        return model.Sample.from_download_model(sample_model)
+
     def upload_new_dataset_now(self, dataset: Dataset) -> Dataset:
         """Upload a dataset as a new entry to SciCat immediately.
 
         The dataset is inserted as a new entry in the database and will
         never overwrite existing data.
-        To this end, the input dataset's ID is ignored and a new one is
-        assigned automatically.
 
         Attachments are also uploaded automatically.
         This happens after the upload of files and the dataset itself.
@@ -277,6 +302,34 @@ class Client:
             orig_datablock_models=finalized_orig_datablocks,
             attachment_models=finalized_attachments,
         )
+
+    def upload_new_sample_now(self, sample: model.Sample) -> model.Sample:
+        """Upload a sample as a new entry to SciCat immediately.
+
+        The sample is inserted as a new entry in the database and will
+        never overwrite existing data.
+        To this end, the input sample's ID is ignored and a new one is
+        assigned automatically.
+
+        Parameters
+        ----------
+        sample:
+            The sample to upload.
+
+        Returns
+        -------
+        :
+            A copy of the input sample with fields adjusted
+            according to the response of the server.
+
+        Raises
+        ------
+        scitacean.ScicatCommError
+            If the upload to SciCat fails.
+        """
+        sample = dataclasses.replace(sample, sample_id=None)
+        finalized_model = self.scicat.create_sample_model(sample.make_upload_model())
+        return model.Sample.from_download_model(finalized_model)
 
     def _upload_orig_datablocks(
         self, orig_datablocks: Optional[List[model.UploadOrigDatablock]]
