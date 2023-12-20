@@ -126,6 +126,7 @@ class FakeClient(Client):
         self.datasets: Dict[PID, model.DownloadDataset] = {}
         self.orig_datablocks: Dict[PID, List[model.DownloadOrigDatablock]] = {}
         self.attachments: Dict[PID, List[model.DownloadAttachment]] = {}
+        self.samples: Dict[str, model.DownloadSample] = {}
 
     @classmethod
     def from_token(
@@ -207,6 +208,17 @@ class FakeScicatClient(ScicatClient):
         return self.main.attachments.get(pid) or []
 
     @_conditionally_disabled
+    def get_sample_model(
+        self, sample_id: str, strict_validation: bool = False
+    ) -> model.DownloadSample:
+        """Fetch a sample from SciCat."""
+        _ = strict_validation  # unused by fake
+        try:
+            return self.main.samples[sample_id]
+        except KeyError:
+            raise ScicatCommError(f"Unable to retrieve sample {sample_id}") from None
+
+    @_conditionally_disabled
     def create_dataset_model(
         self, dset: Union[model.UploadDerivedDataset, model.UploadRawDataset]
     ) -> model.DownloadDataset:
@@ -252,6 +264,19 @@ class FakeScicatClient(ScicatClient):
         if dataset_id not in self.main.datasets:
             raise ScicatCommError(f"No dataset with id {dataset_id}")
         self.main.attachments.setdefault(dataset_id, []).append(ingested)
+        return ingested
+
+    @_conditionally_disabled
+    def create_sample_model(self, sample: model.UploadSample) -> model.DownloadSample:
+        """Create a new sample in SciCat."""
+        ingested = _process_sample(sample)
+        if ingested.sampleId in self.main.samples:
+            raise ScicatCommError(
+                f"Cannot create sample with id '{ingested.sampleId}' "
+                "because there already is a sample with this id."
+            )
+        sample_id: str = ingested.sampleId  # type: ignore[assignment]
+        self.main.samples[sample_id] = ingested
         return ingested
 
     @_conditionally_disabled
@@ -340,15 +365,33 @@ def _process_attachment(
     attachment: model.UploadAttachment, dataset_id: Optional[PID] = None
 ) -> model.DownloadAttachment:
     created_at = datetime.datetime.now(tz=datetime.timezone.utc)
-    # Using strict_validation=False because the input model should already be validated.
-    # If there are validation errors, it was probably intended by the user.
     fields = _model_dict(attachment)
     if fields.get("id") is None:
-        fields["id"] = uuid.uuid4().hex
+        fields["id"] = str(uuid.uuid4())
     if dataset_id is not None:
         fields["datasetId"] = dataset_id
+    # Using strict_validation=False because the input model should already be validated.
+    # If there are validation errors, it was probably intended by the user.
     return model.construct(
         model.DownloadAttachment,
+        _strict_validation=False,
+        createdBy="fake",
+        createdAt=created_at,
+        updatedBy="fake",
+        updatedAt=created_at,
+        **fields,
+    )
+
+
+def _process_sample(sample: model.UploadSample) -> model.DownloadSample:
+    created_at = datetime.datetime.now(tz=datetime.timezone.utc)
+    fields = _model_dict(sample)
+    if fields.get("sampleId") is None:
+        fields["sampleId"] = str(uuid.uuid4())
+    # Using strict_validation=False because the input model should already be validated.
+    # If there are validation errors, it was probably intended by the user.
+    return model.construct(
+        model.DownloadSample,
         _strict_validation=False,
         createdBy="fake",
         createdAt=created_at,

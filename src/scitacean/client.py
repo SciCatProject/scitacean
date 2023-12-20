@@ -725,6 +725,47 @@ class ScicatClient:
             for attachment in attachment_json
         ]
 
+    def get_sample_model(
+        self, sample_id: str, strict_validation: bool = False
+    ) -> model.DownloadSample:
+        """Fetch a sample from SciCat.
+
+        Parameters
+        ----------
+        sample_id:
+            ID of the sample to fetch.
+        strict_validation:
+            If ``True``, the sample must pass validation.
+            If ``False``, a sample is still returned if validation fails.
+            Note that some fields may have a bad value or type.
+            A warning will be logged if validation fails.
+
+        Returns
+        -------
+        :
+            A model of the sample.
+
+        Raises
+        ------
+        scitacean.ScicatCommError
+            If the sample does not exist or communication fails for some other reason.
+        """
+        sample_json = self._call_endpoint(
+            cmd="get",
+            url=f"samples/{quote_plus(sample_id)}",
+            operation="get_sample_model",
+        )
+        if not sample_json:
+            raise ScicatCommError(
+                f"Cannot get sample with {sample_id=}, "
+                f"no such sample in SciCat at {self._base_url}."
+            )
+        return model.construct(
+            model.DownloadSample,
+            _strict_validation=strict_validation,
+            **sample_json,
+        )
+
     def create_dataset_model(
         self, dset: Union[model.UploadDerivedDataset, model.UploadRawDataset]
     ) -> model.DownloadDataset:
@@ -841,6 +882,43 @@ class ScicatClient:
             )
         return model.construct(
             model.DownloadAttachment, _strict_validation=False, **uploaded
+        )
+
+    def create_sample_model(self, sample: model.UploadSample) -> model.DownloadSample:
+        """Create a new sample in SciCat.
+
+        The sample ID must be either
+
+        - ``None``, in which case SciCat assigns an ID,
+        - an unused id, in which case SciCat uses it for the new sample.
+
+        If the ID already exists, creation will fail without
+        modification to the database.
+        Unless the new sample is identical to the existing one,
+        in which case, nothing happens.
+
+        Parameters
+        ----------
+        sample:
+            Model of the sample to create.
+
+        Returns
+        -------
+        :
+            The uploaded sample as returned by SciCat.
+            This is the input plus some modifications.
+
+        Raises
+        ------
+        scitacean.ScicatCommError
+            If SciCat refuses the sample or communication
+            fails for some other reason.
+        """
+        uploaded = self._call_endpoint(
+            cmd="post", url="samples", data=sample, operation="create_sample_model"
+        )
+        return model.construct(
+            model.DownloadSample, _strict_validation=False, **uploaded
         )
 
     def validate_dataset_model(

@@ -16,7 +16,7 @@ from .dataset import Dataset
 from .error import FileUploadError, IntegrityError, ScicatCommError, ScicatLoginError
 from .file import File
 from .filesystem import RemotePath
-from .model import Attachment, DatasetType
+from .model import Attachment, DatasetType, Sample
 from .pid import PID
 from .thumbnail import Thumbnail
 from .warning import VisibleDeprecationWarning
@@ -32,6 +32,7 @@ __all__ = (
     "OrigDatablock",
     "PID",
     "RemotePath",
+    "Sample",
     "ScicatCommError",
     "ScicatLoginError",
     "Thumbnail",
