@@ -6,13 +6,12 @@ Only the latest version is supported.
 
 ## Reporting a Vulnerability
 
-If you believe you have found a security vulnerability in Scitacean, please report it to us through coordinated disclosure.
-
-**Please do not report security vulnerabilities through public GitHub issues, discussions, or pull requests.**
-
-Instead, please send an email to jan-lukas.wynen[@]ess.eu
+If you believe you have found a security vulnerability in Scitacean, please
+- ✅ report it to us by creating a [security advisory](https://github.com/SciCatProject/scitacean/security/advisories/new).
+- ❌ do not report security vulnerabilities through public GitHub issues, discussions, or pull requests, etc.
 
 Please include as much information as you can to help us better understand and resolve the issue.
+We work on fixing the issues [privately](https://docs.github.com/en/code-security/security-advisories/working-with-repository-security-advisories/collaborating-in-a-temporary-private-fork-to-resolve-a-repository-security-vulnerability).
 
 ## Disclosure
 
