@@ -213,6 +213,11 @@ class FakeScicatClient(ScicatClient):
         """Create a new dataset in SciCat."""
         ingested = _process_dataset(dset)
         pid: PID = ingested.pid  # type: ignore[assignment]
+        if pid in self.main.datasets:
+            raise ScicatCommError(
+                f"Cannot create dataset with pid '{pid}' "
+                "because there already is a dataset with this pid."
+            )
         self.main.datasets[pid] = ingested
         return ingested
 
