@@ -41,6 +41,8 @@ Security
 Features
 ~~~~~~~~
 
+* Added functions for downloading and uploading samples: :meth:`Client.get_sample`, :meth:`Client.upload_new_sample_now`.
+
 Breaking changes
 ~~~~~~~~~~~~~~~~
 
