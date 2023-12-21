@@ -11,7 +11,7 @@ chardet==5.2.0
     # via tox
 colorama==0.4.6
     # via tox
-distlib==0.3.7
+distlib==0.3.8
     # via virtualenv
 filelock==3.13.1
     # via
@@ -21,7 +21,7 @@ packaging==23.2
     # via
     #   pyproject-api
     #   tox
-platformdirs==3.11.0
+platformdirs==4.1.0
     # via
     #   tox
     #   virtualenv
@@ -29,7 +29,11 @@ pluggy==1.3.0
     # via tox
 pyproject-api==1.6.1
     # via tox
-tox==4.11.3
+tomli==2.0.1
+    # via
+    #   pyproject-api
+    #   tox
+tox==4.11.4
     # via -r requirements/ci.in
-virtualenv==20.24.6
+virtualenv==20.25.0
     # via tox
