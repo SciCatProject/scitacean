@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
+# Copyright (c) 2024 SciCat Project (https://github.com/SciCatProject/scitacean)
 from dateutil.parser import parse as parse_datetime
 from hypothesis import given, settings
 from hypothesis import strategies as st

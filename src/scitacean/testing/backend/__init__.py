@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2023 SciCat Project (https://github.com/SciCatProject/scitacean)
+# Copyright (c) 2024 SciCat Project (https://github.com/SciCatProject/scitacean)
 """Utilities for running tests against a locally deployed SciCat backend.
 
 This subpackage provides tools for using a real SciCat backend running in docker
