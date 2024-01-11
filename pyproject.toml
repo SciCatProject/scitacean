@@ -105,8 +105,10 @@ ignore = [
     "B905", # `zip()` without an explicit `strict=` parameter
     "S324", # insecure hsh function; we don't use hashing for security
     "E741", "E742", "E743", # do not use names ‘l’, ‘O’, or ‘I’; they are not a problem with a proper font
+    "E111", "E114", "E117", "D206", "D300",  # conflict with ruff format
     "D105",
 ]
+extend-include = ["*.ipynb"]
 extend-exclude = [".*", "__pycache__", "build", "dist", "venv"]
 fixable = ["I001"]
 
@@ -115,8 +117,12 @@ fixable = ["I001"]
     "S101",  # asserts are fine in tests
     "D10",  # no docstrings required in tests
 ]
-"tools/*" = ["D10"]
+"docs/*" = [
+    "D", "E402", "F811", "F841", "RUF015", "S101", "T201",
+]
+"*.ipynb" = ["I"]
 "docs/conf.py" = ["D10"]
+"tools/*" = ["D10"]
 "src/scitacean/model.py" = ["D10"]
 "src/scitacean/testing/strategies.py" = ["D401"]
 
@@ -125,6 +131,9 @@ known-first-party = ["scitacean"]
 
 [tool.ruff.pydocstyle]
 convention = "numpy"
+
+#[tool.ruff.format]
+#docstring-code-format = false
 
 [tool.codespell]
 ignore-words-list = "specfield"

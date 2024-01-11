@@ -311,7 +311,7 @@ def _process_data_file(file: model.UploadDataFile) -> model.DownloadDataFile:
 
 
 def _process_dataset(
-    dset: Union[model.UploadDerivedDataset, model.UploadRawDataset]
+    dset: Union[model.UploadDerivedDataset, model.UploadRawDataset],
 ) -> model.DownloadDataset:
     created_at = datetime.datetime.now(tz=datetime.timezone.utc)
     # TODO use user login if possible

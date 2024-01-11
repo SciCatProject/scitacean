@@ -70,11 +70,11 @@ def generate_dataset_fields(dset_spec: DatasetSpec) -> str:
     return _dataset_fields_template().render(banner=BANNER, spec=dset_spec)
 
 
-def format_with_black(path: Path) -> None:
+def format_with_ruff(path: Path) -> None:
     # Root of Scitacean repo
     base_path = Path(__file__).resolve().parent.parent.parent
     subprocess.check_call(
-        ["black", path.resolve().relative_to(base_path)],  # noqa: S603, S607
+        ["ruff", "format", path.resolve().relative_to(base_path)],  # noqa: S603, S607
         cwd=base_path,
     )
 
@@ -111,11 +111,11 @@ def main() -> None:
 
     with open(MODEL_OUT_PATH, "w") as f:
         f.write(generate_models(specs))
-    format_with_black(MODEL_OUT_PATH)
+    format_with_ruff(MODEL_OUT_PATH)
 
     with open(DSET_FIELDS_OUT_PATH, "w") as f:
         f.write(generate_dataset_fields(dset_spec))
-    format_with_black(DSET_FIELDS_OUT_PATH)
+    format_with_ruff(DSET_FIELDS_OUT_PATH)
 
 
 if __name__ == "__main__":

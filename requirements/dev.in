@@ -5,9 +5,9 @@
 -r static.in
 -r test.in
 -r wheels.in
-black
 jinja2
 jupyterlab
 pip-compile-multi
 pre-commit
 pyyaml
+ruff

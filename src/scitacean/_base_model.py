@@ -284,7 +284,7 @@ def convert_download_to_user_model(
 
 
 def convert_download_to_user_model(
-    download_model: Optional[Union[BaseModel, Iterable[BaseModel]]]
+    download_model: Optional[Union[BaseModel, Iterable[BaseModel]]],
 ) -> Optional[Union[BaseUserModel, List[BaseUserModel]]]:
     """Construct user models from download models."""
     if download_model is None:
@@ -314,7 +314,7 @@ def convert_user_to_upload_model(
 
 
 def convert_user_to_upload_model(
-    user_model: Optional[Union[BaseUserModel, Iterable[BaseUserModel]]]
+    user_model: Optional[Union[BaseUserModel, Iterable[BaseUserModel]]],
 ) -> Optional[Union[BaseModel, List[BaseModel]]]:
     """Construct upload models from user models."""
     if user_model is None:
