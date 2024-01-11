@@ -105,6 +105,7 @@ ignore = [
     "B905", # `zip()` without an explicit `strict=` parameter
     "S324", # insecure hsh function; we don't use hashing for security
     "E741", "E742", "E743", # do not use names ‘l’, ‘O’, or ‘I’; they are not a problem with a proper font
+    "E111", "E114", "E117", "D206", "D300",  # conflict with ruff format
     "D105",
 ]
 extend-exclude = [".*", "__pycache__", "build", "dist", "venv"]
