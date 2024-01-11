@@ -4,7 +4,7 @@ Coding conventions
 Formatting
 ----------
 
-There are no explicit formatting conventions since we use ``black`` to enforce a format.
+There are no explicit formatting conventions since we use ``ruff`` to enforce a format.
 
 Docstrings
 ~~~~~~~~~~
