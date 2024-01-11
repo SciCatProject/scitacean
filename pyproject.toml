@@ -126,5 +126,8 @@ known-first-party = ["scitacean"]
 [tool.ruff.pydocstyle]
 convention = "numpy"
 
+[tool.ruff.format]
+docstring-code-format = false
+
 [tool.codespell]
 ignore-words-list = "specfield"

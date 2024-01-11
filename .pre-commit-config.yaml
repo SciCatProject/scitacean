@@ -10,10 +10,6 @@ repos:
     - id: end-of-file-fixer
     - id: trailing-whitespace
       args: [--markdown-linebreak-ext=md]
-- repo: https://github.com/psf/black-pre-commit-mirror
-  rev: 23.9.1
-  hooks:
-    - id: black
 - repo: https://github.com/kynan/nbstripout
   rev: 0.6.0
   hooks:
@@ -22,8 +18,9 @@ repos:
       args: ["--drop-empty-cells",
              "--extra-keys 'metadata.language_info.version cell.metadata.jp-MarkdownHeadingCollapsed cell.metadata.pycharm'"]
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.1.0
+  rev: v0.1.11
   hooks:
+    - id: ruff-format
     - id: ruff
       args: [--fix, --exit-non-zero-on-fix]
 - repo: https://github.com/codespell-project/codespell
