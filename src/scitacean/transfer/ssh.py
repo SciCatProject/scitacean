@@ -256,10 +256,11 @@ class SSHFileTransfer:
 
     .. code-block:: python
 
-        dset = Dataset(type="raw",
-                       name="my-dataset",
-                       source_folder="/dataset/source",
-                       )
+        dset = Dataset(
+            type="raw",
+            name="my-dataset",
+            source_folder="/dataset/source",
+        )
 
     This uploads to ``/dataset/source``:
 

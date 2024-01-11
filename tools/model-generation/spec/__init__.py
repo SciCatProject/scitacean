@@ -155,7 +155,7 @@ _SCHEMA_GROUPS = {
 
 
 def _collect_schemas(
-    schemas: Dict[str, Schema]
+    schemas: Dict[str, Schema],
 ) -> Dict[str, Union[_UpDownSchemas, _DatasetSchemas]]:
     return {
         "Dataset": _DatasetSchemas(

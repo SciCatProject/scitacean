@@ -21,7 +21,7 @@ class PID:
 
     .. code-block:: python
 
-        full_id = PID.prefix + '/' + PID.pid
+        full_id = PID.prefix + "/" + PID.pid
 
     Equivalently, ``str`` can be used to construct the full id:
 

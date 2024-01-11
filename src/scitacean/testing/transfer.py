@@ -93,9 +93,8 @@ class FakeFileTransfer:
 
         def test_upload(fs):
             client = FakeClient.from_token(
-                url="...",
-                token="...",
-                file_transfer=FakeFileTransfer(fs=fs))
+                url="...", token="...", file_transfer=FakeFileTransfer(fs=fs)
+            )
             dset = ...
             client.upload_new_dataset_now(dset)
             assert client.file_transfer.files[expected_remote_path] == file_content
@@ -157,7 +156,7 @@ class FakeFileTransfer:
 
 
 def _remote_path_dict(
-    d: Optional[Dict[Union[str, RemotePath], bytes]]
+    d: Optional[Dict[Union[str, RemotePath], bytes]],
 ) -> Dict[RemotePath, bytes]:
     if d is None:
         return {}
