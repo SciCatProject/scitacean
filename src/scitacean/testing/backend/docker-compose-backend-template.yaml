@@ -12,8 +12,6 @@
 services:
   mongodb:
     image: mongo:latest
-    volumes:
-      - mongodb_data:/bitnami
     ports:
       - "27017:27017"
 
@@ -38,7 +36,3 @@ services:
       PID_PREFIX: PLACEHOLDER
       SITE: PLACEHOLDER
       PORT: PLACEHOLDER
-
-volumes:
-  mongodb_data:
-    driver: local
