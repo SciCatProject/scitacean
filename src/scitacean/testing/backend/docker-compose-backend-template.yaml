@@ -26,6 +26,7 @@ services:
       - 3000:PLACEHOLDER
     environment:
       DOI_PREFIX: DOI.SAMPLE.PREFIX
+      ELASTICSEARCH_ENABLED: no
       HTTP_MAX_REDIRECTS: 1  # Scitacean should not require redirects
       HTTP_TIMEOUT: 5000  # in ms
       JWT_EXPIRES_IN: 3600  # in s (expiry of token)
