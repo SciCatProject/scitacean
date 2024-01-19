@@ -1003,11 +1003,9 @@ class ScicatClient:
     ) -> requests.Response:
         if self._token is not None:
             token = self._token.get_str()
-            params = {"access_token": token}
             headers = {"Authorization": f"Bearer {token}"}
         else:
             token = ""
-            params = {}
             headers = {}
 
         if data is not None:
@@ -1020,7 +1018,6 @@ class ScicatClient:
                 data=data.model_dump_json(exclude_none=True)
                 if data is not None
                 else None,
-                params=params,
                 headers=headers,
                 timeout=self._timeout.seconds,
                 stream=False,
