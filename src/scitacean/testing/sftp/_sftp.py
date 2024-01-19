@@ -108,7 +108,7 @@ SEED_DIR={target_seed_dir}"""
     return config_target
 
 
-def can_connect(sftp_access: SFTPAccess) -> bool:
+def _can_connect(sftp_access: SFTPAccess) -> bool:
     try:
         _make_client(sftp_access)
     except paramiko.SSHException:
@@ -121,10 +121,10 @@ def wait_until_sftp_server_is_live(
 ) -> None:
     # The container takes a while to be fully live.
     for _ in range(n_tries):
-        if can_connect(sftp_access):
+        if _can_connect(sftp_access):
             return
         time.sleep(max_time / n_tries)
-    if not can_connect(sftp_access):
+    if not _can_connect(sftp_access):
         raise RuntimeError("Cannot connect to SFTP server")
 
 
