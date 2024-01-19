@@ -75,13 +75,14 @@ def stop_backend(docker_compose_file: _PathLike) -> None:
     docker_compose_down(docker_compose_file)
 
 
-def can_connect() -> bool:
+def _can_connect() -> tuple[bool, str]:
     """Test the connection to the testing SciCat backend.
 
     Returns
     -------
     :
-        True if the backend is reachable, False otherwise.
+        The first element indicates whether the connection was successful.
+        The second element is an error message.
     """
     scicat_access = config.local_access("user1")
     try:
@@ -90,9 +91,11 @@ def can_connect() -> bool:
             json=scicat_access.user.credentials,
             timeout=0.5,
         )
-    except requests.ConnectionError:
-        return False
-    return response.ok
+    except requests.ConnectionError as err:
+        return False, str(err)
+    if response.ok:
+        return True, ""
+    return False, str(f"{response}: {response.text}")
 
 
 def wait_until_backend_is_live(max_time: float, n_tries: int) -> None:
@@ -116,8 +119,9 @@ def wait_until_backend_is_live(max_time: float, n_tries: int) -> None:
         If no connection can be made within the time limit.
     """
     for _ in range(n_tries):
-        if can_connect():
+        if _can_connect()[0]:
             return
         time.sleep(max_time / n_tries)
-    if not can_connect():
-        raise RuntimeError("Cannot connect to backend")
+    ok, err = _can_connect()
+    if not ok:
+        raise RuntimeError(f"Cannot connect to backend: {err}")

@@ -63,7 +63,6 @@ If a test requires a backend but wants to construct a client manually, use
 
    add_pytest_option
    backend_enabled
-   can_connect
    configure
    skip_if_not_backend
    start_backend
@@ -73,7 +72,6 @@ If a test requires a backend but wants to construct a client manually, use
 
 from . import config, seed
 from ._backend import (
-    can_connect,
     configure,
     start_backend,
     stop_backend,
@@ -84,7 +82,6 @@ from ._pytest_helpers import add_pytest_option, backend_enabled, skip_if_not_bac
 __all__ = [
     "add_pytest_option",
     "backend_enabled",
-    "can_connect",
     "config",
     "configure",
     "seed",
