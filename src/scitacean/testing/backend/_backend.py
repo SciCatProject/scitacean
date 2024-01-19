@@ -4,6 +4,7 @@ import importlib.resources
 import os
 import time
 from copy import deepcopy
+from pathlib import Path
 from typing import Any, Dict, Union
 from urllib.parse import urljoin
 
@@ -35,7 +36,9 @@ def _docker_compose_template() -> Dict[str, Any]:
     return template  # type: ignore[no-any-return]
 
 
-def _apply_config(template: Dict[str, Any]) -> Dict[str, Any]:
+def _apply_config(
+    template: Dict[str, Any], account_config_path: Path
+) -> Dict[str, Any]:
     res = deepcopy(template)
     scicat = res["services"]["scicat"]
     ports = scicat["ports"][0].split(":")
@@ -45,6 +48,10 @@ def _apply_config(template: Dict[str, Any]) -> Dict[str, Any]:
     env["PORT"] = config.SCICAT_PORT
     env["PID_PREFIX"] = config.PID_PREFIX
     env["SITE"] = config.SITE
+
+    scicat["volumes"] = [
+        f"/home/node/app/functionalAccounts.json:{account_config_path}",
+    ]
 
     return res
 
@@ -57,7 +64,9 @@ def configure(target_path: _PathLike) -> None:
     target_path:
         Generate a docker-compose file at this path.
     """
-    c = yaml.dump(_apply_config(_docker_compose_template()))
+    account_config_path = Path(target_path).parent / "functionalAccounts.json"
+    config.dump_account_config(account_config_path)
+    c = yaml.dump(_apply_config(_docker_compose_template(), account_config_path))
     if "PLACEHOLDER" in c:
         raise RuntimeError("Incorrect config")
 
