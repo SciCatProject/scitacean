@@ -1108,7 +1108,7 @@ def _log_in_via_users_login(
     )
     if not response.ok:
         get_logger().info(
-            "Failed to log in via endpoint Users/login: %s", response.json()["error"]
+            "Failed to log in via endpoint Users/login: %s", response.text
         )
     return response
 
@@ -1129,9 +1129,7 @@ def _log_in_via_auth_msad(
         timeout=timeout.seconds,
     )
     if not response.ok:
-        get_logger().error(
-            "Failed to log in via auth/msad: %s", response.json()["error"]
-        )
+        get_logger().error("Failed to log in via auth/msad: %s", response.text)
     return response
 
 
@@ -1159,7 +1157,7 @@ def _get_token(
     if response.ok:
         return str(response.json()["access_token"])
 
-    get_logger().error("Failed log in:  %s", response.json()["error"])
+    get_logger().error("Failed log in:  %s", response.text)
     raise ScicatLoginError(response.content)
 
 
