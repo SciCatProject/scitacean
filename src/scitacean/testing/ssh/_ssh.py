@@ -98,7 +98,7 @@ SEED_DIR={target_seed_dir}"""
     return config_target
 
 
-def can_connect(ssh_access: SSHAccess) -> bool:
+def _can_connect(ssh_access: SSHAccess) -> bool:
     try:
         _make_client(ssh_access)
     except paramiko.SSHException:
@@ -111,10 +111,10 @@ def wait_until_ssh_server_is_live(
 ) -> None:
     # The container takes a while to be fully live.
     for _ in range(n_tries):
-        if can_connect(ssh_access):
+        if _can_connect(ssh_access):
             return
         time.sleep(max_time / n_tries)
-    if not can_connect(ssh_access):
+    if not _can_connect(ssh_access):
         raise RuntimeError("Cannot connect to SSH server")
 
 

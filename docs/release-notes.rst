@@ -51,6 +51,8 @@ Breaking changes
 Bugfixes
 ~~~~~~~~
 
+* Fixed testing setup to explicitly define user accounts in the test backend.
+
 Documentation
 ~~~~~~~~~~~~~
 

@@ -11,9 +11,7 @@
 
 services:
   mongodb:
-    image: bitnami/mongodb:4.2
-    volumes:
-      - mongodb_data:/bitnami
+    image: mongo:latest
     ports:
       - "27017:27017"
 
@@ -26,6 +24,7 @@ services:
       - 3000:PLACEHOLDER
     environment:
       DOI_PREFIX: DOI.SAMPLE.PREFIX
+      ELASTICSEARCH_ENABLED: no
       HTTP_MAX_REDIRECTS: 1  # Scitacean should not require redirects
       HTTP_TIMEOUT: 5000  # in ms
       JWT_EXPIRES_IN: 3600  # in s (expiry of token)
@@ -37,7 +36,3 @@ services:
       PID_PREFIX: PLACEHOLDER
       SITE: PLACEHOLDER
       PORT: PLACEHOLDER
-
-volumes:
-  mongodb_data:
-    driver: local

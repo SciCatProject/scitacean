@@ -102,7 +102,6 @@ from ._sftp import (
     IgnorePolicy,
     SFTPAccess,
     SFTPUser,
-    can_connect,
     configure,
     local_access,
     wait_until_sftp_server_is_live,
@@ -110,7 +109,6 @@ from ._sftp import (
 
 __all__ = [
     "add_pytest_option",
-    "can_connect",
     "configure",
     "local_access",
     "sftp_enabled",

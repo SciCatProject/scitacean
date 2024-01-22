@@ -2,8 +2,10 @@
 # Copyright (c) 2024 SciCat Project (https://github.com/SciCatProject/scitacean)
 """Backend configuration."""
 
+import json
 from dataclasses import dataclass
-from typing import Dict
+from pathlib import Path
+from typing import Union
 
 
 @dataclass
@@ -23,7 +25,7 @@ class SciCatUser:
     group: str
 
     @property
-    def credentials(self) -> Dict[str, str]:
+    def credentials(self) -> dict[str, str]:
         """Return login credentials for this user.
 
         User as
@@ -35,6 +37,16 @@ class SciCatUser:
         return {
             "username": self.username,
             "password": self.password,
+        }
+
+    def dump(self) -> dict[str, Union[str, bool]]:
+        """Return a dict that can be serialized to functionalAccounts.json."""
+        return {
+            "username": self.username,
+            "password": self.password,
+            "email": self.email,
+            "role": self.group,
+            "global": False,
         }
 
 
@@ -116,3 +128,9 @@ def local_access(user: str) -> SciCatAccess:
         Parameters for the local SciCat backend.
     """
     return SciCatAccess(url=f"http://localhost:{SCICAT_PORT}/api/v3/", user=USERS[user])
+
+
+def dump_account_config(path: Path) -> None:
+    """Write a functional account config for the backend."""
+    with path.open("w") as f:
+        json.dump([user.dump() for user in USERS.values()], f)

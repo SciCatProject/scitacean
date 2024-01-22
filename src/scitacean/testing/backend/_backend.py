@@ -4,6 +4,7 @@ import importlib.resources
 import os
 import time
 from copy import deepcopy
+from pathlib import Path
 from typing import Any, Dict, Union
 from urllib.parse import urljoin
 
@@ -35,7 +36,9 @@ def _docker_compose_template() -> Dict[str, Any]:
     return template  # type: ignore[no-any-return]
 
 
-def _apply_config(template: Dict[str, Any]) -> Dict[str, Any]:
+def _apply_config(
+    template: Dict[str, Any], account_config_path: Path
+) -> Dict[str, Any]:
     res = deepcopy(template)
     scicat = res["services"]["scicat"]
     ports = scicat["ports"][0].split(":")
@@ -45,6 +48,10 @@ def _apply_config(template: Dict[str, Any]) -> Dict[str, Any]:
     env["PORT"] = config.SCICAT_PORT
     env["PID_PREFIX"] = config.PID_PREFIX
     env["SITE"] = config.SITE
+
+    scicat["volumes"] = [
+        f"{account_config_path}:/home/node/app/functionalAccounts.json",
+    ]
 
     return res
 
@@ -57,7 +64,9 @@ def configure(target_path: _PathLike) -> None:
     target_path:
         Generate a docker-compose file at this path.
     """
-    c = yaml.dump(_apply_config(_docker_compose_template()))
+    account_config_path = Path(target_path).parent / "functionalAccounts.json"
+    config.dump_account_config(account_config_path)
+    c = yaml.dump(_apply_config(_docker_compose_template(), account_config_path))
     if "PLACEHOLDER" in c:
         raise RuntimeError("Incorrect config")
 
@@ -75,13 +84,14 @@ def stop_backend(docker_compose_file: _PathLike) -> None:
     docker_compose_down(docker_compose_file)
 
 
-def can_connect() -> bool:
+def _can_connect() -> tuple[bool, str]:
     """Test the connection to the testing SciCat backend.
 
     Returns
     -------
     :
-        True if the backend is reachable, False otherwise.
+        The first element indicates whether the connection was successful.
+        The second element is an error message.
     """
     scicat_access = config.local_access("user1")
     try:
@@ -90,9 +100,11 @@ def can_connect() -> bool:
             json=scicat_access.user.credentials,
             timeout=0.5,
         )
-    except requests.ConnectionError:
-        return False
-    return response.ok
+    except requests.ConnectionError as err:
+        return False, str(err)
+    if response.ok:
+        return True, ""
+    return False, str(f"{response}: {response.text}")
 
 
 def wait_until_backend_is_live(max_time: float, n_tries: int) -> None:
@@ -116,8 +128,9 @@ def wait_until_backend_is_live(max_time: float, n_tries: int) -> None:
         If no connection can be made within the time limit.
     """
     for _ in range(n_tries):
-        if can_connect():
+        if _can_connect()[0]:
             return
         time.sleep(max_time / n_tries)
-    if not can_connect():
-        raise RuntimeError("Cannot connect to backend")
+    ok, err = _can_connect()
+    if not ok:
+        raise RuntimeError(f"Cannot connect to backend: {err}")

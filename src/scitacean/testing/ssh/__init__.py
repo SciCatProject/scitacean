@@ -102,7 +102,6 @@ from ._ssh import (
     IgnorePolicy,
     SSHAccess,
     SSHUser,
-    can_connect,
     configure,
     local_access,
     wait_until_ssh_server_is_live,
@@ -110,7 +109,6 @@ from ._ssh import (
 
 __all__ = [
     "add_pytest_option",
-    "can_connect",
     "configure",
     "local_access",
     "ssh_enabled",
