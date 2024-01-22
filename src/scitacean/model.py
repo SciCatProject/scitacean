@@ -280,6 +280,7 @@ class DownloadAttachment(BaseModel):
     datasetId: Optional[PID] = None
     id: Optional[str] = None
     instrumentGroup: Optional[str] = None
+    isPublished: Optional[bool] = None
     proposalId: Optional[str] = None
     sampleId: Optional[str] = None
     thumbnail: Optional[Thumbnail] = None
@@ -329,6 +330,7 @@ class DownloadOrigDatablock(BaseModel):
     createdAt: Optional[datetime] = None
     createdBy: Optional[str] = None
     instrumentGroup: Optional[str] = None
+    isPublished: Optional[bool] = None
     ownerGroup: Optional[str] = None
     updatedAt: Optional[datetime] = None
     updatedBy: Optional[str] = None
@@ -369,6 +371,7 @@ class DownloadDatablock(BaseModel):
     createdBy: Optional[str] = None
     datasetId: Optional[PID] = None
     instrumentGroup: Optional[str] = None
+    isPublished: Optional[bool] = None
     ownerGroup: Optional[str] = None
     updatedAt: Optional[datetime] = None
     updatedBy: Optional[str] = None
@@ -598,6 +601,7 @@ class Attachment(BaseUserModel):
     thumbnail: Optional[Thumbnail] = None
     _created_at: Optional[datetime] = None
     _created_by: Optional[str] = None
+    _is_published: Optional[bool] = None
     _updated_at: Optional[datetime] = None
     _updated_by: Optional[str] = None
 
@@ -608,6 +612,10 @@ class Attachment(BaseUserModel):
     @property
     def created_by(self) -> Optional[str]:
         return self._created_by
+
+    @property
+    def is_published(self) -> Optional[bool]:
+        return self._is_published
 
     @property
     def updated_at(self) -> Optional[datetime]:

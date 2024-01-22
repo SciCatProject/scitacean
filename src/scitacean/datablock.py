@@ -39,6 +39,7 @@ class OrigDatablock:
     _created_by: Optional[str] = None
     _dataset_id: Optional[PID] = None
     _id: Optional[str] = None
+    _is_published: Optional[bool] = None
     _updated_at: Optional[datetime] = None
     _updated_by: Optional[str] = None
 
@@ -72,6 +73,7 @@ class OrigDatablock:
             _created_by=dblock.createdBy,
             _dataset_id=orig_datablock_model.datasetId,
             _id=orig_datablock_model.id,
+            _is_published=orig_datablock_model.isPublished,
             _updated_at=dblock.updatedAt,
             _updated_by=dblock.updatedBy,
             init_files=[
@@ -119,6 +121,11 @@ class OrigDatablock:
     def datablock_id(self) -> Optional[str]:
         """ID of this datablock."""
         return self._id
+
+    @property
+    def is_published(self) -> Optional[bool]:
+        """Return whether the datablock is public on SciCat."""
+        return self._is_published
 
     def add_files(self, *files: File) -> None:
         """Append files to the datablock.
