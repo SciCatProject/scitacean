@@ -31,10 +31,10 @@ class OrigDatablock:
 
     _files: List[File] = dataclasses.field(init=False)
     checksum_algorithm: Optional[str] = None
-    access_groups: Optional[List[str]] = None
     instrument_group: Optional[str] = None
     owner_group: Optional[str] = None
     init_files: dataclasses.InitVar[Optional[Iterable[File]]] = None
+    _access_groups: Optional[List[str]] = None
     _created_at: Optional[datetime] = None
     _created_by: Optional[str] = None
     _dataset_id: Optional[PID] = None
@@ -67,8 +67,8 @@ class OrigDatablock:
         return OrigDatablock(
             checksum_algorithm=dblock.chkAlg,
             owner_group=dblock.ownerGroup,
-            access_groups=dblock.accessGroups,
             instrument_group=dblock.instrumentGroup,
+            _access_groups=dblock.accessGroups,
             _created_at=dblock.createdAt,
             _created_by=dblock.createdBy,
             _dataset_id=orig_datablock_model.datasetId,
@@ -91,6 +91,11 @@ class OrigDatablock:
     def size(self) -> int:
         """Total size of all files."""
         return sum(file.size for file in self.files)
+
+    @property
+    def access_groups(self) -> Optional[List[str]]:
+        """Access groups for this datablock."""
+        return self._access_groups
 
     @property
     def created_at(self) -> Optional[datetime]:
