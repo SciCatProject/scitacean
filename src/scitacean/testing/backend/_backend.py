@@ -50,7 +50,7 @@ def _apply_config(
     env["SITE"] = config.SITE
 
     scicat["volumes"] = [
-        f"/home/node/app/functionalAccounts.json:{account_config_path}",
+        f"{account_config_path}:/home/node/app/functionalAccounts.json",
     ]
 
     return res
