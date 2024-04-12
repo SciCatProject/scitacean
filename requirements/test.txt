@@ -8,21 +8,21 @@
 -r base.txt
 attrs==23.2.0
     # via hypothesis
-execnet==2.0.2
+execnet==2.1.1
     # via pytest-xdist
-filelock[typing]==3.13.1
+filelock[typing]==3.13.4
     # via -r test.in
-hypothesis==6.98.2
+hypothesis==6.100.1
     # via -r test.in
 iniconfig==2.0.0
     # via pytest
-packaging==23.2
+packaging==24.0
     # via pytest
 pluggy==1.4.0
     # via pytest
-pyfakefs==5.3.5
+pyfakefs==5.4.1
     # via -r test.in
-pytest==8.0.0
+pytest==8.1.1
     # via
     #   -r test.in
     #   pytest-randomly
