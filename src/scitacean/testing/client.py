@@ -238,10 +238,10 @@ class FakeScicatClient(ScicatClient):
         self, dblock: model.UploadOrigDatablock
     ) -> model.DownloadOrigDatablock:
         """Create a new orig datablock in SciCat."""
-        ingested = _process_orig_datablock(dblock)
-        dataset_id = ingested.datasetId
-        if dataset_id not in self.main.datasets:
+        dataset_id = dblock.datasetId
+        if (dset := self.main.datasets.get(dataset_id)) is None:
             raise ScicatCommError(f"No dataset with id {dataset_id}")
+        ingested = _process_orig_datablock(dblock, dset)
         self.main.orig_datablocks.setdefault(dataset_id, []).append(ingested)
         return ingested
 
@@ -338,6 +338,7 @@ def _process_dataset(
 
 def _process_orig_datablock(
     dblock: model.UploadOrigDatablock,
+    dset: model.DownloadDataset,
 ) -> model.DownloadOrigDatablock:
     created_at = datetime.datetime.now(tz=datetime.timezone.utc)
     # TODO use user login if possible
@@ -347,6 +348,7 @@ def _process_orig_datablock(
     fields = _model_dict(dblock)
     if "dataFileList" in fields:
         fields["dataFileList"] = list(map(_process_data_file, fields["dataFileList"]))
+    fields["accessGroups"] = dset.accessGroups
     processed = model.construct(
         model.DownloadOrigDatablock,
         _strict_validation=False,
@@ -356,8 +358,6 @@ def _process_orig_datablock(
         updatedAt=created_at,
         **fields,
     )
-    if dblock.datasetId is not None:
-        processed.datasetId = dblock.datasetId
     return processed
 
 
@@ -416,12 +416,13 @@ def process_uploaded_dataset(
     (and associated) models to the in-database (and download) models.
     It is not completely faithful to the real SciCat but only an approximation.
     """
+    ds = _process_dataset(dataset)
     dblocks = (
-        list(map(_process_orig_datablock, orig_datablocks))
+        [_process_orig_datablock(db, ds) for db in orig_datablocks]
         if orig_datablocks is not None
         else None
     )
     atts = (
         list(map(_process_attachment, attachments)) if attachments is not None else None
     )
-    return _process_dataset(dataset), dblocks, atts
+    return ds, dblocks, atts

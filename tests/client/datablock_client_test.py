@@ -52,7 +52,6 @@ def orig_datablock(scicat_access):
         ],
         datasetId="PLACEHOLDER",
         ownerGroup=scicat_access.user.group,
-        accessGroups=["group1", "2nd_group"],
     )
 
 
@@ -74,9 +73,10 @@ def test_create_first_orig_datablock(scicat_client, derived_dataset, orig_databl
         # The database populates a number of fields that are orig_datablock in dset.
         # But we don't want to test those here as we don't want to test the database.
         if expected is not None and key != "dataFileList":
-            assert expected == dict(downloaded)[key], f"key = {key}"
+            assert dict(downloaded)[key] == expected, f"key = {key}"
+    assert downloaded.accessGroups == derived_dataset.accessGroups
     for i in range(len(orig_datablock.dataFileList)):
         for key, expected in orig_datablock.dataFileList[i]:
             assert (
-                expected == dict(downloaded.dataFileList[i])[key]
+                dict(downloaded.dataFileList[i])[key] == expected
             ), f"i = {i}, key = {key}"
