@@ -416,12 +416,13 @@ def process_uploaded_dataset(
     (and associated) models to the in-database (and download) models.
     It is not completely faithful to the real SciCat but only an approximation.
     """
+    ds = _process_dataset(dataset)
     dblocks = (
-        list(map(_process_orig_datablock, orig_datablocks))
+        [_process_orig_datablock(db, ds) for db in orig_datablocks]
         if orig_datablocks is not None
         else None
     )
     atts = (
         list(map(_process_attachment, attachments)) if attachments is not None else None
     )
-    return _process_dataset(dataset), dblocks, atts
+    return ds, dblocks, atts
