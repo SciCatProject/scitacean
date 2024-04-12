@@ -10,13 +10,13 @@ mypy==1.8.0
     # via -r mypy.in
 mypy-extensions==1.0.0
     # via mypy
-types-docutils==0.20.0.20240106
+types-docutils==0.20.0.20240201
     # via -r mypy.in
-types-paramiko==3.4.0.20240120
+types-paramiko==3.4.0.20240205
     # via -r mypy.in
 types-python-dateutil==2.8.19.20240106
     # via -r mypy.in
 types-pyyaml==6.0.12.12
     # via -r mypy.in
-types-requests==2.31.0.20240106
+types-requests==2.31.0.20240125
     # via -r mypy.in

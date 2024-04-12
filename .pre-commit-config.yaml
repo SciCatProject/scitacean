@@ -19,7 +19,7 @@ repos:
       args: ["--drop-empty-cells",
              "--extra-keys 'metadata.language_info.version cell.metadata.jp-MarkdownHeadingCollapsed cell.metadata.pycharm'"]
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.1.11
+  rev: v0.2.0
   hooks:
     - id: ruff-format
       types_or: [ python, pyi ]
