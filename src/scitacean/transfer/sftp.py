@@ -271,9 +271,7 @@ class SFTPFileTransfer:
         self._host = host
         self._port = port
         self._source_folder_pattern = (
-            RemotePath(source_folder)
-            if isinstance(source_folder, str)
-            else source_folder
+            RemotePath(source_folder) if source_folder is not None else None
         )
         self._connect = connect
 
