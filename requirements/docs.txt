@@ -13,7 +13,7 @@ alabaster==0.7.16
     # via sphinx
 asttokens==2.4.1
     # via stack-data
-autodoc-pydantic==2.0.1
+autodoc-pydantic==2.1.0
     # via -r docs.in
 babel==2.14.0
     # via
@@ -25,9 +25,9 @@ beautifulsoup4==4.12.3
     #   pydata-sphinx-theme
 bleach==6.1.0
     # via nbconvert
-comm==0.2.1
+comm==0.2.2
     # via ipykernel
-debugpy==1.8.0
+debugpy==1.8.1
     # via ipykernel
 defusedxml==0.7.1
     # via nbconvert
@@ -43,9 +43,9 @@ fastjsonschema==2.19.1
     # via nbformat
 imagesize==1.4.1
     # via sphinx
-ipykernel==6.29.1
+ipykernel==6.29.4
     # via -r docs.in
-ipython==8.21.0
+ipython==8.23.0
     # via
     #   -r docs.in
     #   ipykernel
@@ -61,11 +61,11 @@ jsonschema==4.21.1
     # via nbformat
 jsonschema-specifications==2023.12.1
     # via jsonschema
-jupyter-client==8.6.0
+jupyter-client==8.6.1
     # via
     #   ipykernel
     #   nbclient
-jupyter-core==5.7.1
+jupyter-core==5.7.2
     # via
     #   ipykernel
     #   jupyter-client
@@ -94,11 +94,11 @@ mistune==3.0.2
     # via nbconvert
 myst-parser==2.0.0
     # via -r docs.in
-nbclient==0.9.0
+nbclient==0.10.0
     # via nbconvert
-nbconvert==7.15.0
+nbconvert==7.16.3
     # via nbsphinx
-nbformat==5.9.2
+nbformat==5.10.4
     # via
     #   nbclient
     #   nbconvert
@@ -109,7 +109,7 @@ nest-asyncio==1.6.0
     # via ipykernel
 pandocfilters==1.5.1
     # via nbconvert
-parso==0.8.3
+parso==0.8.4
     # via jedi
 pexpect==4.9.0
     # via ipython
@@ -123,7 +123,7 @@ ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.2
     # via stack-data
-pydantic-settings==2.1.0
+pydantic-settings==2.2.1
     # via autodoc-pydantic
 pydata-sphinx-theme==0.15.2
     # via -r docs.in
@@ -140,11 +140,11 @@ pyzmq==25.1.2
     # via
     #   ipykernel
     #   jupyter-client
-referencing==0.33.0
+referencing==0.34.0
     # via
     #   jsonschema
     #   jsonschema-specifications
-rpds-py==0.17.1
+rpds-py==0.18.0
     # via
     #   jsonschema
     #   referencing
@@ -162,7 +162,7 @@ sphinx==7.2.6
     #   sphinx-autodoc-typehints
     #   sphinx-copybutton
     #   sphinx-design
-sphinx-autodoc-typehints==1.25.3
+sphinx-autodoc-typehints==2.0.1
     # via -r docs.in
 sphinx-copybutton==0.5.2
     # via -r docs.in
@@ -188,7 +188,7 @@ tornado==6.4
     # via
     #   ipykernel
     #   jupyter-client
-traitlets==5.14.1
+traitlets==5.14.2
     # via
     #   comm
     #   ipykernel
