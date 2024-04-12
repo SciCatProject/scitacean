@@ -2,6 +2,7 @@
 # Copyright (c) 2024 SciCat Project (https://github.com/SciCatProject/scitacean)
 
 """Generate Python classes for SciCat models."""
+
 import argparse
 import subprocess
 import tempfile

@@ -100,6 +100,10 @@ warn_required_dynamic_aliases = true
 
 [tool.ruff]
 line-length = 88
+extend-include = ["*.ipynb"]
+extend-exclude = [".*", "__pycache__", "build", "dist", "venv"]
+
+[tool.ruff.lint]
 select = ["B", "D", "E", "F", "G", "I", "S", "T20", "PGH", "FBT003", "RUF"]
 ignore = [
     "B905", # `zip()` without an explicit `strict=` parameter
@@ -108,11 +112,11 @@ ignore = [
     "E111", "E114", "E117", "D206", "D300",  # conflict with ruff format
     "D105",
 ]
-extend-include = ["*.ipynb"]
-extend-exclude = [".*", "__pycache__", "build", "dist", "venv"]
 fixable = ["I001"]
+isort.known-first-party = ["scitacean"]
+pydocstyle.convention = "numpy"
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "tests/*" = [
     "S101",  # asserts are fine in tests
     "D10",  # no docstrings required in tests
@@ -125,15 +129,6 @@ fixable = ["I001"]
 "tools/*" = ["D10"]
 "src/scitacean/model.py" = ["D10"]
 "src/scitacean/testing/strategies.py" = ["D401"]
-
-[tool.ruff.isort]
-known-first-party = ["scitacean"]
-
-[tool.ruff.pydocstyle]
-convention = "numpy"
-
-#[tool.ruff.format]
-#docstring-code-format = false
 
 [tool.codespell]
 ignore-words-list = "specfield"

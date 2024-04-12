@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2024 SciCat Project (https://github.com/SciCatProject/scitacean)
 """HTML representations for Jupyter."""
+
 from __future__ import annotations
 
 from functools import lru_cache

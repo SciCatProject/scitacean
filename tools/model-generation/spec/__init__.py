@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2024 SciCat Project (https://github.com/SciCatProject/scitacean)
 """Load model specifications."""
+
 import dataclasses
 import re
 import sys

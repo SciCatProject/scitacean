@@ -2,6 +2,7 @@
 # Copyright (c) 2024 SciCat Project (https://github.com/SciCatProject/scitacean)
 
 """Types and functions to implement models for communication with SciCat."""
+
 from __future__ import annotations
 
 import dataclasses
@@ -267,20 +268,17 @@ def validate_orcids(value: Optional[str]) -> Optional[str]:
 
 
 @overload
-def convert_download_to_user_model(download_model: None) -> None:
-    ...
+def convert_download_to_user_model(download_model: None) -> None: ...
 
 
 @overload
-def convert_download_to_user_model(download_model: BaseModel) -> BaseUserModel:
-    ...
+def convert_download_to_user_model(download_model: BaseModel) -> BaseUserModel: ...
 
 
 @overload
 def convert_download_to_user_model(
     download_model: Iterable[BaseModel],
-) -> List[BaseUserModel]:
-    ...
+) -> List[BaseUserModel]: ...
 
 
 def convert_download_to_user_model(
@@ -297,20 +295,17 @@ def convert_download_to_user_model(
 
 
 @overload
-def convert_user_to_upload_model(user_model: None) -> None:
-    ...
+def convert_user_to_upload_model(user_model: None) -> None: ...
 
 
 @overload
-def convert_user_to_upload_model(user_model: BaseUserModel) -> BaseModel:
-    ...
+def convert_user_to_upload_model(user_model: BaseUserModel) -> BaseModel: ...
 
 
 @overload
 def convert_user_to_upload_model(
     user_model: Iterable[BaseUserModel],
-) -> List[BaseModel]:
-    ...
+) -> List[BaseModel]: ...
 
 
 def convert_user_to_upload_model(
