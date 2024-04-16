@@ -781,12 +781,12 @@ class ScicatClient:
             )
         """
         # Use a pydantic model to support serializing custom types to JSON.
-        params_model = pydantic.create_model(
+        params_model = pydantic.create_model(  # type: ignore[call-overload]
             "QueryParams", **{key: (type(field), ...) for key, field in fields.items()}
         )
         params = {"fields": params_model(**fields).model_dump_json()}
 
-        limits = {}
+        limits: dict[str, Union[str, int]] = {}
         if order is not None:
             limits["order"] = order
         if limit is not None:

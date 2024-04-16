@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2024 SciCat Project (https://github.com/SciCatProject/scitacean)
 
+from typing import Union
+
 import pytest
 from dateutil.parser import parse as parse_datetime
 
@@ -8,7 +10,9 @@ from scitacean import Client, DatasetType, RemotePath, model
 from scitacean.testing.backend import skip_if_not_backend
 from scitacean.testing.backend.config import SciCatAccess
 
-UPLOAD_DATASETS = {
+UPLOAD_DATASETS: dict[
+    str, Union[model.UploadDerivedDataset, model.UploadRawDataset]
+] = {
     "raw1": model.UploadRawDataset(
         ownerGroup="PLACEHOLDER",
         accessGroups=["uu", "faculty"],
