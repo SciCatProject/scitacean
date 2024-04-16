@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import dataclasses
 import datetime
+import json
 import re
 import warnings
 from collections.abc import Callable, Iterable, Iterator
@@ -15,6 +16,7 @@ from typing import Any
 from urllib.parse import quote_plus
 
 import httpx
+import pydantic
 
 from . import model
 from ._base_model import convert_download_to_user_model
@@ -708,6 +710,109 @@ class ScicatClient:
             **dset_json,
         )
 
+    def query_datasets(
+        self,
+        fields: dict[str, Any],
+        *,
+        limit: int | None = None,
+        order: str | None = None,
+        strict_validation: bool = False,
+    ) -> list[model.DownloadDataset]:
+        """Query for datasets in SciCat.
+
+        Attention
+        ---------
+        This function is experimental and may change or be removed in the future.
+        It is currently unclear how best to implement querying because SciCat
+        provides multiple, very different APIs and there are plans for supporting
+        queries via Mongo query language directly.
+
+        See `issue #177 <https://github.com/SciCatProject/scitacean/issues/177>`_
+        for a discussion.
+
+        Parameters
+        ----------
+        fields:
+            Fields to query for.
+            Returned datasets must match all fields exactly.
+            See examples below.
+        limit:
+            Maximum number of results to return.
+            Requires ``order`` to be specified.
+            If not given, all matching datasets are returned.
+        order:
+            Specify order of results.
+            For example, ``"creationTime:asc"`` and ``"creationTime:desc"`` return
+            results in ascending or descending order in creation time, respectively.
+        strict_validation:
+            If ``True``, the datasets must pass validation.
+            If ``False``, datasets are still returned if validation fails.
+            Note that some dataset fields may have a bad value or type.
+            A warning will be logged if validation fails.
+
+        Returns
+        -------
+        :
+            A list of dataset models that match the query.
+
+        Examples
+        --------
+        Get all datasets belonging to proposal ``abc.123``:
+
+        .. code-block:: python
+
+            scicat_client.query_datasets({'proposalId': 'abc.123'})
+
+        Get all datasets that belong to proposal ``abc.123``
+        **and** have name ``"ds name"``: (The name and proposal must match exactly.)
+
+        .. code-block:: python
+
+            scicat_client.query_datasets({'proposalId': 'abc.123', 'name': 'ds name'})
+
+        Return only the newest 5 datasets for proposal ``bc.123``:
+
+        .. code-block:: python
+
+            scicat_client.query_datasets(
+                {'proposalId': 'bc.123'},
+                limit=5,
+                order="creationTime:desc",
+            )
+        """
+        # Use a pydantic model to support serializing custom types to JSON.
+        params_model = pydantic.create_model(
+            "QueryParams", **{key: (type(field), ...) for key, field in fields.items()}
+        )
+        params = {"fields": params_model(**fields).model_dump_json()}
+
+        limits = {}
+        if order is not None:
+            limits["order"] = order
+        if limit is not None:
+            if order is None:
+                raise ValueError("`order` is required when `limit` is specified.")
+            limits["limit"] = limit
+        if limits:
+            params["limits"] = json.dumps(limits)
+
+        dsets_json = self._call_endpoint(
+            cmd="get",
+            url="datasets/fullquery",
+            params=params,
+            operation="query_datasets",
+        )
+        if not dsets_json:
+            return []
+        return [
+            model.construct(
+                model.DownloadDataset,
+                _strict_validation=strict_validation,
+                **dset_json,
+            )
+            for dset_json in dsets_json
+        ]
+
     def get_orig_datablocks(
         self, pid: PID, strict_validation: bool = False
     ) -> list[model.DownloadOrigDatablock]:
@@ -1010,7 +1115,12 @@ class ScicatClient:
             raise ValueError(f"Dataset {dset} did not pass validation in SciCat.")
 
     def _send_to_scicat(
-        self, *, cmd: str, url: str, data: model.BaseModel | None = None
+        self,
+        *,
+        cmd: str,
+        url: str,
+        data: model.BaseModel | None = None,
+        params: dict[str, str] | None = None,
     ) -> httpx.Response:
         if self._token is not None:
             token = self._token.get_str()
@@ -1029,6 +1139,7 @@ class ScicatClient:
                 content=data.model_dump_json(exclude_none=True)
                 if data is not None
                 else None,
+                params=params,
                 headers=headers,
                 timeout=self._timeout.seconds,
             )
@@ -1047,14 +1158,15 @@ class ScicatClient:
         *,
         cmd: str,
         url: str,
-        data: model.BaseModel | None = None,
         operation: str,
+        data: model.BaseModel | None = None,
+        params: dict[str, str] | None = None,
     ) -> Any:
         full_url = _url_concat(self._base_url, url)
         logger = get_logger()
         logger.info("Calling SciCat API at %s for operation '%s'", full_url, operation)
 
-        response = self._send_to_scicat(cmd=cmd, url=full_url, data=data)
+        response = self._send_to_scicat(cmd=cmd, url=full_url, data=data, params=params)
         if not response.is_success:
             logger.error(
                 "SciCat API call to %s failed: %s %s: %s",

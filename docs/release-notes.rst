@@ -41,6 +41,8 @@ Security
 Features
 ~~~~~~~~
 
+* Added experimental :meth:`client.ScicatClient.query_datasets` for querying datasets by field.
+
 Breaking changes
 ~~~~~~~~~~~~~~~~
 
