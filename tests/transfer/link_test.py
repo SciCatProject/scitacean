@@ -13,7 +13,7 @@ from scitacean.testing.client import FakeClient
 from scitacean.transfer.link import LinkFileTransfer
 
 if sys.platform.startswith("win"):
-    pytest.skip("sLinkFileTransfer does not work on Windows", allow_module_level=True)
+    pytest.skip("LinkFileTransfer does not work on Windows", allow_module_level=True)
 
 
 def test_download_one_file(tmp_path):
