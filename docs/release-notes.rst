@@ -48,6 +48,7 @@ Breaking changes
 ~~~~~~~~~~~~~~~~
 
 * **Dropped support for Pydantic v1.**
+* Removed deprecated ``transfer.ssh.SSHFileTransfer`` in favor of :class:`transfer.sftp.SFTPFileTransfer`.
 
 Bugfixes
 ~~~~~~~~
@@ -250,7 +251,7 @@ Breaking changes
 * A number of attributes of Dataset are now read only.
 * ``Dataset.new`` was removed, use the regular ``__init__`` method instead.
 * ``File.provide_locally`` was removed in favor of :meth:`Client.download_files`.
-* ``ESSTestFileTransfer`` was renamed to :class:`transfer.ssh.SSHFileTransfer`.
+* ``ESSTestFileTransfer`` was renamed to ``transfer.ssh.SSHFileTransfer``.
 
 Bugfixes
 ~~~~~~~~

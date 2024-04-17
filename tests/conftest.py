@@ -6,12 +6,10 @@ import pytest
 
 from scitacean.testing.backend import add_pytest_option as add_backend_option
 from scitacean.testing.sftp import add_pytest_option as add_sftp_option
-from scitacean.testing.ssh import add_pytest_option as add_ssh_option
 
 pytest_plugins = (
     "scitacean.testing.backend.fixtures",
     "scitacean.testing.sftp.fixtures",
-    "scitacean.testing.ssh.fixtures",
 )
 
 
@@ -30,4 +28,3 @@ hypothesis.settings.register_profile(
 def pytest_addoption(parser: pytest.Parser) -> None:
     add_backend_option(parser)
     add_sftp_option(parser)
-    add_ssh_option(parser)
