@@ -16,7 +16,7 @@ Development dependencies are specified in ``requirements/dev.txt`` and can be in
 Additionally, building the documentation requires `pandoc <https://pandoc.org/>`_ which is not on PyPI and needs to be installed through other means.
 (E.g. with your OS package manager.)
 
-If you want to run tests against a real backend or SSH server, you also need ``docker-compose``.
+If you want to run tests against a real backend or SFTP server, you also need ``docker-compose``.
 See `Testing <./testing.rst>`_ for what this is good for and why.
 
 Install the package
@@ -56,7 +56,7 @@ Running tests
 
             python -m pytest -n<number-of-threads>
 
-        Or to run tests against a real backend and SSH server (see setup above)
+        Or to run tests against a real backend and SFTP server (see setup above)
 
 
         .. code-block:: sh

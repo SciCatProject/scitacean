@@ -30,7 +30,6 @@ File transfer
 
    transfer.link.LinkFileTransfer
    transfer.sftp.SFTPFileTransfer
-   transfer.ssh.SSHFileTransfer
 
 Auxiliary classes
 ~~~~~~~~~~~~~~~~~

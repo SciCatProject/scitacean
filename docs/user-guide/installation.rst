@@ -7,9 +7,9 @@ Installation
 
         .. code-block:: sh
 
-            pip install scitacean[ssh]
+            pip install scitacean[sftp]
 
-        If :class:`scitacean.transfer.ssh.SSHFileTransfer` is not required, the ``ssh`` extra can be omitted.
+        If :class:`scitacean.transfer.sftp.SFTPFileTransfer` is not required, the ``sftp`` extra can be omitted.
 
     .. tab-item:: conda
 

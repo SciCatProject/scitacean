@@ -42,7 +42,6 @@ dynamic = ["version"]
 "Source" = "https://github.com/SciCatProject/scitacean"
 
 [project.optional-dependencies]
-ssh = ["fabric"]
 sftp = ["paramiko"]
 test = ["filelock", "hypothesis", "pyyaml"]
 
