@@ -119,6 +119,120 @@ def test_client_with_link(tmp_path):
     )
 
 
+def test_client_with_link_local_file_exists(tmp_path):
+    content = "This is some text for testing.\n"
+    checksum = hashlib.md5(content.encode("utf-8")).hexdigest()
+    remote_dir = tmp_path / "server"
+    remote_dir.mkdir()
+    remote_dir.joinpath("file1.txt").write_text(content)
+
+    local_dir = tmp_path / "download"
+    local_dir.mkdir()
+    local_dir.joinpath("file1.txt").write_text(content)
+
+    ds = DownloadDataset(
+        accessGroups=["group1"],
+        contactEmail="p.stibbons@uu.am",
+        creationLocation="UU",
+        creationTime=datetime(2023, 6, 23, 10, 0, 0),
+        numberOfFiles=1,
+        numberOfFilesArchived=0,
+        owner="PonderStibbons",
+        ownerGroup="uu",
+        pid=PID(prefix="UU.0123", pid="1234567890"),
+        principalInvestigator="MustrumRidcully",
+        size=len(content),
+        sourceFolder=RemotePath(str(remote_dir)),
+        type=DatasetType.RAW,
+    )
+    db = DownloadOrigDatablock(
+        dataFileList=[
+            DownloadDataFile(
+                path="file1.txt",
+                size=len(content),
+                chk=checksum,
+                time=datetime(2023, 6, 23, 10, 0, 0),
+            )
+        ],
+        datasetId=ds.pid,
+        size=len(content),
+        chkAlg="md5",
+    )
+
+    client = FakeClient.without_login(
+        url="",
+        file_transfer=LinkFileTransfer(),
+    )
+    client.datasets[PID(prefix="UU.0123", pid="1234567890")] = ds
+    client.orig_datablocks[PID(prefix="UU.0123", pid="1234567890")] = [db]
+
+    downloaded = client.get_dataset(PID(prefix="UU.0123", pid="1234567890"))
+    downloaded = client.download_files(downloaded, target=local_dir)
+
+    assert (
+        local_dir.joinpath("file1.txt").read_text()
+        == "This is some text for testing.\n"
+    )
+    assert (
+        downloaded.files[0].local_path.read_text() == "This is some text for testing.\n"  # type: ignore[union-attr]
+    )
+    # Existing file was not overwritten
+    assert not local_dir.joinpath("file1.txt").is_symlink()
+
+
+def test_client_with_link_local_file_exists_clashing_content(tmp_path):
+    content = "This is some text for testing.\n"
+    checksum = hashlib.md5(content.encode("utf-8")).hexdigest()
+    remote_dir = tmp_path / "server"
+    remote_dir.mkdir()
+    remote_dir.joinpath("file1.txt").write_text(content)
+
+    local_dir = tmp_path / "download"
+    local_dir.mkdir()
+    local_dir.joinpath("file1.txt").write_text(content + content)
+
+    ds = DownloadDataset(
+        accessGroups=["group1"],
+        contactEmail="p.stibbons@uu.am",
+        creationLocation="UU",
+        creationTime=datetime(2023, 6, 23, 10, 0, 0),
+        numberOfFiles=1,
+        numberOfFilesArchived=0,
+        owner="PonderStibbons",
+        ownerGroup="uu",
+        pid=PID(prefix="UU.0123", pid="1234567890"),
+        principalInvestigator="MustrumRidcully",
+        size=len(content),
+        sourceFolder=RemotePath(str(remote_dir)),
+        type=DatasetType.RAW,
+    )
+    db = DownloadOrigDatablock(
+        dataFileList=[
+            DownloadDataFile(
+                path="file1.txt",
+                size=len(content),
+                chk=checksum,
+                time=datetime(2023, 6, 23, 10, 0, 0),
+            )
+        ],
+        datasetId=ds.pid,
+        size=len(content),
+        chkAlg="md5",
+    )
+
+    client = FakeClient.without_login(
+        url="",
+        file_transfer=LinkFileTransfer(),
+    )
+    client.datasets[PID(prefix="UU.0123", pid="1234567890")] = ds
+    client.orig_datablocks[PID(prefix="UU.0123", pid="1234567890")] = [db]
+
+    downloaded = client.get_dataset(PID(prefix="UU.0123", pid="1234567890"))
+    with pytest.raises(FileExistsError):
+        # We do not overwrite existing files
+        client.download_files(downloaded, target=local_dir)
+
+
 def test_download_file_does_not_exist(tmp_path):
     remote_dir = tmp_path / "server"
     remote_dir.mkdir()
