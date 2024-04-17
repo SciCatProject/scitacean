@@ -31,9 +31,9 @@ SFTP file transfer
 ------------------
 
 Testing :class:`scitacean.transfer.sftp.SFTPFileTransfer` requires an SFTP server.
-``tests/common/sftp_server.py`` contains helpers for managing one via Docker.
+:mod:`scitacean.testing.sftp` contains helpers for managing one via Docker.
 Tests can use it by depending on the ``sftp_fileserver`` fixture.
-See the documentation in ``tests/common/sftp_server.py`` for how it works.
+See the `documentation <https://scicatproject.github.io/scitacean/user-guide/testing.html#Local-SFTP-fileserver>`_ for how it works.
 
 Note that those tests may leave a small directory behind.
 This is an issue with file ownership and permissions caused by making the Docker volumes writable.
