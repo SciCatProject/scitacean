@@ -1,11 +1,10 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2024 SciCat Project (https://github.com/SciCatProject/scitacean)
 
-from typing import Optional
 
 import pytest
 
-_COMMAND_LINE_OPTION: Optional[str] = None
+_COMMAND_LINE_OPTION: str | None = None
 
 
 def add_pytest_option(parser: pytest.Parser, option: str = "--backend-tests") -> None:

@@ -9,9 +9,9 @@ Primarily meant for testing.
 import json
 import os
 import subprocess
-from typing import Any, Union
+from typing import Any
 
-_PathLike = Union[str, os.PathLike[str]]
+_PathLike = str | os.PathLike[str]
 
 
 def docker_compose_up(config_file: _PathLike, *services: str) -> None:

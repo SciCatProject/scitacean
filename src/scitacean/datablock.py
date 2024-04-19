@@ -6,8 +6,9 @@
 from __future__ import annotations
 
 import dataclasses
+from collections.abc import Iterable, Iterator
 from datetime import datetime
-from typing import TYPE_CHECKING, Iterable, Iterator, List, Optional
+from typing import TYPE_CHECKING
 
 from .file import File
 from .model import DownloadOrigDatablock, UploadOrigDatablock
@@ -29,21 +30,21 @@ class OrigDatablock:
     models for communication with a server.
     """
 
-    _files: List[File] = dataclasses.field(init=False)
-    checksum_algorithm: Optional[str] = None
-    instrument_group: Optional[str] = None
-    owner_group: Optional[str] = None
-    init_files: dataclasses.InitVar[Optional[Iterable[File]]] = None
-    _access_groups: Optional[List[str]] = None
-    _created_at: Optional[datetime] = None
-    _created_by: Optional[str] = None
-    _dataset_id: Optional[PID] = None
-    _id: Optional[str] = None
-    _is_published: Optional[bool] = None
-    _updated_at: Optional[datetime] = None
-    _updated_by: Optional[str] = None
+    _files: list[File] = dataclasses.field(init=False)
+    checksum_algorithm: str | None = None
+    instrument_group: str | None = None
+    owner_group: str | None = None
+    init_files: dataclasses.InitVar[Iterable[File] | None] = None
+    _access_groups: list[str] | None = None
+    _created_at: datetime | None = None
+    _created_by: str | None = None
+    _dataset_id: PID | None = None
+    _id: str | None = None
+    _is_published: bool | None = None
+    _updated_at: datetime | None = None
+    _updated_by: str | None = None
 
-    def __post_init__(self, init_files: Optional[Iterable[File]]) -> None:
+    def __post_init__(self, init_files: Iterable[File] | None) -> None:
         self._files = list(init_files) if init_files is not None else []
 
     @classmethod
@@ -93,42 +94,42 @@ class OrigDatablock:
         return sum(file.size for file in self.files)
 
     @property
-    def access_groups(self) -> Optional[List[str]]:
+    def access_groups(self) -> list[str] | None:
         """Access groups for this datablock."""
         return self._access_groups
 
     @property
-    def created_at(self) -> Optional[datetime]:
+    def created_at(self) -> datetime | None:
         """Creation time of this orig datablock."""
         return self._created_at
 
     @property
-    def created_by(self) -> Optional[str]:
+    def created_by(self) -> str | None:
         """User who created this orig datablock."""
         return self._created_by
 
     @property
-    def updated_at(self) -> Optional[datetime]:
+    def updated_at(self) -> datetime | None:
         """Last update time of this orig datablock."""
         return self._updated_at
 
     @property
-    def updated_by(self) -> Optional[str]:
+    def updated_by(self) -> str | None:
         """User who last updated this datablock."""
         return self._updated_by
 
     @property
-    def dataset_id(self) -> Optional[PID]:
+    def dataset_id(self) -> PID | None:
         """PID of the dataset this datablock belongs to."""
         return self._dataset_id
 
     @property
-    def datablock_id(self) -> Optional[str]:
+    def datablock_id(self) -> str | None:
         """ID of this datablock."""
         return self._id
 
     @property
-    def is_published(self) -> Optional[bool]:
+    def is_published(self) -> bool | None:
         """Return whether the datablock is public on SciCat."""
         return self._is_published
 

@@ -4,8 +4,8 @@
 """Pytest fixtures to manage and access a local SFTP server."""
 
 import logging
+from collections.abc import Callable, Generator
 from pathlib import Path
-from typing import Callable, Generator, Optional
 
 import pytest
 from paramiko import SFTPClient, SSHClient
@@ -40,7 +40,7 @@ def sftp_access(request: pytest.FixtureRequest) -> SFTPAccess:
 @pytest.fixture(scope="session")
 def sftp_base_dir(
     request: pytest.FixtureRequest, tmp_path_factory: pytest.TempPathFactory
-) -> Optional[Path]:
+) -> Path | None:
     """Fixture that returns the base working directory for the SFTP server setup.
 
     Returns
@@ -59,7 +59,7 @@ def sftp_base_dir(
 
 
 @pytest.fixture(scope="session")
-def sftp_data_dir(sftp_base_dir: Optional[Path]) -> Optional[Path]:
+def sftp_data_dir(sftp_base_dir: Path | None) -> Path | None:
     """Fixture that returns the data directory for the SFTP server setup.
 
     Returns
@@ -89,8 +89,8 @@ def require_sftp_fileserver(request, sftp_fileserver) -> None:
 def sftp_fileserver(
     request: pytest.FixtureRequest,
     sftp_access: SFTPAccess,
-    sftp_base_dir: Optional[Path],
-    sftp_data_dir: Optional[Path],
+    sftp_base_dir: Path | None,
+    sftp_data_dir: Path | None,
     sftp_connect_with_username_password,
 ) -> Generator[bool, None, None]:
     """Fixture to declare that a test needs a local SFTP server.

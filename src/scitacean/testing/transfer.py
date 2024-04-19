@@ -2,9 +2,10 @@
 # Copyright (c) 2024 SciCat Project (https://github.com/SciCatProject/scitacean)
 """Fake file transfer."""
 
+from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Dict, Iterator, List, Optional, Union
+from typing import Any
 
 try:
     from pyfakefs.fake_filesystem import FakeFilesystem
@@ -22,7 +23,7 @@ from ..transfer.util import source_folder_for
 class FakeDownloadConnection:
     """'Download' files from a fake file transfer."""
 
-    def __init__(self, fs: Optional[FakeFilesystem], files: Dict[RemotePath, bytes]):
+    def __init__(self, fs: FakeFilesystem | None, files: dict[RemotePath, bytes]):
         self.files = files
         self.fs = fs
 
@@ -34,7 +35,7 @@ class FakeDownloadConnection:
             with open(local, "wb") as f:
                 f.write(self.files[remote])
 
-    def download_files(self, *, remote: List[RemotePath], local: List[Path]) -> None:
+    def download_files(self, *, remote: list[RemotePath], local: list[Path]) -> None:
         """Download multiple files."""
         for r, l in zip(remote, local):
             self.download_file(remote=r, local=l)
@@ -45,8 +46,8 @@ class FakeUploadConnection:
 
     def __init__(
         self,
-        files: Dict[RemotePath, bytes],
-        reverted: Dict[RemotePath, bytes],
+        files: dict[RemotePath, bytes],
+        reverted: dict[RemotePath, bytes],
         source_folder: RemotePath,
     ):
         self.files = files
@@ -56,7 +57,7 @@ class FakeUploadConnection:
     def _remote_path(self, filename: RemotePath) -> RemotePath:
         return self._source_folder / filename
 
-    def _upload_file(self, *, remote: RemotePath, local: Optional[Path]) -> RemotePath:
+    def _upload_file(self, *, remote: RemotePath, local: Path | None) -> RemotePath:
         if local is None:
             raise ValueError(f"No local path for file {remote}")
         remote = self._remote_path(remote)
@@ -64,7 +65,7 @@ class FakeUploadConnection:
             self.files[remote] = f.read()
         return remote
 
-    def upload_files(self, *files: File) -> List[File]:
+    def upload_files(self, *files: File) -> list[File]:
         """Upload files."""
         for file in files:
             self._upload_file(remote=file.remote_path, local=file.local_path)
@@ -108,10 +109,10 @@ class FakeFileTransfer:
     def __init__(
         self,
         *,
-        fs: Optional[FakeFilesystem] = None,
-        files: Optional[Dict[Union[str, RemotePath], bytes]] = None,
-        reverted: Optional[Dict[Union[str, RemotePath], bytes]] = None,
-        source_folder: Optional[Union[str, RemotePath]] = None,
+        fs: FakeFilesystem | None = None,
+        files: dict[str | RemotePath, bytes] | None = None,
+        reverted: dict[str | RemotePath, bytes] | None = None,
+        source_folder: str | RemotePath | None = None,
     ):
         """Initialize a file transfer.
 
@@ -156,8 +157,8 @@ class FakeFileTransfer:
 
 
 def _remote_path_dict(
-    d: Optional[Dict[Union[str, RemotePath], bytes]],
-) -> Dict[RemotePath, bytes]:
+    d: dict[str | RemotePath, bytes] | None,
+) -> dict[RemotePath, bytes]:
     if d is None:
         return {}
     return {RemotePath(path): contents for path, contents in d.items()}

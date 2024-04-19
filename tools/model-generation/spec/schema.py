@@ -3,7 +3,7 @@
 """Load schemas from a SciCat API."""
 
 import dataclasses
-from typing import Any, Dict, Optional
+from typing import Any
 
 import requests
 
@@ -14,16 +14,16 @@ class SchemaField:
     description: str
     type: str
     required: bool
-    default: Optional[str]
+    default: str | None
 
 
 @dataclasses.dataclass
 class Schema:
     name: str
-    fields: Dict[str, SchemaField]
+    fields: dict[str, SchemaField]
 
 
-def parse_field_type(spec: Dict[str, Any]):
+def parse_field_type(spec: dict[str, Any]):
     if "allOf" in spec:
         if len(spec["allOf"]) != 1:
             raise ValueError("More than one alternative type in 'allOf'")
@@ -49,7 +49,7 @@ def parse_field_type(spec: Dict[str, Any]):
     raise ValueError(f"Unknown field type: {spec['type']}")
 
 
-def parse_schema_fields(spec: Dict[str, Any]) -> Dict[str, SchemaField]:
+def parse_schema_fields(spec: dict[str, Any]) -> dict[str, SchemaField]:
     return {
         name: SchemaField(
             name=name,
@@ -62,7 +62,7 @@ def parse_schema_fields(spec: Dict[str, Any]) -> Dict[str, SchemaField]:
     }
 
 
-def parse_schemas(spec: Dict[str, Any]) -> Dict[str, Schema]:
+def parse_schemas(spec: dict[str, Any]) -> dict[str, Schema]:
     schemas = {}
     for name, field_spec in spec.items():
         print(f"Parsing schema {name}")  # noqa: T201
@@ -70,7 +70,7 @@ def parse_schemas(spec: Dict[str, Any]) -> Dict[str, Schema]:
     return schemas
 
 
-def fetch_specs(url: str) -> Dict[str, Any]:
+def fetch_specs(url: str) -> dict[str, Any]:
     """Download the raw schema JSON from the API.
 
     ``url`` needs to point to a 'json-explorer' of a SciCat backend with version >= 4.
@@ -84,6 +84,6 @@ def fetch_specs(url: str) -> Dict[str, Any]:
     return response.json()
 
 
-def load_schemas(url: str) -> Dict[str, Schema]:
+def load_schemas(url: str) -> dict[str, Schema]:
     spec_json = fetch_specs(url)
     return parse_schemas(spec_json["components"]["schemas"])

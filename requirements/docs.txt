@@ -82,7 +82,7 @@ markupsafe==2.1.5
     # via
     #   jinja2
     #   nbconvert
-matplotlib-inline==0.1.6
+matplotlib-inline==0.1.7
     # via
     #   ipykernel
     #   ipython
@@ -136,7 +136,7 @@ pygments==2.17.2
     #   sphinx
 python-dotenv==1.0.1
     # via pydantic-settings
-pyzmq==25.1.2
+pyzmq==26.0.1
     # via
     #   ipykernel
     #   jupyter-client
@@ -152,7 +152,7 @@ snowballstemmer==2.2.0
     # via sphinx
 soupsieve==2.5
     # via beautifulsoup4
-sphinx==7.2.6
+sphinx==7.3.7
     # via
     #   -r docs.in
     #   autodoc-pydantic
@@ -162,7 +162,7 @@ sphinx==7.2.6
     #   sphinx-autodoc-typehints
     #   sphinx-copybutton
     #   sphinx-design
-sphinx-autodoc-typehints==2.0.1
+sphinx-autodoc-typehints==2.1.0
     # via -r docs.in
 sphinx-copybutton==0.5.2
     # via -r docs.in
@@ -188,7 +188,7 @@ tornado==6.4
     # via
     #   ipykernel
     #   jupyter-client
-traitlets==5.14.2
+traitlets==5.14.3
     # via
     #   comm
     #   ipykernel

@@ -81,7 +81,7 @@ Pydantic models sent to SciCat in uploads.
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Type
+from typing import Any
 
 import pydantic
 from pydantic import NonNegativeInt
@@ -105,54 +105,54 @@ from .thumbnail import Thumbnail
 class DownloadDataset(
     BaseModel, masked=("attachments", "datablocks", "origdatablocks")
 ):
-    contactEmail: Optional[str] = None
-    creationLocation: Optional[str] = None
-    creationTime: Optional[datetime] = None
-    inputDatasets: Optional[List[PID]] = None
-    investigator: Optional[str] = None
-    numberOfFilesArchived: Optional[NonNegativeInt] = None
-    owner: Optional[str] = None
-    ownerGroup: Optional[str] = None
-    principalInvestigator: Optional[str] = None
-    sourceFolder: Optional[RemotePath] = None
-    type: Optional[DatasetType] = None
-    usedSoftware: Optional[List[str]] = None
-    accessGroups: Optional[List[str]] = None
-    version: Optional[str] = None
-    classification: Optional[str] = None
-    comment: Optional[str] = None
-    createdAt: Optional[datetime] = None
-    createdBy: Optional[str] = None
-    dataFormat: Optional[str] = None
-    dataQualityMetrics: Optional[int] = None
-    description: Optional[str] = None
-    endTime: Optional[datetime] = None
-    history: Optional[None] = None
-    instrumentGroup: Optional[str] = None
-    instrumentId: Optional[str] = None
-    isPublished: Optional[bool] = None
-    jobLogData: Optional[str] = None
-    jobParameters: Optional[Dict[str, Any]] = None
-    keywords: Optional[List[str]] = None
-    license: Optional[str] = None
-    datasetlifecycle: Optional[DownloadLifecycle] = None
-    scientificMetadata: Optional[Dict[str, Any]] = None
-    datasetName: Optional[str] = None
-    numberOfFiles: Optional[NonNegativeInt] = None
-    orcidOfOwner: Optional[str] = None
-    ownerEmail: Optional[str] = None
-    packedSize: Optional[NonNegativeInt] = None
-    pid: Optional[PID] = None
-    proposalId: Optional[str] = None
-    relationships: Optional[List[DownloadRelationship]] = None
-    sampleId: Optional[str] = None
-    sharedWith: Optional[List[str]] = None
-    size: Optional[NonNegativeInt] = None
-    sourceFolderHost: Optional[str] = None
-    techniques: Optional[List[DownloadTechnique]] = None
-    updatedAt: Optional[datetime] = None
-    updatedBy: Optional[str] = None
-    validationStatus: Optional[str] = None
+    contactEmail: str | None = None
+    creationLocation: str | None = None
+    creationTime: datetime | None = None
+    inputDatasets: list[PID] | None = None
+    investigator: str | None = None
+    numberOfFilesArchived: NonNegativeInt | None = None
+    owner: str | None = None
+    ownerGroup: str | None = None
+    principalInvestigator: str | None = None
+    sourceFolder: RemotePath | None = None
+    type: DatasetType | None = None
+    usedSoftware: list[str] | None = None
+    accessGroups: list[str] | None = None
+    version: str | None = None
+    classification: str | None = None
+    comment: str | None = None
+    createdAt: datetime | None = None
+    createdBy: str | None = None
+    dataFormat: str | None = None
+    dataQualityMetrics: int | None = None
+    description: str | None = None
+    endTime: datetime | None = None
+    history: None = None
+    instrumentGroup: str | None = None
+    instrumentId: str | None = None
+    isPublished: bool | None = None
+    jobLogData: str | None = None
+    jobParameters: dict[str, Any] | None = None
+    keywords: list[str] | None = None
+    license: str | None = None
+    datasetlifecycle: DownloadLifecycle | None = None
+    scientificMetadata: dict[str, Any] | None = None
+    datasetName: str | None = None
+    numberOfFiles: NonNegativeInt | None = None
+    orcidOfOwner: str | None = None
+    ownerEmail: str | None = None
+    packedSize: NonNegativeInt | None = None
+    pid: PID | None = None
+    proposalId: str | None = None
+    relationships: list[DownloadRelationship] | None = None
+    sampleId: str | None = None
+    sharedWith: list[str] | None = None
+    size: NonNegativeInt | None = None
+    sourceFolderHost: str | None = None
+    techniques: list[DownloadTechnique] | None = None
+    updatedAt: datetime | None = None
+    updatedBy: str | None = None
+    validationStatus: str | None = None
 
     @pydantic.field_validator(
         "creationTime", "createdAt", "endTime", "updatedAt", mode="before"
@@ -176,37 +176,37 @@ class DownloadDataset(
 class UploadDerivedDataset(BaseModel):
     contactEmail: str
     creationTime: datetime
-    inputDatasets: List[PID]
+    inputDatasets: list[PID]
     investigator: str
     numberOfFilesArchived: NonNegativeInt
     owner: str
     ownerGroup: str
     sourceFolder: RemotePath
     type: DatasetType
-    usedSoftware: List[str]
-    accessGroups: Optional[List[str]] = None
-    classification: Optional[str] = None
-    comment: Optional[str] = None
-    dataQualityMetrics: Optional[int] = None
-    description: Optional[str] = None
-    instrumentGroup: Optional[str] = None
-    isPublished: Optional[bool] = None
-    jobLogData: Optional[str] = None
-    jobParameters: Optional[Dict[str, Any]] = None
-    keywords: Optional[List[str]] = None
-    license: Optional[str] = None
-    scientificMetadata: Optional[Dict[str, Any]] = None
-    datasetName: Optional[str] = None
-    numberOfFiles: Optional[NonNegativeInt] = None
-    orcidOfOwner: Optional[str] = None
-    ownerEmail: Optional[str] = None
-    packedSize: Optional[NonNegativeInt] = None
-    relationships: Optional[List[UploadRelationship]] = None
-    sharedWith: Optional[List[str]] = None
-    size: Optional[NonNegativeInt] = None
-    sourceFolderHost: Optional[str] = None
-    techniques: Optional[List[UploadTechnique]] = None
-    validationStatus: Optional[str] = None
+    usedSoftware: list[str]
+    accessGroups: list[str] | None = None
+    classification: str | None = None
+    comment: str | None = None
+    dataQualityMetrics: int | None = None
+    description: str | None = None
+    instrumentGroup: str | None = None
+    isPublished: bool | None = None
+    jobLogData: str | None = None
+    jobParameters: dict[str, Any] | None = None
+    keywords: list[str] | None = None
+    license: str | None = None
+    scientificMetadata: dict[str, Any] | None = None
+    datasetName: str | None = None
+    numberOfFiles: NonNegativeInt | None = None
+    orcidOfOwner: str | None = None
+    ownerEmail: str | None = None
+    packedSize: NonNegativeInt | None = None
+    relationships: list[UploadRelationship] | None = None
+    sharedWith: list[str] | None = None
+    size: NonNegativeInt | None = None
+    sourceFolderHost: str | None = None
+    techniques: list[UploadTechnique] | None = None
+    validationStatus: str | None = None
 
     @pydantic.field_validator("creationTime", mode="before")
     def _validate_datetime(cls, value: Any) -> Any:
@@ -231,32 +231,32 @@ class UploadRawDataset(BaseModel):
     principalInvestigator: str
     sourceFolder: RemotePath
     type: DatasetType
-    accessGroups: Optional[List[str]] = None
-    classification: Optional[str] = None
-    comment: Optional[str] = None
-    dataFormat: Optional[str] = None
-    dataQualityMetrics: Optional[int] = None
-    description: Optional[str] = None
-    endTime: Optional[datetime] = None
-    instrumentGroup: Optional[str] = None
-    instrumentId: Optional[str] = None
-    isPublished: Optional[bool] = None
-    keywords: Optional[List[str]] = None
-    license: Optional[str] = None
-    scientificMetadata: Optional[Dict[str, Any]] = None
-    datasetName: Optional[str] = None
-    numberOfFiles: Optional[NonNegativeInt] = None
-    orcidOfOwner: Optional[str] = None
-    ownerEmail: Optional[str] = None
-    packedSize: Optional[NonNegativeInt] = None
-    proposalId: Optional[str] = None
-    relationships: Optional[List[UploadRelationship]] = None
-    sampleId: Optional[str] = None
-    sharedWith: Optional[List[str]] = None
-    size: Optional[NonNegativeInt] = None
-    sourceFolderHost: Optional[str] = None
-    techniques: Optional[List[UploadTechnique]] = None
-    validationStatus: Optional[str] = None
+    accessGroups: list[str] | None = None
+    classification: str | None = None
+    comment: str | None = None
+    dataFormat: str | None = None
+    dataQualityMetrics: int | None = None
+    description: str | None = None
+    endTime: datetime | None = None
+    instrumentGroup: str | None = None
+    instrumentId: str | None = None
+    isPublished: bool | None = None
+    keywords: list[str] | None = None
+    license: str | None = None
+    scientificMetadata: dict[str, Any] | None = None
+    datasetName: str | None = None
+    numberOfFiles: NonNegativeInt | None = None
+    orcidOfOwner: str | None = None
+    ownerEmail: str | None = None
+    packedSize: NonNegativeInt | None = None
+    proposalId: str | None = None
+    relationships: list[UploadRelationship] | None = None
+    sampleId: str | None = None
+    sharedWith: list[str] | None = None
+    size: NonNegativeInt | None = None
+    sourceFolderHost: str | None = None
+    techniques: list[UploadTechnique] | None = None
+    validationStatus: str | None = None
 
     @pydantic.field_validator("creationTime", "endTime", mode="before")
     def _validate_datetime(cls, value: Any) -> Any:
@@ -272,147 +272,147 @@ class UploadRawDataset(BaseModel):
 
 
 class DownloadAttachment(BaseModel):
-    caption: Optional[str] = None
-    ownerGroup: Optional[str] = None
-    accessGroups: Optional[List[str]] = None
-    createdAt: Optional[datetime] = None
-    createdBy: Optional[str] = None
-    datasetId: Optional[PID] = None
-    id: Optional[str] = None
-    instrumentGroup: Optional[str] = None
-    isPublished: Optional[bool] = None
-    proposalId: Optional[str] = None
-    sampleId: Optional[str] = None
-    thumbnail: Optional[Thumbnail] = None
-    updatedAt: Optional[datetime] = None
-    updatedBy: Optional[str] = None
+    caption: str | None = None
+    ownerGroup: str | None = None
+    accessGroups: list[str] | None = None
+    createdAt: datetime | None = None
+    createdBy: str | None = None
+    datasetId: PID | None = None
+    id: str | None = None
+    instrumentGroup: str | None = None
+    isPublished: bool | None = None
+    proposalId: str | None = None
+    sampleId: str | None = None
+    thumbnail: Thumbnail | None = None
+    updatedAt: datetime | None = None
+    updatedBy: str | None = None
 
     @pydantic.field_validator("createdAt", "updatedAt", mode="before")
     def _validate_datetime(cls, value: Any) -> Any:
         return validate_datetime(value)
 
     @classmethod
-    def user_model_type(cls) -> Type[Attachment]:
+    def user_model_type(cls) -> type[Attachment]:
         return Attachment
 
     @classmethod
-    def upload_model_type(cls) -> Type[UploadAttachment]:
+    def upload_model_type(cls) -> type[UploadAttachment]:
         return UploadAttachment
 
 
 class UploadAttachment(BaseModel):
     caption: str
     ownerGroup: str
-    accessGroups: Optional[List[str]] = None
-    datasetId: Optional[PID] = None
-    id: Optional[str] = None
-    instrumentGroup: Optional[str] = None
-    proposalId: Optional[str] = None
-    sampleId: Optional[str] = None
-    thumbnail: Optional[Thumbnail] = None
+    accessGroups: list[str] | None = None
+    datasetId: PID | None = None
+    id: str | None = None
+    instrumentGroup: str | None = None
+    proposalId: str | None = None
+    sampleId: str | None = None
+    thumbnail: Thumbnail | None = None
 
     @classmethod
-    def user_model_type(cls) -> Type[Attachment]:
+    def user_model_type(cls) -> type[Attachment]:
         return Attachment
 
     @classmethod
-    def download_model_type(cls) -> Type[DownloadAttachment]:
+    def download_model_type(cls) -> type[DownloadAttachment]:
         return DownloadAttachment
 
 
 class DownloadOrigDatablock(BaseModel):
-    dataFileList: Optional[List[DownloadDataFile]] = None
-    datasetId: Optional[PID] = None
-    size: Optional[NonNegativeInt] = None
-    id: Optional[str] = pydantic.Field(alias="_id", default=None)
-    accessGroups: Optional[List[str]] = None
-    chkAlg: Optional[str] = None
-    createdAt: Optional[datetime] = None
-    createdBy: Optional[str] = None
-    instrumentGroup: Optional[str] = None
-    isPublished: Optional[bool] = None
-    ownerGroup: Optional[str] = None
-    updatedAt: Optional[datetime] = None
-    updatedBy: Optional[str] = None
+    dataFileList: list[DownloadDataFile] | None = None
+    datasetId: PID | None = None
+    size: NonNegativeInt | None = None
+    id: str | None = pydantic.Field(alias="_id", default=None)
+    accessGroups: list[str] | None = None
+    chkAlg: str | None = None
+    createdAt: datetime | None = None
+    createdBy: str | None = None
+    instrumentGroup: str | None = None
+    isPublished: bool | None = None
+    ownerGroup: str | None = None
+    updatedAt: datetime | None = None
+    updatedBy: str | None = None
 
     @pydantic.field_validator("createdAt", "updatedAt", mode="before")
     def _validate_datetime(cls, value: Any) -> Any:
         return validate_datetime(value)
 
     @classmethod
-    def upload_model_type(cls) -> Type[UploadOrigDatablock]:
+    def upload_model_type(cls) -> type[UploadOrigDatablock]:
         return UploadOrigDatablock
 
 
 class UploadOrigDatablock(BaseModel):
-    dataFileList: List[UploadDataFile]
+    dataFileList: list[UploadDataFile]
     datasetId: PID
     size: NonNegativeInt
-    accessGroups: Optional[List[str]] = None
-    chkAlg: Optional[str] = None
-    instrumentGroup: Optional[str] = None
-    ownerGroup: Optional[str] = None
+    accessGroups: list[str] | None = None
+    chkAlg: str | None = None
+    instrumentGroup: str | None = None
+    ownerGroup: str | None = None
 
     @classmethod
-    def download_model_type(cls) -> Type[DownloadOrigDatablock]:
+    def download_model_type(cls) -> type[DownloadOrigDatablock]:
         return DownloadOrigDatablock
 
 
 class DownloadDatablock(BaseModel):
-    archiveId: Optional[str] = None
-    dataFileList: Optional[List[DownloadDataFile]] = None
-    packedSize: Optional[NonNegativeInt] = None
-    size: Optional[NonNegativeInt] = None
-    version: Optional[str] = None
-    id: Optional[str] = pydantic.Field(alias="_id", default=None)
-    accessGroups: Optional[List[str]] = None
-    chkAlg: Optional[str] = None
-    createdAt: Optional[datetime] = None
-    createdBy: Optional[str] = None
-    datasetId: Optional[PID] = None
-    instrumentGroup: Optional[str] = None
-    isPublished: Optional[bool] = None
-    ownerGroup: Optional[str] = None
-    updatedAt: Optional[datetime] = None
-    updatedBy: Optional[str] = None
+    archiveId: str | None = None
+    dataFileList: list[DownloadDataFile] | None = None
+    packedSize: NonNegativeInt | None = None
+    size: NonNegativeInt | None = None
+    version: str | None = None
+    id: str | None = pydantic.Field(alias="_id", default=None)
+    accessGroups: list[str] | None = None
+    chkAlg: str | None = None
+    createdAt: datetime | None = None
+    createdBy: str | None = None
+    datasetId: PID | None = None
+    instrumentGroup: str | None = None
+    isPublished: bool | None = None
+    ownerGroup: str | None = None
+    updatedAt: datetime | None = None
+    updatedBy: str | None = None
 
     @pydantic.field_validator("createdAt", "updatedAt", mode="before")
     def _validate_datetime(cls, value: Any) -> Any:
         return validate_datetime(value)
 
     @classmethod
-    def upload_model_type(cls) -> Type[UploadDatablock]:
+    def upload_model_type(cls) -> type[UploadDatablock]:
         return UploadDatablock
 
 
 class UploadDatablock(BaseModel):
     archiveId: str
-    dataFileList: List[UploadDataFile]
+    dataFileList: list[UploadDataFile]
     packedSize: NonNegativeInt
     size: NonNegativeInt
     version: str
-    chkAlg: Optional[str] = None
+    chkAlg: str | None = None
 
     @classmethod
-    def download_model_type(cls) -> Type[DownloadDatablock]:
+    def download_model_type(cls) -> type[DownloadDatablock]:
         return DownloadDatablock
 
 
 class DownloadLifecycle(BaseModel):
-    archivable: Optional[bool] = None
-    archiveRetentionTime: Optional[datetime] = None
-    archiveReturnMessage: Optional[Dict[str, Any]] = None
-    archiveStatusMessage: Optional[str] = None
-    dateOfDiskPurging: Optional[datetime] = None
-    dateOfPublishing: Optional[datetime] = None
-    exportedTo: Optional[str] = None
-    isOnCentralDisk: Optional[bool] = None
-    publishable: Optional[bool] = None
-    publishedOn: Optional[datetime] = None
-    retrievable: Optional[bool] = None
-    retrieveIntegrityCheck: Optional[bool] = None
-    retrieveReturnMessage: Optional[Dict[str, Any]] = None
-    retrieveStatusMessage: Optional[str] = None
+    archivable: bool | None = None
+    archiveRetentionTime: datetime | None = None
+    archiveReturnMessage: dict[str, Any] | None = None
+    archiveStatusMessage: str | None = None
+    dateOfDiskPurging: datetime | None = None
+    dateOfPublishing: datetime | None = None
+    exportedTo: str | None = None
+    isOnCentralDisk: bool | None = None
+    publishable: bool | None = None
+    publishedOn: datetime | None = None
+    retrievable: bool | None = None
+    retrieveIntegrityCheck: bool | None = None
+    retrieveReturnMessage: dict[str, Any] | None = None
+    retrieveStatusMessage: str | None = None
 
     @pydantic.field_validator(
         "archiveRetentionTime",
@@ -425,20 +425,20 @@ class DownloadLifecycle(BaseModel):
         return validate_datetime(value)
 
     @classmethod
-    def user_model_type(cls) -> Type[Lifecycle]:
+    def user_model_type(cls) -> type[Lifecycle]:
         return Lifecycle
 
 
 class DownloadTechnique(BaseModel):
-    name: Optional[str] = None
-    pid: Optional[str] = None
+    name: str | None = None
+    pid: str | None = None
 
     @classmethod
-    def user_model_type(cls) -> Type[Technique]:
+    def user_model_type(cls) -> type[Technique]:
         return Technique
 
     @classmethod
-    def upload_model_type(cls) -> Type[UploadTechnique]:
+    def upload_model_type(cls) -> type[UploadTechnique]:
         return UploadTechnique
 
 
@@ -447,24 +447,24 @@ class UploadTechnique(BaseModel):
     pid: str
 
     @classmethod
-    def user_model_type(cls) -> Type[Technique]:
+    def user_model_type(cls) -> type[Technique]:
         return Technique
 
     @classmethod
-    def download_model_type(cls) -> Type[DownloadTechnique]:
+    def download_model_type(cls) -> type[DownloadTechnique]:
         return DownloadTechnique
 
 
 class DownloadRelationship(BaseModel):
-    pid: Optional[PID] = None
-    relationship: Optional[str] = None
+    pid: PID | None = None
+    relationship: str | None = None
 
     @classmethod
-    def user_model_type(cls) -> Type[Relationship]:
+    def user_model_type(cls) -> type[Relationship]:
         return Relationship
 
     @classmethod
-    def upload_model_type(cls) -> Type[UploadRelationship]:
+    def upload_model_type(cls) -> type[UploadRelationship]:
         return UploadRelationship
 
 
@@ -473,43 +473,43 @@ class UploadRelationship(BaseModel):
     relationship: str
 
     @classmethod
-    def user_model_type(cls) -> Type[Relationship]:
+    def user_model_type(cls) -> type[Relationship]:
         return Relationship
 
     @classmethod
-    def download_model_type(cls) -> Type[DownloadRelationship]:
+    def download_model_type(cls) -> type[DownloadRelationship]:
         return DownloadRelationship
 
 
 class DownloadHistory(BaseModel):
-    id: Optional[str] = pydantic.Field(alias="_id", default=None)
-    updatedAt: Optional[datetime] = None
-    updatedBy: Optional[datetime] = None
+    id: str | None = pydantic.Field(alias="_id", default=None)
+    updatedAt: datetime | None = None
+    updatedBy: datetime | None = None
 
     @pydantic.field_validator("updatedAt", mode="before")
     def _validate_datetime(cls, value: Any) -> Any:
         return validate_datetime(value)
 
     @classmethod
-    def user_model_type(cls) -> Type[History]:
+    def user_model_type(cls) -> type[History]:
         return History
 
 
 class DownloadDataFile(BaseModel):
-    path: Optional[str] = None
-    size: Optional[NonNegativeInt] = None
-    time: Optional[datetime] = None
-    chk: Optional[str] = None
-    gid: Optional[str] = None
-    perm: Optional[str] = None
-    uid: Optional[str] = None
+    path: str | None = None
+    size: NonNegativeInt | None = None
+    time: datetime | None = None
+    chk: str | None = None
+    gid: str | None = None
+    perm: str | None = None
+    uid: str | None = None
 
     @pydantic.field_validator("time", mode="before")
     def _validate_datetime(cls, value: Any) -> Any:
         return validate_datetime(value)
 
     @classmethod
-    def upload_model_type(cls) -> Type[UploadDataFile]:
+    def upload_model_type(cls) -> type[UploadDataFile]:
         return UploadDataFile
 
 
@@ -517,74 +517,74 @@ class UploadDataFile(BaseModel):
     path: str
     size: NonNegativeInt
     time: datetime
-    chk: Optional[str] = None
-    gid: Optional[str] = None
-    perm: Optional[str] = None
-    uid: Optional[str] = None
+    chk: str | None = None
+    gid: str | None = None
+    perm: str | None = None
+    uid: str | None = None
 
     @pydantic.field_validator("time", mode="before")
     def _validate_datetime(cls, value: Any) -> Any:
         return validate_datetime(value)
 
     @classmethod
-    def download_model_type(cls) -> Type[DownloadDataFile]:
+    def download_model_type(cls) -> type[DownloadDataFile]:
         return DownloadDataFile
 
 
 class DownloadInstrument(BaseModel):
-    customMetadata: Optional[Dict[str, Any]] = None
-    name: Optional[str] = None
-    pid: Optional[str] = None
-    uniqueName: Optional[str] = None
+    customMetadata: dict[str, Any] | None = None
+    name: str | None = None
+    pid: str | None = None
+    uniqueName: str | None = None
 
     @classmethod
-    def user_model_type(cls) -> Type[Instrument]:
+    def user_model_type(cls) -> type[Instrument]:
         return Instrument
 
 
 class DownloadSample(BaseModel):
-    ownerGroup: Optional[str] = None
-    accessGroups: Optional[List[str]] = None
-    createdAt: Optional[datetime] = None
-    createdBy: Optional[str] = None
-    description: Optional[str] = None
-    instrumentGroup: Optional[str] = None
-    isPublished: Optional[bool] = None
-    owner: Optional[str] = None
-    sampleCharacteristics: Optional[Dict[str, Any]] = None
-    sampleId: Optional[str] = None
-    updatedAt: Optional[datetime] = None
-    updatedBy: Optional[str] = None
+    ownerGroup: str | None = None
+    accessGroups: list[str] | None = None
+    createdAt: datetime | None = None
+    createdBy: str | None = None
+    description: str | None = None
+    instrumentGroup: str | None = None
+    isPublished: bool | None = None
+    owner: str | None = None
+    sampleCharacteristics: dict[str, Any] | None = None
+    sampleId: str | None = None
+    updatedAt: datetime | None = None
+    updatedBy: str | None = None
 
     @pydantic.field_validator("createdAt", "updatedAt", mode="before")
     def _validate_datetime(cls, value: Any) -> Any:
         return validate_datetime(value)
 
     @classmethod
-    def user_model_type(cls) -> Type[Sample]:
+    def user_model_type(cls) -> type[Sample]:
         return Sample
 
     @classmethod
-    def upload_model_type(cls) -> Type[UploadSample]:
+    def upload_model_type(cls) -> type[UploadSample]:
         return UploadSample
 
 
 class UploadSample(BaseModel):
     ownerGroup: str
-    accessGroups: Optional[List[str]] = None
-    description: Optional[str] = None
-    instrumentGroup: Optional[str] = None
-    isPublished: Optional[bool] = None
-    owner: Optional[str] = None
-    sampleCharacteristics: Optional[Dict[str, Any]] = None
-    sampleId: Optional[str] = None
+    accessGroups: list[str] | None = None
+    description: str | None = None
+    instrumentGroup: str | None = None
+    isPublished: bool | None = None
+    owner: str | None = None
+    sampleCharacteristics: dict[str, Any] | None = None
+    sampleId: str | None = None
 
     @classmethod
-    def user_model_type(cls) -> Type[Sample]:
+    def user_model_type(cls) -> type[Sample]:
         return Sample
 
     @classmethod
-    def download_model_type(cls) -> Type[DownloadSample]:
+    def download_model_type(cls) -> type[DownloadSample]:
         return DownloadSample
 
 
@@ -592,37 +592,37 @@ class UploadSample(BaseModel):
 class Attachment(BaseUserModel):
     caption: str
     owner_group: str
-    access_groups: Optional[List[str]] = None
-    dataset_id: Optional[PID] = None
-    id: Optional[str] = None
-    instrument_group: Optional[str] = None
-    proposal_id: Optional[str] = None
-    sample_id: Optional[str] = None
-    thumbnail: Optional[Thumbnail] = None
-    _created_at: Optional[datetime] = None
-    _created_by: Optional[str] = None
-    _is_published: Optional[bool] = None
-    _updated_at: Optional[datetime] = None
-    _updated_by: Optional[str] = None
+    access_groups: list[str] | None = None
+    dataset_id: PID | None = None
+    id: str | None = None
+    instrument_group: str | None = None
+    proposal_id: str | None = None
+    sample_id: str | None = None
+    thumbnail: Thumbnail | None = None
+    _created_at: datetime | None = None
+    _created_by: str | None = None
+    _is_published: bool | None = None
+    _updated_at: datetime | None = None
+    _updated_by: str | None = None
 
     @property
-    def created_at(self) -> Optional[datetime]:
+    def created_at(self) -> datetime | None:
         return self._created_at
 
     @property
-    def created_by(self) -> Optional[str]:
+    def created_by(self) -> str | None:
         return self._created_by
 
     @property
-    def is_published(self) -> Optional[bool]:
+    def is_published(self) -> bool | None:
         return self._is_published
 
     @property
-    def updated_at(self) -> Optional[datetime]:
+    def updated_at(self) -> datetime | None:
         return self._updated_at
 
     @property
-    def updated_by(self) -> Optional[str]:
+    def updated_by(self) -> str | None:
         return self._updated_by
 
     @classmethod
@@ -635,85 +635,85 @@ class Attachment(BaseUserModel):
         return UploadAttachment(**self._upload_model_dict())
 
     @classmethod
-    def upload_model_type(cls) -> Type[UploadAttachment]:
+    def upload_model_type(cls) -> type[UploadAttachment]:
         return UploadAttachment
 
     @classmethod
-    def download_model_type(cls) -> Type[DownloadAttachment]:
+    def download_model_type(cls) -> type[DownloadAttachment]:
         return DownloadAttachment
 
 
 @dataclass_optional_args(kw_only=True, slots=True)
 class Lifecycle(BaseUserModel):
-    _archivable: Optional[bool] = None
-    _archive_retention_time: Optional[datetime] = None
-    _archive_return_message: Optional[Dict[str, Any]] = None
-    _archive_status_message: Optional[str] = None
-    _date_of_disk_purging: Optional[datetime] = None
-    _date_of_publishing: Optional[datetime] = None
-    _exported_to: Optional[str] = None
-    _is_on_central_disk: Optional[bool] = None
-    _publishable: Optional[bool] = None
-    _published_on: Optional[datetime] = None
-    _retrievable: Optional[bool] = None
-    _retrieve_integrity_check: Optional[bool] = None
-    _retrieve_return_message: Optional[Dict[str, Any]] = None
-    _retrieve_status_message: Optional[str] = None
+    _archivable: bool | None = None
+    _archive_retention_time: datetime | None = None
+    _archive_return_message: dict[str, Any] | None = None
+    _archive_status_message: str | None = None
+    _date_of_disk_purging: datetime | None = None
+    _date_of_publishing: datetime | None = None
+    _exported_to: str | None = None
+    _is_on_central_disk: bool | None = None
+    _publishable: bool | None = None
+    _published_on: datetime | None = None
+    _retrievable: bool | None = None
+    _retrieve_integrity_check: bool | None = None
+    _retrieve_return_message: dict[str, Any] | None = None
+    _retrieve_status_message: str | None = None
 
     @property
-    def archivable(self) -> Optional[bool]:
+    def archivable(self) -> bool | None:
         return self._archivable
 
     @property
-    def archive_retention_time(self) -> Optional[datetime]:
+    def archive_retention_time(self) -> datetime | None:
         return self._archive_retention_time
 
     @property
-    def archive_return_message(self) -> Optional[Dict[str, Any]]:
+    def archive_return_message(self) -> dict[str, Any] | None:
         return self._archive_return_message
 
     @property
-    def archive_status_message(self) -> Optional[str]:
+    def archive_status_message(self) -> str | None:
         return self._archive_status_message
 
     @property
-    def date_of_disk_purging(self) -> Optional[datetime]:
+    def date_of_disk_purging(self) -> datetime | None:
         return self._date_of_disk_purging
 
     @property
-    def date_of_publishing(self) -> Optional[datetime]:
+    def date_of_publishing(self) -> datetime | None:
         return self._date_of_publishing
 
     @property
-    def exported_to(self) -> Optional[str]:
+    def exported_to(self) -> str | None:
         return self._exported_to
 
     @property
-    def is_on_central_disk(self) -> Optional[bool]:
+    def is_on_central_disk(self) -> bool | None:
         return self._is_on_central_disk
 
     @property
-    def publishable(self) -> Optional[bool]:
+    def publishable(self) -> bool | None:
         return self._publishable
 
     @property
-    def published_on(self) -> Optional[datetime]:
+    def published_on(self) -> datetime | None:
         return self._published_on
 
     @property
-    def retrievable(self) -> Optional[bool]:
+    def retrievable(self) -> bool | None:
         return self._retrievable
 
     @property
-    def retrieve_integrity_check(self) -> Optional[bool]:
+    def retrieve_integrity_check(self) -> bool | None:
         return self._retrieve_integrity_check
 
     @property
-    def retrieve_return_message(self) -> Optional[Dict[str, Any]]:
+    def retrieve_return_message(self) -> dict[str, Any] | None:
         return self._retrieve_return_message
 
     @property
-    def retrieve_status_message(self) -> Optional[str]:
+    def retrieve_status_message(self) -> str | None:
         return self._retrieve_status_message
 
     @classmethod
@@ -722,7 +722,7 @@ class Lifecycle(BaseUserModel):
         return cls(**cls._download_model_dict(download_model))
 
     @classmethod
-    def download_model_type(cls) -> Type[DownloadLifecycle]:
+    def download_model_type(cls) -> type[DownloadLifecycle]:
         return DownloadLifecycle
 
 
@@ -741,11 +741,11 @@ class Technique(BaseUserModel):
         return UploadTechnique(**self._upload_model_dict())
 
     @classmethod
-    def upload_model_type(cls) -> Type[UploadTechnique]:
+    def upload_model_type(cls) -> type[UploadTechnique]:
         return UploadTechnique
 
     @classmethod
-    def download_model_type(cls) -> Type[DownloadTechnique]:
+    def download_model_type(cls) -> type[DownloadTechnique]:
         return DownloadTechnique
 
 
@@ -764,30 +764,30 @@ class Relationship(BaseUserModel):
         return UploadRelationship(**self._upload_model_dict())
 
     @classmethod
-    def upload_model_type(cls) -> Type[UploadRelationship]:
+    def upload_model_type(cls) -> type[UploadRelationship]:
         return UploadRelationship
 
     @classmethod
-    def download_model_type(cls) -> Type[DownloadRelationship]:
+    def download_model_type(cls) -> type[DownloadRelationship]:
         return DownloadRelationship
 
 
 @dataclass_optional_args(kw_only=True, slots=True)
 class History(BaseUserModel):
-    __id: Optional[str] = None
-    _updated_at: Optional[datetime] = None
-    _updated_by: Optional[datetime] = None
+    __id: str | None = None
+    _updated_at: datetime | None = None
+    _updated_by: datetime | None = None
 
     @property
-    def _id(self) -> Optional[str]:
+    def _id(self) -> str | None:
         return self.__id
 
     @property
-    def updated_at(self) -> Optional[datetime]:
+    def updated_at(self) -> datetime | None:
         return self._updated_at
 
     @property
-    def updated_by(self) -> Optional[datetime]:
+    def updated_by(self) -> datetime | None:
         return self._updated_by
 
     @classmethod
@@ -796,31 +796,31 @@ class History(BaseUserModel):
         return cls(**cls._download_model_dict(download_model))
 
     @classmethod
-    def download_model_type(cls) -> Type[DownloadHistory]:
+    def download_model_type(cls) -> type[DownloadHistory]:
         return DownloadHistory
 
 
 @dataclass_optional_args(kw_only=True, slots=True)
 class Instrument(BaseUserModel):
-    _custom_metadata: Optional[Dict[str, Any]] = None
-    _name: Optional[str] = None
-    _pid: Optional[str] = None
-    _unique_name: Optional[str] = None
+    _custom_metadata: dict[str, Any] | None = None
+    _name: str | None = None
+    _pid: str | None = None
+    _unique_name: str | None = None
 
     @property
-    def custom_metadata(self) -> Optional[Dict[str, Any]]:
+    def custom_metadata(self) -> dict[str, Any] | None:
         return self._custom_metadata
 
     @property
-    def name(self) -> Optional[str]:
+    def name(self) -> str | None:
         return self._name
 
     @property
-    def pid(self) -> Optional[str]:
+    def pid(self) -> str | None:
         return self._pid
 
     @property
-    def unique_name(self) -> Optional[str]:
+    def unique_name(self) -> str | None:
         return self._unique_name
 
     @classmethod
@@ -829,39 +829,39 @@ class Instrument(BaseUserModel):
         return cls(**cls._download_model_dict(download_model))
 
     @classmethod
-    def download_model_type(cls) -> Type[DownloadInstrument]:
+    def download_model_type(cls) -> type[DownloadInstrument]:
         return DownloadInstrument
 
 
 @dataclass_optional_args(kw_only=True, slots=True)
 class Sample(BaseUserModel):
     owner_group: str
-    access_groups: Optional[List[str]] = None
-    description: Optional[str] = None
-    instrument_group: Optional[str] = None
-    is_published: Optional[bool] = None
-    owner: Optional[str] = None
-    sample_characteristics: Optional[Dict[str, Any]] = None
-    sample_id: Optional[str] = None
-    _created_at: Optional[datetime] = None
-    _created_by: Optional[str] = None
-    _updated_at: Optional[datetime] = None
-    _updated_by: Optional[str] = None
+    access_groups: list[str] | None = None
+    description: str | None = None
+    instrument_group: str | None = None
+    is_published: bool | None = None
+    owner: str | None = None
+    sample_characteristics: dict[str, Any] | None = None
+    sample_id: str | None = None
+    _created_at: datetime | None = None
+    _created_by: str | None = None
+    _updated_at: datetime | None = None
+    _updated_by: str | None = None
 
     @property
-    def created_at(self) -> Optional[datetime]:
+    def created_at(self) -> datetime | None:
         return self._created_at
 
     @property
-    def created_by(self) -> Optional[str]:
+    def created_by(self) -> str | None:
         return self._created_by
 
     @property
-    def updated_at(self) -> Optional[datetime]:
+    def updated_at(self) -> datetime | None:
         return self._updated_at
 
     @property
-    def updated_by(self) -> Optional[str]:
+    def updated_by(self) -> str | None:
         return self._updated_by
 
     @classmethod
@@ -874,11 +874,11 @@ class Sample(BaseUserModel):
         return UploadSample(**self._upload_model_dict())
 
     @classmethod
-    def upload_model_type(cls) -> Type[UploadSample]:
+    def upload_model_type(cls) -> type[UploadSample]:
         return UploadSample
 
     @classmethod
-    def download_model_type(cls) -> Type[DownloadSample]:
+    def download_model_type(cls) -> type[DownloadSample]:
         return DownloadSample
 
 

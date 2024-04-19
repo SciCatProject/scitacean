@@ -6,19 +6,12 @@ from __future__ import annotations
 
 import dataclasses
 import itertools
+from collections.abc import Generator, Iterable
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import (
     Any,
-    Dict,
-    Generator,
-    Iterable,
-    List,
     Literal,
-    Optional,
-    Tuple,
-    Type,
-    Union,
 )
 
 from ._base_model import convert_download_to_user_model, convert_user_to_upload_model
@@ -46,8 +39,8 @@ class Dataset(DatasetBase):
     def from_download_models(
         cls,
         dataset_model: DownloadDataset,
-        orig_datablock_models: List[DownloadOrigDatablock],
-        attachment_models: Optional[Iterable[DownloadAttachment]] = None,
+        orig_datablock_models: list[DownloadOrigDatablock],
+        attachment_models: Iterable[DownloadAttachment] | None = None,
     ) -> Dataset:
         """Construct a new dataset from SciCat download models.
 
@@ -83,8 +76,8 @@ class Dataset(DatasetBase):
     @classmethod
     def fields(
         cls,
-        dataset_type: Optional[Union[DatasetType, Literal["derived", "raw"]]] = None,
-        read_only: Optional[bool] = None,
+        dataset_type: DatasetType | Literal["derived", "raw"] | None = None,
+        read_only: bool | None = None,
     ) -> Generator[Dataset.Field, None, None]:
         """Iterate over dataset fields.
 
@@ -179,7 +172,7 @@ class Dataset(DatasetBase):
         return sum(file.size for file in self.files)
 
     @property
-    def files(self) -> Tuple[File, ...]:
+    def files(self) -> tuple[File, ...]:
         """Files linked with the dataset."""
         return tuple(
             itertools.chain.from_iterable(
@@ -188,7 +181,7 @@ class Dataset(DatasetBase):
         )
 
     @property
-    def attachments(self) -> Optional[List[Attachment]]:
+    def attachments(self) -> list[Attachment] | None:
         """List of attachments for this dataset.
 
         This property can be in two distinct 'falsy' states:
@@ -202,7 +195,7 @@ class Dataset(DatasetBase):
         return self._attachments
 
     @attachments.setter
-    def attachments(self, attachments: Optional[List[Attachment]]) -> None:
+    def attachments(self, attachments: list[Attachment] | None) -> None:
         """List of attachments for this dataset.
 
         See the docs of the getter for an explanation of ``None`` vs ``[]``.
@@ -210,15 +203,15 @@ class Dataset(DatasetBase):
         """
         self._attachments = attachments
 
-    def add_files(self, *files: File, datablock: Union[int, str, PID] = -1) -> None:
+    def add_files(self, *files: File, datablock: int | str | PID = -1) -> None:
         """Add files to the dataset."""
         self._get_or_add_orig_datablock(datablock).add_files(*files)
 
     def add_local_files(
         self,
-        *paths: Union[str, Path],
-        base_path: Union[str, Path] = "",
-        datablock: Union[int, str] = -1,
+        *paths: str | Path,
+        base_path: str | Path = "",
+        datablock: int | str = -1,
     ) -> None:
         """Add files on the local file system to the dataset.
 
@@ -246,8 +239,8 @@ class Dataset(DatasetBase):
     def replace(
         self,
         *,
-        _read_only: Optional[Dict[str, Any]] = None,
-        _orig_datablocks: Optional[List[OrigDatablock]] = None,
+        _read_only: dict[str, Any] | None = None,
+        _orig_datablocks: list[OrigDatablock] | None = None,
         **replacements: Any,
     ) -> Dataset:
         """Return a new dataset with replaced fields.
@@ -268,7 +261,7 @@ class Dataset(DatasetBase):
         """
         _read_only = _read_only or {}
 
-        def get_val(source: Dict[str, Any], name: str) -> Any:
+        def get_val(source: dict[str, Any], name: str) -> Any:
             try:
                 return source.pop(name)
             except KeyError:
@@ -399,7 +392,7 @@ class Dataset(DatasetBase):
             ]
         )
 
-    def add_orig_datablock(self, *, checksum_algorithm: Optional[str]) -> OrigDatablock:
+    def add_orig_datablock(self, *, checksum_algorithm: str | None) -> OrigDatablock:
         """Append a new orig datablock to the list of orig datablocks.
 
         Parameters
@@ -425,7 +418,7 @@ class Dataset(DatasetBase):
         except StopIteration:
             raise KeyError(f"No OrigDatablock with id {id_}") from None
 
-    def _get_or_add_orig_datablock(self, key: Union[int, str, PID]) -> OrigDatablock:
+    def _get_or_add_orig_datablock(self, key: int | str | PID) -> OrigDatablock:
         if isinstance(key, PID):
             key = str(PID)
         if isinstance(key, str):
@@ -437,9 +430,9 @@ class Dataset(DatasetBase):
             )
         return self._orig_datablocks[key]
 
-    def make_upload_model(self) -> Union[UploadDerivedDataset, UploadRawDataset]:
+    def make_upload_model(self) -> UploadDerivedDataset | UploadRawDataset:
         """Construct a SciCat upload model from self."""
-        model: Union[Type[UploadRawDataset], Type[UploadDerivedDataset]] = (
+        model: type[UploadRawDataset] | type[UploadDerivedDataset] = (
             UploadRawDataset if self.type == DatasetType.RAW else UploadDerivedDataset
         )
         # Datablocks are not included here because they are handled separately
@@ -481,7 +474,7 @@ class Dataset(DatasetBase):
             ]
         )
 
-    def make_attachment_upload_models(self) -> List[UploadAttachment]:
+    def make_attachment_upload_models(self) -> list[UploadAttachment]:
         """Build models for all registered attachments.
 
         Raises
@@ -524,8 +517,8 @@ class Dataset(DatasetBase):
         """
         from itertools import chain
 
-        all_fields = set((field.name for field in self.fields()))
-        my_fields = set((field.name for field in self.fields(dataset_type=self.type)))
+        all_fields = set(field.name for field in self.fields())
+        my_fields = set(field.name for field in self.fields(dataset_type=self.type))
         other_fields = all_fields - my_fields
         invalid_fields = (
             f_name for f_name in other_fields if getattr(self, f_name) is not None
@@ -637,5 +630,5 @@ class DatablockUploadModels:
 
     # TODO
     # datablocks: Optional[List[UploadDatablock]]
-    orig_datablocks: Optional[List[UploadOrigDatablock]]
+    orig_datablocks: list[UploadOrigDatablock] | None
     """Orig datablocks"""

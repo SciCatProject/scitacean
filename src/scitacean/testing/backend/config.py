@@ -5,7 +5,6 @@
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Union
 
 
 @dataclass
@@ -39,7 +38,7 @@ class SciCatUser:
             "password": self.password,
         }
 
-    def dump(self) -> dict[str, Union[str, bool]]:
+    def dump(self) -> dict[str, str | bool]:
         """Return a dict that can be serialized to functionalAccounts.json."""
         return {
             "username": self.username,

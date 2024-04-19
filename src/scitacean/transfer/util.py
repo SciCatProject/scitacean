@@ -2,7 +2,6 @@
 # Copyright (c) 2024 SciCat Project (https://github.com/SciCatProject/scitacean)
 """Common utilities for file transfers."""
 
-from typing import Optional, Union
 from uuid import uuid4
 
 from ..dataset import Dataset
@@ -10,9 +9,7 @@ from ..filesystem import RemotePath
 from ..util.formatter import DatasetPathFormatter
 
 
-def source_folder_for(
-    dataset: Dataset, pattern: Optional[Union[str, RemotePath]]
-) -> RemotePath:
+def source_folder_for(dataset: Dataset, pattern: str | RemotePath | None) -> RemotePath:
     """Get or build the source folder for a dataset.
 
     Parameters

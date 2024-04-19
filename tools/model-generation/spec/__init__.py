@@ -8,7 +8,7 @@ import sys
 from copy import deepcopy
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Any, Literal
 
 import yaml
 
@@ -18,7 +18,7 @@ from .schema import Schema, SchemaField, load_schemas
 @dataclasses.dataclass
 class _UpDownSchemas:
     download: Schema
-    upload: Optional[Schema]
+    upload: Schema | None
 
 
 @dataclasses.dataclass
@@ -35,10 +35,10 @@ class SpecField:
     description: str
     type: str
     required: bool  # Required in upload.
-    default: Optional[str] = None
+    default: str | None = None
     upload: bool = False
     download: bool = False
-    validation: Optional[str] = None
+    validation: str | None = None
 
     def full_type_for(self, kind: Literal["download", "upload", "user"]) -> str:
         return (
@@ -66,10 +66,10 @@ class SpecField:
 class Spec:
     name: str
     download_name: str = dataclasses.field(init=False)
-    upload_name: Optional[str] = dataclasses.field(init=False)
-    fields: Dict[str, SpecField]
-    masked_fields_download: Dict[str, SpecField] = dataclasses.field(init=False)
-    masked_fields_upload: Dict[str, SpecField] = dataclasses.field(init=False)
+    upload_name: str | None = dataclasses.field(init=False)
+    fields: dict[str, SpecField]
+    masked_fields_download: dict[str, SpecField] = dataclasses.field(init=False)
+    masked_fields_upload: dict[str, SpecField] = dataclasses.field(init=False)
 
     def __post_init__(self) -> None:
         if _SCHEMA_GROUPS.get(self.name, (None, None))[0]:
@@ -82,7 +82,7 @@ class Spec:
 
     def fields_for(
         self, kind: Literal["download", "upload", "user"]
-    ) -> List[SpecField]:
+    ) -> list[SpecField]:
         return sorted(
             sorted(
                 filter(
@@ -105,8 +105,8 @@ class DatasetFieldConversion:
 
 @dataclasses.dataclass
 class DatasetField(SpecField):
-    conversion: Optional[DatasetFieldConversion] = None
-    default: Optional[Any] = None
+    conversion: DatasetFieldConversion | None = None
+    default: Any | None = None
     manual: bool = False
 
     # These are only used for upload models.
@@ -118,14 +118,14 @@ class DatasetField(SpecField):
 @dataclasses.dataclass
 class DatasetSpec(Spec):
     download_name: str = dataclasses.field(default="DownloadDataset", init=False)
-    upload_name: Optional[str] = dataclasses.field(default="UploadDataset", init=False)
-    fields: Dict[str, DatasetField]
+    upload_name: str | None = dataclasses.field(default="UploadDataset", init=False)
+    fields: dict[str, DatasetField]
 
     def dset_fields_for(
         self,
         kind: Literal["download", "upload", "user"],
         dset_type: Literal["derived", "raw"],
-    ) -> List[DatasetField]:
+    ) -> list[DatasetField]:
         return list(
             filter(
                 lambda field: field.used_by_derived
@@ -135,7 +135,7 @@ class DatasetSpec(Spec):
             )
         )
 
-    def user_dset_fields(self, manual: Optional[bool] = None) -> List[DatasetField]:
+    def user_dset_fields(self, manual: bool | None = None) -> list[DatasetField]:
         if manual is None:
             return list(self.fields.values())
         return [field for field in self.fields.values() if field.manual == manual]
@@ -156,8 +156,8 @@ _SCHEMA_GROUPS = {
 
 
 def _collect_schemas(
-    schemas: Dict[str, Schema],
-) -> Dict[str, Union[_UpDownSchemas, _DatasetSchemas]]:
+    schemas: dict[str, Schema],
+) -> dict[str, _UpDownSchemas | _DatasetSchemas]:
     return {
         "Dataset": _DatasetSchemas(
             upload_derived=schemas["CreateDerivedDatasetDto"],
@@ -204,7 +204,7 @@ def _get_common_field_attr(
 
 
 def _merge_field(
-    name: str, download: Optional[SchemaField], upload: Optional[SchemaField]
+    name: str, download: SchemaField | None, upload: SchemaField | None
 ) -> SpecField:
     fields = {"download": download, "upload": upload}
     return SpecField(
@@ -242,9 +242,9 @@ def _build_spec(name: str, schemas: _UpDownSchemas) -> Spec:
 
 def _merge_dataset_field(
     name: str,
-    download: Optional[SchemaField],
-    raw_upload: Optional[SchemaField],
-    derived_upload: Optional[SchemaField],
+    download: SchemaField | None,
+    raw_upload: SchemaField | None,
+    derived_upload: SchemaField | None,
 ) -> DatasetField:
     fields = {
         "download": download,
@@ -291,8 +291,8 @@ def _build_dataset_spec(name: str, schemas: _DatasetSchemas) -> DatasetSpec:
 
 
 @lru_cache
-def _masked_fields() -> Dict[str, List[str]]:
-    with open(Path(__file__).resolve().parent / "masked-fields.yml", "r") as f:
+def _masked_fields() -> dict[str, list[str]]:
+    with open(Path(__file__).resolve().parent / "masked-fields.yml") as f:
         return yaml.safe_load(f)
 
 
@@ -316,8 +316,8 @@ def _mask_fields(spec: Spec) -> Spec:
 
 
 @lru_cache
-def _field_name_overrides() -> Dict[str, Dict[str, str]]:
-    with open(Path(__file__).resolve().parent / "field-name-overrides.yml", "r") as f:
+def _field_name_overrides() -> dict[str, dict[str, str]]:
+    with open(Path(__file__).resolve().parent / "field-name-overrides.yml") as f:
         return yaml.safe_load(f)
 
 
@@ -330,8 +330,8 @@ def _postprocess_field_names(spec: Spec) -> Spec:
 
 
 @lru_cache
-def _field_type_overrides() -> Dict[str, Dict[str, str]]:
-    with open(Path(__file__).resolve().parent / "field-type-overrides.yml", "r") as f:
+def _field_type_overrides() -> dict[str, dict[str, str]]:
+    with open(Path(__file__).resolve().parent / "field-type-overrides.yml") as f:
         return yaml.safe_load(f)
 
 
@@ -352,8 +352,8 @@ def _postprocess_field_types(spec: Spec) -> Spec:
 
 
 @lru_cache
-def _field_validations() -> Dict[str, Dict[str, str]]:
-    with open(Path(__file__).resolve().parent / "field-validations.yml", "r") as f:
+def _field_validations() -> dict[str, dict[str, str]]:
+    with open(Path(__file__).resolve().parent / "field-validations.yml") as f:
         return yaml.safe_load(f)
 
 
@@ -373,8 +373,8 @@ def _assign_validations(spec: Spec) -> Spec:
 
 
 @lru_cache
-def _dataset_field_customizations() -> Dict[str, Any]:
-    with open(Path(__file__).resolve().parent / "dataset-fields.yml", "r") as f:
+def _dataset_field_customizations() -> dict[str, Any]:
+    with open(Path(__file__).resolve().parent / "dataset-fields.yml") as f:
         return yaml.safe_load(f)
 
 
@@ -392,7 +392,7 @@ def _extend_dataset_fields(spec: DatasetSpec) -> DatasetSpec:
     return spec
 
 
-def load_specs(schema_url: str) -> Dict[str, Any]:
+def load_specs(schema_url: str) -> dict[str, Any]:
     schemas = _collect_schemas(load_schemas(schema_url))
     dataset_schema = schemas.pop("Dataset")
     specs = {

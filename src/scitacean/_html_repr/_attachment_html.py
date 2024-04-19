@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 import dataclasses
-from typing import List
 
 from ..model import Attachment, UploadAttachment
 from . import _resources
@@ -50,7 +49,7 @@ _EXCLUDED_FIELDS = {
 }
 
 
-def _get_fields(attachment: Attachment) -> List[Field]:
+def _get_fields(attachment: Attachment) -> list[Field]:
     fields = [
         Field(
             name=_strip_leading_underscore(field.name),

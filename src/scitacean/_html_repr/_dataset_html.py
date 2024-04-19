@@ -3,7 +3,8 @@
 """HTML representations of datasets for Jupyter."""
 
 import html
-from typing import Any, Dict, Iterable, List, Optional
+from collections.abc import Iterable
+from typing import Any
 
 import pydantic
 
@@ -132,7 +133,7 @@ _MAIN_FIELDS = {
 }
 
 
-def _get_fields(dset: Dataset) -> List[Field]:
+def _get_fields(dset: Dataset) -> list[Field]:
     validation = _validate(dset)
     fields = [
         Field(
@@ -155,12 +156,12 @@ def _get_fields(dset: Dataset) -> List[Field]:
     )
 
 
-def _check_error(field: Dataset.Field, validation: Dict[str, str]) -> Optional[str]:
+def _check_error(field: Dataset.Field, validation: dict[str, str]) -> str | None:
     field_spec = next(filter(lambda f: f.name == field.name, Dataset.fields()))
     return validation.get(field_spec.scicat_name, None)
 
 
-def _validate(dset: Dataset) -> Dict[str, str]:
+def _validate(dset: Dataset) -> dict[str, str]:
     def single_elem(xs: Iterable[Any]) -> Any:
         (x,) = xs
         return x

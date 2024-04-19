@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2024 SciCat Project (https://github.com/SciCatProject/scitacean)
 
+from collections.abc import Generator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Generator
 
 import filelock
 
@@ -61,7 +61,7 @@ class FileCounter:
             yield count
 
     def _read(self) -> int:
-        with open(self._path, "r") as f:
+        with open(self._path) as f:
             c = int(f.read())
             return c
 

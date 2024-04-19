@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2024 SciCat Project (https://github.com/SciCatProject/scitacean)
 import dataclasses
-from typing import Type, TypeVar
+from typing import TypeVar
 
 import pytest
 from dateutil.parser import parse as parse_date
@@ -20,7 +20,7 @@ from scitacean.model import (
 T = TypeVar("T")
 
 
-def build_user_model_for_upload(cls: Type[T]) -> st.SearchStrategy[T]:
+def build_user_model_for_upload(cls: type[T]) -> st.SearchStrategy[T]:
     private_fields = {
         field.name: st.none()
         for field in dataclasses.fields(cls)  # type: ignore[arg-type]

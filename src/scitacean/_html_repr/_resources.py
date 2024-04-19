@@ -75,6 +75,6 @@ def attachment_style() -> str:
     return f"{common_style()}<style>{sheet}</style>"
 
 
-@lru_cache()
+@lru_cache
 def image(name: str) -> str:
     return _read_text(name, "images")

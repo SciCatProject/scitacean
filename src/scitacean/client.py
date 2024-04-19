@@ -8,9 +8,10 @@ import dataclasses
 import datetime
 import re
 import warnings
+from collections.abc import Callable, Iterable, Iterator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Tuple, Union
+from typing import Any
 from urllib.parse import quote_plus
 
 import requests
@@ -45,7 +46,7 @@ class Client:
         self,
         *,
         client: ScicatClient,
-        file_transfer: Optional[FileTransfer],
+        file_transfer: FileTransfer | None,
     ):
         """Initialize a client.
 
@@ -60,8 +61,8 @@ class Client:
         cls,
         *,
         url: str,
-        token: Union[str, StrStorage],
-        file_transfer: Optional[FileTransfer] = None,
+        token: str | StrStorage,
+        file_transfer: FileTransfer | None = None,
     ) -> Client:
         """Create a new client and authenticate with a token.
 
@@ -90,9 +91,9 @@ class Client:
         cls,
         *,
         url: str,
-        username: Union[str, StrStorage],
-        password: Union[str, StrStorage],
-        file_transfer: Optional[FileTransfer] = None,
+        username: str | StrStorage,
+        password: str | StrStorage,
+        file_transfer: FileTransfer | None = None,
     ) -> Client:
         """Create a new client and authenticate with username and password.
 
@@ -122,7 +123,7 @@ class Client:
 
     @classmethod
     def without_login(
-        cls, *, url: str, file_transfer: Optional[FileTransfer] = None
+        cls, *, url: str, file_transfer: FileTransfer | None = None
     ) -> Client:
         """Create a new client without authentication.
 
@@ -154,13 +155,13 @@ class Client:
         return self._client
 
     @property
-    def file_transfer(self) -> Optional[FileTransfer]:
+    def file_transfer(self) -> FileTransfer | None:
         """Stored handler for file down-/uploads."""
         return self._file_transfer
 
     def get_dataset(
         self,
-        pid: Union[str, PID],
+        pid: str | PID,
         strict_validation: bool = False,
         attachments: bool = False,
     ) -> Dataset:
@@ -332,8 +333,8 @@ class Client:
         return model.Sample.from_download_model(finalized_model)
 
     def _upload_orig_datablocks(
-        self, orig_datablocks: Optional[List[model.UploadOrigDatablock]]
-    ) -> List[model.DownloadOrigDatablock]:
+        self, orig_datablocks: list[model.UploadOrigDatablock] | None
+    ) -> list[model.DownloadOrigDatablock]:
         if not orig_datablocks:
             return []
 
@@ -351,8 +352,8 @@ class Client:
             ) from exc
 
     def _upload_attachments_for_dataset(
-        self, attachments: List[model.UploadAttachment], *, dataset_id: PID
-    ) -> List[model.DownloadAttachment]:
+        self, attachments: list[model.UploadAttachment], *, dataset_id: PID
+    ) -> list[model.DownloadAttachment]:
         try:
             return [
                 self.scicat.create_attachment_for_dataset(
@@ -399,9 +400,9 @@ class Client:
         self,
         dataset: Dataset,
         *,
-        target: Union[str, Path],
+        target: str | Path,
         select: FileSelector = True,
-        checksum_algorithm: Optional[str] = None,
+        checksum_algorithm: str | None = None,
         force: bool = False,
     ) -> Dataset:
         r"""Download files of a dataset.
@@ -558,13 +559,13 @@ class ScicatClient:
     def __init__(
         self,
         url: str,
-        token: Optional[Union[str, StrStorage]],
-        timeout: Optional[datetime.timedelta],
+        token: str | StrStorage | None,
+        timeout: datetime.timedelta | None,
     ):
         # Need to add a final /
         self._base_url = url[:-1] if url.endswith("/") else url
         self._timeout = datetime.timedelta(seconds=10) if timeout is None else timeout
-        self._token: Optional[StrStorage] = (
+        self._token: StrStorage | None = (
             SecretStr(token) if isinstance(token, str) else token
         )
 
@@ -572,8 +573,8 @@ class ScicatClient:
     def from_token(
         cls,
         url: str,
-        token: Union[str, StrStorage],
-        timeout: Optional[datetime.timedelta] = None,
+        token: str | StrStorage,
+        timeout: datetime.timedelta | None = None,
     ) -> ScicatClient:
         """Create a new low-level client and authenticate with a token.
 
@@ -597,9 +598,9 @@ class ScicatClient:
     def from_credentials(
         cls,
         url: str,
-        username: Union[str, StrStorage],
-        password: Union[str, StrStorage],
-        timeout: Optional[datetime.timedelta] = None,
+        username: str | StrStorage,
+        password: str | StrStorage,
+        timeout: datetime.timedelta | None = None,
     ) -> ScicatClient:
         """Create a new low-level client and authenticate with username and password.
 
@@ -639,7 +640,7 @@ class ScicatClient:
 
     @classmethod
     def without_login(
-        cls, url: str, timeout: Optional[datetime.timedelta] = None
+        cls, url: str, timeout: datetime.timedelta | None = None
     ) -> ScicatClient:
         """Create a new low-level client without authentication.
 
@@ -704,7 +705,7 @@ class ScicatClient:
 
     def get_orig_datablocks(
         self, pid: PID, strict_validation: bool = False
-    ) -> List[model.DownloadOrigDatablock]:
+    ) -> list[model.DownloadOrigDatablock]:
         """Fetch all orig datablocks from SciCat for a given dataset.
 
         Parameters
@@ -740,7 +741,7 @@ class ScicatClient:
 
     def get_attachments_for_dataset(
         self, pid: PID, strict_validation: bool = False
-    ) -> List[model.DownloadAttachment]:
+    ) -> list[model.DownloadAttachment]:
         """Fetch all attachments from SciCat for a given dataset.
 
         Parameters
@@ -820,7 +821,7 @@ class ScicatClient:
         )
 
     def create_dataset_model(
-        self, dset: Union[model.UploadDerivedDataset, model.UploadRawDataset]
+        self, dset: model.UploadDerivedDataset | model.UploadRawDataset
     ) -> model.DownloadDataset:
         """Create a new dataset in SciCat.
 
@@ -975,7 +976,7 @@ class ScicatClient:
         )
 
     def validate_dataset_model(
-        self, dset: Union[model.UploadDerivedDataset, model.UploadRawDataset]
+        self, dset: model.UploadDerivedDataset | model.UploadRawDataset
     ) -> None:
         """Validate a dataset in SciCat.
 
@@ -999,7 +1000,7 @@ class ScicatClient:
             raise ValueError(f"Dataset {dset} did not pass validation in SciCat.")
 
     def _send_to_scicat(
-        self, *, cmd: str, url: str, data: Optional[model.BaseModel] = None
+        self, *, cmd: str, url: str, data: model.BaseModel | None = None
     ) -> requests.Response:
         if self._token is not None:
             token = self._token.get_str()
@@ -1038,7 +1039,7 @@ class ScicatClient:
         *,
         cmd: str,
         url: str,
-        data: Optional[model.BaseModel] = None,
+        data: model.BaseModel | None = None,
         operation: str,
     ) -> Any:
         full_url = _url_concat(self._base_url, url)
@@ -1080,7 +1081,7 @@ def _strip_token(error: Any, token: str) -> str:
 
 
 def _make_orig_datablock(
-    fields: Dict[str, Any], strict_validation: bool
+    fields: dict[str, Any], strict_validation: bool
 ) -> model.DownloadOrigDatablock:
     files = [
         model.construct(
@@ -1161,9 +1162,9 @@ def _get_token(
     raise ScicatLoginError(response.content)
 
 
-FileSelector = Union[
-    bool, str, List[str], Tuple[str], re.Pattern[str], Callable[[File], bool]
-]
+FileSelector = (
+    bool | str | list[str] | tuple[str] | re.Pattern[str] | Callable[[File], bool]
+)
 
 
 def _file_selector(select: FileSelector) -> Callable[[File], bool]:
@@ -1180,14 +1181,14 @@ def _file_selector(select: FileSelector) -> Callable[[File], bool]:
     return select
 
 
-def _select_files(select: FileSelector, dataset: Dataset) -> List[File]:
+def _select_files(select: FileSelector, dataset: Dataset) -> list[File]:
     selector = _file_selector(select)
     return [f for f in dataset.files if selector(f)]
 
 
 def _remove_up_to_date_local_files(
-    files: List[File], checksum_algorithm: Optional[str]
-) -> List[File]:
+    files: list[File], checksum_algorithm: str | None
+) -> list[File]:
     def is_up_to_date(file: File) -> bool:
         if checksum_algorithm is not None:
             file = dataclasses.replace(file, checksum_algorithm=checksum_algorithm)
@@ -1202,7 +1203,7 @@ def _remove_up_to_date_local_files(
     ]
 
 
-def _files_to_upload(files: Iterable[File]) -> List[File]:
+def _files_to_upload(files: Iterable[File]) -> list[File]:
     for file in files:
         if file.is_on_local and file.is_on_remote:
             raise ValueError(
@@ -1220,7 +1221,7 @@ class _NullUploadConnection:
     when there are no files to upload.
     """
 
-    def upload_files(self, *files: File) -> List[File]:
+    def upload_files(self, *files: File) -> list[File]:
         """Raise if given files."""
         if files:
             raise RuntimeError("Internal error: Bad upload connection")

@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 import datetime
-from typing import NoReturn, Optional, Union
+from typing import NoReturn
 
 
 class StrStorage:
@@ -14,7 +14,7 @@ class StrStorage:
     Instances can be nested to combine different specialized features.
     """
 
-    def __init__(self, value: Optional[Union[str, StrStorage]]):
+    def __init__(self, value: str | StrStorage | None):
         self._value = value
 
     def get_str(self) -> str:
@@ -83,7 +83,7 @@ class SecretStr(StrStorage):
     still be leaked through introspection methods.
     """
 
-    def __init__(self, value: Union[str, StrStorage]):
+    def __init__(self, value: str | StrStorage):
         super().__init__(value)
 
     def __str__(self) -> str:
@@ -103,9 +103,9 @@ class TimeLimitedStr(StrStorage):
     def __init__(
         self,
         *,
-        value: Union[str, StrStorage],
+        value: str | StrStorage,
         expires_at: datetime.datetime,
-        tolerance: Optional[datetime.timedelta] = None,
+        tolerance: datetime.timedelta | None = None,
     ):
         super().__init__(value)
         if tolerance is None:

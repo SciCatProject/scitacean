@@ -4,10 +4,10 @@
 
 import dataclasses
 import tempfile
+from collections.abc import Iterator
 from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Iterator
 
 import paramiko
 import pytest
@@ -279,7 +279,7 @@ class CorruptingSFTP(paramiko.SFTPClient):
     """Appends bytes to uploaded files to simulate a broken transfer."""
 
     def put(self, localpath, remotepath, callback=None, confirm=True):
-        with open(localpath, "r") as f:
+        with open(localpath) as f:
             content = f.read()
         with tempfile.TemporaryDirectory() as tempdir:
             corrupted_path = Path(tempdir) / "corrupted"

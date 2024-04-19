@@ -10,7 +10,6 @@ the local database before making it available to tests.
 import pickle
 from copy import deepcopy
 from pathlib import Path
-from typing import Dict, List, Union
 
 from dateutil.parser import parse as parse_datetime
 
@@ -34,7 +33,7 @@ from ...thumbnail import Thumbnail
 from .config import SITE, SciCatAccess, SciCatUser
 
 # Dataset models to upload to the database.
-_DATASETS: Dict[str, Union[UploadRawDataset, UploadDerivedDataset]] = {
+_DATASETS: dict[str, UploadRawDataset | UploadDerivedDataset] = {
     "raw": UploadRawDataset(
         ownerGroup="PLACEHOLDER",
         accessGroups=["uu", "faculty"],
@@ -131,7 +130,7 @@ _DATASETS: Dict[str, Union[UploadRawDataset, UploadDerivedDataset]] = {
 }
 
 # Orig datablocks to upload to the database.
-_ORIG_DATABLOCKS: Dict[str, List[UploadOrigDatablock]] = {
+_ORIG_DATABLOCKS: dict[str, list[UploadOrigDatablock]] = {
     "raw": [
         UploadOrigDatablock(
             datasetId=PID(pid="PLACEHOLDER"),
@@ -203,7 +202,7 @@ _ORIG_DATABLOCKS: Dict[str, List[UploadOrigDatablock]] = {
     ],
 }
 
-_ATTACHMENTS: Dict[str, List[UploadAttachment]] = {
+_ATTACHMENTS: dict[str, list[UploadAttachment]] = {
     "derived": [
         UploadAttachment(
             caption="Process Overview",
@@ -223,16 +222,16 @@ _ATTACHMENTS: Dict[str, List[UploadAttachment]] = {
     ]
 }
 
-INITIAL_DATASETS: Dict[str, DownloadDataset] = {}
+INITIAL_DATASETS: dict[str, DownloadDataset] = {}
 """Initial datasets in the testing database."""
-INITIAL_ORIG_DATABLOCKS: Dict[str, List[DownloadOrigDatablock]] = {}
+INITIAL_ORIG_DATABLOCKS: dict[str, list[DownloadOrigDatablock]] = {}
 """Initial orig datablocks in the testing database."""
-INITIAL_ATTACHMENTS: Dict[str, List[DownloadAttachment]] = {}
+INITIAL_ATTACHMENTS: dict[str, list[DownloadAttachment]] = {}
 
 
 def _apply_config_dataset(
-    dset: Union[UploadRawDataset, UploadDerivedDataset], user: SciCatUser
-) -> Union[UploadRawDataset, UploadDerivedDataset]:
+    dset: UploadRawDataset | UploadDerivedDataset, user: SciCatUser
+) -> UploadRawDataset | UploadDerivedDataset:
     dset = deepcopy(dset)
     dset.owner = user.username
     dset.ownerGroup = user.group
@@ -258,7 +257,7 @@ def _apply_config_attachment(
 
 
 def _create_dataset_model(
-    client: Client, dset: Union[UploadRawDataset, UploadDerivedDataset]
+    client: Client, dset: UploadRawDataset | UploadDerivedDataset
 ) -> DownloadDataset:
     uploaded = client.scicat.create_dataset_model(dset)
     # pid is a str if validation fails but we need a PID for fake clients.

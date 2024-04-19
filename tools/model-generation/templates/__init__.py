@@ -15,5 +15,5 @@ BANNER = """##########################################
 
 
 def load_template(name: str) -> Template:
-    with open(TEMPLATE_DIR / f"{name}.py.template", "r") as f:
+    with open(TEMPLATE_DIR / f"{name}.py.template") as f:
         return Template(f.read())

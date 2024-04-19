@@ -3,10 +3,10 @@
 """SFTP file transfer."""
 
 import os
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Callable, Iterator, List, Optional, Union
 
 from paramiko import SFTPAttributes, SFTPClient, SSHClient
 
@@ -29,7 +29,7 @@ class SFTPDownloadConnection:
         self._sftp_client = sftp_client
         self._host = host
 
-    def download_files(self, *, remote: List[RemotePath], local: List[Path]) -> None:
+    def download_files(self, *, remote: list[RemotePath], local: list[Path]) -> None:
         """Download files from the given remote path."""
         for r, l in zip(remote, local):
             self.download_file(remote=r, local=l)
@@ -64,7 +64,7 @@ class SFTPUploadConnection:
         """The source folder this connection uploads to."""
         return self._source_folder
 
-    def remote_path(self, filename: Union[str, RemotePath]) -> RemotePath:
+    def remote_path(self, filename: str | RemotePath) -> RemotePath:
         """Return the complete remote path for a given path."""
         return self.source_folder / filename
 
@@ -76,7 +76,7 @@ class SFTPUploadConnection:
                 f"Failed to create source folder {self.source_folder}: {exc.args}"
             ) from None
 
-    def upload_files(self, *files: File) -> List[File]:
+    def upload_files(self, *files: File) -> list[File]:
         """Upload files to the remote folder."""
         self._make_source_folder()
         uploaded: list[File] = []
@@ -124,7 +124,7 @@ class SFTPUploadConnection:
                     self._host,
                 )
                 self._sftp_client.rmdir(self.source_folder.posix)
-            except IOError as exc:
+            except OSError as exc:
                 get_logger().warning(
                     "Failed to remove empty remote directory %s on host %s:\n%s",
                     self.source_folder,
@@ -132,9 +132,7 @@ class SFTPUploadConnection:
                     exc,
                 )
 
-    def _revert_upload_single(
-        self, *, remote: RemotePath, local: Optional[Path]
-    ) -> None:
+    def _revert_upload_single(self, *, remote: RemotePath, local: Path | None) -> None:
         remote_path = self.remote_path(remote)
         get_logger().info(
             "Reverting upload of file %s to %s on host %s",
@@ -145,7 +143,7 @@ class SFTPUploadConnection:
 
         try:
             self._sftp_client.remove(remote_path.posix)
-        except IOError as exc:
+        except OSError as exc:
             get_logger().warning("Error reverting file %s:\n%s", remote_path, exc)
             return
 
@@ -247,8 +245,8 @@ class SFTPFileTransfer:
         *,
         host: str,
         port: int = 22,
-        source_folder: Optional[Union[str, RemotePath]] = None,
-        connect: Optional[Callable[[str, Optional[int]], SFTPClient]] = None,
+        source_folder: str | RemotePath | None = None,
+        connect: Callable[[str, int | None], SFTPClient] | None = None,
     ) -> None:
         """Construct a new SFTP file transfer.
 
@@ -308,7 +306,7 @@ class SFTPFileTransfer:
             sftp_client.close()
 
 
-def _default_connect(host: str, port: Optional[int]) -> SFTPClient:
+def _default_connect(host: str, port: int | None) -> SFTPClient:
     client = SSHClient()
     client.load_system_host_keys()
     if port is not None:
@@ -321,7 +319,7 @@ def _default_connect(host: str, port: Optional[int]) -> SFTPClient:
 def _connect(
     host: str,
     port: int,
-    connect: Optional[Callable[[str, Optional[int]], SFTPClient]],
+    connect: Callable[[str, int | None], SFTPClient] | None,
 ) -> SFTPClient:
     try:
         if connect is None:
@@ -351,7 +349,7 @@ def _mkdir_remote(sftp: SFTPClient, path: RemotePath) -> None:
         )
 
 
-def _try_remote_stat(sftp: SFTPClient, path: RemotePath) -> Optional[SFTPAttributes]:
+def _try_remote_stat(sftp: SFTPClient, path: RemotePath) -> SFTPAttributes | None:
     try:
         return sftp.stat(path.posix)
     except FileNotFoundError:

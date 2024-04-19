@@ -16,7 +16,7 @@ import os
 import re
 from datetime import datetime, timezone
 from pathlib import Path, PurePath
-from typing import Any, Optional, TypeVar, Union
+from typing import Any, TypeVar
 
 from pydantic import GetCoreSchemaHandler
 from pydantic_core import core_schema
@@ -36,7 +36,7 @@ class RemotePath:
     the two should almost never be mixed.
     """
 
-    def __init__(self, *path_segments: Union[str, RemotePath]) -> None:
+    def __init__(self, *path_segments: str | RemotePath) -> None:
         """Initialize from given path segments."""
         for segment in path_segments:
             if isinstance(segment, (PurePath, Path)):  # type: ignore[unreachable]
@@ -66,7 +66,7 @@ class RemotePath:
             segments = ["/"] + segments[1:]
         return PurePath(*segments)
 
-    def __truediv__(self, other: Union[str, RemotePath]) -> RemotePath:
+    def __truediv__(self, other: str | RemotePath) -> RemotePath:
         """Join two path segments."""
         if isinstance(other, (PurePath, Path)):  # type: ignore[unreachable]
             raise TypeError("OS paths are not supported when concatenating RemotePath.")
@@ -107,7 +107,7 @@ class RemotePath:
         return self._path.rstrip("/").rsplit("/", 1)[-1]
 
     @property
-    def suffix(self) -> Optional[str]:
+    def suffix(self) -> str | None:
         """The file extension including a leading period."""
         parts = self.name.rsplit(".", 1)
         if len(parts) == 1:
@@ -152,7 +152,7 @@ class RemotePath:
         return RemotePath("/".join(map(trunc, self._path.split("/"))))
 
     @classmethod
-    def validate(cls, value: Union[str, RemotePath]) -> RemotePath:
+    def validate(cls, value: str | RemotePath) -> RemotePath:
         """Pydantic validator for RemotePath fields."""
         return RemotePath(value)
 
@@ -173,7 +173,7 @@ class RemotePath:
         )
 
 
-def _posix(path: Union[str, RemotePath]) -> str:
+def _posix(path: str | RemotePath) -> str:
     return path.posix if isinstance(path, RemotePath) else path
 
 
@@ -196,15 +196,11 @@ def file_modification_time(path: Path) -> datetime:
 
 
 def _new_hash(algorithm: str) -> Any:
-    try:
-        return hashlib.new(algorithm, usedforsecurity=False)
-    except TypeError:
-        # Fallback for Python < 3.9
-        return hashlib.new(algorithm)
+    return hashlib.new(algorithm, usedforsecurity=False)
 
 
 # size based on http://git.savannah.gnu.org/gitweb/?p=coreutils.git;a=blob;f=src/ioblksize.h;h=ed2f4a9c4d77462f357353eb73ee4306c28b37f1;hb=HEAD#l23  # noqa: E501
-def checksum_of_file(path: Union[str, Path], *, algorithm: str) -> str:
+def checksum_of_file(path: str | Path, *, algorithm: str) -> str:
     """Compute the checksum of a local file.
 
     Parameters
@@ -227,7 +223,7 @@ def checksum_of_file(path: Union[str, Path], *, algorithm: str) -> str:
     return chk.hexdigest()  # type: ignore[no-any-return]
 
 
-P = TypeVar("P", bound=Union[str, Path, RemotePath])
+P = TypeVar("P", bound=str | Path | RemotePath)
 
 
 def escape_path(path: P) -> P:

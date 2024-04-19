@@ -5,7 +5,7 @@ import os
 import time
 from copy import deepcopy
 from pathlib import Path
-from typing import Any, Dict, Union
+from typing import Any
 from urllib.parse import urljoin
 
 import requests
@@ -14,31 +14,25 @@ import yaml
 from ..._internal.docker import docker_compose_down, docker_compose_up
 from . import config
 
-_PathLike = Union[str, os.PathLike[str]]
+_PathLike = str | os.PathLike[str]
 
 
 def _read_yaml(filename: str) -> Any:
-    if hasattr(importlib.resources, "files"):
-        # Use new API added in Python 3.9
-        return yaml.safe_load(
-            importlib.resources.files("scitacean.testing.backend")
-            .joinpath(filename)
-            .read_text()
-        )
-    # Old API, deprecated as of Python 3.11
     return yaml.safe_load(
-        importlib.resources.read_text("scitacean.testing.backend", filename)
+        importlib.resources.files("scitacean.testing.backend")
+        .joinpath(filename)
+        .read_text()
     )
 
 
-def _docker_compose_template() -> Dict[str, Any]:
+def _docker_compose_template() -> dict[str, Any]:
     template = _read_yaml("docker-compose-backend-template.yaml")
     return template  # type: ignore[no-any-return]
 
 
 def _apply_config(
-    template: Dict[str, Any], account_config_path: Path
-) -> Dict[str, Any]:
+    template: dict[str, Any], account_config_path: Path
+) -> dict[str, Any]:
     res = deepcopy(template)
     scicat = res["services"]["scicat"]
     ports = scicat["ports"][0].split(":")

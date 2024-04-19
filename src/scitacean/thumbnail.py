@@ -8,7 +8,8 @@ import base64
 import mimetypes
 import os
 import re
-from typing import Any, Callable, Dict, Optional, Union
+from collections.abc import Callable
+from typing import Any
 
 from pydantic import GetCoreSchemaHandler
 from pydantic_core import core_schema
@@ -54,15 +55,15 @@ class Thumbnail:
         data: bytes = thumbnail.decoded_data()
     """
 
-    mime: Optional[str]
+    mime: str | None
     """Complete MIME type in the form ``type/subtype``."""
     _encoded_data: str
 
     def __init__(
         self,
-        mime: Optional[str],
-        data: Optional[bytes] = None,
-        _encoded_data: Optional[str] = None,
+        mime: str | None,
+        data: bytes | None = None,
+        _encoded_data: str | None = None,
     ) -> None:
         """Create a new thumbnail object.
 
@@ -93,7 +94,7 @@ class Thumbnail:
         self.mime = mime
 
     @classmethod
-    def load_file(cls, path: Union[os.PathLike[str], str]) -> Thumbnail:
+    def load_file(cls, path: os.PathLike[str] | str) -> Thumbnail:
         """Construct a thumbnail from data loaded from a file.
 
         Parameters
@@ -113,7 +114,7 @@ class Thumbnail:
         return Thumbnail(mime=mimetypes.guess_type(path)[0], _encoded_data=encoded_data)
 
     @classmethod
-    def parse(cls, encoded: Union[str, Thumbnail], /) -> Thumbnail:
+    def parse(cls, encoded: str | Thumbnail, /) -> Thumbnail:
         """Construct a thumbnail from a string as used by SciCat.
 
         Parameters
@@ -163,14 +164,14 @@ class Thumbnail:
         return mime_str + self.encoded_data()
 
     @property
-    def mime_type(self) -> Optional[str]:
+    def mime_type(self) -> str | None:
         """The MIME type, i.e., the first part of ``type/subtype``."""
         if self.mime is None:
             return None
         return self.mime.split("/", 1)[0]
 
     @property
-    def mime_subtype(self) -> Optional[str]:
+    def mime_subtype(self) -> str | None:
         """The MIME subtype, i.e., the second part of ``type/subtype``."""
         if self.mime is None:
             return None
@@ -192,11 +193,11 @@ class Thumbnail:
 
     def _repr_mimebundle_(
         self, include: Any = None, exclude: Any = None
-    ) -> Dict[str, Union[bytes, str]]:
+    ) -> dict[str, bytes | str]:
         def decoded() -> bytes:
             return self.decoded_data()
 
-        repr_fns: dict[str, Callable[[], Union[bytes, str]]] = {
+        repr_fns: dict[str, Callable[[], bytes | str]] = {
             "image/png": decoded,
             "image/jpeg": decoded,
             "image/svg+xml": decoded,

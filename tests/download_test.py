@@ -5,7 +5,6 @@ import re
 from contextlib import contextmanager
 from copy import deepcopy
 from pathlib import Path
-from typing import Union
 
 import pytest
 from dateutil.parser import parse as parse_date
@@ -78,7 +77,7 @@ def dataset_and_files(data_files):
     }
 
 
-def load(name: Union[str, Path]) -> bytes:
+def load(name: str | Path) -> bytes:
     with open(name, "rb") as f:
         return f.read()
 

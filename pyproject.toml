@@ -20,14 +20,13 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering",
     "Typing :: Typed",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
     "email-validator",
     "pydantic >= 2",
@@ -61,16 +60,8 @@ addopts = """
 """
 filterwarnings = [
     "error",
-    # From dateutil. This needs to be first because it is triggered by pytest itself.
-    'ignore:datetime.datetime.utcfromtimestamp:DeprecationWarning',
     # Many tests don't set a checksum, so File raises this warning.
     "ignore:Cannot check if local file:UserWarning",
-    # Internal deprecations.
-    "ignore:SSHFileTransfer is deprecated:scitacean.VisibleDeprecationWarning",
-    "ignore:Support for Pydantic v1 is deprecated:scitacean.VisibleDeprecationWarning",
-    # From fabric / invoke
-    "ignore:_SixMetaPathImporter:ImportWarning",
-    "ignore:the imp module is deprecated in favour of importlib:DeprecationWarning",
 ]
 
 [tool.mypy]
@@ -103,11 +94,12 @@ extend-include = ["*.ipynb"]
 extend-exclude = [".*", "__pycache__", "build", "dist", "venv"]
 
 [tool.ruff.lint]
-select = ["B", "D", "E", "F", "G", "I", "S", "T20", "PGH", "FBT003", "RUF"]
+select = ["B", "D", "E", "F", "G", "I", "S", "T20", "UP", "PGH", "FBT003", "RUF"]
 ignore = [
     "B905", # `zip()` without an explicit `strict=` parameter
     "S324", # insecure hsh function; we don't use hashing for security
     "E741", "E742", "E743", # do not use names ‘l’, ‘O’, or ‘I’; they are not a problem with a proper font
+    "UP038",  # does not seem to work and leads to slower code
     "E111", "E114", "E117", "D206", "D300",  # conflict with ruff format
     "D105",
 ]

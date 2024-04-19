@@ -4,7 +4,7 @@
 
 import html
 from datetime import datetime
-from typing import Any, List, Optional
+from typing import Any
 
 from .._internal.dataclass_wrapper import dataclass_optional_args
 from ..filesystem import RemotePath
@@ -21,7 +21,7 @@ class Field:
     description: str
     read_only: bool
     required: bool
-    error: Optional[str]
+    error: str | None
     main: bool
 
 
@@ -35,11 +35,11 @@ _TYPE_NAME = {
     Lifecycle: "Lifecycle",
     PID: "PID",
     RemotePath: "RemotePath",
-    List[str]: "list[str]",
-    List[PID]: "list[PID]",
-    List[Relationship]: "list[Relationship]",
-    List[Technique]: "list[Technique]",
-    List[dict]: "list[dict]",  # type: ignore[type-arg]
+    list[str]: "list[str]",
+    list[PID]: "list[PID]",
+    list[Relationship]: "list[Relationship]",
+    list[Technique]: "list[Technique]",
+    list[dict]: "list[dict]",  # type: ignore[type-arg]
 }
 
 

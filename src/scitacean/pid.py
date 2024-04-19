@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 import uuid
-from typing import Any, Optional, Union
+from typing import Any
 
 from pydantic import GetCoreSchemaHandler, ValidationError
 from pydantic_core import core_schema
@@ -32,7 +32,7 @@ class PID:
 
     __slots__ = ("_pid", "_prefix")
 
-    def __init__(self, *, pid: str, prefix: Optional[str] = None):
+    def __init__(self, *, pid: str, prefix: str | None = None):
         """Initialize an instance from individual components.
 
         Parameters
@@ -46,7 +46,7 @@ class PID:
         self._prefix = prefix
 
     @classmethod
-    def parse(cls, x: Union[str, PID]) -> PID:
+    def parse(cls, x: str | PID) -> PID:
         """Build a PID from a string.
 
         The string is split at the first "/" to determine
@@ -73,7 +73,7 @@ class PID:
         return PID(prefix=pieces[0], pid=pieces[1])
 
     @classmethod
-    def generate(cls, *, prefix: Optional[str] = None) -> PID:
+    def generate(cls, *, prefix: str | None = None) -> PID:
         """Create a new unique PID.
 
         Uses UUID4 to generate the ID.
@@ -96,7 +96,7 @@ class PID:
         return self._pid
 
     @property
-    def prefix(self) -> Optional[str]:
+    def prefix(self) -> str | None:
         """Prefix part of the ID if there is one."""
         return self._prefix
 
@@ -122,7 +122,7 @@ class PID:
         return self.prefix == other.prefix and self.pid == other.pid
 
     @classmethod
-    def validate(cls, value: Union[str, PID]) -> PID:
+    def validate(cls, value: str | PID) -> PID:
         """Pydantic validator for PID fields."""
         if isinstance(value, str):
             return PID.parse(value)
