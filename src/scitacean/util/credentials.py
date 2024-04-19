@@ -4,8 +4,10 @@
 
 from __future__ import annotations
 
-import datetime
+from datetime import datetime, timedelta, timezone
 from typing import NoReturn
+
+from .._internal.jwt import expiry
 
 
 class StrStorage:
@@ -62,29 +64,47 @@ class SecretStr(StrStorage):
         raise TypeError("SecretStr must not be pickled")
 
 
-class TimeLimitedStr(StrStorage):
-    """A string that expires after some time."""
+class ExpiringToken(StrStorage):
+    """A JWT token that expires after some time."""
 
     def __init__(
         self,
         *,
         value: str | StrStorage,
-        expires_at: datetime.datetime,
-        tolerance: datetime.timedelta | None = None,
+        expires_at: datetime,
+        denial_period: timedelta | None = None,
     ):
         super().__init__(value)
-        if tolerance is None:
-            tolerance = datetime.timedelta(seconds=10)
-        self._expires_at = expires_at - tolerance
+        if denial_period is None:
+            denial_period = timedelta(seconds=2)
+        self._expires_at = expires_at - denial_period
+        self._check_expiry()
+
+    @classmethod
+    def from_jwt(cls, value: str | StrStorage) -> ExpiringToken:
+        """Create a new ExpiringToken from a JSON web token."""
+        value_str = value if isinstance(value, str) else value.get_str()
+        try:
+            expires_at = expiry(value_str)
+        except ValueError:
+            expires_at = datetime.now(tz=timezone.utc) + timedelta(weeks=100)
+        return cls(
+            value=value,
+            expires_at=expires_at,
+        )
 
     def get_str(self) -> str:
         """Return the stored plain str object."""
-        if self._is_expired():
-            raise RuntimeError("Login has expired")
+        self._check_expiry()
         return super().get_str()
 
-    def _is_expired(self) -> bool:
-        return datetime.datetime.now() > self._expires_at
+    def _check_expiry(self) -> None:
+        if datetime.now(tz=self._expires_at.tzinfo) > self._expires_at:
+            raise RuntimeError(
+                "SciCat login has expired. You need to create a new client either by "
+                "logging in through `Client.from_credentials` or by getting a new "
+                "access token from the SciCat web interface."
+            )
 
     def __repr__(self) -> str:
         return (

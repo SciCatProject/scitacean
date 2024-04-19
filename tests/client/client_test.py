@@ -1,11 +1,17 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2024 SciCat Project (https://github.com/SciCatProject/scitacean)
 
+import base64
+import json
 import pickle
+import time
+from datetime import datetime, timedelta, timezone
+from typing import Any
 
 import pytest
 
 from scitacean import PID, Client
+from scitacean.testing.backend.seed import INITIAL_DATASETS
 from scitacean.testing.client import FakeClient
 from scitacean.util.credentials import SecretStr
 
@@ -29,9 +35,7 @@ def test_from_credentials_fake():
     )
 
 
-def test_from_credentials_real(scicat_access, scicat_backend):
-    if not scicat_backend:
-        pytest.skip("No backend")
+def test_from_credentials_real(scicat_access, require_scicat_backend):
     Client.from_credentials(url=scicat_access.url, **scicat_access.user.credentials)
 
 
@@ -80,3 +84,46 @@ def test_fake_can_disable_functions():
         client.scicat.get_dataset_model(PID(pid="some-pid"))
     with pytest.raises(IndexError, match="custom index error"):
         client.scicat.get_orig_datablocks(PID(pid="some-pid"))
+
+
+def encode_jwt_part(part: dict[str, Any]) -> str:
+    return base64.urlsafe_b64encode(json.dumps(part).encode("utf-8")).decode("ascii")
+
+
+def make_token(exp_in: timedelta) -> str:
+    now = datetime.now(tz=timezone.utc)
+    exp = now + exp_in
+
+    # This is what a SciCat token looks like as of 2024-04-19
+    header = {"alg": "HS256", "typ": "JWT"}
+    payload = {
+        "_id": "7fc0856e50a8",
+        "username": "Weatherwax",
+        "email": "g.weatherwax@wyrd.lancre",
+        "authStrategy": "ldap",
+        "id": "7fc0856e50a8",
+        "userId": "7fc0856e50a8",
+        "iat": now.timestamp(),
+        "exp": exp.timestamp(),
+    }
+    # Scitacean never validates the signature because it doesn't have the secret key,
+    # so it doesn't matter what we use here.
+    signature = "123abc"
+
+    return ".".join((encode_jwt_part(header), encode_jwt_part(payload), signature))
+
+
+def test_detects_expired_token_init():
+    token = make_token(timedelta(milliseconds=0))
+    with pytest.raises(RuntimeError, match="SciCat login has expired"):
+        Client.from_token(url="scicat.com", token=token)
+
+
+def test_detects_expired_token_get_dataset(scicat_access, require_scicat_backend):
+    # The token is invalid, but the expiration should be detected before
+    # even sending it to SciCat.
+    token = make_token(timedelta(milliseconds=2100))  # > than denial period = 2s
+    client = Client.from_token(url=scicat_access.url, token=token)
+    time.sleep(0.5)
+    with pytest.raises(RuntimeError, match="SciCat login has expired"):
+        client.get_dataset(INITIAL_DATASETS["public"].pid)  # type: ignore[arg-type]
