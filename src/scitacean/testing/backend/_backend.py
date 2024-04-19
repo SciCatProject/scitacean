@@ -18,16 +18,10 @@ _PathLike = Union[str, os.PathLike[str]]
 
 
 def _read_yaml(filename: str) -> Any:
-    if hasattr(importlib.resources, "files"):
-        # Use new API added in Python 3.9
-        return yaml.safe_load(
-            importlib.resources.files("scitacean.testing.backend")
-            .joinpath(filename)
-            .read_text()
-        )
-    # Old API, deprecated as of Python 3.11
     return yaml.safe_load(
-        importlib.resources.read_text("scitacean.testing.backend", filename)
+        importlib.resources.files("scitacean.testing.backend")
+        .joinpath(filename)
+        .read_text()
     )
 
 

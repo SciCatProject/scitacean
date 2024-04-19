@@ -25,15 +25,11 @@ class SFTPAccess:
 
 
 def _read_resource_text(filename: str) -> str:
-    if hasattr(importlib.resources, "files"):
-        # Use new API added in Python 3.9
-        return (
-            importlib.resources.files("scitacean.testing.sftp")
-            .joinpath(filename)
-            .read_text()
-        )
-    # Old API, deprecated as of Python 3.11
-    return importlib.resources.read_text("scitacean.testing.sftp", filename)
+    return (
+        importlib.resources.files("scitacean.testing.sftp")
+        .joinpath(filename)
+        .read_text()
+    )
 
 
 def _read_resource_yaml(filename: str) -> Any:
@@ -53,21 +49,12 @@ def _docker_file() -> str:
 
 
 def _seed_files() -> Iterable[Tuple[str, str]]:
-    if hasattr(importlib.resources, "files"):
-        # Use new API added in Python 3.9
-        yield from (
-            (file.name, file.read_text())
-            for file in importlib.resources.files("scitacean.testing.sftp")
-            .joinpath("sftp_server_seed")
-            .iterdir()
-        )
-    else:
-        # Old API, deprecated as of Python 3.11
-        with importlib.resources.path(
-            "scitacean.testing.sftp", "sftp_server_seed"
-        ) as seed_dir:
-            for path in seed_dir.iterdir():
-                yield path.name, path.read_text()
+    yield from (
+        (file.name, file.read_text())
+        for file in importlib.resources.files("scitacean.testing.sftp")
+        .joinpath("sftp_server_seed")
+        .iterdir()
+    )
 
 
 def local_access() -> SFTPAccess:
