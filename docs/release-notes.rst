@@ -32,11 +32,8 @@ Release notes
    Stability, Maintainability, and Testing
    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-vversion
+v24.04.0
 --------
-
-Security
-~~~~~~~~
 
 Features
 ~~~~~~~~
@@ -48,6 +45,7 @@ Features
 Breaking changes
 ~~~~~~~~~~~~~~~~
 
+* **Dropped support for Python 3.9.**
 * **Dropped support for Pydantic v1.**
 * Removed deprecated ``transfer.ssh.SSHFileTransfer`` in favor of :class:`transfer.sftp.SFTPFileTransfer`.
 
@@ -55,15 +53,6 @@ Bugfixes
 ~~~~~~~~
 
 * Fixed testing setup to explicitly define user accounts in the test backend.
-
-Documentation
-~~~~~~~~~~~~~
-
-Deprecations
-~~~~~~~~~~~~
-
-Stability, Maintainability, and Testing
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 v23.10.0
 --------
