@@ -43,6 +43,7 @@ Features
 
 * Added functions for downloading and uploading samples: :meth:`Client.get_sample`, :meth:`Client.upload_new_sample_now`.
 * Added :class:`transfer.link.LinkFileTransfer`.
+* :class:`Client` and :class:`ScicatClient` now check whether a token has expired and raise and exception if it has.
 
 Breaking changes
 ~~~~~~~~~~~~~~~~

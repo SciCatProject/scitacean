@@ -25,7 +25,7 @@ from .filesystem import RemotePath
 from .logging import get_logger
 from .pid import PID
 from .typing import DownloadConnection, FileTransfer, UploadConnection
-from .util.credentials import SecretStr, StrStorage
+from .util.credentials import ExpiringToken, SecretStr, StrStorage
 
 
 class Client:
@@ -566,7 +566,9 @@ class ScicatClient:
         self._base_url = url[:-1] if url.endswith("/") else url
         self._timeout = datetime.timedelta(seconds=10) if timeout is None else timeout
         self._token: StrStorage | None = (
-            SecretStr(token) if isinstance(token, str) else token
+            ExpiringToken.from_jwt(SecretStr(token))
+            if isinstance(token, str)
+            else token
         )
 
     @classmethod
