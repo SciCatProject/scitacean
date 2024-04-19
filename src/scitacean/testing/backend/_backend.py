@@ -5,7 +5,7 @@ import os
 import time
 from copy import deepcopy
 from pathlib import Path
-from typing import Any, Union
+from typing import Any
 from urllib.parse import urljoin
 
 import requests
@@ -14,7 +14,7 @@ import yaml
 from ..._internal.docker import docker_compose_down, docker_compose_up
 from . import config
 
-_PathLike = Union[str, os.PathLike[str]]
+_PathLike = str | os.PathLike[str]
 
 
 def _read_yaml(filename: str) -> Any:

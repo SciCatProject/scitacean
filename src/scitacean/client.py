@@ -11,7 +11,7 @@ import warnings
 from collections.abc import Callable, Iterable, Iterator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Union
+from typing import Any
 from urllib.parse import quote_plus
 
 import requests
@@ -1162,9 +1162,9 @@ def _get_token(
     raise ScicatLoginError(response.content)
 
 
-FileSelector = Union[
-    bool, str, list[str], tuple[str], re.Pattern[str], Callable[[File], bool]
-]
+FileSelector = (
+    bool | str | list[str] | tuple[str] | re.Pattern[str] | Callable[[File], bool]
+)
 
 
 def _file_selector(select: FileSelector) -> Callable[[File], bool]:

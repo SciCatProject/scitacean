@@ -31,7 +31,7 @@ Select the 'scitacean' profile during tests using the
 
 import string
 from functools import partial
-from typing import Any, Optional
+from typing import Any
 
 from email_validator import EmailNotValidError, ValidatedEmail, validate_email
 from hypothesis import strategies as st
@@ -151,7 +151,7 @@ def _scientific_metadata_strategy(
 def _job_parameters_strategy(
     field: Dataset.Field,
 ) -> st.SearchStrategy[dict[str, str] | None]:
-    return st.from_type(Optional[dict[str, str]])  # type: ignore[arg-type]
+    return st.from_type(dict[str, str] | None)  # type: ignore[arg-type]
 
 
 def _lifecycle_strategy(
@@ -192,7 +192,7 @@ def _field_strategy(field: Dataset.Field) -> st.SearchStrategy[Any]:
     if (strategy := _SPECIAL_FIELDS.get(field.name)) is not None:
         return strategy(field)
 
-    typ = field.type if field.required else Optional[field.type]
+    typ = field.type if field.required else field.type | None
     return st.from_type(typ)  # type:ignore[arg-type]
 
 

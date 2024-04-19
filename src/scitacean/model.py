@@ -127,7 +127,7 @@ class DownloadDataset(
     dataQualityMetrics: int | None = None
     description: str | None = None
     endTime: datetime | None = None
-    history: None | None = None
+    history: None = None
     instrumentGroup: str | None = None
     instrumentId: str | None = None
     isPublished: bool | None = None

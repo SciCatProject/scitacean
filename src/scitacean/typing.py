@@ -3,8 +3,9 @@
 
 """Definitions for type checking."""
 
+from contextlib import AbstractContextManager
 from pathlib import Path
-from typing import ContextManager, Protocol
+from typing import Protocol
 
 from .dataset import Dataset
 from .file import File
@@ -29,7 +30,7 @@ class DownloadConnection(Protocol):
 class Downloader(Protocol):
     """Handler for file downloads."""
 
-    def connect_for_download(self) -> ContextManager[DownloadConnection]:
+    def connect_for_download(self) -> AbstractContextManager[DownloadConnection]:
         """Open a connection to the file server.
 
         Returns
@@ -90,7 +91,9 @@ class Uploader(Protocol):
             The source folder for ``dataset``.
         """
 
-    def connect_for_upload(self, dataset: Dataset) -> ContextManager[UploadConnection]:
+    def connect_for_upload(
+        self, dataset: Dataset
+    ) -> AbstractContextManager[UploadConnection]:
         """Open a connection to the file server.
 
         Parameters
