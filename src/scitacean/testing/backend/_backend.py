@@ -5,7 +5,7 @@ import os
 import time
 from copy import deepcopy
 from pathlib import Path
-from typing import Any, Dict, Union
+from typing import Any, Union
 from urllib.parse import urljoin
 
 import requests
@@ -25,14 +25,14 @@ def _read_yaml(filename: str) -> Any:
     )
 
 
-def _docker_compose_template() -> Dict[str, Any]:
+def _docker_compose_template() -> dict[str, Any]:
     template = _read_yaml("docker-compose-backend-template.yaml")
     return template  # type: ignore[no-any-return]
 
 
 def _apply_config(
-    template: Dict[str, Any], account_config_path: Path
-) -> Dict[str, Any]:
+    template: dict[str, Any], account_config_path: Path
+) -> dict[str, Any]:
     res = deepcopy(template)
     scicat = res["services"]["scicat"]
     ports = scicat["ports"][0].split(":")

@@ -4,9 +4,9 @@
 """Pytest fixtures to manage and access a local SciCat backend."""
 
 import logging
+from collections.abc import Generator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Generator, Optional, Type, Union
 
 import pytest
 
@@ -73,7 +73,7 @@ def fake_client(scicat_access: SciCatAccess) -> FakeClient:
 
 
 @pytest.fixture()
-def real_client(scicat_access: SciCatAccess, scicat_backend: bool) -> Optional[Client]:
+def real_client(scicat_access: SciCatAccess, scicat_backend: bool) -> Client | None:
     """Fixture that returns a real client if backend tests are enabled.
 
     Returns
@@ -92,7 +92,7 @@ def real_client(scicat_access: SciCatAccess, scicat_backend: bool) -> Optional[C
 
 
 @pytest.fixture(params=["real", "fake"])
-def client(request, scicat_backend) -> Union[Client, FakeClient]:
+def client(request, scicat_backend) -> Client | FakeClient:
     """Fixture that returns a real and a fake client.
 
     Using this fixture makes tests run twice, once with a real client
@@ -156,7 +156,7 @@ def scicat_backend(request, tmp_path_factory, scicat_access):
 @contextmanager
 def _prepare_without_backend(
     scicat_access: SciCatAccess,
-    counter: Union[FileCounter, NullCounter],
+    counter: FileCounter | NullCounter,
     target_dir: Path,
 ) -> Generator[None, None, None]:
     with counter.increment() as count:
@@ -172,7 +172,7 @@ def _prepare_without_backend(
 @contextmanager
 def _prepare_with_backend(
     scicat_access: SciCatAccess,
-    counter: Union[FileCounter, NullCounter],
+    counter: FileCounter | NullCounter,
     target_dir: Path,
 ) -> Generator[None, None, None]:
     try:
@@ -194,7 +194,7 @@ def _prepare_with_backend(
 
 
 def _seed_database(
-    client_class: Union[Type[Client], Type[FakeClient]],
+    client_class: type[Client] | type[FakeClient],
     scicat_access: SciCatAccess,
     target_dir: Path,
 ) -> None:

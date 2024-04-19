@@ -2,9 +2,9 @@
 # Copyright (c) 2024 SciCat Project (https://github.com/SciCatProject/scitacean)
 """File transfer that creates symlinks."""
 
+from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Iterator, List, Optional, Union
 
 from ..dataset import Dataset
 from ..file import File
@@ -20,7 +20,7 @@ class LinkDownloadConnection:
     :meth:`scitacean.transfer.link.LinkFileTransfer.connect_for_download`.
     """
 
-    def download_files(self, *, remote: List[RemotePath], local: List[Path]) -> None:
+    def download_files(self, *, remote: list[RemotePath], local: list[Path]) -> None:
         """Download files from the given remote path."""
         for r, l in zip(remote, local):
             self.download_file(remote=r, local=l)
@@ -59,11 +59,11 @@ class LinkUploadConnection:
         """The source folder this connection uploads to."""
         return self._source_folder
 
-    def remote_path(self, filename: Union[str, RemotePath]) -> RemotePath:
+    def remote_path(self, filename: str | RemotePath) -> RemotePath:
         """Return the complete remote path for a given path."""
         return self.source_folder / filename
 
-    def upload_files(self, *files: File) -> List[File]:
+    def upload_files(self, *files: File) -> list[File]:
         """Upload files to the remote folder."""
         raise NotImplementedError()
 
@@ -136,7 +136,7 @@ class LinkFileTransfer:
     def __init__(
         self,
         *,
-        source_folder: Optional[Union[str, RemotePath]] = None,
+        source_folder: str | RemotePath | None = None,
     ) -> None:
         """Construct a new Link file transfer.
 

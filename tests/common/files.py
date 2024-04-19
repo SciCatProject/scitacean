@@ -4,14 +4,14 @@
 import hashlib
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
+from typing import Any
 
 from pyfakefs.fake_filesystem import FakeFilesystem
 
 
 def make_file(
-    fs: FakeFilesystem, path: Union[str, Path], contents: Optional[bytes] = None
-) -> Dict[str, Any]:
+    fs: FakeFilesystem, path: str | Path, contents: bytes | None = None
+) -> dict[str, Any]:
     if contents is None:
         contents = b"a bunch of file contents" * len(str(path))
     path = Path(path)

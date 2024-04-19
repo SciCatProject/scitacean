@@ -7,8 +7,9 @@ from __future__ import annotations
 import datetime
 import functools
 import uuid
+from collections.abc import Callable
 from copy import deepcopy
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 from .. import model
 from ..client import Client, ScicatClient
@@ -105,8 +106,8 @@ class FakeClient(Client):
     def __init__(
         self,
         *,
-        file_transfer: Optional[FileTransfer] = None,
-        disable: Optional[Dict[str, Exception]] = None,
+        file_transfer: FileTransfer | None = None,
+        disable: dict[str, Exception] | None = None,
     ) -> None:
         """Initialize a fake client with empty dataset storage.
 
@@ -123,18 +124,18 @@ class FakeClient(Client):
         super().__init__(client=FakeScicatClient(self), file_transfer=file_transfer)
 
         self.disabled = {} if disable is None else dict(disable)
-        self.datasets: Dict[PID, model.DownloadDataset] = {}
-        self.orig_datablocks: Dict[PID, List[model.DownloadOrigDatablock]] = {}
-        self.attachments: Dict[PID, List[model.DownloadAttachment]] = {}
-        self.samples: Dict[str, model.DownloadSample] = {}
+        self.datasets: dict[PID, model.DownloadDataset] = {}
+        self.orig_datablocks: dict[PID, list[model.DownloadOrigDatablock]] = {}
+        self.attachments: dict[PID, list[model.DownloadAttachment]] = {}
+        self.samples: dict[str, model.DownloadSample] = {}
 
     @classmethod
     def from_token(
         cls,
         *,
         url: str,
-        token: Union[str, StrStorage],
-        file_transfer: Optional[FileTransfer] = None,
+        token: str | StrStorage,
+        file_transfer: FileTransfer | None = None,
     ) -> FakeClient:
         """Create a new fake client.
 
@@ -147,9 +148,9 @@ class FakeClient(Client):
         cls,
         *,
         url: str,
-        username: Union[str, StrStorage],
-        password: Union[str, StrStorage],
-        file_transfer: Optional[FileTransfer] = None,
+        username: str | StrStorage,
+        password: str | StrStorage,
+        file_transfer: FileTransfer | None = None,
     ) -> FakeClient:
         """Create a new fake client.
 
@@ -159,7 +160,7 @@ class FakeClient(Client):
 
     @classmethod
     def without_login(
-        cls, *, url: str, file_transfer: Optional[FileTransfer] = None
+        cls, *, url: str, file_transfer: FileTransfer | None = None
     ) -> FakeClient:
         """Create a new fake client.
 
@@ -189,7 +190,7 @@ class FakeScicatClient(ScicatClient):
     @_conditionally_disabled
     def get_orig_datablocks(
         self, pid: PID, strict_validation: bool = False
-    ) -> List[model.DownloadOrigDatablock]:
+    ) -> list[model.DownloadOrigDatablock]:
         """Fetch an orig datablock from SciCat."""
         _ = strict_validation  # unused by fake
         try:
@@ -202,7 +203,7 @@ class FakeScicatClient(ScicatClient):
     @_conditionally_disabled
     def get_attachments_for_dataset(
         self, pid: PID, strict_validation: bool = False
-    ) -> List[model.DownloadAttachment]:
+    ) -> list[model.DownloadAttachment]:
         """Fetch all attachments from SciCat for a given dataset."""
         _ = strict_validation  # unused by fake
         return self.main.attachments.get(pid) or []
@@ -220,7 +221,7 @@ class FakeScicatClient(ScicatClient):
 
     @_conditionally_disabled
     def create_dataset_model(
-        self, dset: Union[model.UploadDerivedDataset, model.UploadRawDataset]
+        self, dset: model.UploadDerivedDataset | model.UploadRawDataset
     ) -> model.DownloadDataset:
         """Create a new dataset in SciCat."""
         ingested = _process_dataset(dset)
@@ -249,7 +250,7 @@ class FakeScicatClient(ScicatClient):
     def create_attachment_for_dataset(
         self,
         attachment: model.UploadAttachment,
-        dataset_id: Optional[PID] = None,
+        dataset_id: PID | None = None,
     ) -> model.DownloadAttachment:
         """Create a new attachment for a dataset in SciCat."""
         if dataset_id is None:
@@ -281,14 +282,14 @@ class FakeScicatClient(ScicatClient):
 
     @_conditionally_disabled
     def validate_dataset_model(
-        self, dset: Union[model.UploadDerivedDataset, model.UploadRawDataset]
+        self, dset: model.UploadDerivedDataset | model.UploadRawDataset
     ) -> None:
         """Validate model remotely in SciCat."""
         # Models were locally validated on construction, assume they are valid.
         pass
 
 
-def _model_dict(mod: model.BaseModel) -> Dict[str, Any]:
+def _model_dict(mod: model.BaseModel) -> dict[str, Any]:
     return {
         key: deepcopy(val)
         for key in mod.model_fields.keys()
@@ -311,7 +312,7 @@ def _process_data_file(file: model.UploadDataFile) -> model.DownloadDataFile:
 
 
 def _process_dataset(
-    dset: Union[model.UploadDerivedDataset, model.UploadRawDataset],
+    dset: model.UploadDerivedDataset | model.UploadRawDataset,
 ) -> model.DownloadDataset:
     created_at = datetime.datetime.now(tz=datetime.timezone.utc)
     # TODO use user login if possible
@@ -362,7 +363,7 @@ def _process_orig_datablock(
 
 
 def _process_attachment(
-    attachment: model.UploadAttachment, dataset_id: Optional[PID] = None
+    attachment: model.UploadAttachment, dataset_id: PID | None = None
 ) -> model.DownloadAttachment:
     created_at = datetime.datetime.now(tz=datetime.timezone.utc)
     fields = _model_dict(attachment)
@@ -402,13 +403,13 @@ def _process_sample(sample: model.UploadSample) -> model.DownloadSample:
 
 
 def process_uploaded_dataset(
-    dataset: Union[model.UploadDerivedDataset, model.UploadRawDataset],
-    orig_datablocks: Optional[List[model.UploadOrigDatablock]],
-    attachments: Optional[List[model.UploadAttachment]],
-) -> Tuple[
+    dataset: model.UploadDerivedDataset | model.UploadRawDataset,
+    orig_datablocks: list[model.UploadOrigDatablock] | None,
+    attachments: list[model.UploadAttachment] | None,
+) -> tuple[
     model.DownloadDataset,
-    Optional[List[model.DownloadOrigDatablock]],
-    Optional[List[model.DownloadAttachment]],
+    list[model.DownloadOrigDatablock] | None,
+    list[model.DownloadAttachment] | None,
 ]:
     """Process a dataset as if it was uploaded to SciCat.
 

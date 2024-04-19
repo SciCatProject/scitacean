@@ -6,7 +6,6 @@
 # public interface and make sure that Dataset does not break any behavior.
 
 from datetime import datetime, timedelta, timezone
-from typing import Union
 
 import dateutil.parser
 import pydantic
@@ -62,7 +61,7 @@ def test_init_dataset_sets_creation_time():
 
 
 def test_init_dataset_can_set_creation_time():
-    dt: Union[str, datetime]
+    dt: str | datetime
 
     dt = dateutil.parser.parse("2022-01-10T11:14:52.623Z")
     dset = Dataset(type="derived", creation_time=dt)
@@ -229,13 +228,13 @@ def test_init_from_models_sets_files():
     assert dset.packed_size == 0
     assert dset.size == 6123 + 551
 
-    (f0,) = [f for f in dset.files if f.remote_path.suffix == ".dat"]
+    (f0,) = (f for f in dset.files if f.remote_path.suffix == ".dat")
     assert f0.remote_access_path(dset.source_folder) == "/hex/source91/file1.dat"
     assert f0.local_path is None
     assert f0.size == 6123
     assert f0.make_model().path == "file1.dat"
 
-    (f1,) = [f for f in dset.files if f.remote_path.suffix == ".png"]
+    (f1,) = (f for f in dset.files if f.remote_path.suffix == ".png")
     assert f1.remote_access_path(dset.source_folder) == "/hex/source91/sub/file2.png"
     assert f1.local_path is None
     assert f1.size == 551
@@ -296,13 +295,13 @@ def test_init_from_models_sets_files_multi_datablocks():
     assert dset.packed_size == 0
     assert dset.size == 6123 + 992
 
-    (f0,) = [f for f in dset.files if f.remote_path.suffix == ".dat"]
+    (f0,) = (f for f in dset.files if f.remote_path.suffix == ".dat")
     assert f0.remote_access_path(dset.source_folder) == "/hex/source91/file1.dat"
     assert f0.local_path is None
     assert f0.size == 6123
     assert f0.make_model().path == "file1.dat"
 
-    (f1,) = [f for f in dset.files if f.remote_path.suffix == ".png"]
+    (f1,) = (f for f in dset.files if f.remote_path.suffix == ".png")
     assert f1.remote_access_path(dset.source_folder) == "/hex/source91/sub/file2.png"
     assert f1.local_path is None
     assert f1.size == 992

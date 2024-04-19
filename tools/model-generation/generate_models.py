@@ -6,9 +6,10 @@
 import argparse
 import subprocess
 import tempfile
+from collections.abc import Generator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Dict, Generator
+from typing import Any
 
 from jinja2 import Environment, FileSystemLoader, Template
 from spec import DatasetSpec, Spec, load_specs
@@ -61,7 +62,7 @@ def _dataset_fields_template() -> Template:
     return _template("dataset_fields")
 
 
-def generate_models(specs: Dict[str, Spec]) -> str:
+def generate_models(specs: dict[str, Spec]) -> str:
     specs = dict(specs)
     dset_spec = specs.pop("Dataset")
     return _model_template().render(banner=BANNER, specs=specs, dset_spec=dset_spec)
@@ -95,7 +96,7 @@ def _scicat_backend() -> Generator[None, None, None]:
             backend.stop_backend(docker_file)
 
 
-def load(real_backend: bool) -> Dict[str, Any]:
+def load(real_backend: bool) -> dict[str, Any]:
     if not real_backend:
         return load_specs(SCHEMA_URL)
 

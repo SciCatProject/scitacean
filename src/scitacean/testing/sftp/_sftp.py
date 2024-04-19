@@ -2,10 +2,11 @@
 # Copyright (c) 2024 SciCat Project (https://github.com/SciCatProject/scitacean)
 import importlib.resources
 import time
+from collections.abc import Iterable
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, Iterable, Tuple, Union
+from typing import Any
 
 import paramiko
 import yaml
@@ -37,7 +38,7 @@ def _read_resource_yaml(filename: str) -> Any:
 
 
 @lru_cache(maxsize=1)
-def _docker_compose_file() -> Dict[str, Any]:
+def _docker_compose_file() -> dict[str, Any]:
     return _read_resource_yaml(  # type: ignore[no-any-return]
         "docker-compose-sftp-server.yaml"
     )
@@ -48,7 +49,7 @@ def _docker_file() -> str:
     return _read_resource_text("Dockerfile-sftp-server")
 
 
-def _seed_files() -> Iterable[Tuple[str, str]]:
+def _seed_files() -> Iterable[tuple[str, str]]:
     yield from (
         (file.name, file.read_text())
         for file in importlib.resources.files("scitacean.testing.sftp")
@@ -76,7 +77,7 @@ def _copy_seed(target_seed_dir: Path) -> None:
         target_seed_dir.joinpath(name).write_text(content)
 
 
-def configure(target_dir: Union[Path, str]) -> Path:
+def configure(target_dir: Path | str) -> Path:
     """Generate a config file for docker compose and copy seed data."""
     target_dir = Path(target_dir)
     target_seed_dir = target_dir / "data" / "seed"

@@ -4,7 +4,7 @@
 """Definitions for type checking."""
 
 from pathlib import Path
-from typing import ContextManager, List, Protocol
+from typing import ContextManager, Protocol
 
 from .dataset import Dataset
 from .file import File
@@ -14,7 +14,7 @@ from .filesystem import RemotePath
 class DownloadConnection(Protocol):
     """An open connection to the file server for downloads."""
 
-    def download_files(self, *, remote: List[RemotePath], local: List[Path]) -> None:
+    def download_files(self, *, remote: list[RemotePath], local: list[Path]) -> None:
         """Download files from the file server.
 
         Parameters
@@ -42,7 +42,7 @@ class Downloader(Protocol):
 class UploadConnection(Protocol):
     """An open connection to the file server for uploads."""
 
-    def upload_files(self, *files: File) -> List[File]:
+    def upload_files(self, *files: File) -> list[File]:
         """Upload files to the file server.
 
         Parameters

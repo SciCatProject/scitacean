@@ -8,7 +8,7 @@ import dataclasses
 import warnings
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import NoReturn, Optional, Union, cast
+from typing import NoReturn, cast
 
 import dateutil.parser
 
@@ -43,37 +43,35 @@ class File:
            └───────────> local+remote <───────────┘
     """
 
-    local_path: Optional[Path]
+    local_path: Path | None
     """Path to the file on the local filesystem."""
     remote_path: RemotePath
     """Path to the file on the remote filesystem."""
-    remote_gid: Optional[str]
+    remote_gid: str | None
     """Unix group ID on remote."""
-    remote_perm: Optional[str]
+    remote_perm: str | None
     """Unix file mode on remote."""
-    remote_uid: Optional[str]
+    remote_uid: str | None
     """Unix user ID on remote."""
-    checksum_algorithm: Optional[str] = None
+    checksum_algorithm: str | None = None
     """Algorithm to use for checksums."""
-    _remote_size: Optional[int] = dataclasses.field(default=None, repr=False)
-    _remote_creation_time: Optional[datetime] = dataclasses.field(
-        default=None, repr=False
-    )
-    _remote_checksum: Optional[str] = dataclasses.field(default=None, repr=False)
-    _checksum_cache: Optional[_Checksum] = dataclasses.field(
+    _remote_size: int | None = dataclasses.field(default=None, repr=False)
+    _remote_creation_time: datetime | None = dataclasses.field(default=None, repr=False)
+    _remote_checksum: str | None = dataclasses.field(default=None, repr=False)
+    _checksum_cache: _Checksum | None = dataclasses.field(
         default=None, compare=False, repr=False
     )
 
     @classmethod
     def from_local(
         cls,
-        path: Union[str, Path],
+        path: str | Path,
         *,
-        base_path: Union[str, Path] = "",
-        remote_path: Optional[Union[str, RemotePath]] = None,
-        remote_uid: Optional[str] = None,
-        remote_gid: Optional[str] = None,
-        remote_perm: Optional[str] = None,
+        base_path: str | Path = "",
+        remote_path: str | RemotePath | None = None,
+        remote_uid: str | None = None,
+        remote_gid: str | None = None,
+        remote_perm: str | None = None,
     ) -> File:
         """Link a file on the local filesystem.
 
@@ -126,14 +124,14 @@ class File:
     @classmethod
     def from_remote(
         cls,
-        remote_path: Union[str, RemotePath],
+        remote_path: str | RemotePath,
         size: int,
-        creation_time: Union[datetime, str],
-        checksum: Optional[str] = None,
-        checksum_algorithm: Optional[str] = None,
-        remote_uid: Optional[str] = None,
-        remote_gid: Optional[str] = None,
-        remote_perm: Optional[str] = None,
+        creation_time: datetime | str,
+        checksum: str | None = None,
+        checksum_algorithm: str | None = None,
+        remote_uid: str | None = None,
+        remote_gid: str | None = None,
+        remote_perm: str | None = None,
     ) -> File:
         """Construct a new file object for a remote file.
 
@@ -195,8 +193,8 @@ class File:
         cls,
         model: DownloadDataFile,
         *,
-        checksum_algorithm: Optional[str] = None,
-        local_path: Optional[Union[str, Path]] = None,
+        checksum_algorithm: str | None = None,
+        local_path: str | Path | None = None,
     ) -> File:
         """Construct a new file object from a SciCat download model.
 
@@ -248,7 +246,7 @@ class File:
             return file_modification_time(cast(Path, self.local_path))
         return self._remote_creation_time  # type: ignore[return-value]
 
-    def checksum(self) -> Optional[str]:
+    def checksum(self) -> str | None:
         """Return the checksum of the file.
 
         This can take a long time to compute for large files.
@@ -270,9 +268,7 @@ class File:
             algorithm=self.checksum_algorithm,
         )
 
-    def remote_access_path(
-        self, source_folder: Union[RemotePath, str]
-    ) -> Optional[RemotePath]:
+    def remote_access_path(self, source_folder: RemotePath | str) -> RemotePath | None:
         """Full path to the file on the remote if it exists."""
         return (source_folder / self.remote_path) if self.is_on_remote else None
 
@@ -348,12 +344,12 @@ class File:
     def uploaded(
         self,
         *,
-        remote_path: Optional[Union[str, RemotePath]] = None,
-        remote_uid: Optional[str] = None,
-        remote_gid: Optional[str] = None,
-        remote_perm: Optional[str] = None,
-        remote_creation_time: Optional[datetime] = None,
-        remote_size: Optional[int] = None,
+        remote_path: str | RemotePath | None = None,
+        remote_uid: str | None = None,
+        remote_gid: str | None = None,
+        remote_perm: str | None = None,
+        remote_creation_time: datetime | None = None,
+        remote_size: int | None = None,
     ) -> File:
         """Return new file metadata after an upload.
 
@@ -397,7 +393,7 @@ class File:
             **{key: val for key, val in args.items() if val is not None},  # type: ignore[arg-type]
         )
 
-    def downloaded(self, *, local_path: Union[str, Path]) -> File:
+    def downloaded(self, *, local_path: str | Path) -> File:
         """Return new file metadata after a download.
 
         Assumes that the input file exists on remote.
@@ -480,10 +476,10 @@ class _Checksum:
     """Compute and cache the checksum of a file."""
 
     def __init__(self) -> None:
-        self._value: Optional[str] = None
-        self._path: Optional[Path] = None
-        self._algorithm: Optional[str] = None
-        self._access_time: Optional[datetime] = None
+        self._value: str | None = None
+        self._path: Path | None = None
+        self._algorithm: str | None = None
+        self._access_time: datetime | None = None
 
     def get(self, *, path: Path, algorithm: str) -> str:
         if self._is_out_of_date(path=path, algorithm=algorithm):

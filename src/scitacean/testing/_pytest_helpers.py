@@ -2,7 +2,6 @@
 # Copyright (c) 2024 SciCat Project (https://github.com/SciCatProject/scitacean)
 
 from pathlib import Path
-from typing import Optional, Tuple, Union
 
 import pytest
 
@@ -30,20 +29,20 @@ def root_tmp_dir(
 def init_pytest_work_dir(
     request: pytest.FixtureRequest,
     tmp_path_factory: pytest.TempPathFactory,
-    name: Optional[str],
-) -> Tuple[Path, Union[FileCounter, NullCounter]]:
+    name: str | None,
+) -> tuple[Path, FileCounter | NullCounter]:
     """Create a working directory and initialize an atomic counter and lock for it."""
     return init_work_dir(request, root_tmp_dir(request, tmp_path_factory), name)
 
 
 def init_work_dir(
-    request: pytest.FixtureRequest, base_path: Path, name: Optional[str]
-) -> Tuple[Path, Union[FileCounter, NullCounter]]:
+    request: pytest.FixtureRequest, base_path: Path, name: str | None
+) -> tuple[Path, FileCounter | NullCounter]:
     """Create a working directory and initialize an atomic counter and lock for it."""
     target_dir = base_path / name if name else base_path
     target_dir.mkdir(exist_ok=True)
 
-    counter: Union[FileCounter, NullCounter]
+    counter: FileCounter | NullCounter
     if using_xdist(request):
         counter = FileCounter(target_dir / "counter")
     else:

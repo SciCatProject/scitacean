@@ -2,8 +2,9 @@
 # Copyright (c) 2024 SciCat Project (https://github.com/SciCatProject/scitacean)
 """String-formatting tools."""
 
+from collections.abc import Iterable
 from string import Formatter
-from typing import Any, Iterable, Optional, Tuple
+from typing import Any
 
 from ..filesystem import escape_path
 
@@ -52,16 +53,16 @@ class DatasetPathFormatter(Formatter):
     def parse(
         self, format_string: str
     ) -> Iterable[
-        Tuple[
+        tuple[
             StrOrLiteralStr,
-            Optional[StrOrLiteralStr],
-            Optional[StrOrLiteralStr],
-            Optional[StrOrLiteralStr],
+            StrOrLiteralStr | None,
+            StrOrLiteralStr | None,
+            StrOrLiteralStr | None,
         ]
     ]:
         """Parse a format string."""
 
-        def add0(field_name: Optional[str]) -> Optional[str]:
+        def add0(field_name: str | None) -> str | None:
             if field_name == "uid":
                 return field_name
             if isinstance(field_name, str):

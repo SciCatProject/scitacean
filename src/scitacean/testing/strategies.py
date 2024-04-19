@@ -31,7 +31,7 @@ Select the 'scitacean' profile during tests using the
 
 import string
 from functools import partial
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from email_validator import EmailNotValidError, ValidatedEmail, validate_email
 from hypothesis import strategies as st
@@ -42,14 +42,14 @@ from .._internal.orcid import orcid_checksum
 
 # email_validator and by extension pydantic is more picky than hypothesis
 # so make sure that generated emails actually pass model validation.
-def _validate_email(email: str) -> Optional[ValidatedEmail]:
+def _validate_email(email: str) -> ValidatedEmail | None:
     try:
         return validate_email(email, check_deliverability=False)
     except EmailNotValidError:
         return None
 
 
-def _is_valid_email(validated_email: Optional[ValidatedEmail]) -> bool:
+def _is_valid_email(validated_email: ValidatedEmail | None) -> bool:
     return validated_email is not None
 
 
@@ -107,7 +107,7 @@ def multi_emails(max_emails: int = 2) -> st.SearchStrategy[str]:
     ).map(lambda email: ";".join(email))
 
 
-def _email_field_strategy(field: Dataset.Field) -> st.SearchStrategy[Optional[str]]:
+def _email_field_strategy(field: Dataset.Field) -> st.SearchStrategy[str | None]:
     if field.required:
         return multi_emails()
     return st.none() | multi_emails()
@@ -133,7 +133,7 @@ def orcids() -> st.SearchStrategy[str]:
     return st.text(alphabet="0123456789", min_size=16, max_size=16).map(make_orcid)
 
 
-def _orcid_field_strategy(field: Dataset.Field) -> st.SearchStrategy[Optional[str]]:
+def _orcid_field_strategy(field: Dataset.Field) -> st.SearchStrategy[str | None]:
     if field.required:
         return orcids()
     return st.none() | orcids()
@@ -141,7 +141,7 @@ def _orcid_field_strategy(field: Dataset.Field) -> st.SearchStrategy[Optional[st
 
 def _scientific_metadata_strategy(
     field: Dataset.Field,
-) -> st.SearchStrategy[Dict[str, Any]]:
+) -> st.SearchStrategy[dict[str, Any]]:
     return st.dictionaries(
         keys=st.text(),
         values=st.text() | st.dictionaries(keys=st.text(), values=st.text()),
@@ -150,13 +150,13 @@ def _scientific_metadata_strategy(
 
 def _job_parameters_strategy(
     field: Dataset.Field,
-) -> st.SearchStrategy[Optional[Dict[str, str]]]:
-    return st.from_type(Optional[Dict[str, str]])  # type: ignore[arg-type]
+) -> st.SearchStrategy[dict[str, str] | None]:
+    return st.from_type(Optional[dict[str, str]])  # type: ignore[arg-type]
 
 
 def _lifecycle_strategy(
     field: Dataset.Field,
-) -> st.SearchStrategy[Optional[model.Lifecycle]]:
+) -> st.SearchStrategy[model.Lifecycle | None]:
     # Lifecycle contains fields that have `Any` types which `st.from_type` can't handle.
     return st.sampled_from((None, model.Lifecycle()))
 
@@ -197,7 +197,7 @@ def _field_strategy(field: Dataset.Field) -> st.SearchStrategy[Any]:
 
 
 def _make_dataset(
-    *, type: DatasetType, args: Dict[str, Any], read_only: Dict[str, Any]
+    *, type: DatasetType, args: dict[str, Any], read_only: dict[str, Any]
 ) -> Dataset:
     dset = Dataset(type=type, **args)
     for key, val in read_only.items():
@@ -206,7 +206,7 @@ def _make_dataset(
 
 
 def datasets(
-    type: Optional[DatasetType] = None, for_upload: bool = False, **fields: Any
+    type: DatasetType | None = None, for_upload: bool = False, **fields: Any
 ) -> st.SearchStrategy[Dataset]:
     """A strategy for generating datasets.
 
@@ -294,7 +294,7 @@ def datasets(
             return make_fixed_arg(field.name)
         return _field_strategy(field)
 
-    def make_args(read_only: bool) -> Dict[str, st.SearchStrategy[Any]]:
+    def make_args(read_only: bool) -> dict[str, st.SearchStrategy[Any]]:
         return {
             field.name: make_arg(field)
             for field in Dataset.fields(read_only=read_only, dataset_type=type)
