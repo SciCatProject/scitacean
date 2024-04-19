@@ -36,41 +36,6 @@ class StrStorage:
         return f"{type(self).__name__}({self._value!r})"
 
 
-# TODO implement
-# class KeyringStr(StrStorage):
-#     """Store a string in the user's keyring.
-#
-#     Should be the bottom level StrStorage because it erases any nested
-#     StrStorage objects and stores and returns plain strs.
-#     """
-#
-#     def __init__(self, *, key: str, value: Optional[Union[str, StrStorage]]):
-#         super().__init__(None)
-#         # TODO dummy implementation
-#         self._ring = {}
-#         self._key = key
-#         if value is not None:
-#             if isinstance(value, StrStorage):
-#                 self._store(value.get_str())
-#             else:
-#                 self._store(value)
-#
-#     def _store(self, value: str):
-#         self._ring[self._key] = value
-#
-#     def _retrieve(self) -> str:
-#         return self._ring[self._key]
-#
-#     def get_str(self) -> str:
-#         return self._retrieve()
-#
-#     def __str__(self) -> str:
-#         return "???"
-#
-#     def __repr__(self) -> str:
-#         return f"KeyringStr(key='{self._key}', value={str(self)})"
-
-
 class SecretStr(StrStorage):
     """Minimize the risk of exposing a secret.
 
