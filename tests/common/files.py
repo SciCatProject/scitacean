@@ -25,9 +25,9 @@ def make_file(
     # and avoids potential difficulties of querying the file system.
     creation_time = datetime.now().astimezone(timezone.utc)
 
-    return dict(
-        path=path,
-        creation_time=creation_time,
-        checksum=checksum_digest,
-        size=len(contents),
-    )
+    return {
+        "path": path,
+        "creation_time": creation_time,
+        "checksum": checksum_digest,
+        "size": len(contents),
+    }

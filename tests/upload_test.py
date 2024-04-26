@@ -171,10 +171,10 @@ def test_upload_with_only_remote_files_does_not_need_file_transfer(dataset):
 
 
 def test_upload_with_both_remote_and_local_files(client, dataset_with_files):
-    original_file_names = set(
+    original_file_names = {
         dataset_with_files.source_folder / file.remote_path
         for file in dataset_with_files.files
-    )
+    }
     dataset_with_files.add_files(
         File.from_remote(
             remote_path="file1.h5", size=6123, creation_time="2019-09-09T19:29:39Z"

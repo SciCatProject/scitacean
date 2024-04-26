@@ -3,7 +3,7 @@
 
 import hashlib
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 
 import pytest
 
@@ -75,7 +75,7 @@ def test_client_with_link(tmp_path):
         accessGroups=["group1"],
         contactEmail="p.stibbons@uu.am",
         creationLocation="UU",
-        creationTime=datetime(2023, 6, 23, 10, 0, 0),
+        creationTime=datetime(2023, 6, 23, 10, 0, 0, tzinfo=timezone.utc),
         numberOfFiles=1,
         numberOfFilesArchived=0,
         owner="PonderStibbons",
@@ -92,7 +92,7 @@ def test_client_with_link(tmp_path):
                 path="file1.txt",
                 size=len(content),
                 chk=checksum,
-                time=datetime(2023, 6, 23, 10, 0, 0),
+                time=datetime(2023, 6, 23, 10, 0, 0, tzinfo=timezone.utc),
             )
         ],
         datasetId=ds.pid,
@@ -134,7 +134,7 @@ def test_client_with_link_local_file_exists(tmp_path):
         accessGroups=["group1"],
         contactEmail="p.stibbons@uu.am",
         creationLocation="UU",
-        creationTime=datetime(2023, 6, 23, 10, 0, 0),
+        creationTime=datetime(2023, 6, 23, 10, 0, 0, tzinfo=timezone.utc),
         numberOfFiles=1,
         numberOfFilesArchived=0,
         owner="PonderStibbons",
@@ -151,7 +151,7 @@ def test_client_with_link_local_file_exists(tmp_path):
                 path="file1.txt",
                 size=len(content),
                 chk=checksum,
-                time=datetime(2023, 6, 23, 10, 0, 0),
+                time=datetime(2023, 6, 23, 10, 0, 0, tzinfo=timezone.utc),
             )
         ],
         datasetId=ds.pid,
@@ -195,7 +195,7 @@ def test_client_with_link_local_file_exists_clashing_content(tmp_path):
         accessGroups=["group1"],
         contactEmail="p.stibbons@uu.am",
         creationLocation="UU",
-        creationTime=datetime(2023, 6, 23, 10, 0, 0),
+        creationTime=datetime(2023, 6, 23, 10, 0, 0, tzinfo=timezone.utc),
         numberOfFiles=1,
         numberOfFilesArchived=0,
         owner="PonderStibbons",
@@ -212,7 +212,7 @@ def test_client_with_link_local_file_exists_clashing_content(tmp_path):
                 path="file1.txt",
                 size=len(content),
                 chk=checksum,
-                time=datetime(2023, 6, 23, 10, 0, 0),
+                time=datetime(2023, 6, 23, 10, 0, 0, tzinfo=timezone.utc),
             )
         ],
         datasetId=ds.pid,

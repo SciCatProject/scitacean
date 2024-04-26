@@ -333,7 +333,11 @@ def test_make_scicat_models_datablock_without_files(dataset):
 @settings(max_examples=10)
 def test_make_scicat_models_datablock_with_one_file(dataset):
     file_model = model.DownloadDataFile(
-        path="path", size=6163, chk="8450ac0", gid="group", time=datetime.now()
+        path="path",
+        size=6163,
+        chk="8450ac0",
+        gid="group",
+        time=datetime.now(tz=timezone.utc),
     )
     dataset.add_files(File.from_download_model(local_path=None, model=file_model))
 
@@ -438,7 +442,9 @@ def test_eq_self(dset):
     dset.add_files(
         File.from_download_model(
             local_path=None,
-            model=model.DownloadDataFile(path="path", size=94571, time=datetime.now()),
+            model=model.DownloadDataFile(
+                path="path", size=94571, time=datetime.now(tz=timezone.utc)
+            ),
         )
     )
     dset.attachments.append(
@@ -481,14 +487,16 @@ def test_neq_single_mismatched_file(initial):
         File.from_download_model(
             local_path=None,
             model=model.DownloadDataFile(
-                path="path", size=51553312, time=datetime.now()
+                path="path", size=51553312, time=datetime.now(tz=timezone.utc)
             ),
         )
     )
     initial.add_files(
         File.from_download_model(
             local_path=None,
-            model=model.DownloadDataFile(path="path", size=94571, time=datetime.now()),
+            model=model.DownloadDataFile(
+                path="path", size=94571, time=datetime.now(tz=timezone.utc)
+            ),
         )
     )
     assert modified != initial
@@ -503,7 +511,7 @@ def test_neq_extra_file(initial):
         File.from_download_model(
             local_path="/local",
             model=model.DownloadDataFile(
-                path="path", size=51553312, time=datetime.now()
+                path="path", size=51553312, time=datetime.now(tz=timezone.utc)
             ),
         )
     )
@@ -638,7 +646,9 @@ def test_replace_does_not_change_files_no_input_files(initial):
 def test_replace_does_not_change_files_with_input_files(initial):
     file = File.from_download_model(
         local_path=None,
-        model=model.DownloadDataFile(path="path", size=6163, time=datetime.now()),
+        model=model.DownloadDataFile(
+            path="path", size=6163, time=datetime.now(tz=timezone.utc)
+        ),
     )
     initial.add_files(file)
     replaced = initial.replace(owner="a-new-owner")
@@ -808,9 +818,9 @@ def invalid_field_example(my_type):
 @given(initial=sst.datasets(for_upload=True))
 @settings(max_examples=10)
 def test_dataset_dict_like_keys_per_type(initial: Dataset) -> None:
-    my_names = set(
+    my_names = {
         field.name for field in Dataset._FIELD_SPEC if field.used_by(initial.type)
-    )
+    }
     assert set(initial.keys()) == my_names
 
 
@@ -819,9 +829,9 @@ def test_dataset_dict_like_keys_per_type(initial: Dataset) -> None:
 def test_dataset_dict_like_keys_including_invalid_field(initial):
     invalid_name, invalid_value = invalid_field_example(initial.type)
 
-    my_names = set(
+    my_names = {
         field.name for field in Dataset._FIELD_SPEC if field.used_by(initial.type)
-    )
+    }
     assert invalid_name not in my_names
     my_names.add(invalid_name)
 
@@ -833,7 +843,7 @@ def test_dataset_dict_like_keys_including_invalid_field(initial):
 @given(initial=sst.datasets(for_upload=True))
 @settings(max_examples=10)
 def test_dataset_dict_like_values(initial: Dataset) -> None:
-    for key, value in zip(initial.keys(), initial.values()):
+    for key, value in zip(initial.keys(), initial.values(), strict=True):
         assert value == getattr(initial, key)
 
 
@@ -841,7 +851,7 @@ def test_dataset_dict_like_values(initial: Dataset) -> None:
 @settings(max_examples=10)
 def test_dataset_dict_like_values_with_invalid_field(initial: Dataset) -> None:
     setattr(initial, *invalid_field_example(initial.type))
-    for key, value in zip(initial.keys(), initial.values()):
+    for key, value in zip(initial.keys(), initial.values(), strict=True):
         assert value == getattr(initial, key)
 
 

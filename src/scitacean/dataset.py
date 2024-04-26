@@ -432,7 +432,7 @@ class Dataset(DatasetBase):
 
     def make_upload_model(self) -> UploadDerivedDataset | UploadRawDataset:
         """Construct a SciCat upload model from self."""
-        model: type[UploadRawDataset] | type[UploadDerivedDataset] = (
+        model: type[UploadRawDataset | UploadDerivedDataset] = (
             UploadRawDataset if self.type == DatasetType.RAW else UploadDerivedDataset
         )
         # Datablocks are not included here because they are handled separately
@@ -517,8 +517,8 @@ class Dataset(DatasetBase):
         """
         from itertools import chain
 
-        all_fields = set(field.name for field in self.fields())
-        my_fields = set(field.name for field in self.fields(dataset_type=self.type))
+        all_fields = {field.name for field in self.fields()}
+        my_fields = {field.name for field in self.fields(dataset_type=self.type)}
         other_fields = all_fields - my_fields
         invalid_fields = (
             f_name for f_name in other_fields if getattr(self, f_name) is not None

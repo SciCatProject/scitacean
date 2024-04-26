@@ -22,7 +22,7 @@ class LinkDownloadConnection:
 
     def download_files(self, *, remote: list[RemotePath], local: list[Path]) -> None:
         """Download files from the given remote path."""
-        for r, l in zip(remote, local):
+        for r, l in zip(remote, local, strict=True):
             self.download_file(remote=r, local=l)
 
     def download_file(self, *, remote: RemotePath, local: Path) -> None:
