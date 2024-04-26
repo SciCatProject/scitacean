@@ -36,7 +36,7 @@ def test_init_dataset_with_only_type():
 
 
 @pytest.mark.parametrize(
-    "typ", ("raw", "derived", DatasetType.RAW, DatasetType.DERIVED)
+    "typ", ["raw", "derived", DatasetType.RAW, DatasetType.DERIVED]
 )
 def test_init_dataset_accepted_types(typ):
     dset = Dataset(type=typ)
@@ -44,7 +44,7 @@ def test_init_dataset_accepted_types(typ):
 
 
 def test_init_dataset_raises_for_bad_type():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="DatasetType"):
         Dataset(type="bad-type")  # type: ignore[arg-type]
 
 
@@ -420,8 +420,7 @@ def test_make_raw_model_raises_if_derived_field_set(field, data):
     )
     val = data.draw(st.from_type(field.type))
     assume(val is not None)
-    setattr(dset, field.name, val)
-    with pytest.raises(ValueError):
+    with pytest.raises(pydantic.ValidationError):
         dset.make_upload_model()
 
 
@@ -451,11 +450,11 @@ def test_make_derived_model_raises_if_raw_field_set(field, data):
     val = data.draw(st.from_type(field.type))
     assume(val is not None)
     setattr(dset, field.name, val)
-    with pytest.raises(ValueError):
+    with pytest.raises(pydantic.ValidationError):
         dset.make_upload_model()
 
 
-@pytest.mark.parametrize("field", ("contact_email", "owner_email"))
+@pytest.mark.parametrize("field", ["contact_email", "owner_email"])
 def test_email_validation(field):
     dset = Dataset(
         type="raw",
@@ -473,11 +472,11 @@ def test_email_validation(field):
 
 @pytest.mark.parametrize(
     "good_orcid",
-    (
+    [
         "https://orcid.org/0000-0002-3761-3201",
         "https://orcid.org/0000-0001-2345-6789",
         "https://orcid.org/0000-0003-2818-0368",
-    ),
+    ],
 )
 def test_orcid_validation_valid(good_orcid):
     dset = Dataset(
@@ -496,12 +495,12 @@ def test_orcid_validation_valid(good_orcid):
 
 @pytest.mark.parametrize(
     "bad_orcid",
-    (
+    [
         "0000-0002-3761-3201",
         "https://not-orcid.eu/0000-0002-3761-3201",
         "https://orcid.org/0010-0002-3765-3201",
         "https://orcid.org/0000-0002-3761-320X",
-    ),
+    ],
 )
 def test_orcid_validation_missing_url(bad_orcid):
     dset = Dataset(

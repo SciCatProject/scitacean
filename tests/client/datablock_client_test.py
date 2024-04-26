@@ -55,7 +55,7 @@ def orig_datablock(scicat_access):
     )
 
 
-@pytest.mark.parametrize("key", ("raw", "derived"))
+@pytest.mark.parametrize("key", ["raw", "derived"])
 def test_get_orig_datablock(scicat_client, key):
     dblock = INITIAL_ORIG_DATABLOCKS[key][0]
     downloaded = scicat_client.get_orig_datablocks(dblock.datasetId)

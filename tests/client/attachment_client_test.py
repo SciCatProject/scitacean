@@ -136,14 +136,14 @@ def test_get_attachments_for_dataset_no_attachments(scicat_client):
     assert attachments == []
 
 
-@pytest.mark.parametrize("key", ("raw", "derived"))
+@pytest.mark.parametrize("key", ["raw", "derived"])
 def test_get_dataset_does_not_initialise_attachments(client, key):
     dset = INITIAL_DATASETS["derived"]
     downloaded = client.get_dataset(dset.pid)
     assert downloaded.attachments is None
 
 
-@pytest.mark.parametrize("key", ("raw", "derived"))
+@pytest.mark.parametrize("key", ["raw", "derived"])
 def test_download_attachments_for_dataset(client, key):
     dset = INITIAL_DATASETS[key]
     downloaded = client.get_dataset(dset.pid)
@@ -155,7 +155,7 @@ def test_download_attachments_for_dataset(client, key):
     assert with_attachments.attachments == expected
 
 
-@pytest.mark.parametrize("key", ("raw", "derived"))
+@pytest.mark.parametrize("key", ["raw", "derived"])
 def test_get_dataset_with_attachments(client, key):
     dset = INITIAL_DATASETS[key]
     downloaded = client.get_dataset(dset.pid, attachments=True)

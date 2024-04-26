@@ -66,9 +66,9 @@ def test_connection_error_does_not_contain_token():
     )
     try:
         client.get_dataset("does not exist")
-        assert False, "There must be an exception"  # noqa: B011
+        pytest.fail("There must be an exception")
     except Exception as exc:
-        assert "the token/which_must-be.kept secret" not in str(exc)
+        assert "the token/which_must-be.kept secret" not in str(exc)  # noqa: PT017
         for arg in exc.args:
             assert "the token/which_must-be.kept secret" not in str(arg)
 

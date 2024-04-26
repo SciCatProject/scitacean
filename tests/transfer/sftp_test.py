@@ -23,7 +23,7 @@ from scitacean.transfer.sftp import (
 
 
 @pytest.fixture(scope="session", autouse=True)
-def server(request, sftp_fileserver):
+def _server(request, sftp_fileserver):
     skip_if_not_sftp(request)
 
 

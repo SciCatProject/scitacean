@@ -40,7 +40,7 @@ def derived_dataset(scicat_access):
     )
 
 
-@pytest.mark.parametrize("key", ("raw", "derived"))
+@pytest.mark.parametrize("key", ["raw", "derived"])
 def test_get_dataset_model(scicat_client, key):
     dset = INITIAL_DATASETS[key]
     downloaded = scicat_client.get_dataset_model(dset.pid)
@@ -68,7 +68,7 @@ def test_create_dataset_model(scicat_client, derived_dataset):
 def test_validate_dataset_model(real_client, require_scicat_backend, derived_dataset):
     real_client.scicat.validate_dataset_model(derived_dataset)
     derived_dataset.contactEmail = "NotAnEmail"
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="validation in SciCat"):
         real_client.scicat.validate_dataset_model(derived_dataset)
 
 
