@@ -29,7 +29,7 @@ def get_file_transfer(client: Client) -> FakeFileTransfer:
     return client.file_transfer  # type: ignore[return-value]
 
 
-@pytest.fixture
+@pytest.fixture()
 def dataset():
     return Dataset(
         access_groups=["group1", "2nd_group"],
@@ -51,7 +51,7 @@ def dataset():
     )
 
 
-@pytest.fixture
+@pytest.fixture()
 def dataset_with_files(dataset, fs):
     make_file(fs, path="file.nxs", contents=b"contents of file.nxs")
     make_file(fs, path="the_log_file.log", contents=b"this is a log file")
@@ -59,7 +59,7 @@ def dataset_with_files(dataset, fs):
     return dataset
 
 
-@pytest.fixture
+@pytest.fixture()
 def attachments():
     return [
         Attachment(
@@ -75,7 +75,7 @@ def attachments():
     ]
 
 
-@pytest.fixture
+@pytest.fixture()
 def client(fs, scicat_access):
     return FakeClient.from_credentials(
         url="",
@@ -171,10 +171,10 @@ def test_upload_with_only_remote_files_does_not_need_file_transfer(dataset):
 
 
 def test_upload_with_both_remote_and_local_files(client, dataset_with_files):
-    original_file_names = set(
+    original_file_names = {
         dataset_with_files.source_folder / file.remote_path
         for file in dataset_with_files.files
-    )
+    }
     dataset_with_files.add_files(
         File.from_remote(
             remote_path="file1.h5", size=6123, creation_time="2019-09-09T19:29:39Z"
@@ -284,7 +284,7 @@ def test_upload_does_not_create_dataset_if_validation_fails(dataset_with_files, 
         disable={"validate_dataset_model": ValueError("Validation failed")},
         file_transfer=FakeFileTransfer(fs=fs),
     )
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Validation"):
         client.upload_new_dataset_now(dataset_with_files)
 
     assert not client.datasets

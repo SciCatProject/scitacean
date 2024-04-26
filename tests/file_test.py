@@ -16,7 +16,7 @@ from scitacean.model import DownloadDataFile
 from .common.files import make_file
 
 
-@pytest.fixture
+@pytest.fixture()
 def fake_file(fs):
     return make_file(fs, path=Path("local", "dir", "events.nxs"))
 
@@ -88,7 +88,7 @@ def test_file_from_local_set_many_args(fake_file):
     assert abs(fake_file["creation_time"] - file.creation_time) < timedelta(seconds=1)
 
 
-@pytest.mark.parametrize("alg", ("md5", "sha256", "blake2s"))
+@pytest.mark.parametrize("alg", ["md5", "sha256", "blake2s"])
 def test_file_from_local_select_checksum_algorithm(fake_file, alg):
     file = replace(File.from_local(fake_file["path"]), checksum_algorithm=alg)
     expected = checksum_of_file(fake_file["path"], algorithm=alg)
@@ -377,7 +377,7 @@ def test_validate_after_download_detects_size_mismatch(fake_file, caplog):
     assert "does not match size reported in dataset" in caplog.text
 
 
-@pytest.mark.parametrize("chk", ("sha256", None))
+@pytest.mark.parametrize("chk", ["sha256", None])
 def test_local_is_not_up_to_date_for_remote_file(chk):
     file = File.from_download_model(
         DownloadDataFile(

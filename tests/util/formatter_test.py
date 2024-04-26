@@ -59,5 +59,5 @@ def test_dataset_formatter_preserves_path_separators():
 
 def test_dataset_formatter_does_not_allow_none():
     dset = Dataset(type="raw", owner=None)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="format path"):
         DatasetPathFormatter().format("{owner}", dset=dset)

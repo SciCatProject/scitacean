@@ -379,13 +379,13 @@ class File:
         """
         if remote_creation_time is None:
             remote_creation_time = datetime.now().astimezone(timezone.utc)
-        args = dict(
-            remote_path=RemotePath(remote_path) if remote_path is not None else None,
-            remote_gid=remote_gid,
-            remote_uid=remote_uid,
-            remote_perm=remote_perm,
-            _remote_creation_time=remote_creation_time,
-        )
+        args = {
+            "remote_path": RemotePath(remote_path) if remote_path is not None else None,
+            "remote_gid": remote_gid,
+            "remote_uid": remote_uid,
+            "remote_perm": remote_perm,
+            "_remote_creation_time": remote_creation_time,
+        }
         return dataclasses.replace(
             self,
             _remote_size=remote_size if remote_size is not None else self.size,

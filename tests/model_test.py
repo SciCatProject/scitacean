@@ -33,11 +33,11 @@ def build_user_model_for_upload(cls: type[T]) -> st.SearchStrategy[T]:
 @given(data=st.data())
 @pytest.mark.parametrize(
     "model_types",
-    (
+    [
         (model.Attachment, model.UploadAttachment),
         (model.Technique, model.UploadTechnique),
         (model.Relationship, model.UploadRelationship),
-    ),
+    ],
 )
 # Cannot test (model.Sample, model.UploadSample) because hypothesis
 # cannot handle fields with type Any.
@@ -61,7 +61,7 @@ def test_upload_attachment_fields(attachment):
 @given(st.builds(model.Attachment))
 def test_upload_model_rejects_non_upload_fields(attachment):
     attachment._created_by = "the-creator"
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="field.*upload"):
         attachment.make_upload_model()
 
 
@@ -69,14 +69,14 @@ def test_upload_model_rejects_non_upload_fields(attachment):
 @given(data=st.data())
 @pytest.mark.parametrize(
     "model_types",
-    (
+    [
         (model.Attachment, model.DownloadAttachment),
         (model.Lifecycle, model.DownloadLifecycle),
         (model.Technique, model.DownloadTechnique),
         (model.History, model.DownloadHistory),
         (model.Instrument, model.DownloadInstrument),
         (model.Relationship, model.DownloadRelationship),
-    ),
+    ],
 )
 def test_can_make_from_download_model(model_types, data):
     user_model_type, download_model_type = model_types

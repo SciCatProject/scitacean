@@ -37,7 +37,7 @@ class FakeDownloadConnection:
 
     def download_files(self, *, remote: list[RemotePath], local: list[Path]) -> None:
         """Download multiple files."""
-        for r, l in zip(remote, local):
+        for r, l in zip(remote, local, strict=True):
             self.download_file(remote=r, local=l)
 
 

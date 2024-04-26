@@ -186,7 +186,7 @@ def test_from_download_models_does_not_initialize_wrong_fields(dataset_download_
             assert getattr(dset, field.name) is None
 
 
-@pytest.mark.parametrize("typ", (DatasetType.RAW, DatasetType.DERIVED))
+@pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
 def test_new_dataset_has_no_files(typ):
     dset = Dataset(type=typ)
     assert len(list(dset.files)) == 0
@@ -196,7 +196,7 @@ def test_new_dataset_has_no_files(typ):
     assert dset.size == 0
 
 
-@pytest.mark.parametrize("typ", (DatasetType.RAW, DatasetType.DERIVED))
+@pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
 def test_add_local_file_to_new_dataset(typ, fs):
     file_data = make_file(fs, "local/folder/data.dat")
 
@@ -221,7 +221,7 @@ def test_add_local_file_to_new_dataset(typ, fs):
     assert abs(file_data["creation_time"] - f.make_model().time) < timedelta(seconds=1)
 
 
-@pytest.mark.parametrize("typ", (DatasetType.RAW, DatasetType.DERIVED))
+@pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
 def test_add_multiple_local_files_to_new_dataset(typ, fs):
     file_data0 = make_file(fs, "common/location1/data.dat")
     file_data1 = make_file(fs, "common/song.mp3")
@@ -254,7 +254,7 @@ def test_add_multiple_local_files_to_new_dataset(typ, fs):
     assert f1.checksum_algorithm == "blake2b"
 
 
-@pytest.mark.parametrize("typ", (DatasetType.RAW, DatasetType.DERIVED))
+@pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
 def test_add_multiple_local_files_to_new_dataset_with_base_path(typ, fs):
     file_data0 = make_file(fs, "common/location1/data.dat")
     file_data1 = make_file(fs, "common/song.mp3")
@@ -289,8 +289,8 @@ def test_add_multiple_local_files_to_new_dataset_with_base_path(typ, fs):
     assert f1.checksum_algorithm == "blake2b"
 
 
-@pytest.mark.parametrize("typ", (DatasetType.RAW, DatasetType.DERIVED))
-@pytest.mark.parametrize("algorithm", ("sha256", None))
+@pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
+@pytest.mark.parametrize("algorithm", ["sha256", None])
 def test_can_set_default_checksum_algorithm(typ, algorithm, fs):
     make_file(fs, "local/data.dat")
 
@@ -333,7 +333,11 @@ def test_make_scicat_models_datablock_without_files(dataset):
 @settings(max_examples=10)
 def test_make_scicat_models_datablock_with_one_file(dataset):
     file_model = model.DownloadDataFile(
-        path="path", size=6163, chk="8450ac0", gid="group", time=datetime.now()
+        path="path",
+        size=6163,
+        chk="8450ac0",
+        gid="group",
+        time=datetime.now(tz=timezone.utc),
     )
     dataset.add_files(File.from_download_model(local_path=None, model=file_model))
 
@@ -438,7 +442,9 @@ def test_eq_self(dset):
     dset.add_files(
         File.from_download_model(
             local_path=None,
-            model=model.DownloadDataFile(path="path", size=94571, time=datetime.now()),
+            model=model.DownloadDataFile(
+                path="path", size=94571, time=datetime.now(tz=timezone.utc)
+            ),
         )
     )
     dset.attachments.append(
@@ -481,14 +487,16 @@ def test_neq_single_mismatched_file(initial):
         File.from_download_model(
             local_path=None,
             model=model.DownloadDataFile(
-                path="path", size=51553312, time=datetime.now()
+                path="path", size=51553312, time=datetime.now(tz=timezone.utc)
             ),
         )
     )
     initial.add_files(
         File.from_download_model(
             local_path=None,
-            model=model.DownloadDataFile(path="path", size=94571, time=datetime.now()),
+            model=model.DownloadDataFile(
+                path="path", size=94571, time=datetime.now(tz=timezone.utc)
+            ),
         )
     )
     assert modified != initial
@@ -503,7 +511,7 @@ def test_neq_extra_file(initial):
         File.from_download_model(
             local_path="/local",
             model=model.DownloadDataFile(
-                path="path", size=51553312, time=datetime.now()
+                path="path", size=51553312, time=datetime.now(tz=timezone.utc)
             ),
         )
     )
@@ -638,7 +646,9 @@ def test_replace_does_not_change_files_no_input_files(initial):
 def test_replace_does_not_change_files_with_input_files(initial):
     file = File.from_download_model(
         local_path=None,
-        model=model.DownloadDataFile(path="path", size=6163, time=datetime.now()),
+        model=model.DownloadDataFile(
+            path="path", size=6163, time=datetime.now(tz=timezone.utc)
+        ),
     )
     initial.add_files(file)
     replaced = initial.replace(owner="a-new-owner")
@@ -678,7 +688,7 @@ def test_replace_remove_meta(initial):
 
 @pytest.mark.parametrize(
     "attachments",
-    (None, [], [model.Attachment(caption="Attachment 1", owner_group="owner")]),
+    [None, [], [model.Attachment(caption="Attachment 1", owner_group="owner")]],
 )
 @given(initial=sst.datasets())
 @settings(max_examples=1)
@@ -690,11 +700,11 @@ def test_replace_preserves_attachments(initial, attachments):
 
 @pytest.mark.parametrize(
     "attachments",
-    (None, [], [model.Attachment(caption="Attachment 1", owner_group="owner")]),
+    [None, [], [model.Attachment(caption="Attachment 1", owner_group="owner")]],
 )
 @pytest.mark.parametrize(
     "target_attachments",
-    (None, [], [model.Attachment(caption="Attachment 2", owner_group="owner")]),
+    [None, [], [model.Attachment(caption="Attachment 2", owner_group="owner")]],
 )
 @given(initial=sst.datasets())
 @settings(max_examples=1)
@@ -780,13 +790,13 @@ def test_derive_keep_nothing(initial):
 @given(sst.datasets(pid=None))
 @settings(max_examples=5)
 def test_derive_requires_pid(initial):
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="pid"):
         initial.derive()
 
 
 @pytest.mark.parametrize(
     "attachments",
-    (None, [], [model.Attachment(caption="Attachment 1", owner_group="owner")]),
+    [None, [], [model.Attachment(caption="Attachment 1", owner_group="owner")]],
 )
 @given(initial=sst.datasets(pid=PID(pid="some-id")))
 @settings(max_examples=1)
@@ -808,9 +818,9 @@ def invalid_field_example(my_type):
 @given(initial=sst.datasets(for_upload=True))
 @settings(max_examples=10)
 def test_dataset_dict_like_keys_per_type(initial: Dataset) -> None:
-    my_names = set(
+    my_names = {
         field.name for field in Dataset._FIELD_SPEC if field.used_by(initial.type)
-    )
+    }
     assert set(initial.keys()) == my_names
 
 
@@ -819,9 +829,9 @@ def test_dataset_dict_like_keys_per_type(initial: Dataset) -> None:
 def test_dataset_dict_like_keys_including_invalid_field(initial):
     invalid_name, invalid_value = invalid_field_example(initial.type)
 
-    my_names = set(
+    my_names = {
         field.name for field in Dataset._FIELD_SPEC if field.used_by(initial.type)
-    )
+    }
     assert invalid_name not in my_names
     my_names.add(invalid_name)
 
@@ -833,7 +843,7 @@ def test_dataset_dict_like_keys_including_invalid_field(initial):
 @given(initial=sst.datasets(for_upload=True))
 @settings(max_examples=10)
 def test_dataset_dict_like_values(initial: Dataset) -> None:
-    for key, value in zip(initial.keys(), initial.values()):
+    for key, value in zip(initial.keys(), initial.values(), strict=True):
         assert value == getattr(initial, key)
 
 
@@ -841,7 +851,7 @@ def test_dataset_dict_like_values(initial: Dataset) -> None:
 @settings(max_examples=10)
 def test_dataset_dict_like_values_with_invalid_field(initial: Dataset) -> None:
     setattr(initial, *invalid_field_example(initial.type))
-    for key, value in zip(initial.keys(), initial.values()):
+    for key, value in zip(initial.keys(), initial.values(), strict=True):
         assert value == getattr(initial, key)
 
 
@@ -860,7 +870,7 @@ def test_dataset_dict_like_getitem(initial):
 
 
 @pytest.mark.parametrize(
-    ("is_attr", "wrong_field"), ((True, "size"), (False, "OBVIOUSLYWRONGNAME"))
+    ("is_attr", "wrong_field"), [(True, "size"), (False, "OBVIOUSLYWRONGNAME")]
 )
 @given(initial=sst.datasets(for_upload=True))
 @settings(max_examples=10)
@@ -895,7 +905,7 @@ def test_dataset_dict_like_setitem_invalid_field(initial: Dataset) -> None:
 
 @pytest.mark.parametrize(
     ("is_attr", "wrong_field", "wrong_value"),
-    ((True, "size", 10), (False, "OBVIOUSLYWRONGNAME", "OBVIOUSLYWRONGVALUE")),
+    [(True, "size", 10), (False, "OBVIOUSLYWRONGNAME", "OBVIOUSLYWRONGVALUE")],
 )
 @given(initial=sst.datasets(for_upload=True))
 @settings(max_examples=10)

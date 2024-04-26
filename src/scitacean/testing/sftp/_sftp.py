@@ -61,7 +61,7 @@ def _seed_files() -> Iterable[tuple[str, str]]:
 def local_access() -> SFTPAccess:
     config = _docker_compose_file()
     service = config["services"]["scitacean-test-sftp-server"]
-    env = {k: v for k, v in map(lambda s: s.split("="), service["environment"])}
+    env = dict(map(lambda s: s.split("="), service["environment"]))
     return SFTPAccess(
         host="localhost",
         port=service["ports"][0].split(":")[0],
