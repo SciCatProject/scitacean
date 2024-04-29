@@ -139,6 +139,10 @@ def test_renew_login_real(scicat_access, require_scicat_backend):
     time.sleep(1)
     client.scicat.renew_login()
     renewed = client.scicat._token
+    assert initial is not None
+    assert initial.expires_at is not None
+    assert renewed is not None
+    assert renewed.expires_at is not None
     assert renewed.expires_at > initial.expires_at
 
 

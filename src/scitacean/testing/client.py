@@ -136,6 +136,7 @@ class FakeClient(Client):
         url: str,
         token: str | SecretStr,
         file_transfer: FileTransfer | None = None,
+        auto_renew_period: datetime.timedelta | None = datetime.timedelta(seconds=30),
     ) -> FakeClient:
         """Create a new fake client.
 
@@ -151,6 +152,7 @@ class FakeClient(Client):
         username: str | SecretStr,
         password: str | SecretStr,
         file_transfer: FileTransfer | None = None,
+        auto_renew_period: datetime.timedelta | None = datetime.timedelta(seconds=30),
     ) -> FakeClient:
         """Create a new fake client.
 

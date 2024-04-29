@@ -34,8 +34,9 @@ class Client:
     Clients hold all information needed to communicate with a SciCat instance
     and a filesystem that holds data files (via ``file_transfer``).
 
-    Use :func:`Client.from_token` or :func:`Client.from_credentials` to initialize
-    a client instead of the constructor directly.
+    Use :func:`Client.from_token`, :func:`Client.from_credentials`, or
+    :func:`Client.without_login` to initialize a client instead
+    of the constructor directly.
 
     See the user guide for typical usage patterns.
     In particular, `Downloading Datasets <../../user-guide/downloading.ipynb>`_
@@ -50,8 +51,8 @@ class Client:
     ):
         """Initialize a client.
 
-        Do not use directly, instead use :func:`Client.from_token`
-        or :func:`Client.from_credentials`!
+        Do not use directly, instead use :func:`Client.from_token`,
+        :func:`Client.from_credentials`, or :func:`Client.without_login`!
         """
         self._client = client
         self._file_transfer = file_transfer
@@ -63,6 +64,7 @@ class Client:
         url: str,
         token: str | SecretStr | Token,
         file_transfer: FileTransfer | None = None,
+        auto_renew_period: datetime.timedelta | None = datetime.timedelta(seconds=30),
     ) -> Client:
         """Create a new client and authenticate with a token.
 
@@ -74,6 +76,9 @@ class Client:
             User token to authenticate with SciCat.
         file_transfer:
             Handler for down-/uploads of files.
+        auto_renew_period:
+            If not ``None``, the SciCat login is renewed in operations
+            that happen within this time delta of the login expiration time.
 
         Returns
         -------
@@ -81,7 +86,11 @@ class Client:
             A new client.
         """
         return Client(
-            client=ScicatClient.from_token(url=url, token=token),
+            client=ScicatClient.from_token(
+                url=url,
+                token=token,
+                auto_renew_period=auto_renew_period,
+            ),
             file_transfer=file_transfer,
         )
 
@@ -93,6 +102,7 @@ class Client:
         username: str | SecretStr,
         password: str | SecretStr,
         file_transfer: FileTransfer | None = None,
+        auto_renew_period: datetime.timedelta | None = datetime.timedelta(seconds=30),
     ) -> Client:
         """Create a new client and authenticate with username and password.
 
@@ -107,6 +117,9 @@ class Client:
             Password of the user.
         file_transfer:
             Handler for down-/uploads of files.
+        auto_renew_period:
+            If not ``None``, the SciCat login is renewed in operations
+            that happen within this time delta of the login expiration time.
 
         Returns
         -------
@@ -115,14 +128,20 @@ class Client:
         """
         return Client(
             client=ScicatClient.from_credentials(
-                url=url, username=username, password=password
+                url=url,
+                username=username,
+                password=password,
+                auto_renew_period=auto_renew_period,
             ),
             file_transfer=file_transfer,
         )
 
     @classmethod
     def without_login(
-        cls, *, url: str, file_transfer: FileTransfer | None = None
+        cls,
+        *,
+        url: str,
+        file_transfer: FileTransfer | None = None,
     ) -> Client:
         """Create a new client without authentication.
 
@@ -142,7 +161,8 @@ class Client:
             A new client.
         """
         return Client(
-            client=ScicatClient.without_login(url=url), file_transfer=file_transfer
+            client=ScicatClient.without_login(url=url),
+            file_transfer=file_transfer,
         )
 
     @property
@@ -560,11 +580,13 @@ class ScicatClient:
         url: str,
         token: str | SecretStr | Token | None,
         timeout: datetime.timedelta | None,
+        auto_renew_period: datetime.timedelta | None = datetime.timedelta(seconds=30),
     ):
         # Need to add a final /
         self._base_url = url[:-1] if url.endswith("/") else url
         self._timeout = datetime.timedelta(seconds=10) if timeout is None else timeout
         self._token = _wrap_token(token)
+        self._auto_renew_period = auto_renew_period
 
     @classmethod
     def from_token(
@@ -572,6 +594,7 @@ class ScicatClient:
         url: str,
         token: str | SecretStr | Token,
         timeout: datetime.timedelta | None = None,
+        auto_renew_period: datetime.timedelta | None = datetime.timedelta(seconds=30),
     ) -> ScicatClient:
         """Create a new low-level client and authenticate with a token.
 
@@ -583,13 +606,21 @@ class ScicatClient:
             User token to authenticate with SciCat.
         timeout:
             Timeout for all API requests.
+        auto_renew_period:
+            If not ``None``, the SciCat login is renewed in operations
+            that happen within this time delta of the login expiration time.
 
         Returns
         -------
         :
             A new low-level client.
         """
-        return ScicatClient(url=url, token=token, timeout=timeout)
+        return ScicatClient(
+            url=url,
+            token=token,
+            timeout=timeout,
+            auto_renew_period=auto_renew_period,
+        )
 
     @classmethod
     def from_credentials(
@@ -598,6 +629,7 @@ class ScicatClient:
         username: str | SecretStr,
         password: str | SecretStr,
         timeout: datetime.timedelta | None = None,
+        auto_renew_period: datetime.timedelta | None = datetime.timedelta(seconds=30),
     ) -> ScicatClient:
         """Create a new low-level client and authenticate with username and password.
 
@@ -612,6 +644,9 @@ class ScicatClient:
             Password of the user.
         timeout:
             Timeout for all API requests.
+        auto_renew_period:
+            If not ``None``, the SciCat login is renewed in operations
+            that happen within this time delta of the login expiration time.
 
         Returns
         -------
@@ -631,6 +666,7 @@ class ScicatClient:
                 )
             ),
             timeout=timeout,
+            auto_renew_period=auto_renew_period,
         )
 
     @classmethod
@@ -654,7 +690,9 @@ class ScicatClient:
         :
             A new low-level client.
         """
-        return ScicatClient(url=url, token=None, timeout=timeout)
+        return ScicatClient(
+            url=url, token=None, timeout=timeout, auto_renew_period=None
+        )
 
     def get_dataset_model(
         self, pid: PID, strict_validation: bool = False
@@ -1004,9 +1042,23 @@ class ScicatClient:
         In this case, the old token will not be replaced.
         """
         response = self._call_endpoint(
-            cmd="post", url="users/jwt", operation="renew_login"
+            cmd="post", url="users/jwt", operation="renew_login", renew_login=False
         )
         self._token = _wrap_token(response["jwt"])
+
+    def _renew_login_if_needed(self, operation: str) -> None:
+        if (
+            self._token is not None
+            and self._token.expires_at is not None
+            and self._auto_renew_period is not None
+        ):
+            if self._token.expires_at + self._auto_renew_period > datetime.datetime.now(
+                tz=self._token.expires_at.tzinfo
+            ):
+                get_logger().info(
+                    "Renewing SciCat login during operation '%s'", operation
+                )
+                self.renew_login()
 
     def _send_to_scicat(
         self, *, cmd: str, url: str, data: model.BaseModel | None = None
@@ -1050,7 +1102,11 @@ class ScicatClient:
         url: str,
         data: model.BaseModel | None = None,
         operation: str,
+        renew_login: bool = True,
     ) -> Any:
+        if renew_login:
+            self._renew_login_if_needed(operation)
+
         full_url = _url_concat(self._base_url, url)
         logger = get_logger()
         logger.info("Calling SciCat API at %s for operation '%s'", full_url, operation)
@@ -1171,7 +1227,7 @@ def _get_token(
     raise ScicatLoginError(response.content)
 
 
-def _wrap_token(token: str | SecretStr | Token | None) -> Token:
+def _wrap_token(token: str | SecretStr | Token | None) -> Token | None:
     match token:
         case str() | SecretStr():
             return Token.from_jwt(token, denial_period=datetime.timedelta(seconds=2))

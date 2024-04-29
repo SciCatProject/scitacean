@@ -2,6 +2,9 @@
 # Copyright (c) 2024 SciCat Project (https://github.com/SciCatProject/scitacean)
 # mypy: disable-error-code="arg-type, index"
 
+import time
+from datetime import timedelta
+
 import pydantic
 import pytest
 from dateutil.parser import parse as parse_date
@@ -141,3 +144,41 @@ def test_get_broken_dataset_strict_validation(real_client, require_scicat_backen
     dset = INITIAL_DATASETS["partially-broken"]
     with pytest.raises(pydantic.ValidationError):
         real_client.get_dataset(dset.pid, strict_validation=True)
+
+
+def test_get_dataset_renews_login(scicat_access, require_scicat_backend):
+    # The test backend is configured to create tokens that expire after 1h.
+    # So pick a renewal period that guarantees that the token is renewed.
+    real_client = Client.from_credentials(
+        url=scicat_access.url,
+        **scicat_access.user.credentials,
+        auto_renew_period=timedelta(hours=1),
+    )
+    initial = real_client.scicat._token
+    # Wait long enough to see a difference in the token because the
+    # expiration date has seconds-resolution.
+    time.sleep(1)
+    _ = real_client.get_dataset(INITIAL_DATASETS["derived"].pid)
+    renewed = real_client.scicat._token
+    assert initial is not None
+    assert initial.expires_at is not None
+    assert renewed is not None
+    assert renewed.expires_at is not None
+    assert renewed.expires_at > initial.expires_at
+
+
+def test_get_dataset_disabled_login_renewal(scicat_access, require_scicat_backend):
+    real_client = Client.from_credentials(
+        url=scicat_access.url, **scicat_access.user.credentials, auto_renew_period=None
+    )
+    initial = real_client.scicat._token
+    # Wait long enough to see a difference in the token because the
+    # expiration date has seconds-resolution.
+    time.sleep(1)
+    _ = real_client.get_dataset(INITIAL_DATASETS["derived"].pid)
+    not_renewed = real_client.scicat._token
+    assert initial is not None
+    assert initial.expires_at is not None
+    assert not_renewed is not None
+    assert not_renewed.expires_at is not None
+    assert not_renewed.expose() == initial.expose()
