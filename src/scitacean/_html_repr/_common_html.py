@@ -3,17 +3,17 @@
 """Common functions for HTML reprs."""
 
 import html
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
-from .._internal.dataclass_wrapper import dataclass_optional_args
 from ..filesystem import RemotePath
 from ..model import History, Lifecycle, Relationship, Technique
 from ..pid import PID
 from . import _resources
 
 
-@dataclass_optional_args(kw_only=True, frozen=True, slots=True)
+@dataclass(kw_only=True, frozen=True, slots=True)
 class Field:
     name: str
     value: Any

@@ -92,6 +92,7 @@ Pydantic models sent to SciCat in uploads.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Type
 
@@ -107,7 +108,6 @@ from ._base_model import (
     validate_emails,
     validate_orcids,
 )
-from ._internal.dataclass_wrapper import dataclass_optional_args
 from .filesystem import RemotePath
 from .pid import PID
 from .thumbnail import Thumbnail
@@ -162,7 +162,7 @@ class {{ name }}(BaseModel{{ mask_keyword(spec, kind) }}):
 {% endfor -%}
 
 {% for spec in specs.values()|rejectattr("name", "in", ["DataFile", "Datablock", "OrigDatablock"]) -%}
-@dataclass_optional_args(kw_only=True, slots=True)
+@dataclass(kw_only=True, slots=True)
 class {{ spec.name }}(BaseUserModel):
 {% set fields = spec.fields_for("user")|sort(attribute="upload", reverse=True) -%}
 {% for field in fields %}

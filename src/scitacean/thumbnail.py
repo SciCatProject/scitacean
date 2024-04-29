@@ -9,15 +9,14 @@ import mimetypes
 import os
 import re
 from collections.abc import Callable
+from dataclasses import dataclass
 from typing import Any
 
 from pydantic import GetCoreSchemaHandler
 from pydantic_core import core_schema
 
-from ._internal.dataclass_wrapper import dataclass_optional_args
 
-
-@dataclass_optional_args(init=False, kw_only=True, slots=True)
+@dataclass(init=False, kw_only=True, slots=True)
 class Thumbnail:
     """Encodes an image to be used as a thumbnail in SciCat.
 

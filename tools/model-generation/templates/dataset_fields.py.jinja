@@ -32,13 +32,13 @@ type(None)
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Literal, Optional, Tuple, Type, TypeVar, Union
 
 import dateutil.parser
 
 from ._base_model import DatasetType
-from ._internal.dataclass_wrapper import dataclass_optional_args
 from .datablock import OrigDatablock
 from .filesystem import RemotePath
 from .model import (
@@ -89,7 +89,7 @@ def _validate_checksum_algorithm(algorithm: Optional[str]) -> Optional[str]:
 
 
 class DatasetBase:
-    @dataclass_optional_args(frozen=True, kw_only=True, slots=True)
+    @dataclass(frozen=True, kw_only=True, slots=True)
     class Field:
         name: str
         description: str
