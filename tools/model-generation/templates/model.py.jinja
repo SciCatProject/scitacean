@@ -94,7 +94,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Type
+from typing import Any
 
 import pydantic
 from pydantic import NonNegativeInt
@@ -141,19 +141,19 @@ class {{ name }}(BaseModel{{ mask_keyword(spec, kind) }}):
 
 {%- if spec.name not in ["DataFile", "Datablock", "OrigDatablock"] %}
     @classmethod
-    def user_model_type(cls) -> Type[{{ spec.name }}]:
+    def user_model_type(cls) -> type[{{ spec.name }}]:
         return {{ spec.name }}
 {%- endif %}
 
 {%- if kind == "download" and spec.upload_name %}
     @classmethod
-    def upload_model_type(cls) -> Type[{{ spec.upload_name }}]:
+    def upload_model_type(cls) -> type[{{ spec.upload_name }}]:
         return {{ spec.upload_name }}
 {%- endif %}
 
 {%- if kind == "upload" %}
     @classmethod
-    def download_model_type(cls) -> Type[{{ spec.download_name }}]:
+    def download_model_type(cls) -> type[{{ spec.download_name }}]:
         return {{ spec.download_name }}
 {%- endif %}
 
@@ -185,12 +185,12 @@ class {{ spec.name }}(BaseUserModel):
 
 {%- if spec.upload_name %}
     @classmethod
-    def upload_model_type(cls) -> Type[{{ spec.upload_name }}]:
+    def upload_model_type(cls) -> type[{{ spec.upload_name }}]:
         return {{ spec.upload_name }}
 {%- endif %}
 
     @classmethod
-    def download_model_type(cls) -> Type[{{ spec.download_name }}]:
+    def download_model_type(cls) -> type[{{ spec.download_name }}]:
         return {{ spec.download_name }}
 
 {% endfor -%}

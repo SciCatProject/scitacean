@@ -11,13 +11,13 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Literal, Optional, Tuple, Type, TypeVar, Union
+from typing import Any, Literal, TypeVar
 
 import dateutil.parser
 
 from ._base_model import DatasetType
-from ._internal.dataclass_wrapper import dataclass_optional_args
 from .datablock import OrigDatablock
 from .filesystem import RemotePath
 from .model import (
@@ -37,7 +37,7 @@ from .pid import PID
 M = TypeVar("M", bound=BaseModel)
 
 
-def _parse_datetime(x: Optional[Union[datetime, str]]) -> Optional[datetime]:
+def _parse_datetime(x: datetime | str | None) -> datetime | None:
     if isinstance(x, datetime) or x is None:
         return x
     if x == "now":
@@ -45,19 +45,19 @@ def _parse_datetime(x: Optional[Union[datetime, str]]) -> Optional[datetime]:
     return dateutil.parser.parse(x)
 
 
-def _parse_pid(pid: Optional[Union[str, PID]]) -> Optional[PID]:
+def _parse_pid(pid: str | PID | None) -> PID | None:
     if pid is None:
         return pid
     return PID.parse(pid)
 
 
-def _parse_remote_path(path: Optional[Union[str, RemotePath]]) -> Optional[RemotePath]:
+def _parse_remote_path(path: str | RemotePath | None) -> RemotePath | None:
     if path is None:
         return path
     return RemotePath(path)
 
 
-def _validate_checksum_algorithm(algorithm: Optional[str]) -> Optional[str]:
+def _validate_checksum_algorithm(algorithm: str | None) -> str | None:
     if algorithm is None:
         return algorithm
     import hashlib
@@ -68,7 +68,7 @@ def _validate_checksum_algorithm(algorithm: Optional[str]) -> Optional[str]:
 
 
 class DatasetBase:
-    @dataclass_optional_args(frozen=True, kw_only=True, slots=True)
+    @dataclass(frozen=True, kw_only=True, slots=True)
     class Field:
         name: str
         description: str
@@ -103,7 +103,7 @@ class DatasetBase:
             read_only=False,
             required=False,
             scicat_name="accessGroups",
-            type=List[str],
+            type=list[str],
             used_by_derived=True,
             used_by_raw=True,
         ),
@@ -233,7 +233,7 @@ class DatasetBase:
             read_only=False,
             required=True,
             scicat_name="inputDatasets",
-            type=List[PID],
+            type=list[PID],
             used_by_derived=True,
             used_by_raw=False,
         ),
@@ -293,7 +293,7 @@ class DatasetBase:
             read_only=False,
             required=False,
             scicat_name="jobParameters",
-            type=Dict[str, Any],
+            type=dict[str, Any],
             used_by_derived=True,
             used_by_raw=False,
         ),
@@ -303,7 +303,7 @@ class DatasetBase:
             read_only=False,
             required=False,
             scicat_name="keywords",
-            type=List[str],
+            type=list[str],
             used_by_derived=True,
             used_by_raw=True,
         ),
@@ -413,7 +413,7 @@ class DatasetBase:
             read_only=False,
             required=False,
             scicat_name="relationships",
-            type=List[Relationship],
+            type=list[Relationship],
             used_by_derived=True,
             used_by_raw=True,
         ),
@@ -433,7 +433,7 @@ class DatasetBase:
             read_only=False,
             required=False,
             scicat_name="sharedWith",
-            type=List[str],
+            type=list[str],
             used_by_derived=True,
             used_by_raw=True,
         ),
@@ -463,7 +463,7 @@ class DatasetBase:
             read_only=False,
             required=False,
             scicat_name="techniques",
-            type=List[Technique],
+            type=list[Technique],
             used_by_derived=True,
             used_by_raw=True,
         ),
@@ -493,7 +493,7 @@ class DatasetBase:
             read_only=False,
             required=True,
             scicat_name="usedSoftware",
-            type=List[str],
+            type=list[str],
             used_by_derived=True,
             used_by_raw=False,
         ),
@@ -560,43 +560,43 @@ class DatasetBase:
 
     def __init__(
         self,
-        type: Union[DatasetType, Literal["raw", "derived"]],
-        access_groups: Optional[List[str]] = None,
-        classification: Optional[str] = None,
-        comment: Optional[str] = None,
-        contact_email: Optional[str] = None,
-        creation_location: Optional[str] = None,
-        creation_time: Optional[Union[str, datetime]] = "now",
-        data_format: Optional[str] = None,
-        data_quality_metrics: Optional[int] = None,
-        description: Optional[str] = None,
-        end_time: Optional[datetime] = None,
-        input_datasets: Optional[List[PID]] = None,
-        instrument_group: Optional[str] = None,
-        instrument_id: Optional[str] = None,
-        investigator: Optional[str] = None,
-        is_published: Optional[bool] = None,
-        job_log_data: Optional[str] = None,
-        job_parameters: Optional[Dict[str, Any]] = None,
-        keywords: Optional[List[str]] = None,
-        license: Optional[str] = None,
-        name: Optional[str] = None,
-        orcid_of_owner: Optional[str] = None,
-        owner: Optional[str] = None,
-        owner_email: Optional[str] = None,
-        owner_group: Optional[str] = None,
-        principal_investigator: Optional[str] = None,
-        proposal_id: Optional[str] = None,
-        relationships: Optional[List[Relationship]] = None,
-        sample_id: Optional[str] = None,
-        shared_with: Optional[List[str]] = None,
-        source_folder: Optional[Union[RemotePath, str]] = None,
-        source_folder_host: Optional[str] = None,
-        techniques: Optional[List[Technique]] = None,
-        used_software: Optional[List[str]] = None,
-        validation_status: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        checksum_algorithm: Optional[str] = "blake2b",
+        type: DatasetType | Literal["raw", "derived"],
+        access_groups: list[str] | None = None,
+        classification: str | None = None,
+        comment: str | None = None,
+        contact_email: str | None = None,
+        creation_location: str | None = None,
+        creation_time: str | datetime | None = "now",
+        data_format: str | None = None,
+        data_quality_metrics: int | None = None,
+        description: str | None = None,
+        end_time: datetime | None = None,
+        input_datasets: list[PID] | None = None,
+        instrument_group: str | None = None,
+        instrument_id: str | None = None,
+        investigator: str | None = None,
+        is_published: bool | None = None,
+        job_log_data: str | None = None,
+        job_parameters: dict[str, Any] | None = None,
+        keywords: list[str] | None = None,
+        license: str | None = None,
+        name: str | None = None,
+        orcid_of_owner: str | None = None,
+        owner: str | None = None,
+        owner_email: str | None = None,
+        owner_group: str | None = None,
+        principal_investigator: str | None = None,
+        proposal_id: str | None = None,
+        relationships: list[Relationship] | None = None,
+        sample_id: str | None = None,
+        shared_with: list[str] | None = None,
+        source_folder: RemotePath | str | None = None,
+        source_folder_host: str | None = None,
+        techniques: list[Technique] | None = None,
+        used_software: list[str] | None = None,
+        validation_status: str | None = None,
+        meta: dict[str, Any] | None = None,
+        checksum_algorithm: str | None = "blake2b",
     ) -> None:
         self._type = DatasetType(type)
         self._access_groups = access_groups
@@ -644,121 +644,121 @@ class DatasetBase:
         self._default_checksum_algorithm = _validate_checksum_algorithm(
             checksum_algorithm
         )
-        self._orig_datablocks: List[OrigDatablock] = []
-        self._attachments: Optional[List[Attachment]] = []
+        self._orig_datablocks: list[OrigDatablock] = []
+        self._attachments: list[Attachment] | None = []
 
     @property
-    def access_groups(self) -> Optional[List[str]]:
+    def access_groups(self) -> list[str] | None:
         """Optional additional groups which have read access to the data. Users which are members in one of the groups listed here are allowed to access this data. The special group 'public' makes data available to all users."""
         return self._access_groups
 
     @access_groups.setter
-    def access_groups(self, access_groups: Optional[List[str]]) -> None:
+    def access_groups(self, access_groups: list[str] | None) -> None:
         """Optional additional groups which have read access to the data. Users which are members in one of the groups listed here are allowed to access this data. The special group 'public' makes data available to all users."""
         self._access_groups = access_groups
 
     @property
-    def api_version(self) -> Optional[str]:
+    def api_version(self) -> str | None:
         """Version of the API used in creation of the dataset."""
         return self._api_version
 
     @property
-    def classification(self) -> Optional[str]:
+    def classification(self) -> str | None:
         """ACIA information about AUthenticity,COnfidentiality,INtegrity and AVailability requirements of dataset. E.g. AV(ailabilty)=medium could trigger the creation of a two tape copies. Format 'AV=medium,CO=low'"""
         return self._classification
 
     @classification.setter
-    def classification(self, classification: Optional[str]) -> None:
+    def classification(self, classification: str | None) -> None:
         """ACIA information about AUthenticity,COnfidentiality,INtegrity and AVailability requirements of dataset. E.g. AV(ailabilty)=medium could trigger the creation of a two tape copies. Format 'AV=medium,CO=low'"""
         self._classification = classification
 
     @property
-    def comment(self) -> Optional[str]:
+    def comment(self) -> str | None:
         """Comment the user has about a given dataset."""
         return self._comment
 
     @comment.setter
-    def comment(self, comment: Optional[str]) -> None:
+    def comment(self, comment: str | None) -> None:
         """Comment the user has about a given dataset."""
         self._comment = comment
 
     @property
-    def contact_email(self) -> Optional[str]:
+    def contact_email(self) -> str | None:
         """Email of the contact person for this dataset. The string may contain a list of emails, which should then be separated by semicolons."""
         return self._contact_email
 
     @contact_email.setter
-    def contact_email(self, contact_email: Optional[str]) -> None:
+    def contact_email(self, contact_email: str | None) -> None:
         """Email of the contact person for this dataset. The string may contain a list of emails, which should then be separated by semicolons."""
         self._contact_email = contact_email
 
     @property
-    def created_at(self) -> Optional[datetime]:
+    def created_at(self) -> datetime | None:
         """Date and time when this record was created. This property is added and maintained by mongoose."""
         return self._created_at
 
     @property
-    def created_by(self) -> Optional[str]:
+    def created_by(self) -> str | None:
         """Indicate the user who created this record. This property is added and maintained by the system."""
         return self._created_by
 
     @property
-    def creation_location(self) -> Optional[str]:
+    def creation_location(self) -> str | None:
         """Unique location identifier where data was taken, usually in the form /Site-name/facility-name/instrumentOrBeamline-name. This field is required if the dataset is a Raw dataset."""
         return self._creation_location
 
     @creation_location.setter
-    def creation_location(self, creation_location: Optional[str]) -> None:
+    def creation_location(self, creation_location: str | None) -> None:
         """Unique location identifier where data was taken, usually in the form /Site-name/facility-name/instrumentOrBeamline-name. This field is required if the dataset is a Raw dataset."""
         self._creation_location = creation_location
 
     @property
-    def creation_time(self) -> Optional[datetime]:
+    def creation_time(self) -> datetime | None:
         """Time when dataset became fully available on disk, i.e. all containing files have been written. Format according to chapter 5.6 internet date/time format in RFC 3339. Local times without timezone/offset info are automatically transformed to UTC using the timezone of the API server."""
         return self._creation_time
 
     @creation_time.setter
-    def creation_time(self, creation_time: Optional[Union[str, datetime]]) -> None:
+    def creation_time(self, creation_time: str | datetime | None) -> None:
         """Time when dataset became fully available on disk, i.e. all containing files have been written. Format according to chapter 5.6 internet date/time format in RFC 3339. Local times without timezone/offset info are automatically transformed to UTC using the timezone of the API server."""
         self._creation_time = _parse_datetime(creation_time)
 
     @property
-    def data_format(self) -> Optional[str]:
+    def data_format(self) -> str | None:
         """Defines the format of the data files in this dataset, e.g Nexus Version x.y."""
         return self._data_format
 
     @data_format.setter
-    def data_format(self, data_format: Optional[str]) -> None:
+    def data_format(self, data_format: str | None) -> None:
         """Defines the format of the data files in this dataset, e.g Nexus Version x.y."""
         self._data_format = data_format
 
     @property
-    def data_quality_metrics(self) -> Optional[int]:
+    def data_quality_metrics(self) -> int | None:
         """Data Quality Metrics given by the user to rate the dataset."""
         return self._data_quality_metrics
 
     @data_quality_metrics.setter
-    def data_quality_metrics(self, data_quality_metrics: Optional[int]) -> None:
+    def data_quality_metrics(self, data_quality_metrics: int | None) -> None:
         """Data Quality Metrics given by the user to rate the dataset."""
         self._data_quality_metrics = data_quality_metrics
 
     @property
-    def description(self) -> Optional[str]:
+    def description(self) -> str | None:
         """Free text explanation of contents of dataset."""
         return self._description
 
     @description.setter
-    def description(self, description: Optional[str]) -> None:
+    def description(self, description: str | None) -> None:
         """Free text explanation of contents of dataset."""
         self._description = description
 
     @property
-    def end_time(self) -> Optional[datetime]:
+    def end_time(self) -> datetime | None:
         """End time of data acquisition for this dataset, format according to chapter 5.6 internet date/time format in RFC 3339. Local times without timezone/offset info are automatically transformed to UTC using the timezone of the API server."""
         return self._end_time
 
     @end_time.setter
-    def end_time(self, end_time: Optional[datetime]) -> None:
+    def end_time(self, end_time: datetime | None) -> None:
         """End time of data acquisition for this dataset, format according to chapter 5.6 internet date/time format in RFC 3339. Local times without timezone/offset info are automatically transformed to UTC using the timezone of the API server."""
         self._end_time = end_time
 
@@ -768,267 +768,267 @@ class DatasetBase:
         return self._input_datasets
 
     @input_datasets.setter
-    def input_datasets(self, input_datasets: Optional[List[PID]]) -> None:
+    def input_datasets(self, input_datasets: list[PID] | None) -> None:
         """Array of input dataset identifiers used in producing the derived dataset. Ideally these are the global identifier to existing datasets inside this or federated data catalogs. This field is required if the dataset is a Derived dataset."""
         self._input_datasets = input_datasets
 
     @property
-    def instrument_group(self) -> Optional[str]:
+    def instrument_group(self) -> str | None:
         """Optional additional groups which have read and write access to the data. Users which are members in one of the groups listed here are allowed to access this data."""
         return self._instrument_group
 
     @instrument_group.setter
-    def instrument_group(self, instrument_group: Optional[str]) -> None:
+    def instrument_group(self, instrument_group: str | None) -> None:
         """Optional additional groups which have read and write access to the data. Users which are members in one of the groups listed here are allowed to access this data."""
         self._instrument_group = instrument_group
 
     @property
-    def instrument_id(self) -> Optional[str]:
+    def instrument_id(self) -> str | None:
         """ID of the instrument where the data was created."""
         return self._instrument_id
 
     @instrument_id.setter
-    def instrument_id(self, instrument_id: Optional[str]) -> None:
+    def instrument_id(self, instrument_id: str | None) -> None:
         """ID of the instrument where the data was created."""
         self._instrument_id = instrument_id
 
     @property
-    def investigator(self) -> Optional[str]:
+    def investigator(self) -> str | None:
         """First name and last name of the person or people pursuing the data analysis. The string may contain a list of names, which should then be separated by semicolons."""
         return self._investigator
 
     @investigator.setter
-    def investigator(self, investigator: Optional[str]) -> None:
+    def investigator(self, investigator: str | None) -> None:
         """First name and last name of the person or people pursuing the data analysis. The string may contain a list of names, which should then be separated by semicolons."""
         self._investigator = investigator
 
     @property
-    def is_published(self) -> Optional[bool]:
+    def is_published(self) -> bool | None:
         """Flag is true when data are made publicly available."""
         return self._is_published
 
     @is_published.setter
-    def is_published(self, is_published: Optional[bool]) -> None:
+    def is_published(self, is_published: bool | None) -> None:
         """Flag is true when data are made publicly available."""
         self._is_published = is_published
 
     @property
-    def job_log_data(self) -> Optional[str]:
+    def job_log_data(self) -> str | None:
         """The output job logfile. Keep the size of this log data well below 15 MB."""
         return self._job_log_data
 
     @job_log_data.setter
-    def job_log_data(self, job_log_data: Optional[str]) -> None:
+    def job_log_data(self, job_log_data: str | None) -> None:
         """The output job logfile. Keep the size of this log data well below 15 MB."""
         self._job_log_data = job_log_data
 
     @property
-    def job_parameters(self) -> Optional[Dict[str, Any]]:
+    def job_parameters(self) -> dict[str, Any] | None:
         """The creation process of the derived data will usually depend on input job parameters. The full structure of these input parameters are stored here."""
         return self._job_parameters
 
     @job_parameters.setter
-    def job_parameters(self, job_parameters: Optional[Dict[str, Any]]) -> None:
+    def job_parameters(self, job_parameters: dict[str, Any] | None) -> None:
         """The creation process of the derived data will usually depend on input job parameters. The full structure of these input parameters are stored here."""
         self._job_parameters = job_parameters
 
     @property
-    def keywords(self) -> Optional[List[str]]:
+    def keywords(self) -> list[str] | None:
         """Array of tags associated with the meaning or contents of this dataset. Values should ideally come from defined vocabularies, taxonomies, ontologies or knowledge graphs."""
         return self._keywords
 
     @keywords.setter
-    def keywords(self, keywords: Optional[List[str]]) -> None:
+    def keywords(self, keywords: list[str] | None) -> None:
         """Array of tags associated with the meaning or contents of this dataset. Values should ideally come from defined vocabularies, taxonomies, ontologies or knowledge graphs."""
         self._keywords = keywords
 
     @property
-    def license(self) -> Optional[str]:
+    def license(self) -> str | None:
         """Name of the license under which the data can be used."""
         return self._license
 
     @license.setter
-    def license(self, license: Optional[str]) -> None:
+    def license(self, license: str | None) -> None:
         """Name of the license under which the data can be used."""
         self._license = license
 
     @property
-    def lifecycle(self) -> Optional[Lifecycle]:
+    def lifecycle(self) -> Lifecycle | None:
         """Describes the current status of the dataset during its lifetime with respect to the storage handling systems."""
         return self._lifecycle
 
     @property
-    def name(self) -> Optional[str]:
+    def name(self) -> str | None:
         """A name for the dataset, given by the creator to carry some semantic meaning. Useful for display purposes e.g. instead of displaying the pid. Will be autofilled if missing using info from sourceFolder."""
         return self._name
 
     @name.setter
-    def name(self, name: Optional[str]) -> None:
+    def name(self, name: str | None) -> None:
         """A name for the dataset, given by the creator to carry some semantic meaning. Useful for display purposes e.g. instead of displaying the pid. Will be autofilled if missing using info from sourceFolder."""
         self._name = name
 
     @property
-    def orcid_of_owner(self) -> Optional[str]:
+    def orcid_of_owner(self) -> str | None:
         """ORCID of the owner or custodian. The string may contain a list of ORCIDs, which should then be separated by semicolons."""
         return self._orcid_of_owner
 
     @orcid_of_owner.setter
-    def orcid_of_owner(self, orcid_of_owner: Optional[str]) -> None:
+    def orcid_of_owner(self, orcid_of_owner: str | None) -> None:
         """ORCID of the owner or custodian. The string may contain a list of ORCIDs, which should then be separated by semicolons."""
         self._orcid_of_owner = orcid_of_owner
 
     @property
-    def owner(self) -> Optional[str]:
+    def owner(self) -> str | None:
         """Owner or custodian of the dataset, usually first name + last name. The string may contain a list of persons, which should then be separated by semicolons."""
         return self._owner
 
     @owner.setter
-    def owner(self, owner: Optional[str]) -> None:
+    def owner(self, owner: str | None) -> None:
         """Owner or custodian of the dataset, usually first name + last name. The string may contain a list of persons, which should then be separated by semicolons."""
         self._owner = owner
 
     @property
-    def owner_email(self) -> Optional[str]:
+    def owner_email(self) -> str | None:
         """Email of the owner or custodian of the dataset. The string may contain a list of emails, which should then be separated by semicolons."""
         return self._owner_email
 
     @owner_email.setter
-    def owner_email(self, owner_email: Optional[str]) -> None:
+    def owner_email(self, owner_email: str | None) -> None:
         """Email of the owner or custodian of the dataset. The string may contain a list of emails, which should then be separated by semicolons."""
         self._owner_email = owner_email
 
     @property
-    def owner_group(self) -> Optional[str]:
+    def owner_group(self) -> str | None:
         """Defines the group which owns the data, and therefore has unrestricted access to this data. Usually a pgroup like p12151"""
         return self._owner_group
 
     @owner_group.setter
-    def owner_group(self, owner_group: Optional[str]) -> None:
+    def owner_group(self, owner_group: str | None) -> None:
         """Defines the group which owns the data, and therefore has unrestricted access to this data. Usually a pgroup like p12151"""
         self._owner_group = owner_group
 
     @property
-    def pid(self) -> Optional[PID]:
+    def pid(self) -> PID | None:
         """Persistent Identifier for datasets derived from UUIDv4 and prepended automatically by site specific PID prefix like 20.500.12345/"""
         return self._pid
 
     @property
-    def principal_investigator(self) -> Optional[str]:
+    def principal_investigator(self) -> str | None:
         """First name and last name of principal investigator(s). If multiple PIs are present, use a semicolon separated list. This field is required if the dataset is a Raw dataset."""
         return self._principal_investigator
 
     @principal_investigator.setter
-    def principal_investigator(self, principal_investigator: Optional[str]) -> None:
+    def principal_investigator(self, principal_investigator: str | None) -> None:
         """First name and last name of principal investigator(s). If multiple PIs are present, use a semicolon separated list. This field is required if the dataset is a Raw dataset."""
         self._principal_investigator = principal_investigator
 
     @property
-    def proposal_id(self) -> Optional[str]:
+    def proposal_id(self) -> str | None:
         """The ID of the proposal to which the dataset belongs."""
         return self._proposal_id
 
     @proposal_id.setter
-    def proposal_id(self, proposal_id: Optional[str]) -> None:
+    def proposal_id(self, proposal_id: str | None) -> None:
         """The ID of the proposal to which the dataset belongs."""
         self._proposal_id = proposal_id
 
     @property
-    def relationships(self) -> Optional[List[Relationship]]:
+    def relationships(self) -> list[Relationship] | None:
         """Stores the relationships with other datasets."""
         return self._relationships
 
     @relationships.setter
-    def relationships(self, relationships: Optional[List[Relationship]]) -> None:
+    def relationships(self, relationships: list[Relationship] | None) -> None:
         """Stores the relationships with other datasets."""
         self._relationships = relationships
 
     @property
-    def sample_id(self) -> Optional[str]:
+    def sample_id(self) -> str | None:
         """ID of the sample used when collecting the data."""
         return self._sample_id
 
     @sample_id.setter
-    def sample_id(self, sample_id: Optional[str]) -> None:
+    def sample_id(self, sample_id: str | None) -> None:
         """ID of the sample used when collecting the data."""
         self._sample_id = sample_id
 
     @property
-    def shared_with(self) -> Optional[List[str]]:
+    def shared_with(self) -> list[str] | None:
         """List of users that the dataset has been shared with."""
         return self._shared_with
 
     @shared_with.setter
-    def shared_with(self, shared_with: Optional[List[str]]) -> None:
+    def shared_with(self, shared_with: list[str] | None) -> None:
         """List of users that the dataset has been shared with."""
         self._shared_with = shared_with
 
     @property
-    def source_folder(self) -> Optional[RemotePath]:
+    def source_folder(self) -> RemotePath | None:
         """Absolute file path on file server containing the files of this dataset, e.g. /some/path/to/sourcefolder. In case of a single file dataset, e.g. HDF5 data, it contains the path up to, but excluding the filename. Trailing slashes are removed."""
         return self._source_folder
 
     @source_folder.setter
-    def source_folder(self, source_folder: Optional[Union[RemotePath, str]]) -> None:
+    def source_folder(self, source_folder: RemotePath | str | None) -> None:
         """Absolute file path on file server containing the files of this dataset, e.g. /some/path/to/sourcefolder. In case of a single file dataset, e.g. HDF5 data, it contains the path up to, but excluding the filename. Trailing slashes are removed."""
         self._source_folder = _parse_remote_path(source_folder)
 
     @property
-    def source_folder_host(self) -> Optional[str]:
+    def source_folder_host(self) -> str | None:
         """DNS host name of file server hosting sourceFolder, optionally including a protocol e.g. [protocol://]fileserver1.example.com"""
         return self._source_folder_host
 
     @source_folder_host.setter
-    def source_folder_host(self, source_folder_host: Optional[str]) -> None:
+    def source_folder_host(self, source_folder_host: str | None) -> None:
         """DNS host name of file server hosting sourceFolder, optionally including a protocol e.g. [protocol://]fileserver1.example.com"""
         self._source_folder_host = source_folder_host
 
     @property
-    def techniques(self) -> Optional[List[Technique]]:
+    def techniques(self) -> list[Technique] | None:
         """Stores the metadata information for techniques."""
         return self._techniques
 
     @techniques.setter
-    def techniques(self, techniques: Optional[List[Technique]]) -> None:
+    def techniques(self, techniques: list[Technique] | None) -> None:
         """Stores the metadata information for techniques."""
         self._techniques = techniques
 
     @property
-    def updated_at(self) -> Optional[datetime]:
+    def updated_at(self) -> datetime | None:
         """Date and time when this record was updated last. This property is added and maintained by mongoose."""
         return self._updated_at
 
     @property
-    def updated_by(self) -> Optional[str]:
+    def updated_by(self) -> str | None:
         """Indicate the user who updated this record last. This property is added and maintained by the system."""
         return self._updated_by
 
     @property
-    def used_software(self) -> Optional[List[str]]:
+    def used_software(self) -> list[str] | None:
         """A list of links to software repositories which uniquely identifies the pieces of software, including versions, used for yielding the derived data. This field is required if the dataset is a Derived dataset."""
         return self._used_software
 
     @used_software.setter
-    def used_software(self, used_software: Optional[List[str]]) -> None:
+    def used_software(self, used_software: list[str] | None) -> None:
         """A list of links to software repositories which uniquely identifies the pieces of software, including versions, used for yielding the derived data. This field is required if the dataset is a Derived dataset."""
         self._used_software = used_software
 
     @property
-    def validation_status(self) -> Optional[str]:
+    def validation_status(self) -> str | None:
         """Defines a level of trust, e.g. a measure of how much data was verified or used by other persons."""
         return self._validation_status
 
     @validation_status.setter
-    def validation_status(self, validation_status: Optional[str]) -> None:
+    def validation_status(self, validation_status: str | None) -> None:
         """Defines a level of trust, e.g. a measure of how much data was verified or used by other persons."""
         self._validation_status = validation_status
 
     @property
-    def meta(self) -> Dict[str, Any]:
+    def meta(self) -> dict[str, Any]:
         """Dict of scientific metadata."""
         return self._meta
 
     @meta.setter
-    def meta(self, meta: Dict[str, Any]) -> None:
+    def meta(self, meta: dict[str, Any]) -> None:
         """Dict of scientific metadata."""
         self._meta = meta
 
@@ -1040,7 +1040,7 @@ class DatasetBase:
     @staticmethod
     def _prepare_fields_from_download(
         download_model: DownloadDataset,
-    ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
         init_args = {}
         read_only = {}
         for field in DatasetBase._FIELD_SPEC:
@@ -1055,13 +1055,13 @@ class DatasetBase:
         return init_args, read_only
 
     @staticmethod
-    def _convert_readonly_fields_in_place(read_only: Dict[str, Any]) -> None:
+    def _convert_readonly_fields_in_place(read_only: dict[str, Any]) -> None:
         if (pid := read_only.get("_pid")) is not None:
             read_only["_pid"] = _parse_pid(pid)
 
 
 def _convert_download_fields_in_place(
-    init_args: Dict[str, Any], read_only: Dict[str, Any]
+    init_args: dict[str, Any], read_only: dict[str, Any]
 ) -> None:
     for mod, key in ((Technique, "techniques"), (Relationship, "relationships")):
         init_args[key] = _list_field_from_download(mod, init_args.get(key))
@@ -1074,8 +1074,8 @@ def _convert_download_fields_in_place(
 
 
 def _list_field_from_download(
-    mod: Type[BaseUserModel], value: Optional[List[Any]]
-) -> Optional[List[BaseUserModel]]:
+    mod: type[BaseUserModel], value: list[Any] | None
+) -> list[BaseUserModel] | None:
     if value is None:
         return None
     return [
@@ -1085,7 +1085,7 @@ def _list_field_from_download(
 
 
 # If validation fails, sub models are not converted automatically by Pydantic.
-def _as_model(mod: Type[M], value: Union[M, Dict[str, Any]]) -> M:
+def _as_model(mod: type[M], value: M | dict[str, Any]) -> M:
     if isinstance(value, dict):
         return construct(mod, **value, _strict_validation=False)
     return value

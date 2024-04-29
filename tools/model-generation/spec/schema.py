@@ -43,9 +43,9 @@ def parse_field_type(spec: dict[str, Any]):
     if spec["type"] == "boolean":
         return "bool"
     if spec["type"] == "array":
-        return "List[{}]".format(parse_field_type(spec["items"]))
+        return "list[{}]".format(parse_field_type(spec["items"]))
     if spec["type"] == "object":
-        return "Dict[str, Any]"
+        return "dict[str, Any]"
     raise ValueError(f"Unknown field type: {spec['type']}")
 
 

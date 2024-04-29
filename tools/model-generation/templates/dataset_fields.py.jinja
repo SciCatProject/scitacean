@@ -1,8 +1,8 @@
 {% macro init_arg_type(field) %}
 {%- if field.conversion is none -%}
-    Optional[{{ field.type_for("user")|replace("NonNegativeInt", "int") }}]
+    {{ field.type_for("user")|replace("NonNegativeInt", "int") }} | None
 {%- else -%}
-    Optional[{{ field.conversion.arg_type }}]
+    {{ field.conversion.arg_type }} | None
 {%- endif -%}
 {% endmacro %}
 
@@ -34,7 +34,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Literal, Optional, Tuple, Type, TypeVar, Union
+from typing import Any, Literal, TypeVar
 
 import dateutil.parser
 
@@ -58,7 +58,7 @@ from .pid import PID
 M = TypeVar("M", bound=BaseModel)
 
 
-def _parse_datetime(x: Optional[Union[datetime, str]]) -> Optional[datetime]:
+def _parse_datetime(x: datetime | str | None) -> datetime | None:
     if isinstance(x, datetime) or x is None:
         return x
     if x == "now":
@@ -66,19 +66,19 @@ def _parse_datetime(x: Optional[Union[datetime, str]]) -> Optional[datetime]:
     return dateutil.parser.parse(x)
 
 
-def _parse_pid(pid: Optional[Union[str, PID]]) -> Optional[PID]:
+def _parse_pid(pid: str | PID | None) -> PID | None:
     if pid is None:
         return pid
     return PID.parse(pid)
 
 
-def _parse_remote_path(path: Optional[Union[str, RemotePath]]) -> Optional[RemotePath]:
+def _parse_remote_path(path: str | RemotePath | None) -> RemotePath | None:
     if path is None:
         return path
     return RemotePath(path)
 
 
-def _validate_checksum_algorithm(algorithm: Optional[str]) -> Optional[str]:
+def _validate_checksum_algorithm(algorithm: str | None) -> str | None:
     if algorithm is None:
         return algorithm
     import hashlib
@@ -144,12 +144,12 @@ class DatasetBase:
     )
 
     def __init__(self,
-        type: Union[DatasetType, Literal["raw", "derived"]],
+        type: DatasetType | Literal["raw", "derived"],
 {%- for field in spec.user_dset_fields(manual=False)|sort(attribute="name")|selectattr("upload") %}
         {{ field.name }}: {{ init_arg_type(field) }} = {{ field.default }},
 {%- endfor %}
-        meta: Optional[Dict[str, Any]] = None,
-        checksum_algorithm: Optional[str] = "blake2b",
+        meta: dict[str, Any] | None = None,
+        checksum_algorithm: str | None = "blake2b",
     ) -> None:
         self._type = DatasetType(type)
 {%- for field in spec.user_dset_fields(manual=False)|sort(attribute="name")|selectattr("upload") %}
@@ -162,12 +162,12 @@ class DatasetBase:
         self._default_checksum_algorithm = _validate_checksum_algorithm(
             checksum_algorithm
         )
-        self._orig_datablocks: List[OrigDatablock] = []
-        self._attachments: Optional[List[Attachment]] = []
+        self._orig_datablocks: list[OrigDatablock] = []
+        self._attachments: list[Attachment] | None = []
 
 {%- for field in spec.user_dset_fields(manual=False)|sort(attribute="name") %}
     @property
-    def {{ field.name }}(self) -> Optional[{{ field.type_for("user") }}]:
+    def {{ field.name }}(self) -> {{ field.type_for("user") }} | None:
         """{{ field.description }}"""
         return self._{{ field.name }}
 {% if field.upload %}
@@ -179,12 +179,12 @@ class DatasetBase:
 {%- endfor %}
 
     @property
-    def meta(self) -> Dict[str, Any]:
+    def meta(self) -> dict[str, Any]:
         """Dict of scientific metadata."""
         return self._meta
 
     @meta.setter
-    def meta(self, meta: Dict[str, Any]) -> None:
+    def meta(self, meta: dict[str, Any]) -> None:
         """Dict of scientific metadata."""
         self._meta = meta
 
@@ -196,7 +196,7 @@ class DatasetBase:
     @staticmethod
     def _prepare_fields_from_download(
         download_model: DownloadDataset
-    ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
         init_args = {}
         read_only = {}
         for field in DatasetBase._FIELD_SPEC:
@@ -211,7 +211,7 @@ class DatasetBase:
         return init_args, read_only
 
     @staticmethod
-    def _convert_readonly_fields_in_place(read_only: Dict[str, Any]) -> None:
+    def _convert_readonly_fields_in_place(read_only: dict[str, Any]) -> None:
     {% for field in spec.user_dset_fields(manual=False)|sort(attribute="name")|selectattr("conversion") %}
         {%- if not field.upload %}
         if ({{ field.name }} := read_only.get("_{{ field.name }}")) is not None:
@@ -221,7 +221,7 @@ class DatasetBase:
 
 
 def _convert_download_fields_in_place(
-    init_args: Dict[str, Any], read_only: Dict[str, Any]
+    init_args: dict[str, Any], read_only: dict[str, Any]
 ) -> None:
     for mod, key in ((Technique, "techniques"), (Relationship, "relationships")):
         init_args[key] = _list_field_from_download(mod, init_args.get(key))
@@ -234,8 +234,8 @@ def _convert_download_fields_in_place(
 
 
 def _list_field_from_download(
-    mod: Type[BaseUserModel], value: Optional[List[Any]]
-) -> Optional[List[BaseUserModel]]:
+    mod: type[BaseUserModel], value: list[Any] | None
+) -> list[BaseUserModel] | None:
     if value is None:
         return None
     return [
@@ -246,7 +246,7 @@ def _list_field_from_download(
 
 # If validation fails, sub models are not converted automatically by Pydantic.
 def _as_model(
-    mod: Type[M], value: Union[M, Dict[str, Any]]
+    mod: type[M], value: M | dict[str, Any]
 ) -> M:
     if isinstance(value, dict):
         return construct(mod, **value, _strict_validation=False)
