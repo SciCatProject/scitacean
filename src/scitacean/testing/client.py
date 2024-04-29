@@ -16,7 +16,7 @@ from ..client import Client, ScicatClient
 from ..error import ScicatCommError
 from ..pid import PID
 from ..typing import FileTransfer
-from ..util.credentials import StrStorage
+from ..util.credentials import SecretStr
 
 
 def _conditionally_disabled(func: Callable[..., Any]) -> Callable[..., Any]:
@@ -134,7 +134,7 @@ class FakeClient(Client):
         cls,
         *,
         url: str,
-        token: str | StrStorage,
+        token: str | SecretStr,
         file_transfer: FileTransfer | None = None,
     ) -> FakeClient:
         """Create a new fake client.
@@ -148,8 +148,8 @@ class FakeClient(Client):
         cls,
         *,
         url: str,
-        username: str | StrStorage,
-        password: str | StrStorage,
+        username: str | SecretStr,
+        password: str | SecretStr,
         file_transfer: FileTransfer | None = None,
     ) -> FakeClient:
         """Create a new fake client.

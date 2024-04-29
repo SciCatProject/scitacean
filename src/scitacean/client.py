@@ -25,7 +25,7 @@ from .filesystem import RemotePath
 from .logging import get_logger
 from .pid import PID
 from .typing import DownloadConnection, FileTransfer, UploadConnection
-from .util.credentials import ExpiringToken, SecretStr, StrStorage
+from .util.credentials import SecretStr, Token
 
 
 class Client:
@@ -61,7 +61,7 @@ class Client:
         cls,
         *,
         url: str,
-        token: str | StrStorage,
+        token: str | SecretStr | Token,
         file_transfer: FileTransfer | None = None,
     ) -> Client:
         """Create a new client and authenticate with a token.
@@ -91,8 +91,8 @@ class Client:
         cls,
         *,
         url: str,
-        username: str | StrStorage,
-        password: str | StrStorage,
+        username: str | SecretStr,
+        password: str | SecretStr,
         file_transfer: FileTransfer | None = None,
     ) -> Client:
         """Create a new client and authenticate with username and password.
@@ -559,23 +559,23 @@ class ScicatClient:
     def __init__(
         self,
         url: str,
-        token: str | StrStorage | None,
+        token: str | SecretStr | Token | None,
         timeout: datetime.timedelta | None,
     ):
         # Need to add a final /
         self._base_url = url[:-1] if url.endswith("/") else url
         self._timeout = datetime.timedelta(seconds=10) if timeout is None else timeout
-        self._token: StrStorage | None = (
-            ExpiringToken.from_jwt(SecretStr(token))
-            if isinstance(token, str)
-            else token
+        self._token = (
+            token
+            if isinstance(token, Token) or token is None
+            else Token.from_jwt(token, denial_period=datetime.timedelta(seconds=2))
         )
 
     @classmethod
     def from_token(
         cls,
         url: str,
-        token: str | StrStorage,
+        token: str | SecretStr | Token,
         timeout: datetime.timedelta | None = None,
     ) -> ScicatClient:
         """Create a new low-level client and authenticate with a token.
@@ -600,8 +600,8 @@ class ScicatClient:
     def from_credentials(
         cls,
         url: str,
-        username: str | StrStorage,
-        password: str | StrStorage,
+        username: str | SecretStr,
+        password: str | SecretStr,
         timeout: datetime.timedelta | None = None,
     ) -> ScicatClient:
         """Create a new low-level client and authenticate with username and password.
@@ -623,10 +623,8 @@ class ScicatClient:
         :
             A new low-level client.
         """
-        if not isinstance(username, StrStorage):
-            username = SecretStr(username)
-        if not isinstance(password, StrStorage):
-            password = SecretStr(password)
+        username = SecretStr(username)
+        password = SecretStr(password)
         return ScicatClient(
             url=url,
             token=SecretStr(
@@ -1005,7 +1003,7 @@ class ScicatClient:
         self, *, cmd: str, url: str, data: model.BaseModel | None = None
     ) -> requests.Response:
         if self._token is not None:
-            token = self._token.get_str()
+            token = self._token.expose()
             headers = {"Authorization": f"Bearer {token}"}
         else:
             token = ""
@@ -1099,12 +1097,12 @@ def _make_orig_datablock(
 
 
 def _log_in_via_users_login(
-    url: str, username: StrStorage, password: StrStorage, timeout: datetime.timedelta
+    url: str, username: SecretStr, password: SecretStr, timeout: datetime.timedelta
 ) -> requests.Response:
     # Currently only used for functional accounts.
     response = requests.post(
         _url_concat(url, "Users/login"),
-        json={"username": username.get_str(), "password": password.get_str()},
+        json={"username": username.expose(), "password": password.expose()},
         stream=False,
         verify=True,
         timeout=timeout.seconds,
@@ -1117,7 +1115,7 @@ def _log_in_via_users_login(
 
 
 def _log_in_via_auth_msad(
-    url: str, username: StrStorage, password: StrStorage, timeout: datetime.timedelta
+    url: str, username: SecretStr, password: SecretStr, timeout: datetime.timedelta
 ) -> requests.Response:
     # Used for user accounts.
     import re
@@ -1126,7 +1124,7 @@ def _log_in_via_auth_msad(
     base_url = re.sub(r"/api/v\d+/?", "", url)
     response = requests.post(
         _url_concat(base_url, "auth/msad"),
-        json={"username": username.get_str(), "password": password.get_str()},
+        json={"username": username.expose(), "password": password.expose()},
         stream=False,
         verify=True,
         timeout=timeout.seconds,
@@ -1137,7 +1135,7 @@ def _log_in_via_auth_msad(
 
 
 def _get_token(
-    url: str, username: StrStorage, password: StrStorage, timeout: datetime.timedelta
+    url: str, username: SecretStr, password: SecretStr, timeout: datetime.timedelta
 ) -> str:
     """Log in using the provided username + password.
 
