@@ -42,7 +42,6 @@ def raw_download_model():
         dataQualityMetrics=24,
         description="Some shady data",
         endTime=parse_datetime("1995-08-03T00:00:00Z"),
-        history=None,
         instrumentGroup="professors",
         instrumentId="0000-aa",
         isPublished=True,
@@ -112,7 +111,6 @@ def derived_download_model():
         dataQualityMetrics=24,
         description="Dubiously analyzed data",
         endTime=None,
-        history=None,
         instrumentGroup="professors",
         instrumentId=None,
         isPublished=True,
@@ -579,7 +577,6 @@ def test_replace_replaces_single_writable_field(field, initial, data):
         for field in Dataset.fields(read_only=True)
         if field.name
         not in (
-            "history",
             "lifecycle",
             "number_of_files",
             "number_of_files_archived",
@@ -622,7 +619,6 @@ def test_replace_other_fields_are_copied(initial):
     assert replaced.owner == initial.owner
     assert replaced.size == initial.size
     assert replaced.updated_at == initial.updated_at
-    assert replaced.history == initial.history
 
 
 @given(sst.datasets())
@@ -721,7 +717,6 @@ def test_as_new(initial):
     assert new.created_by is None
     assert new.updated_at is None
     assert new.updated_by is None
-    assert new.history is None
     assert new.lifecycle is None
     assert abs(new.creation_time - datetime.now(tz=timezone.utc)) < timedelta(seconds=1)
 
@@ -739,7 +734,6 @@ def test_derive_default(initial):
     assert derived.type == "derived"
     assert derived.input_datasets == [initial.pid]
     assert derived.lifecycle is None
-    assert derived.history is None
 
     assert derived.investigator == initial.investigator
     assert derived.owner == initial.owner
@@ -761,7 +755,6 @@ def test_derive_set_keep(initial):
     assert derived.type == "derived"
     assert derived.input_datasets == [initial.pid]
     assert derived.lifecycle is None
-    assert derived.history is None
 
     assert derived.name == initial.name
     assert derived.used_software == initial.used_software
@@ -777,7 +770,6 @@ def test_derive_keep_nothing(initial):
     assert derived.type == "derived"
     assert derived.input_datasets == [initial.pid]
     assert derived.lifecycle is None
-    assert derived.history is None
 
     assert derived.investigator is None
     assert derived.owner is None

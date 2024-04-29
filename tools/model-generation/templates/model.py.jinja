@@ -1,5 +1,5 @@
 {%- macro validations(fields) %}
-{%- for validation in ("datetime", "drop", "emails", "orcids") %}
+{%- for validation in ("datetime", "emails", "orcids") %}
 {%- set fields = fields|selectattr("validation", "eq", validation)|list -%}
 {% if fields %}
 
@@ -92,8 +92,9 @@ Pydantic models sent to SciCat in uploads.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Type
+from typing import Any
 
 import pydantic
 from pydantic import NonNegativeInt
@@ -104,11 +105,9 @@ from ._base_model import (
     DatasetType,
     construct,
     validate_datetime,
-    validate_drop,
     validate_emails,
     validate_orcids,
 )
-from ._internal.dataclass_wrapper import dataclass_optional_args
 from .filesystem import RemotePath
 from .pid import PID
 from .thumbnail import Thumbnail
@@ -142,19 +141,19 @@ class {{ name }}(BaseModel{{ mask_keyword(spec, kind) }}):
 
 {%- if spec.name not in ["DataFile", "Datablock", "OrigDatablock"] %}
     @classmethod
-    def user_model_type(cls) -> Type[{{ spec.name }}]:
+    def user_model_type(cls) -> type[{{ spec.name }}]:
         return {{ spec.name }}
 {%- endif %}
 
 {%- if kind == "download" and spec.upload_name %}
     @classmethod
-    def upload_model_type(cls) -> Type[{{ spec.upload_name }}]:
+    def upload_model_type(cls) -> type[{{ spec.upload_name }}]:
         return {{ spec.upload_name }}
 {%- endif %}
 
 {%- if kind == "upload" %}
     @classmethod
-    def download_model_type(cls) -> Type[{{ spec.download_name }}]:
+    def download_model_type(cls) -> type[{{ spec.download_name }}]:
         return {{ spec.download_name }}
 {%- endif %}
 
@@ -163,7 +162,7 @@ class {{ name }}(BaseModel{{ mask_keyword(spec, kind) }}):
 {% endfor -%}
 
 {% for spec in specs.values()|rejectattr("name", "in", ["DataFile", "Datablock", "OrigDatablock"]) -%}
-@dataclass_optional_args(kw_only=True, slots=True)
+@dataclass(kw_only=True, slots=True)
 class {{ spec.name }}(BaseUserModel):
 {% set fields = spec.fields_for("user")|sort(attribute="upload", reverse=True) -%}
 {% for field in fields %}
@@ -186,12 +185,12 @@ class {{ spec.name }}(BaseUserModel):
 
 {%- if spec.upload_name %}
     @classmethod
-    def upload_model_type(cls) -> Type[{{ spec.upload_name }}]:
+    def upload_model_type(cls) -> type[{{ spec.upload_name }}]:
         return {{ spec.upload_name }}
 {%- endif %}
 
     @classmethod
-    def download_model_type(cls) -> Type[{{ spec.download_name }}]:
+    def download_model_type(cls) -> type[{{ spec.download_name }}]:
         return {{ spec.download_name }}
 
 {% endfor -%}

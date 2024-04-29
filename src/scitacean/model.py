@@ -80,6 +80,7 @@ Pydantic models sent to SciCat in uploads.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
@@ -92,18 +93,16 @@ from ._base_model import (
     DatasetType,
     construct,
     validate_datetime,
-    validate_drop,
     validate_emails,
     validate_orcids,
 )
-from ._internal.dataclass_wrapper import dataclass_optional_args
 from .filesystem import RemotePath
 from .pid import PID
 from .thumbnail import Thumbnail
 
 
 class DownloadDataset(
-    BaseModel, masked=("attachments", "datablocks", "origdatablocks")
+    BaseModel, masked=("attachments", "datablocks", "history", "origdatablocks")
 ):
     contactEmail: str | None = None
     creationLocation: str | None = None
@@ -127,7 +126,6 @@ class DownloadDataset(
     dataQualityMetrics: int | None = None
     description: str | None = None
     endTime: datetime | None = None
-    history: None = None
     instrumentGroup: str | None = None
     instrumentId: str | None = None
     isPublished: bool | None = None
@@ -159,10 +157,6 @@ class DownloadDataset(
     )
     def _validate_datetime(cls, value: Any) -> Any:
         return validate_datetime(value)
-
-    @pydantic.field_validator("history", mode="before")
-    def _validate_drop(cls, value: Any) -> Any:
-        return validate_drop(value)
 
     @pydantic.field_validator("contactEmail", "ownerEmail", mode="before")
     def _validate_emails(cls, value: Any) -> Any:
@@ -588,7 +582,7 @@ class UploadSample(BaseModel):
         return DownloadSample
 
 
-@dataclass_optional_args(kw_only=True, slots=True)
+@dataclass(kw_only=True, slots=True)
 class Attachment(BaseUserModel):
     caption: str
     owner_group: str
@@ -643,7 +637,7 @@ class Attachment(BaseUserModel):
         return DownloadAttachment
 
 
-@dataclass_optional_args(kw_only=True, slots=True)
+@dataclass(kw_only=True, slots=True)
 class Lifecycle(BaseUserModel):
     _archivable: bool | None = None
     _archive_retention_time: datetime | None = None
@@ -726,7 +720,7 @@ class Lifecycle(BaseUserModel):
         return DownloadLifecycle
 
 
-@dataclass_optional_args(kw_only=True, slots=True)
+@dataclass(kw_only=True, slots=True)
 class Technique(BaseUserModel):
     name: str
     pid: str
@@ -749,7 +743,7 @@ class Technique(BaseUserModel):
         return DownloadTechnique
 
 
-@dataclass_optional_args(kw_only=True, slots=True)
+@dataclass(kw_only=True, slots=True)
 class Relationship(BaseUserModel):
     pid: PID
     relationship: str
@@ -772,7 +766,7 @@ class Relationship(BaseUserModel):
         return DownloadRelationship
 
 
-@dataclass_optional_args(kw_only=True, slots=True)
+@dataclass(kw_only=True, slots=True)
 class History(BaseUserModel):
     __id: str | None = None
     _updated_at: datetime | None = None
@@ -800,7 +794,7 @@ class History(BaseUserModel):
         return DownloadHistory
 
 
-@dataclass_optional_args(kw_only=True, slots=True)
+@dataclass(kw_only=True, slots=True)
 class Instrument(BaseUserModel):
     _custom_metadata: dict[str, Any] | None = None
     _name: str | None = None
@@ -833,7 +827,7 @@ class Instrument(BaseUserModel):
         return DownloadInstrument
 
 
-@dataclass_optional_args(kw_only=True, slots=True)
+@dataclass(kw_only=True, slots=True)
 class Sample(BaseUserModel):
     owner_group: str
     access_groups: list[str] | None = None

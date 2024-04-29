@@ -44,7 +44,7 @@ class SpecField:
         return (
             self.type_for(kind)
             if self.required and kind != "download"
-            else f"Optional[{self.type_for(kind)}]"
+            else f"{self.type_for(kind)} | None"
         )
 
     def type_for(self, kind: Literal["download", "upload", "user"]) -> str:

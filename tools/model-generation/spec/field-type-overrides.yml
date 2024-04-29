@@ -7,8 +7,7 @@ Attachment:
   datasetId: PID
   thumbnail: Thumbnail
 Dataset:
-  history: None  # because history is dropped (see field-validations.yml)
-  inputDatasets: List[PID]
+  inputDatasets: list[PID]
   pid: PID
   sourceFolder: RemotePath
   type: DatasetType

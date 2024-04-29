@@ -27,13 +27,13 @@ defaults:
 conversions:
   creationTime:
     func: _parse_datetime
-    arg_type: Union[str, datetime]
+    arg_type: str | datetime
   pid:
     func: _parse_pid
-    arg_type: Union[PID, str]
+    arg_type: PID | str
   sourceFolder:
     func: _parse_remote_path
-    arg_type: Union[RemotePath, str]
+    arg_type: RemotePath | str
 
 # Mark those fields as read-only in addition to those identified as read only from the schema.
 # Read-only fields must be None in uploads.

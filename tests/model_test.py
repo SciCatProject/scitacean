@@ -129,7 +129,6 @@ def test_derived_dataset_default_values(
     assert finalized.createdBy  # some non-empty str
     assert finalized.classification  # some non-empty str
     assert finalized.datasetName  # some non-empty str
-    assert finalized.history is None
     assert finalized.isPublished is False
     assert finalized.keywords == []
     assert finalized.numberOfFiles == 0
@@ -185,7 +184,6 @@ def test_raw_dataset_default_values(real_client, require_scicat_backend, scicat_
     assert finalized.createdBy  # some non-empty str
     assert finalized.classification  # some non-empty str
     assert finalized.datasetName  # some non-empty str
-    assert finalized.history is None
     assert finalized.isPublished is False
     assert finalized.keywords == []
     assert finalized.numberOfFiles == 0

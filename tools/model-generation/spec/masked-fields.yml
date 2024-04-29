@@ -6,5 +6,6 @@
 Dataset:
   - attachments
   - datablocks
+  - history  # because history is dropped (see field-validations.yml)
   - origdatablocks
   - datasetlifecycle: upload
