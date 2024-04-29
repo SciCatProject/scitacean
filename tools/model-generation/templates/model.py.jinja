@@ -1,5 +1,5 @@
 {%- macro validations(fields) %}
-{%- for validation in ("datetime", "drop", "emails", "orcids") %}
+{%- for validation in ("datetime", "emails", "orcids") %}
 {%- set fields = fields|selectattr("validation", "eq", validation)|list -%}
 {% if fields %}
 
@@ -104,7 +104,6 @@ from ._base_model import (
     DatasetType,
     construct,
     validate_datetime,
-    validate_drop,
     validate_emails,
     validate_orcids,
 )

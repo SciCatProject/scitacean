@@ -92,7 +92,6 @@ from ._base_model import (
     DatasetType,
     construct,
     validate_datetime,
-    validate_drop,
     validate_emails,
     validate_orcids,
 )
@@ -103,7 +102,7 @@ from .thumbnail import Thumbnail
 
 
 class DownloadDataset(
-    BaseModel, masked=("attachments", "datablocks", "origdatablocks")
+    BaseModel, masked=("attachments", "datablocks", "history", "origdatablocks")
 ):
     contactEmail: str | None = None
     creationLocation: str | None = None
@@ -127,7 +126,6 @@ class DownloadDataset(
     dataQualityMetrics: int | None = None
     description: str | None = None
     endTime: datetime | None = None
-    history: None = None
     instrumentGroup: str | None = None
     instrumentId: str | None = None
     isPublished: bool | None = None
@@ -159,10 +157,6 @@ class DownloadDataset(
     )
     def _validate_datetime(cls, value: Any) -> Any:
         return validate_datetime(value)
-
-    @pydantic.field_validator("history", mode="before")
-    def _validate_drop(cls, value: Any) -> Any:
-        return validate_drop(value)
 
     @pydantic.field_validator("contactEmail", "ownerEmail", mode="before")
     def _validate_emails(cls, value: Any) -> Any:

@@ -236,11 +236,6 @@ def validate_datetime(value: str | datetime | None) -> datetime | None:
     return parse_datetime(value)
 
 
-def validate_drop(_: Any) -> None:
-    """Return ``None``."""
-    return None
-
-
 def validate_emails(value: str | None) -> str | None:
     if value is None:
         return value

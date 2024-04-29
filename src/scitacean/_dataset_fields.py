@@ -228,16 +228,6 @@ class DatasetBase:
             used_by_raw=True,
         ),
         Field(
-            name="history",
-            description="List of objects containing old and new values.",
-            read_only=True,
-            required=False,
-            scicat_name="history",
-            type=type(None),
-            used_by_derived=True,
-            used_by_raw=True,
-        ),
-        Field(
             name="input_datasets",
             description="Array of input dataset identifiers used in producing the derived dataset. Ideally these are the global identifier to existing datasets inside this or federated data catalogs. This field is required if the dataset is a Derived dataset.",
             read_only=False,
@@ -533,7 +523,6 @@ class DatasetBase:
         "_data_quality_metrics",
         "_description",
         "_end_time",
-        "_history",
         "_input_datasets",
         "_instrument_group",
         "_instrument_id",
@@ -647,7 +636,6 @@ class DatasetBase:
         self._api_version = None
         self._created_at = None
         self._created_by = None
-        self._history = None
         self._lifecycle = None
         self._pid = None
         self._updated_at = None
@@ -775,12 +763,7 @@ class DatasetBase:
         self._end_time = end_time
 
     @property
-    def history(self) -> Optional[None]:
-        """List of objects containing old and new values."""
-        return self._history
-
-    @property
-    def input_datasets(self) -> Optional[List[PID]]:
+    def input_datasets(self) -> list[PID] | None:
         """Array of input dataset identifiers used in producing the derived dataset. Ideally these are the global identifier to existing datasets inside this or federated data catalogs. This field is required if the dataset is a Derived dataset."""
         return self._input_datasets
 
