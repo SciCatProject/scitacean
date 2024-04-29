@@ -288,6 +288,13 @@ class FakeScicatClient(ScicatClient):
         # Models were locally validated on construction, assume they are valid.
         pass
 
+    @_conditionally_disabled
+    def renew_login(self) -> None:
+        """Request a new SciCat token.
+
+        Does nothing because FakeScicatClient does not use authentication.
+        """
+
 
 def _model_dict(mod: model.BaseModel) -> dict[str, Any]:
     return {

@@ -85,7 +85,6 @@ class Client:
             file_transfer=file_transfer,
         )
 
-    # TODO rename to login? and provide logout?
     @classmethod
     def from_credentials(
         cls,
@@ -565,11 +564,7 @@ class ScicatClient:
         # Need to add a final /
         self._base_url = url[:-1] if url.endswith("/") else url
         self._timeout = datetime.timedelta(seconds=10) if timeout is None else timeout
-        self._token = (
-            token
-            if isinstance(token, Token) or token is None
-            else Token.from_jwt(token, denial_period=datetime.timedelta(seconds=2))
-        )
+        self._token = _wrap_token(token)
 
     @classmethod
     def from_token(
@@ -999,6 +994,20 @@ class ScicatClient:
         if not response["valid"]:
             raise ValueError(f"Dataset {dset} did not pass validation in SciCat.")
 
+    def renew_login(self) -> None:
+        """Request and assign a new SciCat token.
+
+        Can be used to prolong a login session before a token expires.
+        The new token is assigned to the client and is used for all future operations.
+
+        Raises :class:`scitacean.ScicatCommError` if renewal fails.
+        In this case, the old token will not be replaced.
+        """
+        response = self._call_endpoint(
+            cmd="post", url="users/jwt", operation="renew_login"
+        )
+        self._token = _wrap_token(response["jwt"])
+
     def _send_to_scicat(
         self, *, cmd: str, url: str, data: model.BaseModel | None = None
     ) -> requests.Response:
@@ -1160,6 +1169,14 @@ def _get_token(
 
     get_logger().error("Failed log in:  %s", response.text)
     raise ScicatLoginError(response.content)
+
+
+def _wrap_token(token: str | SecretStr | Token | None) -> Token:
+    match token:
+        case str() | SecretStr():
+            return Token.from_jwt(token, denial_period=datetime.timedelta(seconds=2))
+        case Token() | None:
+            return token
 
 
 FileSelector = (
