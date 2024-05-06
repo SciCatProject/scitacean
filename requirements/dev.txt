@@ -5,13 +5,12 @@
 #
 #    pip-compile-multi
 #
--r base.txt
--r ci.txt
--r docs.txt
--r mypy.txt
--r static.txt
--r test.txt
--r wheels.txt
+accessible-pygments==0.0.4
+    # via pydata-sphinx-theme
+alabaster==0.7.16
+    # via sphinx
+annotated-types==0.6.0
+    # via pydantic
 anyio==4.3.0
     # via
     #   httpx
@@ -22,12 +21,99 @@ argon2-cffi-bindings==21.2.0
     # via argon2-cffi
 arrow==1.3.0
     # via isoduration
+asttokens==2.4.1
+    # via stack-data
 async-lru==2.0.4
     # via jupyterlab
+attrs==23.2.0
+    # via
+    #   hypothesis
+    #   jsonschema
+    #   referencing
+autodoc-pydantic==2.1.0
+    # via -r docs.in
+babel==2.14.0
+    # via
+    #   jupyterlab-server
+    #   pydata-sphinx-theme
+    #   sphinx
+bcrypt==4.1.2
+    # via paramiko
+beautifulsoup4==4.12.3
+    # via
+    #   nbconvert
+    #   pydata-sphinx-theme
+bleach==6.1.0
+    # via nbconvert
+build==1.2.1
+    # via
+    #   -r wheels.in
+    #   pip-tools
+cachetools==5.3.3
+    # via tox
+certifi==2024.2.2
+    # via
+    #   httpcore
+    #   httpx
+    #   requests
+cffi==1.16.0
+    # via
+    #   argon2-cffi-bindings
+    #   cryptography
+    #   pynacl
+cfgv==3.4.0
+    # via pre-commit
+chardet==5.2.0
+    # via tox
+charset-normalizer==3.3.2
+    # via requests
 click==8.1.7
     # via
     #   pip-compile-multi
     #   pip-tools
+colorama==0.4.6
+    # via tox
+comm==0.2.2
+    # via ipykernel
+cryptography==42.0.5
+    # via
+    #   paramiko
+    #   types-paramiko
+debugpy==1.8.1
+    # via ipykernel
+decorator==5.1.1
+    # via
+    #   fabric
+    #   ipython
+defusedxml==0.7.1
+    # via nbconvert
+deprecated==1.2.14
+    # via fabric
+distlib==0.3.8
+    # via virtualenv
+dnspython==2.6.1
+    # via email-validator
+docutils==0.20.1
+    # via
+    #   myst-parser
+    #   nbsphinx
+    #   pydata-sphinx-theme
+    #   sphinx
+email-validator==2.1.1
+    # via -r base.in
+execnet==2.1.1
+    # via pytest-xdist
+executing==2.0.1
+    # via stack-data
+fabric==3.2.2
+    # via -r base.in
+fastjsonschema==2.19.1
+    # via nbformat
+filelock[typing]==3.13.4
+    # via
+    #   -r test.in
+    #   tox
+    #   virtualenv
 fqdn==1.5.1
     # via jsonschema
 h11==0.14.0
@@ -36,8 +122,45 @@ httpcore==1.0.5
     # via httpx
 httpx==0.27.0
     # via jupyterlab
+hypothesis==6.100.1
+    # via -r test.in
+identify==2.5.35
+    # via pre-commit
+idna==3.7
+    # via
+    #   anyio
+    #   email-validator
+    #   httpx
+    #   jsonschema
+    #   requests
+imagesize==1.4.1
+    # via sphinx
+iniconfig==2.0.0
+    # via pytest
+invoke==2.2.0
+    # via fabric
+ipykernel==6.29.4
+    # via
+    #   -r docs.in
+    #   jupyterlab
+ipython==8.23.0
+    # via
+    #   -r docs.in
+    #   ipykernel
 isoduration==20.11.0
     # via jsonschema
+jedi==0.19.1
+    # via ipython
+jinja2==3.1.4
+    # via
+    #   -r dev.in
+    #   jupyter-server
+    #   jupyterlab
+    #   jupyterlab-server
+    #   myst-parser
+    #   nbconvert
+    #   nbsphinx
+    #   sphinx
 json5==0.9.25
     # via jupyterlab-server
 jsonpointer==2.4
@@ -46,6 +169,22 @@ jsonschema[format-nongpl]==4.21.1
     # via
     #   jupyter-events
     #   jupyterlab-server
+    #   nbformat
+jsonschema-specifications==2023.12.1
+    # via jsonschema
+jupyter-client==8.6.1
+    # via
+    #   ipykernel
+    #   jupyter-server
+    #   nbclient
+jupyter-core==5.7.2
+    # via
+    #   ipykernel
+    #   jupyter-client
+    #   jupyter-server
+    #   jupyterlab
+    #   nbclient
+    #   nbconvert
     #   nbformat
 jupyter-events==0.10.0
     # via jupyter-server
@@ -61,20 +200,181 @@ jupyter-server-terminals==0.5.3
     # via jupyter-server
 jupyterlab==4.1.6
     # via -r dev.in
+jupyterlab-pygments==0.3.0
+    # via nbconvert
 jupyterlab-server==2.26.0
     # via jupyterlab
+markdown-it-py==3.0.0
+    # via
+    #   mdit-py-plugins
+    #   myst-parser
+markupsafe==2.1.5
+    # via
+    #   jinja2
+    #   nbconvert
+matplotlib-inline==0.1.7
+    # via
+    #   ipykernel
+    #   ipython
+mdit-py-plugins==0.4.0
+    # via myst-parser
+mdurl==0.1.2
+    # via markdown-it-py
+mistune==3.0.2
+    # via nbconvert
+mypy==1.9.0
+    # via -r mypy.in
+mypy-extensions==1.0.0
+    # via mypy
+myst-parser==2.0.0
+    # via -r docs.in
+nbclient==0.10.0
+    # via nbconvert
+nbconvert==7.16.3
+    # via
+    #   jupyter-server
+    #   nbsphinx
+nbformat==5.10.4
+    # via
+    #   jupyter-server
+    #   nbclient
+    #   nbconvert
+    #   nbsphinx
+nbsphinx==0.9.3
+    # via -r docs.in
+nest-asyncio==1.6.0
+    # via ipykernel
+nodeenv==1.8.0
+    # via pre-commit
 notebook-shim==0.2.4
     # via jupyterlab
 overrides==7.7.0
     # via jupyter-server
+packaging==24.0
+    # via
+    #   build
+    #   ipykernel
+    #   jupyter-server
+    #   jupyterlab
+    #   jupyterlab-server
+    #   nbconvert
+    #   pydata-sphinx-theme
+    #   pyproject-api
+    #   pytest
+    #   sphinx
+    #   tox
+pandocfilters==1.5.1
+    # via nbconvert
+paramiko==3.4.0
+    # via
+    #   -r base.in
+    #   fabric
+parso==0.8.4
+    # via jedi
+pexpect==4.9.0
+    # via ipython
 pip-compile-multi==2.6.3
     # via -r dev.in
 pip-tools==7.4.1
     # via pip-compile-multi
+platformdirs==4.2.0
+    # via
+    #   jupyter-core
+    #   tox
+    #   virtualenv
+pluggy==1.4.0
+    # via
+    #   pytest
+    #   tox
+pre-commit==3.7.0
+    # via
+    #   -r dev.in
+    #   -r static.in
 prometheus-client==0.20.0
     # via jupyter-server
+prompt-toolkit==3.0.43
+    # via ipython
+psutil==5.9.8
+    # via ipykernel
+ptyprocess==0.7.0
+    # via
+    #   pexpect
+    #   terminado
+pure-eval==0.2.2
+    # via stack-data
+pycparser==2.22
+    # via cffi
+pydantic==2.7.0
+    # via
+    #   -r base.in
+    #   autodoc-pydantic
+    #   pydantic-settings
+pydantic-core==2.18.1
+    # via pydantic
+pydantic-settings==2.2.1
+    # via autodoc-pydantic
+pydata-sphinx-theme==0.15.2
+    # via -r docs.in
+pyfakefs==5.4.1
+    # via -r test.in
+pygments==2.17.2
+    # via
+    #   accessible-pygments
+    #   ipython
+    #   nbconvert
+    #   pydata-sphinx-theme
+    #   sphinx
+pynacl==1.5.0
+    # via paramiko
+pyproject-api==1.6.1
+    # via tox
+pyproject-hooks==1.0.0
+    # via
+    #   build
+    #   pip-tools
+pytest==8.1.1
+    # via
+    #   -r test.in
+    #   pytest-randomly
+    #   pytest-socket
+    #   pytest-xdist
+pytest-randomly==3.15.0
+    # via -r test.in
+pytest-socket==0.7.0
+    # via -r test.in
+pytest-xdist==3.5.0
+    # via -r test.in
+python-dateutil==2.9.0.post0
+    # via
+    #   -r base.in
+    #   arrow
+    #   jupyter-client
+python-dotenv==1.0.1
+    # via pydantic-settings
 python-json-logger==2.0.7
     # via jupyter-events
+pyyaml==6.0.1
+    # via
+    #   -r dev.in
+    #   -r test.in
+    #   jupyter-events
+    #   myst-parser
+    #   pre-commit
+pyzmq==26.0.1
+    # via
+    #   ipykernel
+    #   jupyter-client
+    #   jupyter-server
+referencing==0.34.0
+    # via
+    #   jsonschema
+    #   jsonschema-specifications
+    #   jupyter-events
+requests==2.31.0
+    # via
+    #   -r base.in
+    #   jupyterlab-server
+    #   sphinx
 rfc3339-validator==0.1.4
     # via
     #   jsonschema
@@ -83,28 +383,134 @@ rfc3986-validator==0.1.1
     # via
     #   jsonschema
     #   jupyter-events
+rpds-py==0.18.0
+    # via
+    #   jsonschema
+    #   referencing
 ruff==0.4.1
     # via -r dev.in
 send2trash==1.8.3
     # via jupyter-server
+six==1.16.0
+    # via
+    #   asttokens
+    #   bleach
+    #   python-dateutil
+    #   rfc3339-validator
 sniffio==1.3.1
     # via
     #   anyio
     #   httpx
+snowballstemmer==2.2.0
+    # via sphinx
+sortedcontainers==2.4.0
+    # via hypothesis
+soupsieve==2.5
+    # via beautifulsoup4
+sphinx==7.3.7
+    # via
+    #   -r docs.in
+    #   autodoc-pydantic
+    #   myst-parser
+    #   nbsphinx
+    #   pydata-sphinx-theme
+    #   sphinx-autodoc-typehints
+    #   sphinx-copybutton
+    #   sphinx-design
+sphinx-autodoc-typehints==2.1.0
+    # via -r docs.in
+sphinx-copybutton==0.5.2
+    # via -r docs.in
+sphinx-design==0.5.0
+    # via -r docs.in
+sphinxcontrib-applehelp==1.0.8
+    # via sphinx
+sphinxcontrib-devhelp==1.0.6
+    # via sphinx
+sphinxcontrib-htmlhelp==2.0.5
+    # via sphinx
+sphinxcontrib-jsmath==1.0.1
+    # via sphinx
+sphinxcontrib-qthelp==1.0.7
+    # via sphinx
+sphinxcontrib-serializinghtml==1.1.10
+    # via sphinx
+stack-data==0.6.3
+    # via ipython
 terminado==0.18.1
     # via
     #   jupyter-server
     #   jupyter-server-terminals
+tinycss2==1.2.1
+    # via nbconvert
 toposort==1.10
     # via pip-compile-multi
+tornado==6.4
+    # via
+    #   ipykernel
+    #   jupyter-client
+    #   jupyter-server
+    #   jupyterlab
+    #   terminado
+tox==4.14.2
+    # via -r ci.in
+traitlets==5.14.3
+    # via
+    #   comm
+    #   ipykernel
+    #   ipython
+    #   jupyter-client
+    #   jupyter-core
+    #   jupyter-events
+    #   jupyter-server
+    #   jupyterlab
+    #   matplotlib-inline
+    #   nbclient
+    #   nbconvert
+    #   nbformat
+    #   nbsphinx
+types-docutils==0.20.0.20240406
+    # via -r mypy.in
+types-paramiko==3.4.0.20240311
+    # via -r mypy.in
+types-python-dateutil==2.9.0.20240316
+    # via
+    #   -r mypy.in
+    #   arrow
+types-pyyaml==6.0.12.20240311
+    # via -r mypy.in
+types-requests==2.31.0.20240406
+    # via -r mypy.in
+typing-extensions==4.11.0
+    # via
+    #   mypy
+    #   pydantic
+    #   pydantic-core
+    #   pydata-sphinx-theme
 uri-template==1.3.0
     # via jsonschema
+urllib3==2.2.1
+    # via
+    #   requests
+    #   types-requests
+virtualenv==20.25.3
+    # via
+    #   pre-commit
+    #   tox
+wcwidth==0.2.13
+    # via prompt-toolkit
 webcolors==1.13
     # via jsonschema
+webencodings==0.5.1
+    # via
+    #   bleach
+    #   tinycss2
 websocket-client==1.7.0
     # via jupyter-server
 wheel==0.43.0
     # via pip-tools
+wrapt==1.16.0
+    # via deprecated
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip

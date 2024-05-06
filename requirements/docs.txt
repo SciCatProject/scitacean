@@ -5,44 +5,87 @@
 #
 #    pip-compile-multi
 #
--r base.txt
--r test.txt
 accessible-pygments==0.0.4
     # via pydata-sphinx-theme
 alabaster==0.7.16
     # via sphinx
+annotated-types==0.6.0
+    # via pydantic
 asttokens==2.4.1
     # via stack-data
+attrs==23.2.0
+    # via
+    #   hypothesis
+    #   jsonschema
+    #   referencing
 autodoc-pydantic==2.1.0
     # via -r docs.in
 babel==2.14.0
     # via
     #   pydata-sphinx-theme
     #   sphinx
+bcrypt==4.1.2
+    # via paramiko
 beautifulsoup4==4.12.3
     # via
     #   nbconvert
     #   pydata-sphinx-theme
 bleach==6.1.0
     # via nbconvert
+certifi==2024.2.2
+    # via requests
+cffi==1.16.0
+    # via
+    #   cryptography
+    #   pynacl
+charset-normalizer==3.3.2
+    # via requests
 comm==0.2.2
     # via ipykernel
+cryptography==42.0.5
+    # via paramiko
 debugpy==1.8.1
     # via ipykernel
+decorator==5.1.1
+    # via
+    #   fabric
+    #   ipython
 defusedxml==0.7.1
     # via nbconvert
+deprecated==1.2.14
+    # via fabric
+dnspython==2.6.1
+    # via email-validator
 docutils==0.20.1
     # via
     #   myst-parser
     #   nbsphinx
     #   pydata-sphinx-theme
     #   sphinx
+email-validator==2.1.1
+    # via -r base.in
+execnet==2.1.1
+    # via pytest-xdist
 executing==2.0.1
     # via stack-data
+fabric==3.2.2
+    # via -r base.in
 fastjsonschema==2.19.1
     # via nbformat
+filelock[typing]==3.13.4
+    # via -r test.in
+hypothesis==6.100.1
+    # via -r test.in
+idna==3.7
+    # via
+    #   email-validator
+    #   requests
 imagesize==1.4.1
     # via sphinx
+iniconfig==2.0.0
+    # via pytest
+invoke==2.2.0
+    # via fabric
 ipykernel==6.29.4
     # via -r docs.in
 ipython==8.23.0
@@ -51,7 +94,7 @@ ipython==8.23.0
     #   ipykernel
 jedi==0.19.1
     # via ipython
-jinja2==3.1.3
+jinja2==3.1.4
     # via
     #   myst-parser
     #   nbconvert
@@ -107,14 +150,27 @@ nbsphinx==0.9.3
     # via -r docs.in
 nest-asyncio==1.6.0
     # via ipykernel
+packaging==24.0
+    # via
+    #   ipykernel
+    #   nbconvert
+    #   pydata-sphinx-theme
+    #   pytest
+    #   sphinx
 pandocfilters==1.5.1
     # via nbconvert
+paramiko==3.4.0
+    # via
+    #   -r base.in
+    #   fabric
 parso==0.8.4
     # via jedi
 pexpect==4.9.0
     # via ipython
 platformdirs==4.2.0
     # via jupyter-core
+pluggy==1.4.0
+    # via pytest
 prompt-toolkit==3.0.43
     # via ipython
 psutil==5.9.8
@@ -123,10 +179,21 @@ ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.2
     # via stack-data
+pycparser==2.22
+    # via cffi
+pydantic==2.7.0
+    # via
+    #   -r base.in
+    #   autodoc-pydantic
+    #   pydantic-settings
+pydantic-core==2.18.1
+    # via pydantic
 pydantic-settings==2.2.1
     # via autodoc-pydantic
 pydata-sphinx-theme==0.15.2
     # via -r docs.in
+pyfakefs==5.4.1
+    # via -r test.in
 pygments==2.17.2
     # via
     #   accessible-pygments
@@ -134,8 +201,30 @@ pygments==2.17.2
     #   nbconvert
     #   pydata-sphinx-theme
     #   sphinx
+pynacl==1.5.0
+    # via paramiko
+pytest==8.1.1
+    # via
+    #   -r test.in
+    #   pytest-randomly
+    #   pytest-socket
+    #   pytest-xdist
+pytest-randomly==3.15.0
+    # via -r test.in
+pytest-socket==0.7.0
+    # via -r test.in
+pytest-xdist==3.5.0
+    # via -r test.in
+python-dateutil==2.9.0.post0
+    # via
+    #   -r base.in
+    #   jupyter-client
 python-dotenv==1.0.1
     # via pydantic-settings
+pyyaml==6.0.1
+    # via
+    #   -r test.in
+    #   myst-parser
 pyzmq==26.0.1
     # via
     #   ipykernel
@@ -144,12 +233,23 @@ referencing==0.34.0
     # via
     #   jsonschema
     #   jsonschema-specifications
+requests==2.31.0
+    # via
+    #   -r base.in
+    #   sphinx
 rpds-py==0.18.0
     # via
     #   jsonschema
     #   referencing
+six==1.16.0
+    # via
+    #   asttokens
+    #   bleach
+    #   python-dateutil
 snowballstemmer==2.2.0
     # via sphinx
+sortedcontainers==2.4.0
+    # via hypothesis
 soupsieve==2.5
     # via beautifulsoup4
 sphinx==7.3.7
@@ -200,9 +300,18 @@ traitlets==5.14.3
     #   nbconvert
     #   nbformat
     #   nbsphinx
+typing-extensions==4.11.0
+    # via
+    #   pydantic
+    #   pydantic-core
+    #   pydata-sphinx-theme
+urllib3==2.2.1
+    # via requests
 wcwidth==0.2.13
     # via prompt-toolkit
 webencodings==0.5.1
     # via
     #   bleach
     #   tinycss2
+wrapt==1.16.0
+    # via deprecated
