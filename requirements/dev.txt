@@ -42,7 +42,7 @@ json5==0.9.25
     # via jupyterlab-server
 jsonpointer==2.4
     # via jsonschema
-jsonschema[format-nongpl]==4.21.1
+jsonschema[format-nongpl]==4.22.0
     # via
     #   jupyter-events
     #   jupyterlab-server
@@ -59,9 +59,9 @@ jupyter-server==2.14.0
     #   notebook-shim
 jupyter-server-terminals==0.5.3
     # via jupyter-server
-jupyterlab==4.1.6
+jupyterlab==4.2.0
     # via -r dev.in
-jupyterlab-server==2.26.0
+jupyterlab-server==2.27.1
     # via jupyterlab
 notebook-shim==0.2.4
     # via jupyterlab
@@ -83,7 +83,7 @@ rfc3986-validator==0.1.1
     # via
     #   jsonschema
     #   jupyter-events
-ruff==0.4.1
+ruff==0.4.3
     # via -r dev.in
 send2trash==1.8.3
     # via jupyter-server
@@ -101,7 +101,7 @@ uri-template==1.3.0
     # via jsonschema
 webcolors==1.13
     # via jsonschema
-websocket-client==1.7.0
+websocket-client==1.8.0
     # via jupyter-server
 wheel==0.43.0
     # via pip-tools
