@@ -8,25 +8,21 @@
 -r base.txt
 attrs==23.2.0
     # via hypothesis
-exceptiongroup==1.2.1
-    # via
-    #   hypothesis
-    #   pytest
 execnet==2.1.1
     # via pytest-xdist
-filelock[typing]==3.13.4
+filelock[typing]==3.14.0
     # via -r test.in
-hypothesis==6.100.1
+hypothesis==6.100.5
     # via -r test.in
 iniconfig==2.0.0
     # via pytest
 packaging==24.0
     # via pytest
-pluggy==1.4.0
+pluggy==1.5.0
     # via pytest
 pyfakefs==5.4.1
     # via -r test.in
-pytest==8.1.1
+pytest==8.2.0
     # via
     #   -r test.in
     #   pytest-randomly
@@ -36,11 +32,9 @@ pytest-randomly==3.15.0
     # via -r test.in
 pytest-socket==0.7.0
     # via -r test.in
-pytest-xdist==3.5.0
+pytest-xdist==3.6.1
     # via -r test.in
 pyyaml==6.0.1
     # via -r test.in
 sortedcontainers==2.4.0
     # via hypothesis
-tomli==2.0.1
-    # via pytest
