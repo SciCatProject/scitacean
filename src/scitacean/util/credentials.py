@@ -4,41 +4,13 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from typing import NoReturn
 
 from .._internal.jwt import expiry
 
 
-class StrStorage:
-    """Base class for storing a string.
-
-    Instances can be nested to combine different specialized features.
-    """
-
-    def __init__(self, value: str | StrStorage | None):
-        self._value = value
-
-    def get_str(self) -> str:
-        """Return the stored plain str object."""
-        if self._value is None:
-            # If the implementation chooses to not
-            # store the string in memory.
-            # The method must be overridden in this case.
-            raise NotImplementedError("String not available")
-
-        if isinstance(self._value, StrStorage):
-            return self._value.get_str()
-        return self._value
-
-    def __str__(self) -> str:
-        return str(self._value)
-
-    def __repr__(self) -> str:
-        return f"{type(self).__name__}({self._value!r})"
-
-
-class SecretStr(StrStorage):
+class SecretStr:
     """Minimize the risk of exposing a secret.
 
     Stores a string and blocks the most common pathways
@@ -50,8 +22,19 @@ class SecretStr(StrStorage):
     still be leaked through introspection methods.
     """
 
-    def __init__(self, value: str | StrStorage):
-        super().__init__(value)
+    def __init__(self, value: str | SecretStr) -> None:
+        """Initialize from a plain str or other SecretStr.
+
+        Parameters
+        ----------
+        value:
+            The string to store.
+        """
+        self._value = value if isinstance(value, str) else value.expose()
+
+    def expose(self) -> str:
+        """Return the stored plain str object."""
+        return self._value
 
     def __str__(self) -> str:
         return "***"
@@ -61,45 +44,109 @@ class SecretStr(StrStorage):
 
     # prevent pickling
     def __reduce_ex__(self, protocol: object) -> NoReturn:
-        raise TypeError("SecretStr must not be pickled")
+        raise TypeError(
+            "SecretStr must not be pickled to avoid storing or sharing "
+            "it accidentally."
+        )
 
 
-class ExpiringToken(StrStorage):
-    """A JWT token that expires after some time."""
+class Token(SecretStr):
+    """A SciCat token that may expire after some time."""
 
     def __init__(
         self,
+        value: str | SecretStr | Token,
         *,
-        value: str | StrStorage,
-        expires_at: datetime,
+        expires_at: datetime | None,
         denial_period: timedelta | None = None,
-    ):
-        super().__init__(value)
-        if denial_period is None:
-            denial_period = timedelta(seconds=2)
-        self._expires_at = expires_at - denial_period
+    ) -> None:
+        """Initialize from a plain or secret string or other token.
+
+        Parameters
+        ----------
+        value:
+            The string of the token to store.
+            If a ``Token`` object, the expiry date is overridden by ``expires_at``.
+        expires_at:
+            Datetime after which the token is no longer valid.
+            If ``None``, the token is assumed to never expire.
+        denial_period:
+            If given, the token will be treated as expired after
+            ``expires_at - denial_period``.
+            This is useful to give an operation enough leeway to finish before the
+            token actually expires.
+        """
+        super().__init__(value.expose() if isinstance(value, Token) else value)
+        if expires_at is None:
+            self._expires_at = None
+        else:
+            if denial_period is None:
+                self._expires_at = expires_at
+            else:
+                self._expires_at = expires_at - denial_period
         self._check_expiry()
 
     @classmethod
-    def from_jwt(cls, value: str | StrStorage) -> ExpiringToken:
-        """Create a new ExpiringToken from a JSON web token."""
-        value_str = value if isinstance(value, str) else value.get_str()
+    def from_jwt(
+        cls,
+        value: str | SecretStr,
+        denial_period: timedelta | None = None,
+    ) -> Token:
+        """Create a new ExpiringToken from a JSON web token.
+
+        Parameters
+        ----------
+        value:
+            A JSON web token.
+        denial_period:
+            If given, the token will be treated as expired after
+            ``expires_at - denial_period``.
+            This is useful to give an operation enough leeway to finish before the
+            token actually expires.
+
+        Returns
+        -------
+        :
+            A ``Token`` object that contains ``value`` and is
+            set up with an expiry date parsed from the JWT.
+        """
+        value_str = value if isinstance(value, str) else value.expose()
         try:
             expires_at = expiry(value_str)
         except ValueError:
-            expires_at = datetime.now(tz=timezone.utc) + timedelta(weeks=100)
+            expires_at = None
         return cls(
             value=value,
             expires_at=expires_at,
+            denial_period=denial_period,
         )
 
-    def get_str(self) -> str:
-        """Return the stored plain str object."""
+    def expose(self) -> str:
+        """Return the stored plain str object.
+
+        Returns
+        -------
+        :
+            A plain string with the token.
+
+        Raises
+        ------
+        RuntimeError
+            If the token has expired.
+        """
         self._check_expiry()
-        return super().get_str()
+        return super().expose()
+
+    @property
+    def expires_at(self) -> datetime | None:
+        """Return the expiration date including denial period."""
+        return self._expires_at
 
     def _check_expiry(self) -> None:
-        if datetime.now(tz=self._expires_at.tzinfo) > self._expires_at:
+        if (
+            self._expires_at is not None
+            and datetime.now(tz=self._expires_at.tzinfo) > self._expires_at
+        ):
             raise RuntimeError(
                 "SciCat login has expired. You need to create a new client either by "
                 "logging in through `Client.from_credentials` or by getting a new "
@@ -107,7 +154,5 @@ class ExpiringToken(StrStorage):
             )
 
     def __repr__(self) -> str:
-        return (
-            f"TimeLimitedStr(expires_at={self._expires_at.isoformat()}, "
-            f"value={self._value!r}"
-        )
+        expires = self.expires_at.isoformat() if self.expires_at is not None else None
+        return f"Token(***, expires_at={expires})"

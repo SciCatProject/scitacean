@@ -127,3 +127,26 @@ def test_detects_expired_token_get_dataset(scicat_access, require_scicat_backend
     time.sleep(0.5)
     with pytest.raises(RuntimeError, match="SciCat login has expired"):
         client.get_dataset(INITIAL_DATASETS["public"].pid)  # type: ignore[arg-type]
+
+
+def test_renew_login_real(scicat_access, require_scicat_backend):
+    client = Client.from_credentials(
+        url=scicat_access.url, **scicat_access.user.credentials
+    )
+    initial = client.scicat._token
+    # Wait long enough to see a difference in the token because the
+    # expiration date has seconds-resolution.
+    time.sleep(1)
+    client.scicat.renew_login()
+    renewed = client.scicat._token
+    assert initial is not None
+    assert initial.expires_at is not None
+    assert renewed is not None
+    assert renewed.expires_at is not None
+    assert renewed.expires_at > initial.expires_at
+
+
+def test_renew_login_fake():
+    client = FakeClient.without_login(url="")
+    # Does nothing
+    client.scicat.renew_login()
