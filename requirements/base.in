@@ -1,6 +1,5 @@
-email-validator
-fabric
-paramiko
+email-validator >= 2
+paramiko >= 3
 pydantic >= 2
-python-dateutil
-requests
+python-dateutil >= 2.8
+requests >= 2.31

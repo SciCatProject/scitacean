@@ -9,5 +9,4 @@ jinja2
 jupyterlab
 pip-compile-multi
 pre-commit
-pyyaml
 ruff

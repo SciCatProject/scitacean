@@ -28,9 +28,9 @@ classifiers = [
 ]
 requires-python = ">=3.10"
 dependencies = [
-    "email-validator",
+    "email-validator >= 2",
     "pydantic >= 2",
-    "python-dateutil",
+    "python-dateutil >= 2.8",
     "requests >= 2.31",
 ]
 dynamic = ["version"]
@@ -41,8 +41,12 @@ dynamic = ["version"]
 "Source" = "https://github.com/SciCatProject/scitacean"
 
 [project.optional-dependencies]
-sftp = ["paramiko"]
-test = ["filelock", "hypothesis", "pyyaml"]
+sftp = ["paramiko >= 3"]
+test = [
+    "filelock >= 3",
+    "hypothesis >= 6.48",
+    "pyyaml >= 5"
+]
 
 [tool.setuptools_scm]
 
