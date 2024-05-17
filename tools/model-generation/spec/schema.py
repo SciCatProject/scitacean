@@ -5,7 +5,7 @@
 import dataclasses
 from typing import Any
 
-import requests
+import httpx
 
 
 @dataclasses.dataclass
@@ -76,10 +76,10 @@ def fetch_specs(url: str) -> dict[str, Any]:
     ``url`` needs to point to a 'json-explorer' of a SciCat backend with version >= 4.
     E.g. ``http://localhost:3000/explorer-json`` for a locally running instance.
     """
-    response = requests.get(url, timeout=10)
-    if not response.ok:
+    response = httpx.get(url, timeout=10)
+    if not response.is_success:
         raise RuntimeError(
-            f"Failed to fetch specs: {response.status_code} {response.reason}"
+            f"Failed to fetch specs: {response.status_code} {response.reason_phrase}"
         )
     return response.json()
 

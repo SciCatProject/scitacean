@@ -20,3 +20,5 @@ types-pyyaml==6.0.12.20240311
     # via -r mypy.in
 types-requests==2.31.0.20240406
     # via -r mypy.in
+urllib3==2.2.1
+    # via types-requests

@@ -1,9 +1,9 @@
 -r base.in
-filelock[typing]
-hypothesis
-pyfakefs
-pytest
-pytest-randomly
-pytest-socket
-pytest-xdist
-pyyaml
+filelock[typing] >= 3
+hypothesis >= 6.48
+pyfakefs >= 5
+pytest >= 7
+pytest-randomly >= 3
+pytest-socket >= 0.7
+pytest-xdist >= 3
+pyyaml >= 5

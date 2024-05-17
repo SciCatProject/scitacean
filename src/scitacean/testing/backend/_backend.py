@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urljoin
 
-import requests
+import httpx
 import yaml
 
 from ..._internal.docker import docker_compose_down, docker_compose_up
@@ -89,14 +89,14 @@ def _can_connect() -> tuple[bool, str]:
     """
     scicat_access = config.local_access("user1")
     try:
-        response = requests.post(
+        response = httpx.post(
             urljoin(scicat_access.url, "Users/login"),
             json=scicat_access.user.credentials,
             timeout=0.5,
         )
-    except requests.ConnectionError as err:
+    except (httpx.NetworkError, httpx.TransportError) as err:
         return False, str(err)
-    if response.ok:
+    if response.is_success:
         return True, ""
     return False, str(f"{response}: {response.text}")
 

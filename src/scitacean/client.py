@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import quote_plus
 
-import requests
+import httpx
 
 from . import model
 from ._base_model import convert_download_to_user_model
@@ -1003,7 +1003,7 @@ class ScicatClient:
 
     def _send_to_scicat(
         self, *, cmd: str, url: str, data: model.BaseModel | None = None
-    ) -> requests.Response:
+    ) -> httpx.Response:
         if self._token is not None:
             token = self._token.get_str()
             headers = {"Authorization": f"Bearer {token}"}
@@ -1015,16 +1015,14 @@ class ScicatClient:
             headers["Content-Type"] = "application/json"
 
         try:
-            return requests.request(
+            return httpx.request(
                 method=cmd,
                 url=url,
-                data=data.model_dump_json(exclude_none=True)
+                content=data.model_dump_json(exclude_none=True)
                 if data is not None
                 else None,
                 headers=headers,
                 timeout=self._timeout.seconds,
-                stream=False,
-                verify=True,
             )
         except Exception as exc:
             # Remove concrete request function call from backtrace to hide the token.
@@ -1049,17 +1047,17 @@ class ScicatClient:
         logger.info("Calling SciCat API at %s for operation '%s'", full_url, operation)
 
         response = self._send_to_scicat(cmd=cmd, url=full_url, data=data)
-        if not response.ok:
+        if not response.is_success:
             logger.error(
                 "SciCat API call to %s failed: %s %s: %s",
                 full_url,
                 response.status_code,
-                response.reason,
+                response.reason_phrase,
                 response.text,
             )
             raise ScicatCommError(
                 f"Error in operation '{operation}': {response.status_code} "
-                f"{response.reason}: {response.text}"
+                f"{response.reason_phrase}: {response.text}"
             )
         logger.info("API call successful for operation '%s'", operation)
 
@@ -1100,16 +1098,14 @@ def _make_orig_datablock(
 
 def _log_in_via_users_login(
     url: str, username: StrStorage, password: StrStorage, timeout: datetime.timedelta
-) -> requests.Response:
+) -> httpx.Response:
     # Currently only used for functional accounts.
-    response = requests.post(
+    response = httpx.post(
         _url_concat(url, "Users/login"),
         json={"username": username.get_str(), "password": password.get_str()},
-        stream=False,
-        verify=True,
         timeout=timeout.seconds,
     )
-    if not response.ok:
+    if not response.is_success:
         get_logger().info(
             "Failed to log in via endpoint Users/login: %s", response.text
         )
@@ -1118,20 +1114,18 @@ def _log_in_via_users_login(
 
 def _log_in_via_auth_msad(
     url: str, username: StrStorage, password: StrStorage, timeout: datetime.timedelta
-) -> requests.Response:
+) -> httpx.Response:
     # Used for user accounts.
     import re
 
     # Strip the api/vn suffix
     base_url = re.sub(r"/api/v\d+/?", "", url)
-    response = requests.post(
+    response = httpx.post(
         _url_concat(base_url, "auth/msad"),
         json={"username": username.get_str(), "password": password.get_str()},
-        stream=False,
-        verify=True,
         timeout=timeout.seconds,
     )
-    if not response.ok:
+    if not response.is_success:
         get_logger().error("Failed to log in via auth/msad: %s", response.text)
     return response
 
@@ -1151,13 +1145,13 @@ def _get_token(
     response = _log_in_via_users_login(
         url=url, username=username, password=password, timeout=timeout
     )
-    if response.ok:
+    if response.is_success:
         return str(response.json()["id"])  # not sure if semantically correct
 
     response = _log_in_via_auth_msad(
         url=url, username=username, password=password, timeout=timeout
     )
-    if response.ok:
+    if response.is_success:
         return str(response.json()["access_token"])
 
     get_logger().error("Failed log in:  %s", response.text)
