@@ -407,7 +407,7 @@ class Dataset(DatasetBase):
             The newly added datablock.
         """
         dblock = OrigDatablock(
-            checksum_algorithm=checksum_algorithm, _dataset_id=self.pid
+            checksum_algorithm=checksum_algorithm,
         )
         self._orig_datablocks.append(dblock)
         return dblock
@@ -470,7 +470,7 @@ class Dataset(DatasetBase):
             return DatablockUploadModels(orig_datablocks=None)
         return DatablockUploadModels(
             orig_datablocks=[
-                dblock.make_upload_model(self) for dblock in self._orig_datablocks
+                dblock.make_upload_model() for dblock in self._orig_datablocks
             ]
         )
 

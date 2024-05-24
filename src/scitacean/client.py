@@ -291,7 +291,8 @@ class Client:
 
         with_new_pid = dataset.replace(_read_only={"pid": finalized_model.pid})
         finalized_orig_datablocks = self._upload_orig_datablocks(
-            with_new_pid.make_datablock_upload_models().orig_datablocks
+            with_new_pid.make_datablock_upload_models().orig_datablocks,
+            with_new_pid.pid,  # type: ignore[arg-type]
         )
         finalized_attachments = self._upload_attachments_for_dataset(
             with_new_pid.make_attachment_upload_models(),
@@ -333,20 +334,22 @@ class Client:
         return model.Sample.from_download_model(finalized_model)
 
     def _upload_orig_datablocks(
-        self, orig_datablocks: list[model.UploadOrigDatablock] | None
+        self,
+        orig_datablocks: list[model.UploadOrigDatablock] | None,
+        dataset_id: PID,
     ) -> list[model.DownloadOrigDatablock]:
         if not orig_datablocks:
             return []
 
         try:
             return [
-                self.scicat.create_orig_datablock(orig_datablock)
+                self.scicat.create_orig_datablock(orig_datablock, dataset_id=dataset_id)
                 for orig_datablock in orig_datablocks
             ]
         except ScicatCommError as exc:
             raise RuntimeError(
                 "Failed to upload original datablocks for SciCat dataset "
-                f"{orig_datablocks[0].datasetId}:"
+                f"{dataset_id}:"
                 f"\n{exc.args}\nThe dataset and data files were successfully uploaded "
                 "but are not linked with each other. Please fix the dataset manually!"
             ) from exc
@@ -862,7 +865,10 @@ class ScicatClient:
         )
 
     def create_orig_datablock(
-        self, dblock: model.UploadOrigDatablock
+        self,
+        dblock: model.UploadOrigDatablock,
+        *,
+        dataset_id: PID,
     ) -> model.DownloadOrigDatablock:
         """Create a new orig datablock in SciCat.
 
@@ -878,6 +884,8 @@ class ScicatClient:
         ----------
         dblock:
             Model of the orig datablock to create.
+        dataset_id:
+            PID of the dataset that this datablock belongs to.
 
         Raises
         ------
@@ -887,7 +895,7 @@ class ScicatClient:
         """
         uploaded = self._call_endpoint(
             cmd="post",
-            url="origdatablocks",
+            url=f"datasets/{quote_plus(str(dataset_id))}/origdatablocks",
             data=dblock,
             operation="create_orig_datablock",
         )

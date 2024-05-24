@@ -50,8 +50,6 @@ def orig_datablock(scicat_access):
                 path="data.nxs", size=9235, time=parse_date("2023-08-18T13:52:33.000Z")
             )
         ],
-        datasetId="PLACEHOLDER",
-        ownerGroup=scicat_access.user.group,
     )
 
 
@@ -64,8 +62,7 @@ def test_get_orig_datablock(scicat_client, key):
 
 def test_create_first_orig_datablock(scicat_client, derived_dataset, orig_datablock):
     uploaded = scicat_client.create_dataset_model(derived_dataset)
-    orig_datablock.datasetId = uploaded.pid
-    scicat_client.create_orig_datablock(orig_datablock)
+    scicat_client.create_orig_datablock(orig_datablock, dataset_id=uploaded.pid)
     downloaded = scicat_client.get_orig_datablocks(uploaded.pid)
     assert len(downloaded) == 1
     downloaded = downloaded[0]

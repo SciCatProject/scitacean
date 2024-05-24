@@ -340,12 +340,8 @@ class DownloadOrigDatablock(BaseModel):
 
 class UploadOrigDatablock(BaseModel):
     dataFileList: list[UploadDataFile]
-    datasetId: PID
     size: NonNegativeInt
-    accessGroups: list[str] | None = None
     chkAlg: str | None = None
-    instrumentGroup: str | None = None
-    ownerGroup: str | None = None
 
     @classmethod
     def download_model_type(cls) -> type[DownloadOrigDatablock]:
