@@ -43,11 +43,9 @@ _DATASETS: dict[str, UploadRawDataset | UploadDerivedDataset] = {
         datasetName="My darkest magic yet",
         description="Doing some dark shit",
         isPublished=False,
-        numberOfFiles=2,
         numberOfFilesArchived=0,
         owner="PLACEHOLDER",
         ownerEmail="PLACE@HOLD.ER",
-        size=619,
         sourceFolder=RemotePath("/hex/data/123"),
         type=DatasetType.RAW,
         principalInvestigator="Ponder Stibbons",
@@ -68,11 +66,9 @@ _DATASETS: dict[str, UploadRawDataset | UploadDerivedDataset] = {
         datasetName="Reprocessed dark magic",
         description="Making it even darker",
         isPublished=True,
-        numberOfFiles=1,
         numberOfFilesArchived=0,
         owner="PLACEHOLDER",
         ownerEmail="PLACE@HOLD.ER",
-        size=464,
         sourceFolder=RemotePath("/hex/data/dd"),
         type=DatasetType.DERIVED,
         investigator="Ponder Stibbons",
@@ -92,11 +88,9 @@ _DATASETS: dict[str, UploadRawDataset | UploadDerivedDataset] = {
         datasetName="Shoe counter",
         description="Got all these shoes!",
         isPublished=True,
-        numberOfFiles=1,
         numberOfFilesArchived=0,
         owner="PLACEHOLDER",
         ownerEmail="PLACE@HOLD.ER",
-        size=64,
         sourceFolder=RemotePath("/hex/secret/stuff"),
         type=DatasetType.RAW,
         principalInvestigator="Mustrum Ridcully",
@@ -133,10 +127,7 @@ _DATASETS: dict[str, UploadRawDataset | UploadDerivedDataset] = {
 _ORIG_DATABLOCKS: dict[str, list[UploadOrigDatablock]] = {
     "raw": [
         UploadOrigDatablock(
-            datasetId=PID(pid="PLACEHOLDER"),
-            ownerGroup="PLACEHOLDER",
             size=619,
-            accessGroups=["uu", "faculty"],
             chkAlg="md5",
             dataFileList=[
                 UploadDataFile(
@@ -162,10 +153,7 @@ _ORIG_DATABLOCKS: dict[str, list[UploadOrigDatablock]] = {
     ],
     "derived": [
         UploadOrigDatablock(
-            datasetId=PID(pid="PLACEHOLDER"),
-            ownerGroup="PLACEHOLDER",
             size=464,
-            accessGroups=["uu", "faculty"],
             chkAlg="sha256",
             dataFileList=[
                 UploadDataFile(
@@ -182,10 +170,7 @@ _ORIG_DATABLOCKS: dict[str, list[UploadOrigDatablock]] = {
     ],
     "public": [
         UploadOrigDatablock(
-            datasetId=PID(pid="PLACEHOLDER"),
-            ownerGroup="PLACEHOLDER",
             size=64,
-            accessGroups=["uu"],
             chkAlg="md5",
             dataFileList=[
                 UploadDataFile(
@@ -239,15 +224,6 @@ def _apply_config_dataset(
     return dset
 
 
-def _apply_config_orig_datablock(
-    dblock: UploadOrigDatablock, dset: DownloadDataset, user: SciCatUser
-) -> UploadOrigDatablock:
-    dblock = deepcopy(dblock)
-    dblock.ownerGroup = user.group
-    dblock.datasetId = dset.pid  # type: ignore[assignment]
-    return dblock
-
-
 def _apply_config_attachment(
     attachment: UploadAttachment, user: SciCatUser
 ) -> UploadAttachment:
@@ -282,20 +258,24 @@ def seed_database(*, client: Client, scicat_access: SciCatAccess) -> None:
     }
     INITIAL_DATASETS.update(download_datasets)
 
-    upload_orig_datablocks = {
+    download_orig_datablocks = {
         key: [
-            _apply_config_orig_datablock(
-                dblock, download_datasets[key], scicat_access.user
+            client.scicat.create_orig_datablock(
+                dblock,
+                dataset_id=download_datasets[key].pid,  # type: ignore[arg-type]
             )
             for dblock in dblocks
         ]
         for key, dblocks in _ORIG_DATABLOCKS.items()
     }
-    download_orig_datablocks = {
-        key: [client.scicat.create_orig_datablock(dblock) for dblock in dblocks]
-        for key, dblocks in upload_orig_datablocks.items()
-    }
     INITIAL_ORIG_DATABLOCKS.update(download_orig_datablocks)
+    for key, dblocks in INITIAL_ORIG_DATABLOCKS.items():
+        # Need to set these after uploading the datablocks to
+        # make sure that the database has the correct values.
+        INITIAL_DATASETS[key].numberOfFiles = sum(
+            len(dblock.dataFileList or ()) for dblock in dblocks
+        )
+        INITIAL_DATASETS[key].size = sum(dblock.size or 0 for dblock in dblocks)
 
     upload_attachments = {
         key: [

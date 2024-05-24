@@ -6,7 +6,7 @@ import pydantic
 import pytest
 from dateutil.parser import parse as parse_date
 
-from scitacean import PID, Client, RemotePath, ScicatCommError
+from scitacean import PID, Client, Dataset, RemotePath, ScicatCommError
 from scitacean.client import ScicatClient
 from scitacean.model import (
     DatasetType,
@@ -141,3 +141,22 @@ def test_get_broken_dataset_strict_validation(real_client, require_scicat_backen
     dset = INITIAL_DATASETS["partially-broken"]
     with pytest.raises(pydantic.ValidationError):
         real_client.get_dataset(dset.pid, strict_validation=True)
+
+
+def test_dataset_with_orig_datablock_roundtrip(client):
+    ds = Dataset.from_download_models(
+        INITIAL_DATASETS["raw"], INITIAL_ORIG_DATABLOCKS["raw"], []
+    ).as_new()
+    # Unset fields that a raw dataset should not have but where initialized
+    # in the download model.
+    ds.input_datasets = None
+    ds.used_software = None
+
+    # We don't need a file transfer because all files are on remote.
+    finalized = client.upload_new_dataset_now(ds)
+    downloaded = client.get_dataset(finalized.pid)
+
+    assert downloaded.name == ds.name
+    assert downloaded.owner == ds.owner
+    assert downloaded.size == ds.size
+    assert downloaded.number_of_files == ds.number_of_files

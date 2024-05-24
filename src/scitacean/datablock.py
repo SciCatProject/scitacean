@@ -8,14 +8,9 @@ from __future__ import annotations
 import dataclasses
 from collections.abc import Iterable, Iterator
 from datetime import datetime
-from typing import TYPE_CHECKING
 
 from .file import File
 from .model import DownloadOrigDatablock, UploadOrigDatablock
-from .pid import PID
-
-if TYPE_CHECKING:
-    from .dataset import Dataset
 
 # TODO Datablock
 
@@ -32,13 +27,10 @@ class OrigDatablock:
 
     _files: list[File] = dataclasses.field(init=False)
     checksum_algorithm: str | None = None
-    instrument_group: str | None = None
-    owner_group: str | None = None
     init_files: dataclasses.InitVar[Iterable[File] | None] = None
     _access_groups: list[str] | None = None
     _created_at: datetime | None = None
     _created_by: str | None = None
-    _dataset_id: PID | None = None
     _id: str | None = None
     _is_published: bool | None = None
     _updated_at: datetime | None = None
@@ -67,12 +59,9 @@ class OrigDatablock:
         dblock = orig_datablock_model
         return OrigDatablock(
             checksum_algorithm=dblock.chkAlg,
-            owner_group=dblock.ownerGroup,
-            instrument_group=dblock.instrumentGroup,
             _access_groups=dblock.accessGroups,
             _created_at=dblock.createdAt,
             _created_by=dblock.createdBy,
-            _dataset_id=orig_datablock_model.datasetId,
             _id=orig_datablock_model.id,
             _is_published=orig_datablock_model.isPublished,
             _updated_at=dblock.updatedAt,
@@ -119,11 +108,6 @@ class OrigDatablock:
         return self._updated_by
 
     @property
-    def dataset_id(self) -> PID | None:
-        """PID of the dataset this datablock belongs to."""
-        return self._dataset_id
-
-    @property
     def datablock_id(self) -> str | None:
         """ID of this datablock."""
         return self._id
@@ -146,26 +130,16 @@ class OrigDatablock:
             for f in files
         )
 
-    def make_upload_model(self, dataset: Dataset) -> UploadOrigDatablock:
+    def make_upload_model(self) -> UploadOrigDatablock:
         """Build a new pydantic model to upload this datablock.
-
-        Parameters
-        ----------
-        dataset:
-            The dataset that this orig datablock belongs to.
 
         Returns
         -------
         :
             A new model for this orig datablock.
         """
-        owner_group = self.owner_group or dataset.owner_group
         return UploadOrigDatablock(
             chkAlg=self.checksum_algorithm,
             size=self.size,
             dataFileList=[file.make_model(for_archive=False) for file in self.files],
-            datasetId=dataset.pid,  # type: ignore[arg-type]
-            ownerGroup=owner_group,
-            accessGroups=self.access_groups or dataset.access_groups,
-            instrumentGroup=self.instrument_group or dataset.instrument_group,
         )

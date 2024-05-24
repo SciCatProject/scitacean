@@ -236,10 +236,9 @@ class FakeScicatClient(ScicatClient):
 
     @_conditionally_disabled
     def create_orig_datablock(
-        self, dblock: model.UploadOrigDatablock
+        self, dblock: model.UploadOrigDatablock, *, dataset_id: PID
     ) -> model.DownloadOrigDatablock:
         """Create a new orig datablock in SciCat."""
-        dataset_id = dblock.datasetId
         if (dset := self.main.datasets.get(dataset_id)) is None:
             raise ScicatCommError(f"No dataset with id {dataset_id}")
         ingested = _process_orig_datablock(dblock, dset)
@@ -357,6 +356,7 @@ def _process_orig_datablock(
         createdAt=created_at,
         updatedBy="fake",
         updatedAt=created_at,
+        datasetId=dset.pid,
         **fields,
     )
     return processed
