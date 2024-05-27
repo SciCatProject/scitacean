@@ -98,11 +98,11 @@ extend-include = ["*.ipynb"]
 extend-exclude = [".*", "__pycache__", "build", "dist", "venv"]
 
 [tool.ruff.lint]
-select = ["B", "C4", "D", "DTZ", "E", "F", "G", "I", "FBT003", "PERF", "PGH", "PT", "PYI", "RUF", "S", "T20", "W"]
+select = ["B", "C4", "D", "DTZ", "E", "F", "G", "I", "FBT003", "PERF", "PGH", "PT", "PYI", "RUF", "S", "T20", "UP", "W"]
 ignore = [
     "D105",  # most magic methods don't need docstrings as their purpose is always the same
     "E741", "E742", "E743",  # do not use names ‘l’, ‘O’, or ‘I’; they are not a problem with a proper font
-    "UP038",  # does not seem to work and leads to slower code
+    "UP038",  # leads to slower code
     # Conflict with ruff format, see
     # https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
     "COM812", "COM819", "D206", "D300", "E111", "E114", "E117", "ISC001", "ISC002", "Q000", "Q001", "Q002", "Q003", "W191",
