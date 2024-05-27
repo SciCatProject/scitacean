@@ -1,8 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2024 SciCat Project (https://github.com/SciCatProject/scitacean)
 
-from typing import Union
-
 import pytest
 from dateutil.parser import parse as parse_datetime
 
@@ -10,9 +8,7 @@ from scitacean import Client, DatasetType, RemotePath, model
 from scitacean.testing.backend import skip_if_not_backend
 from scitacean.testing.backend.config import SciCatAccess
 
-UPLOAD_DATASETS: dict[
-    str, Union[model.UploadDerivedDataset, model.UploadRawDataset]
-] = {
+UPLOAD_DATASETS: dict[str, model.UploadDerivedDataset | model.UploadRawDataset] = {
     "raw1": model.UploadRawDataset(
         ownerGroup="PLACEHOLDER",
         accessGroups=["uu", "faculty"],
@@ -107,7 +103,7 @@ SEED = {}
 
 
 @pytest.fixture(scope="module", autouse=True)
-def seed_database(request: pytest.FixtureRequest, scicat_access: SciCatAccess) -> None:
+def _seed_database(request: pytest.FixtureRequest, scicat_access: SciCatAccess) -> None:
     skip_if_not_backend(request)
 
     client = Client.from_credentials(
@@ -120,19 +116,22 @@ def seed_database(request: pytest.FixtureRequest, scicat_access: SciCatAccess) -
         SEED[key] = client.scicat.create_dataset_model(dset)
 
 
-def test_query_dataset_multiple_by_single_field(real_client, seed_database):
+@pytest.mark.usefixtures("_seed_database")
+def test_query_dataset_multiple_by_single_field(real_client):
     datasets = real_client.scicat.query_datasets({"proposalId": "p0124"})
     actual = {ds.pid: ds for ds in datasets}
     expected = {SEED[key].pid: SEED[key] for key in ("raw1", "raw2", "raw3")}
     assert actual == expected
 
 
-def test_query_dataset_no_match(real_client, seed_database):
+@pytest.mark.usefixtures("_seed_database")
+def test_query_dataset_no_match(real_client):
     datasets = real_client.scicat.query_datasets({"owner": "librarian"})
     assert not datasets
 
 
-def test_query_dataset_multiple_by_multiple_fields(real_client, seed_database):
+@pytest.mark.usefixtures("_seed_database")
+def test_query_dataset_multiple_by_multiple_fields(real_client):
     datasets = real_client.scicat.query_datasets(
         {"proposalId": "p0124", "principalInvestigator": "investigator 1"},
     )
@@ -141,7 +140,8 @@ def test_query_dataset_multiple_by_multiple_fields(real_client, seed_database):
     assert actual == expected
 
 
-def test_query_dataset_multiple_by_derived_field(real_client, seed_database):
+@pytest.mark.usefixtures("_seed_database")
+def test_query_dataset_multiple_by_derived_field(real_client):
     datasets = real_client.scicat.query_datasets(
         {"investigator": "investigator 1"},
     )
@@ -150,14 +150,16 @@ def test_query_dataset_multiple_by_derived_field(real_client, seed_database):
     assert actual == expected
 
 
-def test_query_dataset_uses_conjunction_of_fields(real_client, seed_database):
+@pytest.mark.usefixtures("_seed_database")
+def test_query_dataset_uses_conjunction_of_fields(real_client):
     datasets = real_client.scicat.query_datasets(
         {"proposalId": "p0124", "investigator": "investigator X"},
     )
     assert not datasets
 
 
-def test_query_dataset_can_use_custom_type(real_client, seed_database):
+@pytest.mark.usefixtures("_seed_database")
+def test_query_dataset_can_use_custom_type(real_client):
     datasets = real_client.scicat.query_datasets(
         {"sourceFolder": RemotePath("/hex/raw4")},
     )
@@ -165,7 +167,8 @@ def test_query_dataset_can_use_custom_type(real_client, seed_database):
     assert datasets == expected
 
 
-def test_query_dataset_set_order(real_client, seed_database):
+@pytest.mark.usefixtures("_seed_database")
+def test_query_dataset_set_order(real_client):
     datasets = real_client.scicat.query_datasets(
         {"proposalId": "p0124"},
         order="creationTime:desc",
@@ -175,7 +178,8 @@ def test_query_dataset_set_order(real_client, seed_database):
     assert datasets == expected
 
 
-def test_query_dataset_limit_ascending_creation_time(real_client, seed_database):
+@pytest.mark.usefixtures("_seed_database")
+def test_query_dataset_limit_ascending_creation_time(real_client):
     datasets = real_client.scicat.query_datasets(
         {"proposalId": "p0124"},
         limit=2,
@@ -186,7 +190,8 @@ def test_query_dataset_limit_ascending_creation_time(real_client, seed_database)
     assert actual == expected
 
 
-def test_query_dataset_limit_descending_creation_time(real_client, seed_database):
+@pytest.mark.usefixtures("_seed_database")
+def test_query_dataset_limit_descending_creation_time(real_client):
     datasets = real_client.scicat.query_datasets(
         {"proposalId": "p0124"},
         limit=2,
@@ -197,7 +202,8 @@ def test_query_dataset_limit_descending_creation_time(real_client, seed_database
     assert actual == expected
 
 
-def test_query_dataset_limit_needs_order(real_client, seed_database):
+@pytest.mark.usefixtures("_seed_database")
+def test_query_dataset_limit_needs_order(real_client):
     with pytest.raises(ValueError, match="limit"):
         real_client.scicat.query_datasets(
             {"proposalId": "p0124"},
@@ -205,7 +211,8 @@ def test_query_dataset_limit_needs_order(real_client, seed_database):
         )
 
 
-def test_query_dataset_all(real_client, seed_database):
+@pytest.mark.usefixtures("_seed_database")
+def test_query_dataset_all(real_client):
     datasets = real_client.scicat.query_datasets({})
     actual = {ds.pid: ds for ds in datasets}
     # We cannot test `datasets` directly because there are other datasets

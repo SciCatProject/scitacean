@@ -786,7 +786,7 @@ class ScicatClient:
         )
         params = {"fields": params_model(**fields).model_dump_json()}
 
-        limits: dict[str, Union[str, int]] = {}
+        limits: dict[str, str | int] = {}
         if order is not None:
             limits["order"] = order
         if limit is not None:
