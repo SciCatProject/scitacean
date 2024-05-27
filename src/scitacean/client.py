@@ -768,7 +768,10 @@ class ScicatClient:
 
         .. code-block:: python
 
-            scicat_client.query_datasets({'proposalId': 'abc.123', 'name': 'ds name'})
+            scicat_client.query_datasets({
+                'proposalId': 'abc.123',
+                'datasetName': 'ds name'
+            })
 
         Return only the newest 5 datasets for proposal ``bc.123``:
 
