@@ -30,7 +30,7 @@ isoduration==20.11.0
     # via jsonschema
 json5==0.9.25
     # via jupyterlab-server
-jsonpointer==2.4
+jsonpointer==3.0.0
     # via jsonschema
 jsonschema[format-nongpl]==4.22.0
     # via
@@ -41,7 +41,7 @@ jupyter-events==0.10.0
     # via jupyter-server
 jupyter-lsp==2.2.5
     # via jupyterlab
-jupyter-server==2.14.0
+jupyter-server==2.14.1
     # via
     #   jupyter-lsp
     #   jupyterlab
@@ -49,15 +49,15 @@ jupyter-server==2.14.0
     #   notebook-shim
 jupyter-server-terminals==0.5.3
     # via jupyter-server
-jupyterlab==4.2.0
+jupyterlab==4.2.2
     # via -r dev.in
-jupyterlab-server==2.27.1
+jupyterlab-server==2.27.2
     # via jupyterlab
 notebook-shim==0.2.4
     # via jupyterlab
 overrides==7.7.0
     # via jupyter-server
-pip-compile-multi==2.6.3
+pip-compile-multi==2.6.4
     # via -r dev.in
 pip-tools==7.4.1
     # via pip-compile-multi
@@ -73,7 +73,7 @@ rfc3986-validator==0.1.1
     # via
     #   jsonschema
     #   jupyter-events
-ruff==0.4.4
+ruff==0.4.9
     # via -r dev.in
 send2trash==1.8.3
     # via jupyter-server
@@ -85,7 +85,7 @@ toposort==1.10
     # via pip-compile-multi
 uri-template==1.3.0
     # via jsonschema
-webcolors==1.13
+webcolors==24.6.0
     # via jsonschema
 websocket-client==1.8.0
     # via jupyter-server
