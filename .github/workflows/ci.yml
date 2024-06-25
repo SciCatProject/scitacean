@@ -44,7 +44,7 @@ jobs:
           - {python: '3.12', os: ubuntu-22.04, tox: py312-full}
           - {python: '3.11', os: ubuntu-22.04, tox: py311-full}
           - {python: '3.10', os: ubuntu-22.04, tox: py310-full}
-          - {python: '3.10', os: macos-12, tox: py310}
+          - {python: '3.10', os: macos-14, tox: py310}
           - {python: '3.10', os: windows-2022, tox: py310}
     steps:
       - run: sudo apt install --yes docker-compose
