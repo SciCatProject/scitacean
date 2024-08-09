@@ -127,4 +127,7 @@ pydocstyle.convention = "numpy"
 "src/scitacean/testing/strategies.py" = ["D401"]
 
 [tool.codespell]
-ignore-words-list = "specfield"
+ignore-words-list = [
+    "specfield",
+    "socio-economic",
+]
