@@ -9,13 +9,13 @@
 -r test.txt
 accessible-pygments==0.0.5
     # via pydata-sphinx-theme
-alabaster==0.7.16
+alabaster==1.0.0
     # via sphinx
 asttokens==2.4.1
     # via stack-data
 autodoc-pydantic==2.2.0
     # via -r docs.in
-babel==2.15.0
+babel==2.16.0
     # via
     #   pydata-sphinx-theme
     #   sphinx
@@ -29,7 +29,7 @@ charset-normalizer==3.3.2
     # via requests
 comm==0.2.2
     # via ipykernel
-debugpy==1.8.1
+debugpy==1.8.5
     # via ipykernel
 decorator==5.1.1
     # via ipython
@@ -47,9 +47,9 @@ fastjsonschema==2.20.0
     # via nbformat
 imagesize==1.4.1
     # via sphinx
-ipykernel==6.29.4
+ipykernel==6.29.5
     # via -r docs.in
-ipython==8.25.0
+ipython==8.26.0
     # via
     #   -r docs.in
     #   ipykernel
@@ -61,7 +61,7 @@ jinja2==3.1.4
     #   nbconvert
     #   nbsphinx
     #   sphinx
-jsonschema==4.22.0
+jsonschema==4.23.0
     # via nbformat
 jsonschema-specifications==2023.12.1
     # via jsonschema
@@ -96,7 +96,7 @@ mdurl==0.1.2
     # via markdown-it-py
 mistune==3.0.2
     # via nbconvert
-myst-parser==3.0.1
+myst-parser==4.0.0
     # via -r docs.in
 nbclient==0.10.0
     # via nbconvert
@@ -121,15 +121,15 @@ platformdirs==4.2.2
     # via jupyter-core
 prompt-toolkit==3.0.47
     # via ipython
-psutil==5.9.8
+psutil==6.0.0
     # via ipykernel
 ptyprocess==0.7.0
     # via pexpect
-pure-eval==0.2.2
+pure-eval==0.2.3
     # via stack-data
-pydantic-settings==2.3.3
+pydantic-settings==2.4.0
     # via autodoc-pydantic
-pydata-sphinx-theme==0.15.3
+pydata-sphinx-theme==0.15.4
     # via -r docs.in
 pygments==2.18.0
     # via
@@ -140,7 +140,7 @@ pygments==2.18.0
     #   sphinx
 python-dotenv==1.0.1
     # via pydantic-settings
-pyzmq==26.0.3
+pyzmq==26.1.0
     # via
     #   ipykernel
     #   jupyter-client
@@ -150,7 +150,7 @@ referencing==0.35.1
     #   jsonschema-specifications
 requests==2.32.3
     # via sphinx
-rpds-py==0.18.1
+rpds-py==0.20.0
     # via
     #   jsonschema
     #   referencing
@@ -158,7 +158,7 @@ snowballstemmer==2.2.0
     # via sphinx
 soupsieve==2.5
     # via beautifulsoup4
-sphinx==7.3.7
+sphinx==8.0.2
     # via
     #   -r docs.in
     #   autodoc-pydantic
@@ -168,23 +168,23 @@ sphinx==7.3.7
     #   sphinx-autodoc-typehints
     #   sphinx-copybutton
     #   sphinx-design
-sphinx-autodoc-typehints==2.1.1
+sphinx-autodoc-typehints==2.2.3
     # via -r docs.in
 sphinx-copybutton==0.5.2
     # via -r docs.in
-sphinx-design==0.6.0
+sphinx-design==0.6.1
     # via -r docs.in
-sphinxcontrib-applehelp==1.0.8
+sphinxcontrib-applehelp==2.0.0
     # via sphinx
-sphinxcontrib-devhelp==1.0.6
+sphinxcontrib-devhelp==2.0.0
     # via sphinx
-sphinxcontrib-htmlhelp==2.0.5
+sphinxcontrib-htmlhelp==2.1.0
     # via sphinx
 sphinxcontrib-jsmath==1.0.1
     # via sphinx
-sphinxcontrib-qthelp==1.0.7
+sphinxcontrib-qthelp==2.0.0
     # via sphinx
-sphinxcontrib-serializinghtml==1.1.10
+sphinxcontrib-serializinghtml==2.0.0
     # via sphinx
 stack-data==0.6.3
     # via ipython

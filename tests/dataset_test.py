@@ -462,7 +462,7 @@ _UNGENERATABLE_FIELDS = ("job_parameters", "meta")
     (
         f
         for f in Dataset.fields(read_only=False)
-        if f.type != bool and f.name not in _UNGENERATABLE_FIELDS
+        if f.type is not bool and f.name not in _UNGENERATABLE_FIELDS
     ),
     ids=lambda f: f.name,
 )

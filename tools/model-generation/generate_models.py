@@ -75,8 +75,8 @@ def generate_dataset_fields(dset_spec: DatasetSpec) -> str:
 def format_with_ruff(path: Path) -> None:
     # Root of Scitacean repo
     base_path = Path(__file__).resolve().parent.parent.parent
-    subprocess.check_call(
-        ["ruff", "format", path.resolve().relative_to(base_path)],  # noqa: S603, S607
+    subprocess.check_call(  # noqa: S603
+        ["ruff", "format", path.resolve().relative_to(base_path)],  # noqa: S607
         cwd=base_path,
     )
 

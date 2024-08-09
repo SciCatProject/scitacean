@@ -66,6 +66,8 @@ filterwarnings = [
     "error",
     # Many tests don't set a checksum, so File raises this warning.
     "ignore:Cannot check if local file:UserWarning",
+    # From paramiko
+    "ignore:TripleDES has been moved:cryptography.utils.CryptographyDeprecationWarning",
 ]
 
 [tool.mypy]
@@ -127,4 +129,7 @@ pydocstyle.convention = "numpy"
 "src/scitacean/testing/strategies.py" = ["D401"]
 
 [tool.codespell]
-ignore-words-list = "specfield"
+ignore-words-list = [
+    "specfield",
+    "socio-economic",
+]

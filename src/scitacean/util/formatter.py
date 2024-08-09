@@ -14,7 +14,7 @@ try:
     StrOrLiteralStr = TypeVar("StrOrLiteralStr", LiteralString, str)
     del LiteralString, TypeVar
 except ImportError:
-    StrOrLiteralStr = str  # type: ignore[misc]
+    StrOrLiteralStr = str  # type: ignore[misc, assignment]
 
 
 class DatasetPathFormatter(Formatter):
@@ -51,7 +51,7 @@ class DatasetPathFormatter(Formatter):
     """
 
     def parse(
-        self, format_string: str
+        self, format_string: StrOrLiteralStr
     ) -> Iterable[
         tuple[
             StrOrLiteralStr,
