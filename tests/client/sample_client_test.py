@@ -15,7 +15,7 @@ from scitacean.testing.backend import skip_if_not_backend
 
 
 # Creating samples requires at least ingestor permissions.
-@pytest.fixture()
+@pytest.fixture
 def ingestor_access(
     scicat_access: backend_config.SciCatAccess,
 ) -> backend_config.SciCatAccess:
@@ -25,7 +25,7 @@ def ingestor_access(
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def real_client(
     request: pytest.FixtureRequest,
     ingestor_access: backend_config.SciCatAccess,
@@ -38,12 +38,12 @@ def real_client(
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def scicat_client(client: Client) -> ScicatClient:
     return client.scicat
 
 
-@pytest.fixture()
+@pytest.fixture
 def sample(ingestor_access):
     scicat_access = ingestor_access
     return Sample(

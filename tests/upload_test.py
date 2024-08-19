@@ -29,7 +29,7 @@ def get_file_transfer(client: Client) -> FakeFileTransfer:
     return client.file_transfer  # type: ignore[return-value]
 
 
-@pytest.fixture()
+@pytest.fixture
 def dataset():
     return Dataset(
         access_groups=["group1", "2nd_group"],
@@ -51,7 +51,7 @@ def dataset():
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def dataset_with_files(dataset, fs):
     make_file(fs, path="file.nxs", contents=b"contents of file.nxs")
     make_file(fs, path="the_log_file.log", contents=b"this is a log file")
@@ -59,7 +59,7 @@ def dataset_with_files(dataset, fs):
     return dataset
 
 
-@pytest.fixture()
+@pytest.fixture
 def attachments():
     return [
         Attachment(
@@ -75,7 +75,7 @@ def attachments():
     ]
 
 
-@pytest.fixture()
+@pytest.fixture
 def client(fs, scicat_access):
     return FakeClient.from_credentials(
         url="",

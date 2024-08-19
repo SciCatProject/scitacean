@@ -22,7 +22,7 @@ def _checksum(data: bytes) -> str:
     return checksum.hexdigest()
 
 
-@pytest.fixture()
+@pytest.fixture
 def data_files():
     contents = {
         "file1.dat": b"contents-of-file1",
@@ -41,7 +41,7 @@ def data_files():
     return files, contents
 
 
-@pytest.fixture()
+@pytest.fixture
 def dataset_and_files(data_files):
     model = DownloadDataset(
         contactEmail="p.stibbons@uu.am",

@@ -295,7 +295,7 @@ class CorruptingTransfer(paramiko.Transport):
         return CorruptingSFTP.from_transport(self)
 
 
-@pytest.fixture()
+@pytest.fixture
 def sftp_corrupting_connect(sftp_access, sftp_connection_config):
     def connect(host: str, port: int) -> paramiko.SFTPClient:
         client = paramiko.SSHClient()
@@ -324,7 +324,7 @@ class RaisingTransfer(paramiko.Transport):
         return RaisingSFTP.from_transport(self)
 
 
-@pytest.fixture()
+@pytest.fixture
 def sftp_raising_connect(sftp_access):
     def connect(host: str, port: int) -> paramiko.SFTPClient:
         client = paramiko.SSHClient()

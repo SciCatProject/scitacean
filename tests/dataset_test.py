@@ -17,7 +17,7 @@ from scitacean.testing.client import process_uploaded_dataset
 from .common.files import make_file
 
 
-@pytest.fixture()
+@pytest.fixture
 def raw_download_model():
     return model.DownloadDataset(
         contactEmail="p.stibbons@uu.am",
@@ -86,7 +86,7 @@ def raw_download_model():
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def derived_download_model():
     return model.DownloadDataset(
         contactEmail="p.stibbons@uu.am",

@@ -21,12 +21,12 @@ from scitacean.testing.backend.seed import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def scicat_client(client: Client) -> ScicatClient:
     return client.scicat
 
 
-@pytest.fixture()
+@pytest.fixture
 def derived_dataset(scicat_access):
     return UploadDerivedDataset(
         contactEmail="black.foess@dom.koelle",
@@ -43,7 +43,7 @@ def derived_dataset(scicat_access):
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def attachment(scicat_access):
     return UploadAttachment(
         caption="An attachment",

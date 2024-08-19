@@ -16,7 +16,7 @@ from scitacean.model import DownloadDataFile
 from .common.files import make_file
 
 
-@pytest.fixture()
+@pytest.fixture
 def fake_file(fs):
     return make_file(fs, path=Path("local", "dir", "events.nxs"))
 

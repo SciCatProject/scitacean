@@ -35,7 +35,7 @@ def scicat_access() -> SciCatAccess:
     return local_access("user1")
 
 
-@pytest.fixture()
+@pytest.fixture
 def fake_client(scicat_access: SciCatAccess) -> FakeClient:
     """Fixture that returns a fake client.
 
@@ -72,7 +72,7 @@ def fake_client(scicat_access: SciCatAccess) -> FakeClient:
     return client
 
 
-@pytest.fixture()
+@pytest.fixture
 def real_client(scicat_access: SciCatAccess, scicat_backend: bool) -> Client | None:
     """Fixture that returns a real client if backend tests are enabled.
 
@@ -110,7 +110,7 @@ def client(request, scicat_backend) -> Client | FakeClient:
     return request.getfixturevalue("real_client")  # type: ignore[no-any-return]
 
 
-@pytest.fixture()
+@pytest.fixture
 def require_scicat_backend(request, scicat_backend) -> None:  # noqa: PT004
     """Fixture to declare that a test needs a local scicat backend.
 

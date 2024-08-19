@@ -75,7 +75,7 @@ def sftp_data_dir(sftp_base_dir: Path | None) -> Path | None:
     return sftp_base_dir / "data"
 
 
-@pytest.fixture()
+@pytest.fixture
 def require_sftp_fileserver(request, sftp_fileserver) -> None:  # noqa: PT004
     """Fixture to declare that a test needs a local SFTP server.
 
