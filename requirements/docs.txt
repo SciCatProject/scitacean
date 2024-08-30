@@ -49,7 +49,7 @@ imagesize==1.4.1
     # via sphinx
 ipykernel==6.29.5
     # via -r docs.in
-ipython==8.26.0
+ipython==8.27.0
     # via
     #   -r docs.in
     #   ipykernel
@@ -107,7 +107,7 @@ nbformat==5.10.4
     #   nbclient
     #   nbconvert
     #   nbsphinx
-nbsphinx==0.9.4
+nbsphinx==0.9.5
     # via -r docs.in
 nest-asyncio==1.6.0
     # via ipykernel
@@ -140,7 +140,7 @@ pygments==2.18.0
     #   sphinx
 python-dotenv==1.0.1
     # via pydantic-settings
-pyzmq==26.1.0
+pyzmq==26.2.0
     # via
     #   ipykernel
     #   jupyter-client
@@ -156,7 +156,7 @@ rpds-py==0.20.0
     #   referencing
 snowballstemmer==2.2.0
     # via sphinx
-soupsieve==2.5
+soupsieve==2.6
     # via beautifulsoup4
 sphinx==8.0.2
     # via
@@ -168,7 +168,7 @@ sphinx==8.0.2
     #   sphinx-autodoc-typehints
     #   sphinx-copybutton
     #   sphinx-design
-sphinx-autodoc-typehints==2.2.3
+sphinx-autodoc-typehints==2.3.0
     # via -r docs.in
 sphinx-copybutton==0.5.2
     # via -r docs.in

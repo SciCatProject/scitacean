@@ -11,7 +11,7 @@ anyio==4.4.0
     # via httpx
 bcrypt==4.2.0
     # via paramiko
-certifi==2024.7.4
+certifi==2024.8.30
     # via
     #   httpcore
     #   httpx
@@ -29,14 +29,14 @@ h11==0.14.0
     # via httpcore
 httpcore==1.0.5
     # via httpx
-httpx==0.27.0
+httpx==0.27.2
     # via -r base.in
-idna==3.7
+idna==3.8
     # via
     #   anyio
     #   email-validator
     #   httpx
-paramiko==3.4.0
+paramiko==3.4.1
     # via -r base.in
 pycparser==2.22
     # via cffi

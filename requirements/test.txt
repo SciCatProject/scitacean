@@ -12,7 +12,7 @@ execnet==2.1.1
     # via pytest-xdist
 filelock[typing]==3.15.4
     # via -r test.in
-hypothesis==6.110.1
+hypothesis==6.111.2
     # via -r test.in
 iniconfig==2.0.0
     # via pytest
