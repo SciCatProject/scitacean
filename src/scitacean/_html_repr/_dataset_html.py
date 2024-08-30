@@ -99,7 +99,7 @@ def _format_field(field: Field) -> str:
     )
     typ = format_type(field.type)
     description = html.escape(field.description)
-    row_highlight = _row_highlight_classes(field)
+    row_highlight, title = _row_highlight_classes_and_title(field)
 
     template = _resources.dataset_field_repr_template()
     return template.substitute(
@@ -109,6 +109,7 @@ def _format_field(field: Field) -> str:
         value=value,
         description=description,
         extra_classes=row_highlight,
+        field_title=f'title="{title}"' if title else "",
     )
 
 
@@ -157,7 +158,7 @@ def _get_fields(dset: Dataset) -> list[Field]:
 
 
 def _check_error(field: Dataset.Field, validation: dict[str, str]) -> str | None:
-    field_spec = next(filter(lambda f: f.name == field.name, Dataset.fields()))
+    field_spec = next(f for f in Dataset.fields() if f.name == field.name)
     return validation.get(field_spec.scicat_name, None)
 
 
@@ -205,12 +206,12 @@ def _human_readable_size(size_in_bytes: int) -> str:
     return f"{size_in_bytes} B"
 
 
-def _row_highlight_classes(field: Field) -> str:
+def _row_highlight_classes_and_title(field: Field) -> tuple[str, str | None]:
     if field.required and field.value is None:
-        return "cean-missing-value"
+        return "cean-missing-value", "Missing required field"
     # Do not flag read-only fields with a value as errors.
     # Validation is geared towards uploading where such fields must be None.
     # But here, we don't want to flag downloaded datasets as bad because of this.
     if field.error and not (field.read_only and field.error.startswith("Extra inputs")):
-        return "cean-error"
-    return ""
+        return "cean-error", field.error
+    return "", None

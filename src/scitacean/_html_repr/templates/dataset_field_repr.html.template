@@ -1,4 +1,4 @@
-<tr class="field ${extra_classes}">
+<tr class="cean-field ${extra_classes}" ${field_title}>
     <td class="cean-field-flag">${flag}</td>
     <td class="cean-field-name">${name}</td>
     <td class="cean-field-type">${type}</td>
