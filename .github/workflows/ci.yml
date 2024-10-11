@@ -49,7 +49,7 @@ jobs:
           - {python: '3.10', os: windows-2022, tox: py310}
     steps:
       - run: sudo apt install --yes docker-compose
-        if: ${{ contains(matrix.variant.os, 'ubuntu') }}
+        if: ${{ contains(matrix.os, 'ubuntu') }}
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
