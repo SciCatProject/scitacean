@@ -23,11 +23,13 @@ from scitacean.transfer.sftp import (
 
 
 @pytest.fixture(scope="session", autouse=True)
-def _server(request, sftp_fileserver):
+def _server(request, sftp_fileserver) -> None:
     skip_if_not_sftp(request)
 
 
-def test_download_one_file(sftp_access, sftp_connect_with_username_password, tmp_path):
+def test_download_one_file(
+    sftp_access, sftp_connect_with_username_password, tmp_path
+) -> None:
     sftp = SFTPFileTransfer(
         host=sftp_access.host,
         port=sftp_access.port,
@@ -42,7 +44,9 @@ def test_download_one_file(sftp_access, sftp_connect_with_username_password, tmp
     )
 
 
-def test_download_two_files(sftp_access, sftp_connect_with_username_password, tmp_path):
+def test_download_two_files(
+    sftp_access, sftp_connect_with_username_password, tmp_path
+) -> None:
     sftp = SFTPFileTransfer(
         host=sftp_access.host,
         port=sftp_access.port,
@@ -278,14 +282,16 @@ def test_stat_uploaded_file(
 class CorruptingSFTP(paramiko.SFTPClient):
     """Appends bytes to uploaded files to simulate a broken transfer."""
 
-    def put(self, localpath, remotepath, callback=None, confirm=True):
+    def put(
+        self, localpath, remotepath, callback=None, confirm=True
+    ) -> paramiko.SFTPAttributes:
         with open(localpath) as f:
             content = f.read()
         with tempfile.TemporaryDirectory() as tempdir:
             corrupted_path = Path(tempdir) / "corrupted"
             with open(corrupted_path, "w") as f:
                 f.write(content + "\nevil bytes")
-            super().put(str(corrupted_path), remotepath, callback, confirm)
+            return super().put(str(corrupted_path), remotepath, callback, confirm)
 
 
 class CorruptingTransfer(paramiko.Transport):
@@ -296,7 +302,7 @@ class CorruptingTransfer(paramiko.Transport):
 
 
 @pytest.fixture
-def sftp_corrupting_connect(sftp_access, sftp_connection_config):
+def sftp_corrupting_connect(sftp_access, sftp_connection_config) -> None:
     def connect(host: str, port: int) -> paramiko.SFTPClient:
         client = paramiko.SSHClient()
         client.set_missing_host_key_policy(IgnorePolicy())
@@ -315,7 +321,9 @@ def sftp_corrupting_connect(sftp_access, sftp_connection_config):
 
 
 class RaisingSFTP(paramiko.SFTPClient):
-    def put(self, localpath, remotepath, callback=None, confirm=True):
+    def put(
+        self, localpath, remotepath, callback=None, confirm=True
+    ) -> paramiko.SFTPAttributes:
         raise RuntimeError("Upload disabled")
 
 
@@ -325,7 +333,7 @@ class RaisingTransfer(paramiko.Transport):
 
 
 @pytest.fixture
-def sftp_raising_connect(sftp_access):
+def sftp_raising_connect(sftp_access) -> None:
     def connect(host: str, port: int) -> paramiko.SFTPClient:
         client = paramiko.SSHClient()
         client.set_missing_host_key_policy(IgnorePolicy())
@@ -365,7 +373,7 @@ def test_upload_file_reverts_if_upload_fails(
 
 
 class SFTPTestFileTransfer(SFTPFileTransfer):
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
     @contextmanager

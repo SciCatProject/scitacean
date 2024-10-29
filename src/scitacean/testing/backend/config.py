@@ -5,10 +5,18 @@
 import json
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TypedDict
+
+
+class ScicatCredentials(TypedDict):
+    """A dict with testing credentials for SciCat."""
+
+    username: str
+    password: str
 
 
 @dataclass
-class SciCatUser:
+class ScicatUser:
     """A SciCat user.
 
     Warning
@@ -24,7 +32,7 @@ class SciCatUser:
     group: str
 
     @property
-    def credentials(self) -> dict[str, str]:
+    def credentials(self) -> ScicatCredentials:
         """Return login credentials for this user.
 
         User as
@@ -51,43 +59,43 @@ class SciCatUser:
 
 # see https://github.com/SciCatProject/scicat-backend-next/blob/master/src/config/configuration.ts
 USERS = {
-    "ingestor": SciCatUser(
+    "ingestor": ScicatUser(
         username="ingestor",
         password="aman",  # noqa: S106
         email="scicatingestor@your.site",
         group="ingestor",
     ),
-    "user1": SciCatUser(
+    "user1": ScicatUser(
         username="user1",
         password="a609316768619f154ef58db4d847b75e",  # noqa: S106
         email="user1@your.site",
         group="group1",
     ),
-    "user2": SciCatUser(
+    "user2": ScicatUser(
         username="user2",
         password="f522d1d715970073a6413474ca0e0f63",  # noqa: S106
         email="user2@your.site",
         group="group2",
     ),
-    "user3": SciCatUser(
+    "user3": ScicatUser(
         username="user3",
         password="70dc489e8ee823ae815e18d664424df2",  # noqa: S106
         email="user3@your.site",
         group="group3",
     ),
-    "user4": SciCatUser(
+    "user4": ScicatUser(
         username="user4",
         password="0014890e7020f515b92b767227ef2dfa",  # noqa: S106
         email="user4@your.site",
         group="group4",
     ),
-    "user5.1": SciCatUser(
+    "user5.1": ScicatUser(
         username="user5.1",
         password="359a5fda99bfe5dbc42ee9b3ede77fb7",  # noqa: S106
         email="user5.1@your.site",
         group="group5",
     ),
-    "user5.2": SciCatUser(
+    "user5.2": ScicatUser(
         username="user5.2",
         password="f3ebd2e4def95db59ef95ee32ef45242",  # noqa: S106
         email="user5.2@your.site",
@@ -109,7 +117,7 @@ class SciCatAccess:
     """Access parameters for a local SciCat backend."""
 
     url: str
-    user: SciCatUser
+    user: ScicatUser
 
 
 def local_access(user: str) -> SciCatAccess:

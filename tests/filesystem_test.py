@@ -3,10 +3,12 @@
 import hashlib
 from datetime import datetime, timedelta, timezone
 from pathlib import Path, PurePath, PurePosixPath, PureWindowsPath
+from typing import Any
 
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st
+from pyfakefs.fake_filesystem import FakeFilesystem
 
 from scitacean.filesystem import (
     RemotePath,
@@ -17,14 +19,14 @@ from scitacean.filesystem import (
 )
 
 
-def test_remote_path_creation_and_posix():
+def test_remote_path_creation_and_posix() -> None:
     assert RemotePath("/mnt/data/folder/file.txt").posix == "/mnt/data/folder/file.txt"
     assert RemotePath("dir/image.png").posix == "dir/image.png"
     assert RemotePath("data.nxs").posix == "data.nxs"
     assert RemotePath(RemotePath("source/events.h5")).posix == "source/events.h5"
 
 
-def test_remote_path_from_segments():
+def test_remote_path_from_segments() -> None:
     assert RemotePath("/mnt", "dir", "file.csv") == RemotePath("/mnt/dir/file.csv")
     assert RemotePath("folder", "file") == RemotePath("folder/file")
     assert RemotePath("", "folder", "file.csv") == RemotePath("folder/file.csv")
@@ -32,7 +34,7 @@ def test_remote_path_from_segments():
     assert RemotePath("folder", "file.csv", "") == RemotePath("folder/file.csv")
 
 
-def test_remote_path_init_requires_path_like():
+def test_remote_path_init_requires_path_like() -> None:
     with pytest.raises(TypeError):
         RemotePath(6133)  # type: ignore[arg-type]
     with pytest.raises(TypeError):
@@ -40,34 +42,34 @@ def test_remote_path_init_requires_path_like():
 
 
 @pytest.mark.parametrize("local_type", [PurePath, Path])
-def test_remote_path_rejects_os_path(local_type):
+def test_remote_path_rejects_os_path(local_type: type) -> None:
     with pytest.raises(TypeError):
         RemotePath(local_type("dir", "file.csv"))
 
 
 @pytest.mark.parametrize("local_type", [PurePath, PurePosixPath, PureWindowsPath])
-def test_remote_path_from_local(local_type):
+def test_remote_path_from_local(local_type: type) -> None:
     local_path = local_type("dir", "folder", "file.csv")
     remote_path = RemotePath.from_local(local_path)
     assert remote_path == RemotePath("dir/folder/file.csv")
 
 
 @pytest.mark.parametrize("local_type", [PurePath, PurePosixPath, PureWindowsPath])
-def test_remote_path_posix_uses_forward_slashes(local_type):
+def test_remote_path_posix_uses_forward_slashes(local_type: type) -> None:
     local_path = local_type("dir", "folder", "file.csv")
     remote_path = RemotePath.from_local(local_path)
     assert remote_path.posix == "dir/folder/file.csv"
 
 
-def test_remote_path_str():
+def test_remote_path_str() -> None:
     assert str(RemotePath("folder/file.dat")) == "RemotePath('folder/file.dat')"
 
 
-def test_remote_path_repr():
+def test_remote_path_repr() -> None:
     assert repr(RemotePath("folder/file.dat")) == "RemotePath('folder/file.dat')"
 
 
-def test_remote_path_to_local():
+def test_remote_path_to_local() -> None:
     assert RemotePath("folder/file.dat").to_local() == PurePath("folder", "file.dat")
     assert RemotePath("/folder/file.dat").to_local() == PurePath("/folder", "file.dat")
     assert RemotePath("folder//file.dat").to_local() == PurePath("folder", "file.dat")
@@ -77,7 +79,7 @@ def test_remote_path_to_local():
 @pytest.mark.parametrize(
     "types", [(RemotePath, RemotePath), (RemotePath, str), (str, RemotePath)]
 )
-def test_remote_path_eq(types):
+def test_remote_path_eq(types: Any) -> None:
     ta, tb = types
     assert ta("/source/data.csv") == tb("/source/data.csv")
 
@@ -85,7 +87,7 @@ def test_remote_path_eq(types):
 @pytest.mark.parametrize(
     "types", [(RemotePath, RemotePath), (RemotePath, str), (str, RemotePath)]
 )
-def test_remote_path_neq(types):
+def test_remote_path_neq(types: Any) -> None:
     ta, tb = types
     assert ta("/source/data.csv") != tb("/host/dir/song.mp3")
 
@@ -93,7 +95,7 @@ def test_remote_path_neq(types):
 @pytest.mark.parametrize(
     "types", [(RemotePath, RemotePath), (RemotePath, str), (str, RemotePath)]
 )
-def test_remote_path_join(types):
+def test_remote_path_join(types: Any) -> None:
     ta, tb = types
     assert ta("/source/123") / tb("file.data") == RemotePath("/source/123/file.data")
     assert ta("/source/123/") / tb("file.data") == RemotePath("/source/123/file.data")
@@ -104,7 +106,7 @@ def test_remote_path_join(types):
 @pytest.mark.parametrize(
     "types", [(RemotePath, RemotePath), (RemotePath, str), (str, RemotePath)]
 )
-def test_remote_path_join_url(types):
+def test_remote_path_join_url(types: Any) -> None:
     ta, tb = types
     assert ta("https://server.eu") / tb("1234-abcd/data.txt") == RemotePath(
         "https://server.eu/1234-abcd/data.txt"
@@ -120,21 +122,21 @@ def test_remote_path_join_url(types):
     )
 
 
-def test_remote_path_join_rejects_os_path():
+def test_remote_path_join_rejects_os_path() -> None:
     with pytest.raises(TypeError):
         RemotePath("asd") / Path("qwe")  # type: ignore[operator]
     with pytest.raises(TypeError):
         Path("qwe") / RemotePath("asd")  # type: ignore[operator]
 
 
-def test_remote_path_name():
+def test_remote_path_name() -> None:
     assert RemotePath("table.csv").name == "table.csv"
     assert RemotePath("README").name == "README"
     assert RemotePath("path/").name == "path"
     assert RemotePath("dir/folder/file1.txt").name == "file1.txt"
 
 
-def test_remote_path_suffix():
+def test_remote_path_suffix() -> None:
     assert RemotePath("file.txt").suffix == ".txt"
     assert RemotePath("folder/image.png").suffix == ".png"
     assert RemotePath("dir/table.txt.csv").suffix == ".csv"
@@ -143,7 +145,7 @@ def test_remote_path_suffix():
     assert RemotePath("source/file").suffix is None
 
 
-def test_remote_path_parent():
+def test_remote_path_parent() -> None:
     assert RemotePath("/").parent == RemotePath("/")
     assert RemotePath("/folder").parent == RemotePath("/")
     assert RemotePath("/folder/").parent == RemotePath("/")
@@ -155,7 +157,7 @@ def test_remote_path_parent():
     assert RemotePath("relative/sub").parent == RemotePath("relative")
 
 
-def test_remote_path_truncated():
+def test_remote_path_truncated() -> None:
     assert RemotePath("something-long.txt").truncated(10) == "someth.txt"
     assert RemotePath("longlonglong/short").truncated(5) == "longl/short"
     assert RemotePath("a-long.data.dir/filename.csv").truncated(7) == "a-l.dir/fil.csv"
@@ -163,12 +165,12 @@ def test_remote_path_truncated():
 
 
 @pytest.mark.parametrize("size", [0, 1, 57121])
-def test_file_size(fs, size):
+def test_file_size(fs: FakeFilesystem, size: int) -> None:
     fs.create_file("image.tiff", st_size=size)
     assert file_size(Path("image.tiff")) == size
 
 
-def test_file_modification_time(fs):
+def test_file_modification_time(fs: FakeFilesystem) -> None:
     fs.create_file("data.dat")
     expected = datetime.now(tz=timezone.utc)
     assert abs(file_modification_time(Path("data.dat")) - expected) < timedelta(
@@ -181,7 +183,7 @@ def test_file_modification_time(fs):
     [b"small file contents", b"large contents " * 100000],
     ids=("small", "large"),
 )
-def test_checksum_of_file(fs, contents):
+def test_checksum_of_file(fs: FakeFilesystem, contents: bytes) -> None:
     fs.create_file("file.txt", contents=contents)
 
     assert (
@@ -195,18 +197,18 @@ def test_checksum_of_file(fs, contents):
 
 
 @pytest.mark.parametrize("path_type", [str, Path, RemotePath])
-def test_escape_path_returns_same_type_as_input(path_type):
+def test_escape_path_returns_same_type_as_input(path_type: type) -> None:
     assert isinstance(escape_path(path_type("x")), path_type)
 
 
 @given(st.text())
-def test_escape_path_returns_ascii(path):
+def test_escape_path_returns_ascii(path: str) -> None:
     # does not raise
     escape_path(path).encode("ascii", "strict")
 
 
 @given(st.text())
-def test_escape_path_returns_no_bad_character(path):
+def test_escape_path_returns_no_bad_character(path: str) -> None:
     bad_linux = "/" + chr(0)
     bad_windows = '<>:"\\/|?*' + "".join(map(chr, range(0, 31)))
     escaped = escape_path(path)

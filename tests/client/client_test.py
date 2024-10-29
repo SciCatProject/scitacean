@@ -11,18 +11,19 @@ from typing import Any
 import pytest
 
 from scitacean import PID, Client
+from scitacean.testing.backend import config as backend_config
 from scitacean.testing.backend.seed import INITIAL_DATASETS
 from scitacean.testing.client import FakeClient
 from scitacean.util.credentials import SecretStr
 
 
-def test_from_token_fake():
+def test_from_token_fake() -> None:
     # This should not call the API
     client = FakeClient.from_token(url="some.url/api/v3", token="a-token")  # noqa: S106
     assert isinstance(client, FakeClient)
 
 
-def test_from_credentials_fake():
+def test_from_credentials_fake() -> None:
     # This should not call the API
     client = FakeClient.from_credentials(
         url="some.url/api/v3",
@@ -35,23 +36,27 @@ def test_from_credentials_fake():
     )
 
 
-def test_from_credentials_real(scicat_access, require_scicat_backend):
+def test_from_credentials_real(
+    scicat_access: backend_config.SciCatAccess, require_scicat_backend: None
+) -> None:
     Client.from_credentials(url=scicat_access.url, **scicat_access.user.credentials)
 
 
-def test_cannot_pickle_client_credentials_manual_token_str():
+def test_cannot_pickle_client_credentials_manual_token_str() -> None:
     client = Client.from_token(url="/", token="the-token")  # noqa: S106
     with pytest.raises(TypeError):
         pickle.dumps(client)
 
 
-def test_cannot_pickle_client_credentials_manual_token_secret_str():
+def test_cannot_pickle_client_credentials_manual_token_secret_str() -> None:
     client = Client.from_token(url="/", token=SecretStr("the-token"))
     with pytest.raises(TypeError):
         pickle.dumps(client)
 
 
-def test_cannot_pickle_client_credentials_login(scicat_access, require_scicat_backend):
+def test_cannot_pickle_client_credentials_login(
+    scicat_access: backend_config.SciCatAccess, require_scicat_backend: None
+) -> None:
     client = Client.from_credentials(
         url=scicat_access.url, **scicat_access.user.credentials
     )
@@ -59,7 +64,7 @@ def test_cannot_pickle_client_credentials_login(scicat_access, require_scicat_ba
         pickle.dumps(client)
 
 
-def test_connection_error_does_not_contain_token():
+def test_connection_error_does_not_contain_token() -> None:
     client = Client.from_token(
         url="https://not-actually-a_server",
         token="the token/which_must-be.kept secret",  # noqa: S106
@@ -73,7 +78,7 @@ def test_connection_error_does_not_contain_token():
             assert "the token/which_must-be.kept secret" not in str(arg)
 
 
-def test_fake_can_disable_functions():
+def test_fake_can_disable_functions() -> None:
     client = FakeClient(
         disable={
             "get_dataset_model": RuntimeError("custom failure"),
@@ -113,13 +118,15 @@ def make_token(exp_in: timedelta) -> str:
     return ".".join((encode_jwt_part(header), encode_jwt_part(payload), signature))
 
 
-def test_detects_expired_token_init():
+def test_detects_expired_token_init() -> None:
     token = make_token(timedelta(milliseconds=0))
     with pytest.raises(RuntimeError, match="SciCat login has expired"):
         Client.from_token(url="scicat.com", token=token)
 
 
-def test_detects_expired_token_get_dataset(scicat_access, require_scicat_backend):
+def test_detects_expired_token_get_dataset(
+    scicat_access: backend_config.SciCatAccess, require_scicat_backend: None
+) -> None:
     # The token is invalid, but the expiration should be detected before
     # even sending it to SciCat.
     token = make_token(timedelta(milliseconds=2100))  # > than denial period = 2s
