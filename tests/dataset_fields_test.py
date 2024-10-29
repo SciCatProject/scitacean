@@ -30,7 +30,7 @@ _UNGENERATABLE_FIELDS = ("job_parameters", "meta")
 _NOT_SETTABLE_FIELDS = ("type",)
 
 
-def test_init_dataset_with_only_type():
+def test_init_dataset_with_only_type() -> None:
     dset = Dataset(type="raw")
     assert dset.type == DatasetType.RAW
 
@@ -38,29 +38,29 @@ def test_init_dataset_with_only_type():
 @pytest.mark.parametrize(
     "typ", ["raw", "derived", DatasetType.RAW, DatasetType.DERIVED]
 )
-def test_init_dataset_accepted_types(typ):
+def test_init_dataset_accepted_types(typ: str | DatasetType) -> None:
     dset = Dataset(type=typ)
     assert dset.type == typ
 
 
-def test_init_dataset_raises_for_bad_type():
+def test_init_dataset_raises_for_bad_type() -> None:
     with pytest.raises(ValueError, match="DatasetType"):
         Dataset(type="bad-type")  # type: ignore[arg-type]
 
 
-def test_init_dataset_needs_type():
+def test_init_dataset_needs_type() -> None:
     with pytest.raises(TypeError):
         Dataset()  # type: ignore[call-arg]
 
 
-def test_init_dataset_sets_creation_time():
+def test_init_dataset_sets_creation_time() -> None:
     expected = datetime.now(tz=timezone.utc)
     dset = Dataset(type="raw")
     assert dset.creation_time is not None
     assert abs(dset.creation_time - expected) < timedelta(seconds=30)
 
 
-def test_init_dataset_can_set_creation_time():
+def test_init_dataset_can_set_creation_time() -> None:
     dt: str | datetime
 
     dt = dateutil.parser.parse("2022-01-10T11:14:52.623Z")
@@ -83,7 +83,7 @@ def test_init_dataset_can_set_creation_time():
 
 
 @pytest.mark.parametrize("field", Dataset.fields(read_only=True), ids=lambda f: f.name)
-def test_cannot_set_read_only_fields(field):
+def test_cannot_set_read_only_fields(field: Dataset.Field) -> None:
     dset = Dataset(type="raw")
     with pytest.raises(AttributeError):
         setattr(dset, field.name, None)
@@ -100,7 +100,7 @@ def test_cannot_set_read_only_fields(field):
 )
 @given(st.data())
 @settings(max_examples=10)
-def test_can_init_writable_fields(field, data):
+def test_can_init_writable_fields(field: Dataset.Field, data: st.DataObject) -> None:
     value = data.draw(st.from_type(field.type))
     dset = Dataset(type="raw", **{field.name: value})
     assert getattr(dset, field.name) == value
@@ -117,7 +117,7 @@ def test_can_init_writable_fields(field, data):
 )
 @given(st.data())
 @settings(max_examples=10)
-def test_can_set_writable_fields(field, data):
+def test_can_set_writable_fields(field: Dataset.Field, data: st.DataObject) -> None:
     value = data.draw(st.from_type(field.type))
     dset = Dataset(type="raw")
     setattr(dset, field.name, value)
@@ -129,13 +129,13 @@ def test_can_set_writable_fields(field, data):
     (f for f in Dataset.fields() if f.name != "type" and not f.read_only),
     ids=lambda f: f.name,
 )
-def test_can_set_writable_fields_to_none(field):
+def test_can_set_writable_fields_to_none(field: Dataset.Field) -> None:
     dset = Dataset(type="raw")
     setattr(dset, field.name, None)
     assert getattr(dset, field.name) is None
 
 
-def test_init_from_models_sets_metadata():
+def test_init_from_models_sets_metadata() -> None:
     dset = Dataset.from_download_models(
         dataset_model=DownloadDataset(
             contactEmail="p.stibbons@uu.am",
@@ -184,7 +184,7 @@ def test_init_from_models_sets_metadata():
     assert dset.size == 0
 
 
-def test_init_from_models_sets_files():
+def test_init_from_models_sets_files() -> None:
     dset = Dataset.from_download_models(
         dataset_model=DownloadDataset(
             contactEmail="p.stibbons@uu.am",
@@ -241,7 +241,7 @@ def test_init_from_models_sets_files():
     assert f1.make_model().path == "sub/file2.png"
 
 
-def test_init_from_models_sets_files_multi_datablocks():
+def test_init_from_models_sets_files_multi_datablocks() -> None:
     dataset_model = DownloadDataset(
         contactEmail="p.stibbons@uu.am",
         creationTime=dateutil.parser.parse("2022-01-10T11:14:52-01:00"),
@@ -308,32 +308,32 @@ def test_init_from_models_sets_files_multi_datablocks():
     assert f1.make_model().path == "sub/file2.png"
 
 
-def test_fields_type_filter_derived():
+def test_fields_type_filter_derived() -> None:
     assert all(
         field.used_by_derived for field in Dataset.fields(dataset_type="derived")
     )
 
 
-def test_fields_type_filter_raw():
+def test_fields_type_filter_raw() -> None:
     assert all(field.used_by_raw for field in Dataset.fields(dataset_type="raw"))
 
 
-def test_fields_read_only_filter_true():
+def test_fields_read_only_filter_true() -> None:
     assert all(field.read_only for field in Dataset.fields(read_only=True))
 
 
-def test_fields_read_only_filter_false():
+def test_fields_read_only_filter_false() -> None:
     assert all(not field.read_only for field in Dataset.fields(read_only=False))
 
 
-def test_fields_read_only__and_type_filter():
+def test_fields_read_only__and_type_filter() -> None:
     assert all(
         not field.read_only and field.used_by_raw
         for field in Dataset.fields(read_only=False, dataset_type="raw")
     )
 
 
-def test_make_raw_model():
+def test_make_raw_model() -> None:
     dset = Dataset(
         name="raw-dataset-62",
         type="raw",
@@ -369,7 +369,7 @@ def test_make_raw_model():
     assert dset.make_upload_model() == expected
 
 
-def test_make_derived_model():
+def test_make_derived_model() -> None:
     dset = Dataset(
         type="derived",
         name="derived-dataset",
@@ -415,7 +415,9 @@ def test_make_derived_model():
 )
 @given(st.data())
 @settings(max_examples=10)
-def test_make_raw_model_raises_if_derived_field_set(field, data):
+def test_make_raw_model_raises_if_derived_field_set(
+    field: Dataset.Field, data: st.DataObject
+) -> None:
     dset = Dataset(
         type="raw",
         contact_email="p.stibbons@uu.am",
@@ -442,7 +444,9 @@ def test_make_raw_model_raises_if_derived_field_set(field, data):
 )
 @given(st.data())
 @settings(max_examples=10)
-def test_make_derived_model_raises_if_raw_field_set(field, data):
+def test_make_derived_model_raises_if_raw_field_set(
+    field: Dataset.Field, data: st.DataObject
+) -> None:
     dset = Dataset(
         type="derived",
         contact_email="p.stibbons@uu.am",
@@ -462,7 +466,7 @@ def test_make_derived_model_raises_if_raw_field_set(field, data):
 
 
 @pytest.mark.parametrize("field", ["contact_email", "owner_email"])
-def test_email_validation(field):
+def test_email_validation(field: Dataset.Field) -> None:
     dset = Dataset(
         type="raw",
         contact_email="p.stibbons@uu.am",
@@ -485,7 +489,7 @@ def test_email_validation(field):
         "https://orcid.org/0000-0003-2818-0368",
     ],
 )
-def test_orcid_validation_valid(good_orcid):
+def test_orcid_validation_valid(good_orcid: str) -> None:
     dset = Dataset(
         type="raw",
         name="test ORCID",
@@ -510,7 +514,7 @@ def test_orcid_validation_valid(good_orcid):
         "https://orcid.org/0000-0002-3761-320X",
     ],
 )
-def test_orcid_validation_missing_url(bad_orcid):
+def test_orcid_validation_missing_url(bad_orcid: str) -> None:
     dset = Dataset(
         type="raw",
         contact_email="jan-lukas.wynen@ess.eu",

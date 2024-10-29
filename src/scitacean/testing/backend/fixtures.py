@@ -52,7 +52,7 @@ def fake_client(scicat_access: SciCatAccess) -> FakeClient:
     """
     client = FakeClient.from_credentials(
         url=scicat_access.url,
-        **scicat_access.user.credentials,  # type: ignore[arg-type]
+        **scicat_access.user.credentials,
     )
     client.datasets.update(
         {ds.pid: ds for ds in seed.INITIAL_DATASETS.values()}  # type: ignore[misc]
@@ -87,7 +87,7 @@ def real_client(scicat_access: SciCatAccess, scicat_backend: bool) -> Client | N
         return None
     return Client.from_credentials(
         url=scicat_access.url,
-        **scicat_access.user.credentials,  # type: ignore[arg-type]
+        **scicat_access.user.credentials,
     )
 
 
@@ -200,7 +200,7 @@ def _seed_database(
 ) -> None:
     client = client_class.from_credentials(
         url=scicat_access.url,
-        **scicat_access.user.credentials,  # type: ignore[arg-type]
+        **scicat_access.user.credentials,
     )
     seed.seed_database(client=client, scicat_access=scicat_access)
     seed.save_seed(target_dir)

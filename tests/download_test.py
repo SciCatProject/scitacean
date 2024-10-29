@@ -2,18 +2,20 @@
 # Copyright (c) 2024 SciCat Project (https://github.com/SciCatProject/scitacean)
 import hashlib
 import re
+from collections.abc import Iterator
 from contextlib import contextmanager
 from copy import deepcopy
 from pathlib import Path
 
 import pytest
 from dateutil.parser import parse as parse_date
+from pyfakefs.fake_filesystem import FakeFilesystem
 
 from scitacean import PID, Client, Dataset, DatasetType, File, IntegrityError
 from scitacean.filesystem import RemotePath
 from scitacean.logging import logger_name
 from scitacean.model import DownloadDataFile, DownloadDataset, DownloadOrigDatablock
-from scitacean.testing.transfer import FakeFileTransfer
+from scitacean.testing.transfer import FakeDownloadConnection, FakeFileTransfer
 
 
 def _checksum(data: bytes) -> str:
@@ -23,7 +25,7 @@ def _checksum(data: bytes) -> str:
 
 
 @pytest.fixture
-def data_files():
+def data_files() -> tuple[list[DownloadDataFile], dict[str, bytes]]:
     contents = {
         "file1.dat": b"contents-of-file1",
         "log/what-happened.log": b"ERROR Flux is off the scale",
@@ -41,8 +43,13 @@ def data_files():
     return files, contents
 
 
+DatasetAndFiles = tuple[Dataset, dict[RemotePath | str, bytes]]
+
+
 @pytest.fixture
-def dataset_and_files(data_files):
+def dataset_and_files(
+    data_files: tuple[list[DownloadDataFile], dict[str, bytes]],
+) -> DatasetAndFiles:
     model = DownloadDataset(
         contactEmail="p.stibbons@uu.am",
         creationTime=parse_date("1995-08-06T14:14:14"),
@@ -53,7 +60,7 @@ def dataset_and_files(data_files):
         packedSize=0,
         pid=PID(prefix="UU.000", pid="5125.ab.663.8c9f"),
         principalInvestigator="m.ridcully@uu.am",
-        size=sum(f.size for f in data_files[0]),
+        size=sum(f.size for f in data_files[0]),  # type: ignore[misc]
         sourceFolder=RemotePath("/src/stibbons/774"),
         type=DatasetType.RAW,
         scientificMetadata={
@@ -64,7 +71,7 @@ def dataset_and_files(data_files):
     block = DownloadOrigDatablock(
         chkAlg="md5",
         ownerGroup="faculty",
-        size=sum(f.size for f in data_files[0]),
+        size=sum(f.size for f in data_files[0]),  # type: ignore[misc]
         datasetId=PID(prefix="UU.000", pid="5125.ab.663.8c9f"),
         _id="0941.66.abff.41de",
         dataFileList=data_files[0],
@@ -73,7 +80,8 @@ def dataset_and_files(data_files):
         dataset_model=model, orig_datablock_models=[block]
     )
     return dset, {
-        dset.source_folder / name: content for name, content in data_files[1].items()
+        dset.source_folder / name: content  # type: ignore[operator]
+        for name, content in data_files[1].items()
     }
 
 
@@ -82,7 +90,9 @@ def load(name: str | Path) -> bytes:
         return f.read()
 
 
-def test_download_files_creates_local_files_select_all(fs, dataset_and_files):
+def test_download_files_creates_local_files_select_all(
+    fs: FakeFilesystem, dataset_and_files: DatasetAndFiles
+) -> None:
     dataset, contents = dataset_and_files
     client = Client.without_login(
         url="/", file_transfer=FakeFileTransfer(fs=fs, files=contents)
@@ -96,7 +106,9 @@ def test_download_files_creates_local_files_select_all(fs, dataset_and_files):
     assert load("download/thaum.dat") == contents["/src/stibbons/774/thaum.dat"]
 
 
-def test_download_files_creates_local_files_select_none(fs, dataset_and_files):
+def test_download_files_creates_local_files_select_none(
+    fs: FakeFilesystem, dataset_and_files: DatasetAndFiles
+) -> None:
     dataset, contents = dataset_and_files
     client = Client.without_login(
         url="/", file_transfer=FakeFileTransfer(fs=fs, files=contents)
@@ -107,7 +119,9 @@ def test_download_files_creates_local_files_select_none(fs, dataset_and_files):
     assert not Path("download/thaum.dat").exists()
 
 
-def test_download_files_creates_local_files_select_one_by_string(fs, dataset_and_files):
+def test_download_files_creates_local_files_select_one_by_string(
+    fs: FakeFilesystem, dataset_and_files: DatasetAndFiles
+) -> None:
     dataset, contents = dataset_and_files
     client = Client.without_login(
         url="/", file_transfer=FakeFileTransfer(fs=fs, files=contents)
@@ -118,7 +132,9 @@ def test_download_files_creates_local_files_select_one_by_string(fs, dataset_and
     assert not Path("download/log/what-happened.log").exists()
 
 
-def test_download_files_creates_local_files_select_two_by_string(fs, dataset_and_files):
+def test_download_files_creates_local_files_select_two_by_string(
+    fs: FakeFilesystem, dataset_and_files: DatasetAndFiles
+) -> None:
     dataset, contents = dataset_and_files
     client = Client.without_login(
         url="/", file_transfer=FakeFileTransfer(fs=fs, files=contents)
@@ -135,8 +151,8 @@ def test_download_files_creates_local_files_select_two_by_string(fs, dataset_and
 
 
 def test_download_files_creates_local_files_select_one_by_regex_name_only(
-    fs, dataset_and_files
-):
+    fs: FakeFilesystem, dataset_and_files: DatasetAndFiles
+) -> None:
     dataset, contents = dataset_and_files
     client = Client.without_login(
         url="/", file_transfer=FakeFileTransfer(fs=fs, files=contents)
@@ -148,8 +164,8 @@ def test_download_files_creates_local_files_select_one_by_regex_name_only(
 
 
 def test_download_files_creates_local_files_select_two_by_regex_suffix(
-    fs, dataset_and_files
-):
+    fs: FakeFilesystem, dataset_and_files: DatasetAndFiles
+) -> None:
     dataset, contents = dataset_and_files
     client = Client.without_login(
         url="/", file_transfer=FakeFileTransfer(fs=fs, files=contents)
@@ -161,8 +177,8 @@ def test_download_files_creates_local_files_select_two_by_regex_suffix(
 
 
 def test_download_files_creates_local_files_select_one_by_regex_full_path(
-    fs, dataset_and_files
-):
+    fs: FakeFilesystem, dataset_and_files: DatasetAndFiles
+) -> None:
     dataset, contents = dataset_and_files
     client = Client.without_login(
         url="/", file_transfer=FakeFileTransfer(fs=fs, files=contents)
@@ -176,8 +192,8 @@ def test_download_files_creates_local_files_select_one_by_regex_full_path(
 
 
 def test_download_files_creates_local_files_select_one_by_predicate(
-    fs, dataset_and_files
-):
+    fs: FakeFilesystem, dataset_and_files: DatasetAndFiles
+) -> None:
     dataset, contents = dataset_and_files
     client = Client.without_login(
         url="/", file_transfer=FakeFileTransfer(fs=fs, files=contents)
@@ -190,7 +206,9 @@ def test_download_files_creates_local_files_select_one_by_predicate(
     assert not Path("download/thaum.dat").exists()
 
 
-def test_download_files_returns_updated_dataset(fs, dataset_and_files):
+def test_download_files_returns_updated_dataset(
+    fs: FakeFilesystem, dataset_and_files: DatasetAndFiles
+) -> None:
     dataset, contents = dataset_and_files
     original = deepcopy(dataset)
     client = Client.without_login(
@@ -210,7 +228,9 @@ def test_download_files_returns_updated_dataset(fs, dataset_and_files):
         assert not f.is_on_local  # original is unchanged
 
 
-def test_download_files_ignores_checksum_if_alg_is_none(fs, dataset_and_files):
+def test_download_files_ignores_checksum_if_alg_is_none(
+    fs: FakeFilesystem, dataset_and_files: DatasetAndFiles
+) -> None:
     dataset, contents = dataset_and_files
 
     content = b"random-stuff"
@@ -223,6 +243,7 @@ def test_download_files_ignores_checksum_if_alg_is_none(fs, dataset_and_files):
     )
     dataset.add_orig_datablock(checksum_algorithm=None)
     dataset.add_files(File.from_download_model(model))
+    assert dataset.source_folder is not None
 
     client = Client.without_login(
         url="/",
@@ -234,7 +255,9 @@ def test_download_files_ignores_checksum_if_alg_is_none(fs, dataset_and_files):
     client.download_files(dataset, target="./download", select="file.txt")
 
 
-def test_download_files_detects_bad_checksum(fs, dataset_and_files):
+def test_download_files_detects_bad_checksum(
+    fs: FakeFilesystem, dataset_and_files: DatasetAndFiles
+) -> None:
     dataset, contents = dataset_and_files
 
     content = b"random-stuff"
@@ -247,6 +270,7 @@ def test_download_files_detects_bad_checksum(fs, dataset_and_files):
     )
     dataset.add_orig_datablock(checksum_algorithm="md5")
     dataset.add_files(File.from_download_model(model))
+    assert dataset.source_folder is not None
 
     client = Client.without_login(
         url="/",
@@ -258,7 +282,11 @@ def test_download_files_detects_bad_checksum(fs, dataset_and_files):
         client.download_files(dataset, target="./download", select="file.txt")
 
 
-def test_download_files_detects_bad_size(fs, dataset_and_files, caplog):
+def test_download_files_detects_bad_size(
+    fs: FakeFilesystem,
+    dataset_and_files: DatasetAndFiles,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
     dataset, contents = dataset_and_files
 
     content = b"random-stuff"
@@ -271,6 +299,7 @@ def test_download_files_detects_bad_size(fs, dataset_and_files, caplog):
     )
     dataset.add_orig_datablock(checksum_algorithm="md5")
     dataset.add_files(File.from_download_model(model))
+    assert dataset.source_folder is not None
 
     client = Client.without_login(
         url="/",
@@ -284,7 +313,9 @@ def test_download_files_detects_bad_size(fs, dataset_and_files, caplog):
     assert "89412" in caplog.text
 
 
-def test_download_does_not_download_up_to_date_file(fs, dataset_and_files):
+def test_download_does_not_download_up_to_date_file(
+    fs: FakeFilesystem, dataset_and_files: DatasetAndFiles
+) -> None:
     # Ensure the file exists locally
     dataset, contents = dataset_and_files
     client = Client.without_login(
@@ -297,7 +328,7 @@ def test_download_does_not_download_up_to_date_file(fs, dataset_and_files):
         source_dir = "/"
 
         @contextmanager
-        def connect_for_download(self):
+        def connect_for_download(self) -> Iterator[FakeDownloadConnection]:
             raise RuntimeError("Download disabled")
 
     client = Client.without_login(
@@ -310,8 +341,8 @@ def test_download_does_not_download_up_to_date_file(fs, dataset_and_files):
 
 
 def test_download_does_not_download_up_to_date_file_manual_checksum(
-    fs, dataset_and_files
-):
+    fs: FakeFilesystem, dataset_and_files: DatasetAndFiles
+) -> None:
     # Ensure the file exists locally
     dataset, contents = dataset_and_files
     client = Client.without_login(
@@ -324,7 +355,7 @@ def test_download_does_not_download_up_to_date_file_manual_checksum(
         source_dir = "/"
 
         @contextmanager
-        def connect_for_download(self):
+        def connect_for_download(self) -> Iterator[FakeDownloadConnection]:
             raise RuntimeError("Download disabled")
 
     client = Client.without_login(
@@ -338,7 +369,9 @@ def test_download_does_not_download_up_to_date_file_manual_checksum(
     assert all(file.local_path is not None for file in downloaded.files)
 
 
-def test_override_datablock_checksum(fs, dataset_and_files):
+def test_override_datablock_checksum(
+    fs: FakeFilesystem, dataset_and_files: DatasetAndFiles
+) -> None:
     # Ensure the file exists locally
     dataset, contents = dataset_and_files
     client = Client.without_login(
@@ -351,7 +384,7 @@ def test_override_datablock_checksum(fs, dataset_and_files):
         source_dir = "/"
 
         @contextmanager
-        def connect_for_download(self):
+        def connect_for_download(self) -> Iterator[FakeDownloadConnection]:
             raise RuntimeError("Download disabled")
 
     client = Client.without_login(
@@ -367,7 +400,9 @@ def test_override_datablock_checksum(fs, dataset_and_files):
         )
 
 
-def test_force_file_download(fs, dataset_and_files):
+def test_force_file_download(
+    fs: FakeFilesystem, dataset_and_files: DatasetAndFiles
+) -> None:
     # Ensure the file exists locally
     dataset, contents = dataset_and_files
     client = Client.without_login(
@@ -380,7 +415,7 @@ def test_force_file_download(fs, dataset_and_files):
         source_dir = "/"
 
         @contextmanager
-        def connect_for_download(self):
+        def connect_for_download(self) -> Iterator[FakeDownloadConnection]:
             raise RuntimeError("Download disabled")
 
     client = Client.without_login(

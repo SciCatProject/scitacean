@@ -30,7 +30,7 @@ from ...model import (
 )
 from ...pid import PID
 from ...thumbnail import Thumbnail
-from .config import SITE, SciCatAccess, SciCatUser
+from .config import SITE, SciCatAccess, ScicatUser
 
 # Dataset models to upload to the database.
 _DATASETS: dict[str, UploadRawDataset | UploadDerivedDataset] = {
@@ -221,7 +221,7 @@ INITIAL_ATTACHMENTS: dict[str, list[DownloadAttachment]] = {}
 
 
 def _apply_config_dataset(
-    dset: UploadRawDataset | UploadDerivedDataset, user: SciCatUser
+    dset: UploadRawDataset | UploadDerivedDataset, user: ScicatUser
 ) -> UploadRawDataset | UploadDerivedDataset:
     dset = deepcopy(dset)
     dset.owner = user.username
@@ -231,7 +231,7 @@ def _apply_config_dataset(
 
 
 def _apply_config_attachment(
-    attachment: UploadAttachment, user: SciCatUser
+    attachment: UploadAttachment, user: ScicatUser
 ) -> UploadAttachment:
     attachment = deepcopy(attachment)
     attachment.ownerGroup = user.group

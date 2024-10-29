@@ -4,9 +4,11 @@ import hashlib
 from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from typing import Any
 
 import pytest
 from dateutil.parser import parse as parse_date
+from pyfakefs.fake_filesystem import FakeFilesystem
 
 from scitacean import File, IntegrityError, RemotePath
 from scitacean.filesystem import checksum_of_file
@@ -17,11 +19,11 @@ from .common.files import make_file
 
 
 @pytest.fixture
-def fake_file(fs):
+def fake_file(fs: FakeFilesystem) -> dict[str, Any]:
     return make_file(fs, path=Path("local", "dir", "events.nxs"))
 
 
-def test_file_from_local(fake_file):
+def test_file_from_local(fake_file: dict[str, Any]) -> None:
     file = replace(File.from_local(fake_file["path"]), checksum_algorithm="md5")
     assert file.remote_access_path("/remote") is None
     assert file.local_path == fake_file["path"]
@@ -34,7 +36,7 @@ def test_file_from_local(fake_file):
     assert abs(fake_file["creation_time"] - file.creation_time) < timedelta(seconds=1)
 
 
-def test_file_from_local_with_base_path(fake_file):
+def test_file_from_local_with_base_path(fake_file: dict[str, Any]) -> None:
     assert fake_file["path"] == Path("local", "dir", "events.nxs")  # used below
 
     file = replace(
@@ -51,7 +53,7 @@ def test_file_from_local_with_base_path(fake_file):
     assert abs(fake_file["creation_time"] - file.creation_time) < timedelta(seconds=1)
 
 
-def test_file_from_local_set_remote_path(fake_file):
+def test_file_from_local_set_remote_path(fake_file: dict[str, Any]) -> None:
     file = replace(
         File.from_local(fake_file["path"], remote_path="remote/location/file.nxs"),
         checksum_algorithm="md5",
@@ -67,7 +69,7 @@ def test_file_from_local_set_remote_path(fake_file):
     assert abs(fake_file["creation_time"] - file.creation_time) < timedelta(seconds=1)
 
 
-def test_file_from_local_set_many_args(fake_file):
+def test_file_from_local_set_many_args(fake_file: dict[str, Any]) -> None:
     file = replace(
         File.from_local(
             fake_file["path"],
@@ -89,13 +91,15 @@ def test_file_from_local_set_many_args(fake_file):
 
 
 @pytest.mark.parametrize("alg", ["md5", "sha256", "blake2s"])
-def test_file_from_local_select_checksum_algorithm(fake_file, alg):
+def test_file_from_local_select_checksum_algorithm(
+    fake_file: dict[str, Any], alg: str
+) -> None:
     file = replace(File.from_local(fake_file["path"]), checksum_algorithm=alg)
     expected = checksum_of_file(fake_file["path"], algorithm=alg)
     assert file.checksum() == expected
 
 
-def test_file_from_local_remote_path_uses_forward_slash(fs):
+def test_file_from_local_remote_path_uses_forward_slash(fs: FakeFilesystem) -> None:
     fs.create_file(Path("data", "subdir", "file.dat"))
 
     file = File.from_local(Path("data", "subdir", "file.dat"))
@@ -113,7 +117,7 @@ def test_file_from_local_remote_path_uses_forward_slash(fs):
     assert file.make_model().path == "file.dat"
 
 
-def test_file_from_remote_default_args():
+def test_file_from_remote_default_args() -> None:
     file = File.from_remote(
         remote_path="/remote/source/file.nxs",
         size=6123,
@@ -132,7 +136,7 @@ def test_file_from_remote_default_args():
     assert file.remote_perm is None
 
 
-def test_file_from_remote_all_args():
+def test_file_from_remote_all_args() -> None:
     file = File.from_remote(
         remote_path="/remote/image.png",
         size=9,
@@ -154,7 +158,7 @@ def test_file_from_remote_all_args():
     assert file.remote_perm == "wrx"
 
 
-def test_file_from_remote_checksum_requires_algorithm():
+def test_file_from_remote_checksum_requires_algorithm() -> None:
     with pytest.raises(TypeError, match="checksum"):
         File.from_remote(
             remote_path="/remote/image.png",
@@ -164,7 +168,7 @@ def test_file_from_remote_checksum_requires_algorithm():
         )
 
 
-def test_file_from_download_model():
+def test_file_from_download_model() -> None:
     model = DownloadDataFile(
         path="dir/image.jpg", size=12345, time=parse_date("2022-06-22T15:42:53.123Z")
     )
@@ -177,7 +181,7 @@ def test_file_from_download_model():
     assert file.creation_time == parse_date("2022-06-22T15:42:53.123Z")
 
 
-def test_file_from_download_model_remote_path_uses_forward_slash():
+def test_file_from_download_model_remote_path_uses_forward_slash() -> None:
     file = File.from_download_model(
         DownloadDataFile(
             path="data/subdir/file.dat",
@@ -199,7 +203,7 @@ def test_file_from_download_model_remote_path_uses_forward_slash():
     assert file.remote_path == RemotePath("data/subdir/file.dat")
 
 
-def test_make_model_local_file(fake_file):
+def test_make_model_local_file(fake_file: dict[str, Any]) -> None:
     file = replace(
         File.from_local(
             fake_file["path"],
@@ -219,7 +223,7 @@ def test_make_model_local_file(fake_file):
     assert abs(fake_file["creation_time"] - model.time) < timedelta(seconds=1)
 
 
-def test_uploaded(fake_file):
+def test_uploaded(fake_file: dict[str, Any]) -> None:
     file = replace(
         File.from_local(
             fake_file["path"],
@@ -244,7 +248,7 @@ def test_uploaded(fake_file):
     assert uploaded._remote_creation_time == parse_date("2100-09-07T11:34:51")
 
 
-def test_downloaded():
+def test_downloaded() -> None:
     model = DownloadDataFile(
         path="dir/stream.s",
         size=55123,
@@ -262,7 +266,7 @@ def test_downloaded():
     assert downloaded.remote_perm == "xrw"
 
 
-def test_creation_time_is_always_local_time(fake_file):
+def test_creation_time_is_always_local_time(fake_file: dict[str, Any]) -> None:
     file = File.from_local(path=fake_file["path"])
     model = file.make_model()
     model.time = parse_date("2105-04-01T04:52:23")
@@ -273,7 +277,7 @@ def test_creation_time_is_always_local_time(fake_file):
     )
 
 
-def test_size_is_always_local_size(fake_file):
+def test_size_is_always_local_size(fake_file: dict[str, Any]) -> None:
     file = File.from_local(path=fake_file["path"])
     model = file.make_model()
     model.size = 999999999
@@ -282,7 +286,7 @@ def test_size_is_always_local_size(fake_file):
     assert uploaded.size == fake_file["size"]
 
 
-def test_checksum_is_always_local_checksum(fake_file):
+def test_checksum_is_always_local_checksum(fake_file: dict[str, Any]) -> None:
     file = File.from_local(path=fake_file["path"])
     uploaded = replace(
         file.uploaded(), _remote_checksum="6e9eb73953231aebbbc8788f39f08618"
@@ -296,7 +300,9 @@ def test_checksum_is_always_local_checksum(fake_file):
     ).checksum() == checksum_of_file(fake_file["path"], algorithm="sha256")
 
 
-def test_creation_time_is_up_to_date(fs, fake_file):
+def test_creation_time_is_up_to_date(
+    fs: FakeFilesystem, fake_file: dict[str, Any]
+) -> None:
     file = File.from_local(path=fake_file["path"])
     with open(fake_file["path"], "wb") as f:
         f.write(b"some new content to update time stamp")
@@ -306,7 +312,7 @@ def test_creation_time_is_up_to_date(fs, fake_file):
     assert file.creation_time == new_creation_time
 
 
-def test_size_is_up_to_date(fs, fake_file):
+def test_size_is_up_to_date(fs: FakeFilesystem, fake_file: dict[str, Any]) -> None:
     file = File.from_local(path=fake_file["path"])
     new_contents = b"content with a new size"
     assert len(new_contents) != fake_file["size"]
@@ -315,7 +321,7 @@ def test_size_is_up_to_date(fs, fake_file):
     assert file.size == len(new_contents)
 
 
-def test_checksum_is_up_to_date(fs, fake_file):
+def test_checksum_is_up_to_date(fs: FakeFilesystem, fake_file: dict[str, Any]) -> None:
     file = replace(File.from_local(path=fake_file["path"]), checksum_algorithm="md5")
     new_contents = b"content a different checksum"
 
@@ -329,7 +335,9 @@ def test_checksum_is_up_to_date(fs, fake_file):
     assert file.checksum() == checksum_digest
 
 
-def test_validate_after_download_detects_bad_checksum(fake_file):
+def test_validate_after_download_detects_bad_checksum(
+    fake_file: dict[str, Any],
+) -> None:
     model = DownloadDataFile(
         path=fake_file["path"].name,
         size=fake_file["size"],
@@ -346,7 +354,9 @@ def test_validate_after_download_detects_bad_checksum(fake_file):
         downloaded.validate_after_download()
 
 
-def test_validate_after_download_ignores_checksum_if_no_algorithm(fake_file):
+def test_validate_after_download_ignores_checksum_if_no_algorithm(
+    fake_file: dict[str, Any],
+) -> None:
     model = DownloadDataFile(
         path=fake_file["path"].name,
         size=fake_file["size"],
@@ -360,7 +370,9 @@ def test_validate_after_download_ignores_checksum_if_no_algorithm(fake_file):
     downloaded.validate_after_download()
 
 
-def test_validate_after_download_detects_size_mismatch(fake_file, caplog):
+def test_validate_after_download_detects_size_mismatch(
+    fake_file: dict[str, Any], caplog: pytest.LogCaptureFixture
+) -> None:
     model = DownloadDataFile(
         path=fake_file["path"].name,
         size=fake_file["size"] + 100,
@@ -378,7 +390,7 @@ def test_validate_after_download_detects_size_mismatch(fake_file, caplog):
 
 
 @pytest.mark.parametrize("chk", ["sha256", None])
-def test_local_is_not_up_to_date_for_remote_file(chk):
+def test_local_is_not_up_to_date_for_remote_file(chk: str | None) -> None:
     file = File.from_download_model(
         DownloadDataFile(
             path="data.csv",
@@ -390,13 +402,13 @@ def test_local_is_not_up_to_date_for_remote_file(chk):
     assert not file.local_is_up_to_date()
 
 
-def test_local_is_up_to_date_for_local_file():
+def test_local_is_up_to_date_for_local_file() -> None:
     # Note that the file does not actually exist on disk but the test still works.
     file = File.from_local(path="image.jpg")
     assert file.local_is_up_to_date()
 
 
-def test_local_is_up_to_date_default_checksum_alg(fs):
+def test_local_is_up_to_date_default_checksum_alg(fs: FakeFilesystem) -> None:
     contents = b"some file content"
     checksum = hashlib.new("blake2b")
     checksum.update(contents)
@@ -415,7 +427,7 @@ def test_local_is_up_to_date_default_checksum_alg(fs):
         assert file.local_is_up_to_date()
 
 
-def test_local_is_up_to_date_matching_checksum(fake_file):
+def test_local_is_up_to_date_matching_checksum(fake_file: dict[str, Any]) -> None:
     model = DownloadDataFile(
         path=fake_file["path"].name,
         size=fake_file["size"],
@@ -429,7 +441,7 @@ def test_local_is_up_to_date_matching_checksum(fake_file):
     assert file.local_is_up_to_date()
 
 
-def test_local_is_not_up_to_date_differing_checksum(fake_file):
+def test_local_is_not_up_to_date_differing_checksum(fake_file: dict[str, Any]) -> None:
     model = DownloadDataFile(
         path=fake_file["path"].name,
         size=fake_file["size"],
