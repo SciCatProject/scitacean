@@ -101,14 +101,11 @@ from .pid import PID
 from .thumbnail import Thumbnail
 
 
-class DownloadDataset(
-    BaseModel, masked=("attachments", "datablocks", "history", "origdatablocks")
-):
+class DownloadDataset(BaseModel, masked=("history",)):
     contactEmail: str | None = None
     creationLocation: str | None = None
     creationTime: datetime | None = None
     inputDatasets: list[PID] | None = None
-    investigator: str | None = None
     numberOfFilesArchived: NonNegativeInt | None = None
     owner: str | None = None
     ownerGroup: str | None = None
@@ -127,7 +124,7 @@ class DownloadDataset(
     description: str | None = None
     endTime: datetime | None = None
     instrumentGroup: str | None = None
-    instrumentId: str | None = None
+    instrumentIds: list[str] | None = None
     isPublished: bool | None = None
     jobLogData: str | None = None
     jobParameters: dict[str, Any] | None = None
@@ -141,12 +138,13 @@ class DownloadDataset(
     ownerEmail: str | None = None
     packedSize: NonNegativeInt | None = None
     pid: PID | None = None
-    proposalId: str | None = None
+    proposalIds: list[str] | None = None
     relationships: list[DownloadRelationship] | None = None
-    sampleId: str | None = None
+    sampleIds: list[str] | None = None
     sharedWith: list[str] | None = None
     size: NonNegativeInt | None = None
     sourceFolderHost: str | None = None
+    startTime: datetime | None = None
     techniques: list[DownloadTechnique] | None = None
     updatedAt: datetime | None = None
     updatedBy: str | None = None
@@ -195,6 +193,7 @@ class UploadDerivedDataset(BaseModel):
     orcidOfOwner: str | None = None
     ownerEmail: str | None = None
     packedSize: NonNegativeInt | None = None
+    proposalId: str | None = None
     relationships: list[UploadRelationship] | None = None
     sharedWith: list[str] | None = None
     size: NonNegativeInt | None = None
@@ -219,12 +218,15 @@ class UploadRawDataset(BaseModel):
     contactEmail: str
     creationLocation: str
     creationTime: datetime
+    inputDatasets: list[PID]
+    investigator: str
     numberOfFilesArchived: NonNegativeInt
     owner: str
     ownerGroup: str
     principalInvestigator: str
     sourceFolder: RemotePath
     type: DatasetType
+    usedSoftware: list[str]
     accessGroups: list[str] | None = None
     classification: str | None = None
     comment: str | None = None
@@ -235,6 +237,8 @@ class UploadRawDataset(BaseModel):
     instrumentGroup: str | None = None
     instrumentId: str | None = None
     isPublished: bool | None = None
+    jobLogData: str | None = None
+    jobParameters: dict[str, Any] | None = None
     keywords: list[str] | None = None
     license: str | None = None
     scientificMetadata: dict[str, Any] | None = None
@@ -249,6 +253,7 @@ class UploadRawDataset(BaseModel):
     sharedWith: list[str] | None = None
     size: NonNegativeInt | None = None
     sourceFolderHost: str | None = None
+    startTime: datetime | None = None
     techniques: list[UploadTechnique] | None = None
     validationStatus: str | None = None
 
@@ -316,13 +321,13 @@ class UploadAttachment(BaseModel):
 
 class DownloadOrigDatablock(BaseModel):
     dataFileList: list[DownloadDataFile] | None = None
-    datasetId: PID | None = None
     size: NonNegativeInt | None = None
     id: str | None = pydantic.Field(alias="_id", default=None)
     accessGroups: list[str] | None = None
     chkAlg: str | None = None
     createdAt: datetime | None = None
     createdBy: str | None = None
+    datasetId: PID | None = None
     instrumentGroup: str | None = None
     isPublished: bool | None = None
     ownerGroup: str | None = None
@@ -472,9 +477,9 @@ class UploadRelationship(BaseModel):
 
 
 class DownloadHistory(BaseModel):
-    id: str | None = pydantic.Field(alias="_id", default=None)
+    id: str | None = None
     updatedAt: datetime | None = None
-    updatedBy: datetime | None = None
+    updatedBy: str | None = None
 
     @pydantic.field_validator("updatedAt", mode="before")
     def _validate_datetime(cls, value: Any) -> Any:
@@ -764,20 +769,20 @@ class Relationship(BaseUserModel):
 
 @dataclass(kw_only=True, slots=True)
 class History(BaseUserModel):
-    __id: str | None = None
+    _id: str | None = None
     _updated_at: datetime | None = None
-    _updated_by: datetime | None = None
+    _updated_by: str | None = None
 
     @property
-    def _id(self) -> str | None:
-        return self.__id
+    def id(self) -> str | None:
+        return self._id
 
     @property
     def updated_at(self) -> datetime | None:
         return self._updated_at
 
     @property
-    def updated_by(self) -> datetime | None:
+    def updated_by(self) -> str | None:
         return self._updated_by
 
     @classmethod
