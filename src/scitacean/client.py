@@ -1224,7 +1224,7 @@ def _log_in_via_users_login(
 ) -> httpx.Response:
     # Currently only used for functional accounts.
     response = httpx.post(
-        _url_concat(url, "Users/login"),
+        _url_concat(url, "auth/login"),
         json={"username": username.get_str(), "password": password.get_str()},
         timeout=timeout.seconds,
     )
