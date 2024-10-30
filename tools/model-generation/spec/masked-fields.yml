@@ -4,8 +4,5 @@
 # what model to mask it in.
 # Field names must be SciCat names (camelCase).
 Dataset:
-  - attachments
-  - datablocks
   - history  # because history is dropped (see field-validations.yml)
-  - origdatablocks
   - datasetlifecycle: upload

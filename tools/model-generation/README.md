@@ -24,7 +24,7 @@ python generate_models.py --launch-scicat
 ```
 
 This overwrites the relevant files in the source directory.
-If will clean up the docker resources afterwards.
+It will clean up the docker resources afterward.
 
 See `generate_models.py` for options to configure the schema URL and output file paths.
 
