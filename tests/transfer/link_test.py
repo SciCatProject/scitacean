@@ -4,6 +4,7 @@
 import hashlib
 import sys
 from datetime import datetime, timezone
+from pathlib import Path
 
 import pytest
 
@@ -16,7 +17,7 @@ if sys.platform.startswith("win"):
     pytest.skip("LinkFileTransfer does not work on Windows", allow_module_level=True)
 
 
-def test_download_one_file(tmp_path):
+def test_download_one_file(tmp_path: Path) -> None:
     remote_dir = tmp_path / "server"
     remote_dir.mkdir()
     remote_dir.joinpath("text.txt").write_text("This is some text for testing.\n")
@@ -34,7 +35,7 @@ def test_download_one_file(tmp_path):
     )
 
 
-def test_download_two_files(tmp_path):
+def test_download_two_files(tmp_path: Path) -> None:
     remote_dir = tmp_path / "server"
     remote_dir.mkdir()
     remote_dir.joinpath("table.csv").write_text("7,2\n5,2\n")
@@ -57,14 +58,14 @@ def test_download_two_files(tmp_path):
     )
 
 
-def test_link_transfer_cannot_upload():
+def test_link_transfer_cannot_upload() -> None:
     ds = Dataset(type="raw", source_folder=RemotePath("/data/upload"))
     linker = LinkFileTransfer()
     with pytest.raises(NotImplementedError):
         linker.connect_for_upload(ds)
 
 
-def test_client_with_link(tmp_path):
+def test_client_with_link(tmp_path: Path) -> None:
     content = "This is some text for testing.\n"
     checksum = hashlib.md5(content.encode("utf-8")).hexdigest()
     remote_dir = tmp_path / "server"
@@ -119,7 +120,7 @@ def test_client_with_link(tmp_path):
     )
 
 
-def test_client_with_link_local_file_exists(tmp_path):
+def test_client_with_link_local_file_exists(tmp_path: Path) -> None:
     content = "This is some text for testing.\n"
     checksum = hashlib.md5(content.encode("utf-8")).hexdigest()
     remote_dir = tmp_path / "server"
@@ -180,7 +181,7 @@ def test_client_with_link_local_file_exists(tmp_path):
     assert not local_dir.joinpath("file1.txt").is_symlink()
 
 
-def test_client_with_link_local_file_exists_clashing_content(tmp_path):
+def test_client_with_link_local_file_exists_clashing_content(tmp_path: Path) -> None:
     content = "This is some text for testing.\n"
     checksum = hashlib.md5(content.encode("utf-8")).hexdigest()
     remote_dir = tmp_path / "server"
@@ -233,7 +234,7 @@ def test_client_with_link_local_file_exists_clashing_content(tmp_path):
         client.download_files(downloaded, target=local_dir)
 
 
-def test_download_file_does_not_exist(tmp_path):
+def test_download_file_does_not_exist(tmp_path: Path) -> None:
     remote_dir = tmp_path / "server"
     remote_dir.mkdir()
     local_dir = tmp_path / "user"

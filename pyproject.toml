@@ -85,11 +85,6 @@ strict = true
 show_error_codes = true
 warn_unreachable = true
 
-[[tool.mypy.overrides]]
-module = "tests.*"
-disallow_untyped_defs = false
-disallow_untyped_calls = false
-
 [tool.pydantic-mypy]
 init_forbid_extra = true
 init_typed = true
