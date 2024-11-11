@@ -200,12 +200,12 @@ def test_raw_dataset_default_values(real_client, require_scicat_backend, scicat_
     assert finalized.dataFormat is None
     assert finalized.description is None
     assert finalized.endTime is None
-    assert finalized.instrumentId is None
+    assert finalized.instrumentIds is None
     assert finalized.license is None
     assert finalized.orcidOfOwner is None
     assert finalized.ownerEmail is None
-    assert finalized.proposalId is None
-    assert finalized.sampleId is None
+    assert finalized.proposalIds is None
+    assert finalized.sampleIds is None
     assert finalized.sourceFolderHost is None
     assert finalized.validationStatus is None
     assert finalized.version is None

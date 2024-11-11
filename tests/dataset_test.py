@@ -43,7 +43,7 @@ def raw_download_model():
         description="Some shady data",
         endTime=parse_datetime("1995-08-03T00:00:00Z"),
         instrumentGroup="professors",
-        instrumentId="0000-aa",
+        instrumentIds=["0000-aa"],
         isPublished=True,
         jobLogData=None,
         jobParameters=None,
@@ -55,8 +55,8 @@ def raw_download_model():
         ownerEmail="m.ridcully@uu.am",
         packedSize=0,
         pid=PID.parse("123.cc/948.f7.2a"),
-        proposalId="33.dc",
-        sampleId="bac.a4",
+        proposalIds=["33.dc"],
+        sampleIds=["bac.a4"],
         sharedWith=["librarian"],
         size=400,
         sourceFolderHost="ftp://uu.am/data",
@@ -112,7 +112,7 @@ def derived_download_model():
         description="Dubiously analyzed data",
         endTime=None,
         instrumentGroup="professors",
-        instrumentId=None,
+        instrumentIds=None,
         isPublished=True,
         jobLogData="process interrupted",
         jobParameters={"nodes": 4},
@@ -124,8 +124,8 @@ def derived_download_model():
         ownerEmail="m.ridcully@uu.am",
         packedSize=0,
         pid=PID.parse("123.cc/948.f7.2a"),
-        proposalId=None,
-        sampleId=None,
+        proposalIds=None,
+        sampleIds=None,
         sharedWith=["librarian"],
         size=400,
         sourceFolderHost="ftp://uu.am/data",
@@ -797,13 +797,8 @@ def test_derive_removes_attachments(initial, attachments):
     assert derived.attachments == []
 
 
-def invalid_field_example(my_type):
-    if my_type == DatasetType.DERIVED:
-        return "data_format", "sth_not_None"
-    elif my_type == DatasetType.RAW:
-        return "job_log_data", "sth_not_None"
-    else:
-        raise ValueError(my_type, " is not valid DatasetType.")
+def invalid_field_example() -> tuple[str, str]:
+    return "not_a_field", "sth_not_None"
 
 
 @given(initial=sst.datasets(for_upload=True))
@@ -817,22 +812,6 @@ def test_dataset_dict_like_keys_per_type(initial: Dataset) -> None:
 
 @given(initial=sst.datasets(for_upload=True))
 @settings(max_examples=10)
-def test_dataset_dict_like_keys_including_invalid_field(initial):
-    invalid_name, invalid_value = invalid_field_example(initial.type)
-
-    my_names = {
-        field.name for field in Dataset._FIELD_SPEC if field.used_by(initial.type)
-    }
-    assert invalid_name not in my_names
-    my_names.add(invalid_name)
-
-    setattr(initial, invalid_name, invalid_value)
-
-    assert set(initial.keys()) == my_names
-
-
-@given(initial=sst.datasets(for_upload=True))
-@settings(max_examples=10)
 def test_dataset_dict_like_values(initial: Dataset) -> None:
     for key, value in zip(initial.keys(), initial.values(), strict=True):
         assert value == getattr(initial, key)
@@ -841,7 +820,7 @@ def test_dataset_dict_like_values(initial: Dataset) -> None:
 @given(initial=sst.datasets(for_upload=True))
 @settings(max_examples=10)
 def test_dataset_dict_like_values_with_invalid_field(initial: Dataset) -> None:
-    setattr(initial, *invalid_field_example(initial.type))
+    setattr(initial, *invalid_field_example())
     for key, value in zip(initial.keys(), initial.values(), strict=True):
         assert value == getattr(initial, key)
 
@@ -849,7 +828,7 @@ def test_dataset_dict_like_values_with_invalid_field(initial: Dataset) -> None:
 @given(initial=sst.datasets(for_upload=True))
 @settings(max_examples=10)
 def test_dataset_dict_like_items_with_invalid_field(initial: Dataset) -> None:
-    setattr(initial, *invalid_field_example(initial.type))
+    setattr(initial, *invalid_field_example())
     for key, value in initial.items():
         assert value == getattr(initial, key)
 
@@ -882,16 +861,6 @@ def test_dataset_dict_like_setitem(initial: Dataset) -> None:
     assert initial["comment"] != sample_comment
     initial["comment"] = sample_comment
     assert initial["comment"] == sample_comment
-
-
-@given(initial=sst.datasets(for_upload=True))
-@settings(max_examples=10)
-def test_dataset_dict_like_setitem_invalid_field(initial: Dataset) -> None:
-    # ``__setitem__`` doesn't check if the item is invalid for the current type or not.
-    invalid_field, invalid_value = invalid_field_example(initial.type)
-    assert initial[invalid_field] is None
-    initial[invalid_field] = invalid_value
-    assert initial[invalid_field] == invalid_value
 
 
 @pytest.mark.parametrize(
