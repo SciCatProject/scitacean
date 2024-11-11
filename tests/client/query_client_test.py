@@ -22,7 +22,9 @@ UPLOAD_DATASETS: dict[str, model.UploadDerivedDataset | model.UploadRawDataset] 
         type=DatasetType.RAW,
         principalInvestigator="investigator 1",
         creationLocation="UU",
-        proposalId="p0124",
+        proposalIds=["p0124"],
+        inputDatasets=[],
+        usedSoftware=["scitacean"],
     ),
     "raw2": model.UploadRawDataset(
         ownerGroup="PLACEHOLDER",
@@ -37,7 +39,9 @@ UPLOAD_DATASETS: dict[str, model.UploadDerivedDataset | model.UploadRawDataset] 
         type=DatasetType.RAW,
         principalInvestigator="investigator 2",
         creationLocation="UU",
-        proposalId="p0124",
+        proposalIds=["p0124"],
+        inputDatasets=[],
+        usedSoftware=[],
     ),
     "raw3": model.UploadRawDataset(
         ownerGroup="PLACEHOLDER",
@@ -52,7 +56,9 @@ UPLOAD_DATASETS: dict[str, model.UploadDerivedDataset | model.UploadRawDataset] 
         type=DatasetType.RAW,
         principalInvestigator="investigator 1",
         creationLocation="UU",
-        proposalId="p0124",
+        proposalIds=["p0124"],
+        inputDatasets=[],
+        usedSoftware=["scitacean"],
     ),
     "raw4": model.UploadRawDataset(
         ownerGroup="PLACEHOLDER",
@@ -67,6 +73,8 @@ UPLOAD_DATASETS: dict[str, model.UploadDerivedDataset | model.UploadRawDataset] 
         type=DatasetType.RAW,
         principalInvestigator="investigator X",
         creationLocation="UU",
+        inputDatasets=[],
+        usedSoftware=[],
     ),
     "derived1": model.UploadDerivedDataset(
         ownerGroup="PLACEHOLDER",
@@ -118,7 +126,7 @@ def _seed_database(request: pytest.FixtureRequest, scicat_access: SciCatAccess) 
 
 @pytest.mark.usefixtures("_seed_database")
 def test_query_dataset_multiple_by_single_field(real_client):
-    datasets = real_client.scicat.query_datasets({"proposalId": "p0124"})
+    datasets = real_client.scicat.query_datasets({"proposalIds": ["p0124"]})
     actual = {ds.pid: ds for ds in datasets}
     expected = {SEED[key].pid: SEED[key] for key in ("raw1", "raw2", "raw3")}
     assert actual == expected
@@ -133,7 +141,7 @@ def test_query_dataset_no_match(real_client):
 @pytest.mark.usefixtures("_seed_database")
 def test_query_dataset_multiple_by_multiple_fields(real_client):
     datasets = real_client.scicat.query_datasets(
-        {"proposalId": "p0124", "principalInvestigator": "investigator 1"},
+        {"proposalIds": ["p0124"], "principalInvestigator": "investigator 1"},
     )
     actual = {ds.pid: ds for ds in datasets}
     expected = {SEED[key].pid: SEED[key] for key in ("raw1", "raw3")}
@@ -153,7 +161,7 @@ def test_query_dataset_multiple_by_derived_field(real_client):
 @pytest.mark.usefixtures("_seed_database")
 def test_query_dataset_uses_conjunction_of_fields(real_client):
     datasets = real_client.scicat.query_datasets(
-        {"proposalId": "p0124", "investigator": "investigator X"},
+        {"proposalIds": ["p0124"], "investigator": "investigator X"},
     )
     assert not datasets
 
@@ -170,7 +178,7 @@ def test_query_dataset_can_use_custom_type(real_client):
 @pytest.mark.usefixtures("_seed_database")
 def test_query_dataset_set_order(real_client):
     datasets = real_client.scicat.query_datasets(
-        {"proposalId": "p0124"},
+        {"proposalIds": ["p0124"]},
         order="creationTime:desc",
     )
     # This test uses a list to check the order
@@ -181,7 +189,7 @@ def test_query_dataset_set_order(real_client):
 @pytest.mark.usefixtures("_seed_database")
 def test_query_dataset_limit_ascending_creation_time(real_client):
     datasets = real_client.scicat.query_datasets(
-        {"proposalId": "p0124"},
+        {"proposalIds": "p0124"},
         limit=2,
         order="creationTime:asc",
     )
@@ -193,7 +201,7 @@ def test_query_dataset_limit_ascending_creation_time(real_client):
 @pytest.mark.usefixtures("_seed_database")
 def test_query_dataset_limit_descending_creation_time(real_client):
     datasets = real_client.scicat.query_datasets(
-        {"proposalId": "p0124"},
+        {"proposalIds": ["p0124"]},
         limit=2,
         order="creationTime:desc",
     )
@@ -206,7 +214,7 @@ def test_query_dataset_limit_descending_creation_time(real_client):
 def test_query_dataset_limit_needs_order(real_client):
     with pytest.raises(ValueError, match="limit"):
         real_client.scicat.query_datasets(
-            {"proposalId": "p0124"},
+            {"proposalIds": ["p0124"]},
             limit=2,
         )
 

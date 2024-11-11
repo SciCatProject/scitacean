@@ -344,6 +344,7 @@ def test_make_raw_model():
         source_folder=RemotePath("/hex/source62"),
         creation_location="ANK/UU",
         shared_with=["librarian", "hicks"],
+        used_software=["scitacean"],
     )
     expected = UploadRawDataset(
         contactEmail="p.stibbons@uu.am",
@@ -360,6 +361,8 @@ def test_make_raw_model():
         numberOfFilesArchived=0,
         packedSize=0,
         size=0,
+        inputDatasets=[],
+        usedSoftware=["scitacean"],
     )
     assert dset.make_upload_model() == expected
 

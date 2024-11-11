@@ -140,6 +140,7 @@ class DownloadDataset(BaseModel, masked=("history",)):
     pid: PID | None = None
     proposalIds: list[str] | None = None
     relationships: list[DownloadRelationship] | None = None
+    runNumber: str | None = None
     sampleIds: list[str] | None = None
     sharedWith: list[str] | None = None
     size: NonNegativeInt | None = None
@@ -193,8 +194,9 @@ class UploadDerivedDataset(BaseModel):
     orcidOfOwner: str | None = None
     ownerEmail: str | None = None
     packedSize: NonNegativeInt | None = None
-    proposalId: str | None = None
+    proposalIds: list[str] | None = None
     relationships: list[UploadRelationship] | None = None
+    runNumber: str | None = None
     sharedWith: list[str] | None = None
     size: NonNegativeInt | None = None
     sourceFolderHost: str | None = None
@@ -219,7 +221,6 @@ class UploadRawDataset(BaseModel):
     creationLocation: str
     creationTime: datetime
     inputDatasets: list[PID]
-    investigator: str
     numberOfFilesArchived: NonNegativeInt
     owner: str
     ownerGroup: str
@@ -235,7 +236,7 @@ class UploadRawDataset(BaseModel):
     description: str | None = None
     endTime: datetime | None = None
     instrumentGroup: str | None = None
-    instrumentId: str | None = None
+    instrumentIds: list[str] | None = None
     isPublished: bool | None = None
     jobLogData: str | None = None
     jobParameters: dict[str, Any] | None = None
@@ -247,9 +248,10 @@ class UploadRawDataset(BaseModel):
     orcidOfOwner: str | None = None
     ownerEmail: str | None = None
     packedSize: NonNegativeInt | None = None
-    proposalId: str | None = None
+    proposalIds: list[str] | None = None
     relationships: list[UploadRelationship] | None = None
-    sampleId: str | None = None
+    runNumber: str | None = None
+    sampleIds: list[str] | None = None
     sharedWith: list[str] | None = None
     size: NonNegativeInt | None = None
     sourceFolderHost: str | None = None

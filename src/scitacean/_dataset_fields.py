@@ -99,7 +99,7 @@ class DatasetBase:
         ),
         Field(
             name="access_groups",
-            description="Optional additional groups which have read access to the data. Users which are members in one of the groups listed here are allowed to access this data. The special group 'public' makes data available to all users.",
+            description="List of groups which have access to this item.",
             read_only=False,
             required=False,
             scicat_name="accessGroups",
@@ -199,7 +199,7 @@ class DatasetBase:
         ),
         Field(
             name="data_quality_metrics",
-            description="Data Quality Metrics given by the user to rate the dataset.",
+            description="Data Quality Metrics is a number given by the user to rate the dataset.",
             read_only=False,
             required=False,
             scicat_name="dataQualityMetrics",
@@ -239,7 +239,7 @@ class DatasetBase:
         ),
         Field(
             name="instrument_group",
-            description="Optional additional groups which have read and write access to the data. Users which are members in one of the groups listed here are allowed to access this data.",
+            description="Group of the instrument which this item was acquired on.",
             read_only=False,
             required=False,
             scicat_name="instrumentGroup",
@@ -248,12 +248,12 @@ class DatasetBase:
             used_by_raw=True,
         ),
         Field(
-            name="instrument_id",
+            name="instrument_ids",
             description="ID of the instrument where the data was created.",
             read_only=False,
             required=False,
-            scicat_name="instrumentId",
-            type=str,
+            scicat_name="instrumentIds",
+            type=list[str],
             used_by_derived=False,
             used_by_raw=True,
         ),
@@ -379,7 +379,7 @@ class DatasetBase:
         ),
         Field(
             name="owner_group",
-            description="Defines the group which owns the data, and therefore has unrestricted access to this data. Usually a pgroup like p12151",
+            description="Name of the group owning this item.",
             read_only=False,
             required=True,
             scicat_name="ownerGroup",
@@ -389,7 +389,7 @@ class DatasetBase:
         ),
         Field(
             name="pid",
-            description="Persistent Identifier for datasets derived from UUIDv4 and prepended automatically by site specific PID prefix like 20.500.12345/",
+            description="Persistent identifier of the dataset.",
             read_only=True,
             required=False,
             scicat_name="pid",
@@ -408,19 +408,9 @@ class DatasetBase:
             used_by_raw=True,
         ),
         Field(
-            name="proposal_id",
+            name="proposal_ids",
             description="The ID of the proposal to which the dataset belongs.",
             read_only=False,
-            required=False,
-            scicat_name="proposalId",
-            type=str,
-            used_by_derived=True,
-            used_by_raw=True,
-        ),
-        Field(
-            name="proposal_ids",
-            description="The ID of the proposal to which the dataset belongs to and it has been acquired under.",
-            read_only=True,
             required=False,
             scicat_name="proposalIds",
             type=list[str],
@@ -438,12 +428,22 @@ class DatasetBase:
             used_by_raw=True,
         ),
         Field(
-            name="sample_id",
+            name="run_number",
+            description="Run number assigned by the system to the data acquisition for the current dataset.",
+            read_only=False,
+            required=False,
+            scicat_name="runNumber",
+            type=str,
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="sample_ids",
             description="ID of the sample used when collecting the data.",
             read_only=False,
             required=False,
-            scicat_name="sampleId",
-            type=str,
+            scicat_name="sampleIds",
+            type=list[str],
             used_by_derived=False,
             used_by_raw=True,
         ),
@@ -565,7 +565,6 @@ class DatasetBase:
         "_end_time",
         "_input_datasets",
         "_instrument_group",
-        "_instrument_id",
         "_instrument_ids",
         "_investigator",
         "_is_published",
@@ -581,10 +580,9 @@ class DatasetBase:
         "_owner_group",
         "_pid",
         "_principal_investigator",
-        "_proposal_id",
         "_proposal_ids",
         "_relationships",
-        "_sample_id",
+        "_run_number",
         "_sample_ids",
         "_shared_with",
         "_source_folder",
@@ -617,7 +615,7 @@ class DatasetBase:
         end_time: datetime | None = None,
         input_datasets: list[PID] | None = None,
         instrument_group: str | None = None,
-        instrument_id: str | None = None,
+        instrument_ids: list[str] | None = None,
         investigator: str | None = None,
         is_published: bool | None = None,
         job_log_data: str | None = None,
@@ -630,9 +628,10 @@ class DatasetBase:
         owner_email: str | None = None,
         owner_group: str | None = None,
         principal_investigator: str | None = None,
-        proposal_id: str | None = None,
+        proposal_ids: list[str] | None = None,
         relationships: list[Relationship] | None = None,
-        sample_id: str | None = None,
+        run_number: str | None = None,
+        sample_ids: list[str] | None = None,
         shared_with: list[str] | None = None,
         source_folder: RemotePath | str | None = None,
         source_folder_host: str | None = None,
@@ -656,7 +655,7 @@ class DatasetBase:
         self._end_time = end_time
         self._input_datasets = input_datasets
         self._instrument_group = instrument_group
-        self._instrument_id = instrument_id
+        self._instrument_ids = instrument_ids
         self._investigator = investigator
         self._is_published = is_published
         self._job_log_data = job_log_data
@@ -669,9 +668,10 @@ class DatasetBase:
         self._owner_email = owner_email
         self._owner_group = owner_group
         self._principal_investigator = principal_investigator
-        self._proposal_id = proposal_id
+        self._proposal_ids = proposal_ids
         self._relationships = relationships
-        self._sample_id = sample_id
+        self._run_number = run_number
+        self._sample_ids = sample_ids
         self._shared_with = shared_with
         self._source_folder = _parse_remote_path(source_folder)
         self._source_folder_host = source_folder_host
@@ -698,12 +698,12 @@ class DatasetBase:
 
     @property
     def access_groups(self) -> list[str] | None:
-        """Optional additional groups which have read access to the data. Users which are members in one of the groups listed here are allowed to access this data. The special group 'public' makes data available to all users."""
+        """List of groups which have access to this item."""
         return self._access_groups
 
     @access_groups.setter
     def access_groups(self, access_groups: list[str] | None) -> None:
-        """Optional additional groups which have read access to the data. Users which are members in one of the groups listed here are allowed to access this data. The special group 'public' makes data available to all users."""
+        """List of groups which have access to this item."""
         self._access_groups = access_groups
 
     @property
@@ -783,12 +783,12 @@ class DatasetBase:
 
     @property
     def data_quality_metrics(self) -> int | None:
-        """Data Quality Metrics given by the user to rate the dataset."""
+        """Data Quality Metrics is a number given by the user to rate the dataset."""
         return self._data_quality_metrics
 
     @data_quality_metrics.setter
     def data_quality_metrics(self, data_quality_metrics: int | None) -> None:
-        """Data Quality Metrics given by the user to rate the dataset."""
+        """Data Quality Metrics is a number given by the user to rate the dataset."""
         self._data_quality_metrics = data_quality_metrics
 
     @property
@@ -823,23 +823,23 @@ class DatasetBase:
 
     @property
     def instrument_group(self) -> str | None:
-        """Optional additional groups which have read and write access to the data. Users which are members in one of the groups listed here are allowed to access this data."""
+        """Group of the instrument which this item was acquired on."""
         return self._instrument_group
 
     @instrument_group.setter
     def instrument_group(self, instrument_group: str | None) -> None:
-        """Optional additional groups which have read and write access to the data. Users which are members in one of the groups listed here are allowed to access this data."""
+        """Group of the instrument which this item was acquired on."""
         self._instrument_group = instrument_group
 
     @property
-    def instrument_id(self) -> str | None:
+    def instrument_ids(self) -> list[str] | None:
         """ID of the instrument where the data was created."""
-        return self._instrument_id
+        return self._instrument_ids
 
-    @instrument_id.setter
-    def instrument_id(self, instrument_id: str | None) -> None:
+    @instrument_ids.setter
+    def instrument_ids(self, instrument_ids: list[str] | None) -> None:
         """ID of the instrument where the data was created."""
-        self._instrument_id = instrument_id
+        self._instrument_ids = instrument_ids
 
     @property
     def instrument_ids(self) -> list[str] | None:
@@ -953,17 +953,17 @@ class DatasetBase:
 
     @property
     def owner_group(self) -> str | None:
-        """Defines the group which owns the data, and therefore has unrestricted access to this data. Usually a pgroup like p12151"""
+        """Name of the group owning this item."""
         return self._owner_group
 
     @owner_group.setter
     def owner_group(self, owner_group: str | None) -> None:
-        """Defines the group which owns the data, and therefore has unrestricted access to this data. Usually a pgroup like p12151"""
+        """Name of the group owning this item."""
         self._owner_group = owner_group
 
     @property
     def pid(self) -> PID | None:
-        """Persistent Identifier for datasets derived from UUIDv4 and prepended automatically by site specific PID prefix like 20.500.12345/"""
+        """Persistent identifier of the dataset."""
         return self._pid
 
     @property
@@ -977,14 +977,14 @@ class DatasetBase:
         self._principal_investigator = principal_investigator
 
     @property
-    def proposal_id(self) -> str | None:
+    def proposal_ids(self) -> list[str] | None:
         """The ID of the proposal to which the dataset belongs."""
-        return self._proposal_id
+        return self._proposal_ids
 
-    @proposal_id.setter
-    def proposal_id(self, proposal_id: str | None) -> None:
+    @proposal_ids.setter
+    def proposal_ids(self, proposal_ids: list[str] | None) -> None:
         """The ID of the proposal to which the dataset belongs."""
-        self._proposal_id = proposal_id
+        self._proposal_ids = proposal_ids
 
     @property
     def proposal_ids(self) -> list[str] | None:
@@ -1002,14 +1002,24 @@ class DatasetBase:
         self._relationships = relationships
 
     @property
-    def sample_id(self) -> str | None:
-        """ID of the sample used when collecting the data."""
-        return self._sample_id
+    def run_number(self) -> str | None:
+        """Run number assigned by the system to the data acquisition for the current dataset."""
+        return self._run_number
 
-    @sample_id.setter
-    def sample_id(self, sample_id: str | None) -> None:
+    @run_number.setter
+    def run_number(self, run_number: str | None) -> None:
+        """Run number assigned by the system to the data acquisition for the current dataset."""
+        self._run_number = run_number
+
+    @property
+    def sample_ids(self) -> list[str] | None:
         """ID of the sample used when collecting the data."""
-        self._sample_id = sample_id
+        return self._sample_ids
+
+    @sample_ids.setter
+    def sample_ids(self, sample_ids: str | None) -> None:
+        """ID of the sample used when collecting the data."""
+        self._sample_ids = sample_ids
 
     @property
     def sample_ids(self) -> list[str] | None:
