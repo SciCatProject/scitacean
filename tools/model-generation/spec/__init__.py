@@ -160,8 +160,8 @@ def _collect_schemas(
 ) -> dict[str, _UpDownSchemas | _DatasetSchemas]:
     return {
         "Dataset": _DatasetSchemas(
-            upload_derived=schemas["CreateDerivedDatasetDto"],
-            upload_raw=schemas["CreateRawDatasetDto"],
+            upload_derived=schemas["CreateDerivedDatasetObsoleteDto"],
+            upload_raw=schemas["CreateRawDatasetObsoleteDto"],
             download=schemas["DatasetClass"],
         ),
         **{

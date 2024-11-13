@@ -12,7 +12,7 @@
 
 {% macro mask_keyword(spec, kind) %}
 {% if kind == "download" and spec.masked_fields_download %}
-, masked=({{ spec.masked_fields_download|map("quote")|join(", ") }})
+, masked=({{ spec.masked_fields_download|map("quote")|join(", ") }},)
 {% endif %}
 {% endmacro %}
 

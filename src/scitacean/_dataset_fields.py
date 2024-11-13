@@ -99,7 +99,7 @@ class DatasetBase:
         ),
         Field(
             name="access_groups",
-            description="Optional additional groups which have read access to the data. Users which are members in one of the groups listed here are allowed to access this data. The special group 'public' makes data available to all users.",
+            description="List of groups which have access to this item.",
             read_only=False,
             required=False,
             scicat_name="accessGroups",
@@ -109,7 +109,7 @@ class DatasetBase:
         ),
         Field(
             name="api_version",
-            description="Version of the API used in creation of the dataset.",
+            description="Version of the API used when the dataset was created or last updated. API version is defined in code for each release. Managed by the system.",
             read_only=True,
             required=False,
             scicat_name="version",
@@ -119,7 +119,7 @@ class DatasetBase:
         ),
         Field(
             name="classification",
-            description="ACIA information about AUthenticity,COnfidentiality,INtegrity and AVailability requirements of dataset. E.g. AV(ailabilty)=medium could trigger the creation of a two tape copies. Format 'AV=medium,CO=low'",
+            description="ACIA information about AUthenticity,COnfidentiality,INtegrity and AVailability requirements of dataset. E.g. AV(ailabilty)=medium could trigger the creation of a two tape copies. Format 'AV=medium,CO=low'. Please check the following post for more info: https://en.wikipedia.org/wiki/Parkerian_Hexad",
             read_only=False,
             required=False,
             scicat_name="classification",
@@ -129,7 +129,7 @@ class DatasetBase:
         ),
         Field(
             name="comment",
-            description="Comment the user has about a given dataset.",
+            description="Short comment provided by the user about a given dataset. This is additional to the description field.",
             read_only=False,
             required=False,
             scicat_name="comment",
@@ -149,7 +149,7 @@ class DatasetBase:
         ),
         Field(
             name="created_at",
-            description="Date and time when this record was created. This property is added and maintained by mongoose.",
+            description="Date and time when this record was created. This field is managed by mongoose with through the timestamp settings. The field should be a string containing a date in ISO 8601 format (2024-02-27T12:26:57.313Z)",
             read_only=True,
             required=False,
             scicat_name="createdAt",
@@ -169,7 +169,7 @@ class DatasetBase:
         ),
         Field(
             name="creation_location",
-            description="Unique location identifier where data was taken, usually in the form /Site-name/facility-name/instrumentOrBeamline-name. This field is required if the dataset is a Raw dataset.",
+            description="Unique location identifier where data was acquired. Usually in the form /Site-name/facility-name/instrumentOrBeamline-name.",
             read_only=False,
             required=True,
             scicat_name="creationLocation",
@@ -179,7 +179,7 @@ class DatasetBase:
         ),
         Field(
             name="creation_time",
-            description="Time when dataset became fully available on disk, i.e. all containing files have been written. Format according to chapter 5.6 internet date/time format in RFC 3339. Local times without timezone/offset info are automatically transformed to UTC using the timezone of the API server.",
+            description="Time when dataset became fully available on disk, i.e. all containing files have been written,  or the dataset was created in SciCat.<br>It is expected to be in ISO8601 format according to specifications for internet date/time format in RFC 3339, chapter 5.6 (https://www.rfc-editor.org/rfc/rfc3339#section-5).<br>Local times without timezone/offset info are automatically transformed to UTC using the timezone of the API server.",
             read_only=False,
             required=True,
             scicat_name="creationTime",
@@ -199,7 +199,7 @@ class DatasetBase:
         ),
         Field(
             name="data_quality_metrics",
-            description="Data Quality Metrics given by the user to rate the dataset.",
+            description="Data Quality Metrics is a number given by the user to rate the dataset.",
             read_only=False,
             required=False,
             scicat_name="dataQualityMetrics",
@@ -219,7 +219,7 @@ class DatasetBase:
         ),
         Field(
             name="end_time",
-            description="End time of data acquisition for this dataset, format according to chapter 5.6 internet date/time format in RFC 3339. Local times without timezone/offset info are automatically transformed to UTC using the timezone of the API server.",
+            description="End time of data acquisition for the current dataset.<br>It is expected to be in ISO8601 format according to specifications for internet date/time format in RFC 3339, chapter 5.6 (https://www.rfc-editor.org/rfc/rfc3339#section-5).<br>Local times without timezone/offset info are automatically transformed to UTC using the timezone of the API server.",
             read_only=False,
             required=False,
             scicat_name="endTime",
@@ -229,17 +229,17 @@ class DatasetBase:
         ),
         Field(
             name="input_datasets",
-            description="Array of input dataset identifiers used in producing the derived dataset. Ideally these are the global identifier to existing datasets inside this or federated data catalogs. This field is required if the dataset is a Derived dataset.",
+            description="Array of input dataset identifiers used in producing the derived dataset. Ideally these are the global identifier to existing datasets inside this or federated data catalogs.",
             read_only=False,
             required=True,
             scicat_name="inputDatasets",
             type=list[PID],
             used_by_derived=True,
-            used_by_raw=False,
+            used_by_raw=True,
         ),
         Field(
             name="instrument_group",
-            description="Optional additional groups which have read and write access to the data. Users which are members in one of the groups listed here are allowed to access this data.",
+            description="Group of the instrument which this item was acquired on.",
             read_only=False,
             required=False,
             scicat_name="instrumentGroup",
@@ -248,24 +248,34 @@ class DatasetBase:
             used_by_raw=True,
         ),
         Field(
-            name="instrument_id",
+            name="instrument_ids",
             description="ID of the instrument where the data was created.",
             read_only=False,
             required=False,
-            scicat_name="instrumentId",
-            type=str,
+            scicat_name="instrumentIds",
+            type=list[str],
             used_by_derived=False,
             used_by_raw=True,
         ),
         Field(
+            name="instrument_ids",
+            description="Id of the instrument or array of IDS of the instruments where the data contained in this dataset was created/acquired.",
+            read_only=True,
+            required=False,
+            scicat_name="instrumentIds",
+            type=list[str],
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
             name="investigator",
-            description="First name and last name of the person or people pursuing the data analysis. The string may contain a list of names, which should then be separated by semicolons.",
+            description="",
             read_only=False,
             required=True,
             scicat_name="investigator",
             type=str,
             used_by_derived=True,
-            used_by_raw=False,
+            used_by_raw=True,
         ),
         Field(
             name="is_published",
@@ -285,7 +295,7 @@ class DatasetBase:
             scicat_name="jobLogData",
             type=str,
             used_by_derived=True,
-            used_by_raw=False,
+            used_by_raw=True,
         ),
         Field(
             name="job_parameters",
@@ -295,7 +305,7 @@ class DatasetBase:
             scicat_name="jobParameters",
             type=dict[str, Any],
             used_by_derived=True,
-            used_by_raw=False,
+            used_by_raw=True,
         ),
         Field(
             name="keywords",
@@ -329,7 +339,7 @@ class DatasetBase:
         ),
         Field(
             name="name",
-            description="A name for the dataset, given by the creator to carry some semantic meaning. Useful for display purposes e.g. instead of displaying the pid. Will be autofilled if missing using info from sourceFolder.",
+            description="A name for the dataset, given by the creator to carry some semantic meaning. Useful for display purposes e.g. instead of displaying the pid.",
             read_only=False,
             required=False,
             scicat_name="datasetName",
@@ -369,7 +379,7 @@ class DatasetBase:
         ),
         Field(
             name="owner_group",
-            description="Defines the group which owns the data, and therefore has unrestricted access to this data. Usually a pgroup like p12151",
+            description="Name of the group owning this item.",
             read_only=False,
             required=True,
             scicat_name="ownerGroup",
@@ -379,7 +389,7 @@ class DatasetBase:
         ),
         Field(
             name="pid",
-            description="Persistent Identifier for datasets derived from UUIDv4 and prepended automatically by site specific PID prefix like 20.500.12345/",
+            description="Persistent identifier of the dataset.",
             read_only=True,
             required=False,
             scicat_name="pid",
@@ -398,18 +408,18 @@ class DatasetBase:
             used_by_raw=True,
         ),
         Field(
-            name="proposal_id",
+            name="proposal_ids",
             description="The ID of the proposal to which the dataset belongs.",
             read_only=False,
             required=False,
-            scicat_name="proposalId",
-            type=str,
-            used_by_derived=False,
+            scicat_name="proposalIds",
+            type=list[str],
+            used_by_derived=True,
             used_by_raw=True,
         ),
         Field(
             name="relationships",
-            description="Stores the relationships with other datasets.",
+            description="Array of relationships with other datasets. It contains relationship type and destination dataset",
             read_only=False,
             required=False,
             scicat_name="relationships",
@@ -418,18 +428,38 @@ class DatasetBase:
             used_by_raw=True,
         ),
         Field(
-            name="sample_id",
+            name="run_number",
+            description="Run number assigned by the system to the data acquisition for the current dataset.",
+            read_only=False,
+            required=False,
+            scicat_name="runNumber",
+            type=str,
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="sample_ids",
             description="ID of the sample used when collecting the data.",
             read_only=False,
             required=False,
-            scicat_name="sampleId",
-            type=str,
+            scicat_name="sampleIds",
+            type=list[str],
             used_by_derived=False,
             used_by_raw=True,
         ),
         Field(
+            name="sample_ids",
+            description="Single ID or array of IDS of the samples used when collecting the data.",
+            read_only=True,
+            required=False,
+            scicat_name="sampleIds",
+            type=list[str],
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
             name="shared_with",
-            description="List of users that the dataset has been shared with.",
+            description="List of additional users that the dataset has been shared with.",
             read_only=False,
             required=False,
             scicat_name="sharedWith",
@@ -458,8 +488,18 @@ class DatasetBase:
             used_by_raw=True,
         ),
         Field(
+            name="start_time",
+            description="Start time of data acquisition for the current dataset.<br>It is expected to be in ISO8601 format according to specifications for internet date/time format in RFC 3339, chapter 5.6 (https://www.rfc-editor.org/rfc/rfc3339#section-5).<br>Local times without timezone/offset info are automatically transformed to UTC using the timezone of the API server.",
+            read_only=False,
+            required=False,
+            scicat_name="startTime",
+            type=datetime,
+            used_by_derived=False,
+            used_by_raw=True,
+        ),
+        Field(
             name="techniques",
-            description="Stores the metadata information for techniques.",
+            description="Array of techniques information, with technique name and pid.",
             read_only=False,
             required=False,
             scicat_name="techniques",
@@ -469,7 +509,7 @@ class DatasetBase:
         ),
         Field(
             name="updated_at",
-            description="Date and time when this record was updated last. This property is added and maintained by mongoose.",
+            description="Date and time when this record was updated last. This field is managed by mongoose with through the timestamp settings. The field should be a string containing a date in ISO 8601 format (2024-02-27T12:26:57.313Z)",
             read_only=True,
             required=False,
             scicat_name="updatedAt",
@@ -489,13 +529,13 @@ class DatasetBase:
         ),
         Field(
             name="used_software",
-            description="A list of links to software repositories which uniquely identifies the pieces of software, including versions, used for yielding the derived data. This field is required if the dataset is a Derived dataset.",
+            description="A list of links to software repositories which uniquely identifies the pieces of software, including versions, used for yielding the derived data.",
             read_only=False,
             required=True,
             scicat_name="usedSoftware",
             type=list[str],
             used_by_derived=True,
-            used_by_raw=False,
+            used_by_raw=True,
         ),
         Field(
             name="validation_status",
@@ -525,7 +565,7 @@ class DatasetBase:
         "_end_time",
         "_input_datasets",
         "_instrument_group",
-        "_instrument_id",
+        "_instrument_ids",
         "_investigator",
         "_is_published",
         "_job_log_data",
@@ -540,12 +580,14 @@ class DatasetBase:
         "_owner_group",
         "_pid",
         "_principal_investigator",
-        "_proposal_id",
+        "_proposal_ids",
         "_relationships",
-        "_sample_id",
+        "_run_number",
+        "_sample_ids",
         "_shared_with",
         "_source_folder",
         "_source_folder_host",
+        "_start_time",
         "_techniques",
         "_updated_at",
         "_updated_by",
@@ -573,7 +615,7 @@ class DatasetBase:
         end_time: datetime | None = None,
         input_datasets: list[PID] | None = None,
         instrument_group: str | None = None,
-        instrument_id: str | None = None,
+        instrument_ids: list[str] | None = None,
         investigator: str | None = None,
         is_published: bool | None = None,
         job_log_data: str | None = None,
@@ -586,12 +628,14 @@ class DatasetBase:
         owner_email: str | None = None,
         owner_group: str | None = None,
         principal_investigator: str | None = None,
-        proposal_id: str | None = None,
+        proposal_ids: list[str] | None = None,
         relationships: list[Relationship] | None = None,
-        sample_id: str | None = None,
+        run_number: str | None = None,
+        sample_ids: list[str] | None = None,
         shared_with: list[str] | None = None,
         source_folder: RemotePath | str | None = None,
         source_folder_host: str | None = None,
+        start_time: datetime | None = None,
         techniques: list[Technique] | None = None,
         used_software: list[str] | None = None,
         validation_status: str | None = None,
@@ -611,7 +655,7 @@ class DatasetBase:
         self._end_time = end_time
         self._input_datasets = input_datasets
         self._instrument_group = instrument_group
-        self._instrument_id = instrument_id
+        self._instrument_ids = instrument_ids
         self._investigator = investigator
         self._is_published = is_published
         self._job_log_data = job_log_data
@@ -624,20 +668,25 @@ class DatasetBase:
         self._owner_email = owner_email
         self._owner_group = owner_group
         self._principal_investigator = principal_investigator
-        self._proposal_id = proposal_id
+        self._proposal_ids = proposal_ids
         self._relationships = relationships
-        self._sample_id = sample_id
+        self._run_number = run_number
+        self._sample_ids = sample_ids
         self._shared_with = shared_with
         self._source_folder = _parse_remote_path(source_folder)
         self._source_folder_host = source_folder_host
+        self._start_time = start_time
         self._techniques = techniques
         self._used_software = used_software
         self._validation_status = validation_status
         self._api_version = None
         self._created_at = None
         self._created_by = None
+        self._instrument_ids = None
         self._lifecycle = None
         self._pid = None
+        self._proposal_ids = None
+        self._sample_ids = None
         self._updated_at = None
         self._updated_by = None
         self._meta = meta or {}
@@ -649,37 +698,37 @@ class DatasetBase:
 
     @property
     def access_groups(self) -> list[str] | None:
-        """Optional additional groups which have read access to the data. Users which are members in one of the groups listed here are allowed to access this data. The special group 'public' makes data available to all users."""
+        """List of groups which have access to this item."""
         return self._access_groups
 
     @access_groups.setter
     def access_groups(self, access_groups: list[str] | None) -> None:
-        """Optional additional groups which have read access to the data. Users which are members in one of the groups listed here are allowed to access this data. The special group 'public' makes data available to all users."""
+        """List of groups which have access to this item."""
         self._access_groups = access_groups
 
     @property
     def api_version(self) -> str | None:
-        """Version of the API used in creation of the dataset."""
+        """Version of the API used when the dataset was created or last updated. API version is defined in code for each release. Managed by the system."""
         return self._api_version
 
     @property
     def classification(self) -> str | None:
-        """ACIA information about AUthenticity,COnfidentiality,INtegrity and AVailability requirements of dataset. E.g. AV(ailabilty)=medium could trigger the creation of a two tape copies. Format 'AV=medium,CO=low'"""
+        """ACIA information about AUthenticity,COnfidentiality,INtegrity and AVailability requirements of dataset. E.g. AV(ailabilty)=medium could trigger the creation of a two tape copies. Format 'AV=medium,CO=low'. Please check the following post for more info: https://en.wikipedia.org/wiki/Parkerian_Hexad"""
         return self._classification
 
     @classification.setter
     def classification(self, classification: str | None) -> None:
-        """ACIA information about AUthenticity,COnfidentiality,INtegrity and AVailability requirements of dataset. E.g. AV(ailabilty)=medium could trigger the creation of a two tape copies. Format 'AV=medium,CO=low'"""
+        """ACIA information about AUthenticity,COnfidentiality,INtegrity and AVailability requirements of dataset. E.g. AV(ailabilty)=medium could trigger the creation of a two tape copies. Format 'AV=medium,CO=low'. Please check the following post for more info: https://en.wikipedia.org/wiki/Parkerian_Hexad"""
         self._classification = classification
 
     @property
     def comment(self) -> str | None:
-        """Comment the user has about a given dataset."""
+        """Short comment provided by the user about a given dataset. This is additional to the description field."""
         return self._comment
 
     @comment.setter
     def comment(self, comment: str | None) -> None:
-        """Comment the user has about a given dataset."""
+        """Short comment provided by the user about a given dataset. This is additional to the description field."""
         self._comment = comment
 
     @property
@@ -694,7 +743,7 @@ class DatasetBase:
 
     @property
     def created_at(self) -> datetime | None:
-        """Date and time when this record was created. This property is added and maintained by mongoose."""
+        """Date and time when this record was created. This field is managed by mongoose with through the timestamp settings. The field should be a string containing a date in ISO 8601 format (2024-02-27T12:26:57.313Z)"""
         return self._created_at
 
     @property
@@ -704,22 +753,22 @@ class DatasetBase:
 
     @property
     def creation_location(self) -> str | None:
-        """Unique location identifier where data was taken, usually in the form /Site-name/facility-name/instrumentOrBeamline-name. This field is required if the dataset is a Raw dataset."""
+        """Unique location identifier where data was acquired. Usually in the form /Site-name/facility-name/instrumentOrBeamline-name."""
         return self._creation_location
 
     @creation_location.setter
     def creation_location(self, creation_location: str | None) -> None:
-        """Unique location identifier where data was taken, usually in the form /Site-name/facility-name/instrumentOrBeamline-name. This field is required if the dataset is a Raw dataset."""
+        """Unique location identifier where data was acquired. Usually in the form /Site-name/facility-name/instrumentOrBeamline-name."""
         self._creation_location = creation_location
 
     @property
     def creation_time(self) -> datetime | None:
-        """Time when dataset became fully available on disk, i.e. all containing files have been written. Format according to chapter 5.6 internet date/time format in RFC 3339. Local times without timezone/offset info are automatically transformed to UTC using the timezone of the API server."""
+        """Time when dataset became fully available on disk, i.e. all containing files have been written,  or the dataset was created in SciCat.<br>It is expected to be in ISO8601 format according to specifications for internet date/time format in RFC 3339, chapter 5.6 (https://www.rfc-editor.org/rfc/rfc3339#section-5).<br>Local times without timezone/offset info are automatically transformed to UTC using the timezone of the API server."""
         return self._creation_time
 
     @creation_time.setter
     def creation_time(self, creation_time: str | datetime | None) -> None:
-        """Time when dataset became fully available on disk, i.e. all containing files have been written. Format according to chapter 5.6 internet date/time format in RFC 3339. Local times without timezone/offset info are automatically transformed to UTC using the timezone of the API server."""
+        """Time when dataset became fully available on disk, i.e. all containing files have been written,  or the dataset was created in SciCat.<br>It is expected to be in ISO8601 format according to specifications for internet date/time format in RFC 3339, chapter 5.6 (https://www.rfc-editor.org/rfc/rfc3339#section-5).<br>Local times without timezone/offset info are automatically transformed to UTC using the timezone of the API server."""
         self._creation_time = _parse_datetime(creation_time)
 
     @property
@@ -734,12 +783,12 @@ class DatasetBase:
 
     @property
     def data_quality_metrics(self) -> int | None:
-        """Data Quality Metrics given by the user to rate the dataset."""
+        """Data Quality Metrics is a number given by the user to rate the dataset."""
         return self._data_quality_metrics
 
     @data_quality_metrics.setter
     def data_quality_metrics(self, data_quality_metrics: int | None) -> None:
-        """Data Quality Metrics given by the user to rate the dataset."""
+        """Data Quality Metrics is a number given by the user to rate the dataset."""
         self._data_quality_metrics = data_quality_metrics
 
     @property
@@ -754,52 +803,57 @@ class DatasetBase:
 
     @property
     def end_time(self) -> datetime | None:
-        """End time of data acquisition for this dataset, format according to chapter 5.6 internet date/time format in RFC 3339. Local times without timezone/offset info are automatically transformed to UTC using the timezone of the API server."""
+        """End time of data acquisition for the current dataset.<br>It is expected to be in ISO8601 format according to specifications for internet date/time format in RFC 3339, chapter 5.6 (https://www.rfc-editor.org/rfc/rfc3339#section-5).<br>Local times without timezone/offset info are automatically transformed to UTC using the timezone of the API server."""
         return self._end_time
 
     @end_time.setter
     def end_time(self, end_time: datetime | None) -> None:
-        """End time of data acquisition for this dataset, format according to chapter 5.6 internet date/time format in RFC 3339. Local times without timezone/offset info are automatically transformed to UTC using the timezone of the API server."""
+        """End time of data acquisition for the current dataset.<br>It is expected to be in ISO8601 format according to specifications for internet date/time format in RFC 3339, chapter 5.6 (https://www.rfc-editor.org/rfc/rfc3339#section-5).<br>Local times without timezone/offset info are automatically transformed to UTC using the timezone of the API server."""
         self._end_time = end_time
 
     @property
     def input_datasets(self) -> list[PID] | None:
-        """Array of input dataset identifiers used in producing the derived dataset. Ideally these are the global identifier to existing datasets inside this or federated data catalogs. This field is required if the dataset is a Derived dataset."""
+        """Array of input dataset identifiers used in producing the derived dataset. Ideally these are the global identifier to existing datasets inside this or federated data catalogs."""
         return self._input_datasets
 
     @input_datasets.setter
     def input_datasets(self, input_datasets: list[PID] | None) -> None:
-        """Array of input dataset identifiers used in producing the derived dataset. Ideally these are the global identifier to existing datasets inside this or federated data catalogs. This field is required if the dataset is a Derived dataset."""
+        """Array of input dataset identifiers used in producing the derived dataset. Ideally these are the global identifier to existing datasets inside this or federated data catalogs."""
         self._input_datasets = input_datasets
 
     @property
     def instrument_group(self) -> str | None:
-        """Optional additional groups which have read and write access to the data. Users which are members in one of the groups listed here are allowed to access this data."""
+        """Group of the instrument which this item was acquired on."""
         return self._instrument_group
 
     @instrument_group.setter
     def instrument_group(self, instrument_group: str | None) -> None:
-        """Optional additional groups which have read and write access to the data. Users which are members in one of the groups listed here are allowed to access this data."""
+        """Group of the instrument which this item was acquired on."""
         self._instrument_group = instrument_group
 
     @property
-    def instrument_id(self) -> str | None:
+    def instrument_ids(self) -> list[str] | None:
         """ID of the instrument where the data was created."""
-        return self._instrument_id
+        return self._instrument_ids
 
-    @instrument_id.setter
-    def instrument_id(self, instrument_id: str | None) -> None:
+    @instrument_ids.setter
+    def instrument_ids(self, instrument_ids: list[str] | None) -> None:
         """ID of the instrument where the data was created."""
-        self._instrument_id = instrument_id
+        self._instrument_ids = instrument_ids
+
+    @property
+    def instrument_ids(self) -> list[str] | None:
+        """Id of the instrument or array of IDS of the instruments where the data contained in this dataset was created/acquired."""
+        return self._instrument_ids
 
     @property
     def investigator(self) -> str | None:
-        """First name and last name of the person or people pursuing the data analysis. The string may contain a list of names, which should then be separated by semicolons."""
+        """"""
         return self._investigator
 
     @investigator.setter
     def investigator(self, investigator: str | None) -> None:
-        """First name and last name of the person or people pursuing the data analysis. The string may contain a list of names, which should then be separated by semicolons."""
+        """"""
         self._investigator = investigator
 
     @property
@@ -859,12 +913,12 @@ class DatasetBase:
 
     @property
     def name(self) -> str | None:
-        """A name for the dataset, given by the creator to carry some semantic meaning. Useful for display purposes e.g. instead of displaying the pid. Will be autofilled if missing using info from sourceFolder."""
+        """A name for the dataset, given by the creator to carry some semantic meaning. Useful for display purposes e.g. instead of displaying the pid."""
         return self._name
 
     @name.setter
     def name(self, name: str | None) -> None:
-        """A name for the dataset, given by the creator to carry some semantic meaning. Useful for display purposes e.g. instead of displaying the pid. Will be autofilled if missing using info from sourceFolder."""
+        """A name for the dataset, given by the creator to carry some semantic meaning. Useful for display purposes e.g. instead of displaying the pid."""
         self._name = name
 
     @property
@@ -899,17 +953,17 @@ class DatasetBase:
 
     @property
     def owner_group(self) -> str | None:
-        """Defines the group which owns the data, and therefore has unrestricted access to this data. Usually a pgroup like p12151"""
+        """Name of the group owning this item."""
         return self._owner_group
 
     @owner_group.setter
     def owner_group(self, owner_group: str | None) -> None:
-        """Defines the group which owns the data, and therefore has unrestricted access to this data. Usually a pgroup like p12151"""
+        """Name of the group owning this item."""
         self._owner_group = owner_group
 
     @property
     def pid(self) -> PID | None:
-        """Persistent Identifier for datasets derived from UUIDv4 and prepended automatically by site specific PID prefix like 20.500.12345/"""
+        """Persistent identifier of the dataset."""
         return self._pid
 
     @property
@@ -923,43 +977,63 @@ class DatasetBase:
         self._principal_investigator = principal_investigator
 
     @property
-    def proposal_id(self) -> str | None:
+    def proposal_ids(self) -> list[str] | None:
         """The ID of the proposal to which the dataset belongs."""
-        return self._proposal_id
+        return self._proposal_ids
 
-    @proposal_id.setter
-    def proposal_id(self, proposal_id: str | None) -> None:
+    @proposal_ids.setter
+    def proposal_ids(self, proposal_ids: list[str] | None) -> None:
         """The ID of the proposal to which the dataset belongs."""
-        self._proposal_id = proposal_id
+        self._proposal_ids = proposal_ids
+
+    @property
+    def proposal_ids(self) -> list[str] | None:
+        """The ID of the proposal to which the dataset belongs to and it has been acquired under."""
+        return self._proposal_ids
 
     @property
     def relationships(self) -> list[Relationship] | None:
-        """Stores the relationships with other datasets."""
+        """Array of relationships with other datasets. It contains relationship type and destination dataset"""
         return self._relationships
 
     @relationships.setter
     def relationships(self, relationships: list[Relationship] | None) -> None:
-        """Stores the relationships with other datasets."""
+        """Array of relationships with other datasets. It contains relationship type and destination dataset"""
         self._relationships = relationships
 
     @property
-    def sample_id(self) -> str | None:
-        """ID of the sample used when collecting the data."""
-        return self._sample_id
+    def run_number(self) -> str | None:
+        """Run number assigned by the system to the data acquisition for the current dataset."""
+        return self._run_number
 
-    @sample_id.setter
-    def sample_id(self, sample_id: str | None) -> None:
+    @run_number.setter
+    def run_number(self, run_number: str | None) -> None:
+        """Run number assigned by the system to the data acquisition for the current dataset."""
+        self._run_number = run_number
+
+    @property
+    def sample_ids(self) -> list[str] | None:
         """ID of the sample used when collecting the data."""
-        self._sample_id = sample_id
+        return self._sample_ids
+
+    @sample_ids.setter
+    def sample_ids(self, sample_ids: str | None) -> None:
+        """ID of the sample used when collecting the data."""
+        self._sample_ids = sample_ids
+
+    @property
+    def sample_ids(self) -> list[str] | None:
+        """Single ID or array of IDS of the samples used when collecting the data."""
+        return self._sample_ids
 
     @property
     def shared_with(self) -> list[str] | None:
-        """List of users that the dataset has been shared with."""
+        """List of additional users that the dataset has been shared with."""
         return self._shared_with
 
     @shared_with.setter
     def shared_with(self, shared_with: list[str] | None) -> None:
-        """List of users that the dataset has been shared with."""
+        """List of additional users that the dataset has been shared with."""
         self._shared_with = shared_with
 
     @property
@@ -983,18 +1057,28 @@ class DatasetBase:
         self._source_folder_host = source_folder_host
 
     @property
+    def start_time(self) -> datetime | None:
+        """Start time of data acquisition for the current dataset.<br>It is expected to be in ISO8601 format according to specifications for internet date/time format in RFC 3339, chapter 5.6 (https://www.rfc-editor.org/rfc/rfc3339#section-5).<br>Local times without timezone/offset info are automatically transformed to UTC using the timezone of the API server."""
+        return self._start_time
+
+    @start_time.setter
+    def start_time(self, start_time: datetime | None) -> None:
+        """Start time of data acquisition for the current dataset.<br>It is expected to be in ISO8601 format according to specifications for internet date/time format in RFC 3339, chapter 5.6 (https://www.rfc-editor.org/rfc/rfc3339#section-5).<br>Local times without timezone/offset info are automatically transformed to UTC using the timezone of the API server."""
+        self._start_time = start_time
+
+    @property
     def techniques(self) -> list[Technique] | None:
-        """Stores the metadata information for techniques."""
+        """Array of techniques information, with technique name and pid."""
         return self._techniques
 
     @techniques.setter
     def techniques(self, techniques: list[Technique] | None) -> None:
-        """Stores the metadata information for techniques."""
+        """Array of techniques information, with technique name and pid."""
         self._techniques = techniques
 
     @property
     def updated_at(self) -> datetime | None:
-        """Date and time when this record was updated last. This property is added and maintained by mongoose."""
+        """Date and time when this record was updated last. This field is managed by mongoose with through the timestamp settings. The field should be a string containing a date in ISO 8601 format (2024-02-27T12:26:57.313Z)"""
         return self._updated_at
 
     @property
@@ -1004,12 +1088,12 @@ class DatasetBase:
 
     @property
     def used_software(self) -> list[str] | None:
-        """A list of links to software repositories which uniquely identifies the pieces of software, including versions, used for yielding the derived data. This field is required if the dataset is a Derived dataset."""
+        """A list of links to software repositories which uniquely identifies the pieces of software, including versions, used for yielding the derived data."""
         return self._used_software
 
     @used_software.setter
     def used_software(self, used_software: list[str] | None) -> None:
-        """A list of links to software repositories which uniquely identifies the pieces of software, including versions, used for yielding the derived data. This field is required if the dataset is a Derived dataset."""
+        """A list of links to software repositories which uniquely identifies the pieces of software, including versions, used for yielding the derived data."""
         self._used_software = used_software
 
     @property

@@ -56,6 +56,8 @@ _DATASETS: dict[str, UploadRawDataset | UploadDerivedDataset] = {
             "temperature": {"value": "123", "unit": "K"},
             "weight": {"value": "42", "unit": "mg"},
         },
+        usedSoftware=[],
+        inputDatasets=[],
     ),
     "derived": UploadDerivedDataset(
         ownerGroup="PLACEHOLDER",
@@ -96,6 +98,8 @@ _DATASETS: dict[str, UploadRawDataset | UploadDerivedDataset] = {
         principalInvestigator="Mustrum Ridcully",
         creationLocation=SITE,
         techniques=[UploadTechnique(pid="S", name="shoes")],
+        inputDatasets=[],
+        usedSoftware=["scitacean"],
     ),
     "partially-broken": model.construct(
         UploadDerivedDataset,
