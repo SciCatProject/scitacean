@@ -7,7 +7,7 @@ from scitacean import Attachment, Dataset, RemotePath, Thumbnail
 # We don't want to test the concrete layout as that may change
 # without breaking anything. So just make sure that the result
 # contains the relevant data.
-def test_dataset_html_repr():
+def test_dataset_html_repr() -> None:
     ds = Dataset(
         type="raw",
         name="My dataset",
@@ -30,7 +30,7 @@ def test_dataset_html_repr():
     assert "unit" in res
 
 
-def test_attachment_html_repr():
+def test_attachment_html_repr() -> None:
     att = Attachment(
         caption="THE_CAPTION.jpg",
         owner_group="ThePeople",
