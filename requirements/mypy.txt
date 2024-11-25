@@ -6,7 +6,7 @@
 #    pip-compile-multi
 #
 -r test.txt
-mypy==1.11.2
+mypy==1.13.0
     # via -r mypy.in
 mypy-extensions==1.0.0
     # via mypy
@@ -18,7 +18,7 @@ types-python-dateutil==2.9.0.20241003
     # via -r mypy.in
 types-pyyaml==6.0.12.20240917
     # via -r mypy.in
-types-requests==2.32.0.20240914
+types-requests==2.32.0.20241016
     # via -r mypy.in
 urllib3==2.2.3
     # via types-requests
