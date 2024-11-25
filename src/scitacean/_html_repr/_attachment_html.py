@@ -54,7 +54,7 @@ def _get_fields(attachment: Attachment) -> list[Field]:
         Field(
             name=_strip_leading_underscore(field.name),
             value=getattr(attachment, field.name),
-            type=field.type,
+            type=field.type,  # type: ignore[arg-type]
             description="",
             read_only=_is_read_only(field.name),
             required=False,
