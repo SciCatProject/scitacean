@@ -140,7 +140,6 @@ class DownloadDataset(BaseModel, masked=("history",)):
     pid: PID | None = None
     proposalIds: list[str] | None = None
     relationships: list[DownloadRelationship] | None = None
-    runNumber: str | None = None
     sampleIds: list[str] | None = None
     sharedWith: list[str] | None = None
     size: NonNegativeInt | None = None
@@ -194,9 +193,8 @@ class UploadDerivedDataset(BaseModel):
     orcidOfOwner: str | None = None
     ownerEmail: str | None = None
     packedSize: NonNegativeInt | None = None
-    proposalIds: list[str] | None = None
+    proposalId: str | None = None
     relationships: list[UploadRelationship] | None = None
-    runNumber: str | None = None
     sharedWith: list[str] | None = None
     size: NonNegativeInt | None = None
     sourceFolderHost: str | None = None
@@ -221,6 +219,7 @@ class UploadRawDataset(BaseModel):
     creationLocation: str
     creationTime: datetime
     inputDatasets: list[PID]
+    investigator: str | None = None
     numberOfFilesArchived: NonNegativeInt
     owner: str
     ownerGroup: str
@@ -236,7 +235,7 @@ class UploadRawDataset(BaseModel):
     description: str | None = None
     endTime: datetime | None = None
     instrumentGroup: str | None = None
-    instrumentIds: list[str] | None = None
+    instrumentId: str | None = None
     isPublished: bool | None = None
     jobLogData: str | None = None
     jobParameters: dict[str, Any] | None = None
@@ -248,16 +247,28 @@ class UploadRawDataset(BaseModel):
     orcidOfOwner: str | None = None
     ownerEmail: str | None = None
     packedSize: NonNegativeInt | None = None
-    proposalIds: list[str] | None = None
+    proposalId: str | None = None
     relationships: list[UploadRelationship] | None = None
-    runNumber: str | None = None
-    sampleIds: list[str] | None = None
+    sampleId: str | None = None
     sharedWith: list[str] | None = None
     size: NonNegativeInt | None = None
     sourceFolderHost: str | None = None
     startTime: datetime | None = None
     techniques: list[UploadTechnique] | None = None
     validationStatus: str | None = None
+
+    @pydantic.model_validator(mode="before")
+    @classmethod
+    def _set_investigator(cls, data):
+        # The model currently has both `investigator` and `principalInvestigator`
+        # and both are mandatory. Eventually, `investigator` will be removed.
+        # So make sure we can construct the model if only one is given.
+        if isinstance(data, dict):
+            if (inv := data.get("investigator")) is not None:
+                data.setdefault("principalInvestigator", inv)
+            elif (pi := data.get("principalInvestigator")) is not None:
+                data["investigator"] = pi
+        return data
 
     @pydantic.field_validator("creationTime", "endTime", mode="before")
     def _validate_datetime(cls, value: Any) -> Any:
