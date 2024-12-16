@@ -226,7 +226,6 @@ def test_default_masked_fields_are_dropped():
 
 def test_custom_masked_fields_are_dropped():
     mod = DownloadDataset(  # type: ignore[call-arg]
-        attachments=[{"id": "abc"}],
         id="abc",
         _id="def",
         _v="123",

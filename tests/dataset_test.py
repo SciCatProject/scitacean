@@ -24,7 +24,6 @@ def raw_download_model():
         creationLocation="UnseenUniversity",
         creationTime=parse_datetime("1995-08-06T14:14:14Z"),
         inputDatasets=None,
-        investigator=None,
         numberOfFilesArchived=None,
         owner="pstibbons",
         ownerGroup="faculty",
@@ -93,11 +92,10 @@ def derived_download_model():
         creationLocation=None,
         creationTime=parse_datetime("1995-08-06T14:14:14Z"),
         inputDatasets=[PID.parse("123.cc/948.f7.2a")],
-        investigator="Ponder Stibbons",
         numberOfFilesArchived=None,
         owner="pstibbons",
         ownerGroup="faculty",
-        principalInvestigator=None,
+        principalInvestigator="Ponder Stibbons",
         sourceFolder=RemotePath("/uu/hex"),
         type=DatasetType.DERIVED,
         usedSoftware=["scitacean"],
@@ -173,6 +171,8 @@ def test_from_download_models_initializes_fields(dataset_download_model):
 
     dset = Dataset.from_download_models(dataset_download_model, [])
     for field in dset.fields():
+        if field.name in ("instrument_id", "sample_id", "proposal_id", "investigator"):
+            continue  # TODO remove when API v4 is released
         if field.used_by(dataset_download_model.type):
             assert getattr(dset, field.name) == get_model_field(field.scicat_name)
 
@@ -180,6 +180,8 @@ def test_from_download_models_initializes_fields(dataset_download_model):
 def test_from_download_models_does_not_initialize_wrong_fields(dataset_download_model):
     dset = Dataset.from_download_models(dataset_download_model, [])
     for field in dset.fields():
+        if field.name == "principal_investigator":
+            continue  # TODO remove when API v4 is released
         if not field.used_by(dataset_download_model.type):
             assert getattr(dset, field.name) is None
 
@@ -318,6 +320,16 @@ def test_dataset_models_roundtrip(initial):
         orig_datablock_models=dblock_models,
         attachment_models=attachment_models,
     )
+
+    # TODO remove in API v4
+    rebuilt.investigator = initial.investigator
+    rebuilt.proposal_id = initial.proposal_id
+    initial._proposal_ids = rebuilt.proposal_ids
+    rebuilt.sample_id = initial.sample_id
+    initial._sample_ids = rebuilt.sample_ids
+    rebuilt.instrument_id = initial.instrument_id
+    initial._instrument_ids = rebuilt.instrument_ids
+
     assert initial == rebuilt
 
 

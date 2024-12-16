@@ -13,7 +13,7 @@ def test_dataset_html_repr():
         name="My dataset",
         contact_email="devsci.cat",
         owner="The People",
-        instrument_ids=["the-peoples-neutron-gun"],
+        instrument_id="the-peoples-neutron-gun",
         used_software=["scitacean"],
         source_folder=RemotePath("/remote/dir/"),
         meta={

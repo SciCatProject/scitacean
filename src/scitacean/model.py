@@ -219,7 +219,6 @@ class UploadRawDataset(BaseModel):
     creationLocation: str
     creationTime: datetime
     inputDatasets: list[PID]
-    investigator: str | None = None
     numberOfFilesArchived: NonNegativeInt
     owner: str
     ownerGroup: str
@@ -227,6 +226,7 @@ class UploadRawDataset(BaseModel):
     sourceFolder: RemotePath
     type: DatasetType
     usedSoftware: list[str]
+    investigator: str | None = None
     accessGroups: list[str] | None = None
     classification: str | None = None
     comment: str | None = None

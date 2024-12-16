@@ -120,7 +120,7 @@ def test_create_attachment_for_dataset_for_dataset_populates_ids(
     assert finalized.id is not None
     assert finalized.datasetId is not None
     assert finalized.sampleId is None
-    assert finalized.proposalIds is None
+    assert finalized.proposalId is None
 
 
 def test_get_attachments_for_dataset(scicat_client):
