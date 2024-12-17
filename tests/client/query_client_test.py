@@ -151,17 +151,19 @@ def test_query_dataset_multiple_by_multiple_fields(real_client):
 @pytest.mark.usefixtures("_seed_database")
 def test_query_dataset_multiple_by_derived_field(real_client):
     datasets = real_client.scicat.query_datasets(
-        {"investigator": "investigator 1"},
+        {"principalInvestigator": "investigator 1"}
     )
     actual = {ds.pid: ds for ds in datasets}
-    expected = {SEED[key].pid: SEED[key] for key in ("derived1", "derived2")}
+    expected = {
+        SEED[key].pid: SEED[key] for key in ("derived1", "derived2", "raw1", "raw3")
+    }
     assert actual == expected
 
 
 @pytest.mark.usefixtures("_seed_database")
 def test_query_dataset_uses_conjunction_of_fields(real_client):
     datasets = real_client.scicat.query_datasets(
-        {"proposalIds": ["p0124"], "investigator": "investigator X"},
+        {"proposalIds": ["p0124"], "principalInvestigator": "investigator X"},
     )
     assert not datasets
 
