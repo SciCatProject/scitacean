@@ -26,6 +26,7 @@ def scicat_client(client: Client) -> ScicatClient:
 @pytest.fixture
 def derived_dataset(scicat_access):
     return UploadDerivedDataset(
+        datasetName="Koelsche Lieder",
         contactEmail="black.foess@dom.koelle",
         creationTime=parse_date("1995-11-11T11:11:11.000Z"),
         owner="bfoess",
@@ -43,7 +44,7 @@ def derived_dataset(scicat_access):
 @pytest.mark.parametrize("key", ["raw", "derived"])
 def test_get_dataset_model(scicat_client, key):
     dset = INITIAL_DATASETS[key]
-    downloaded = scicat_client.get_dataset_model(dset.pid)
+    downloaded = scicat_client.get_dataset_model(dset.pid, strict_validation=True)
     # The backend may update the dataset after upload.
     # We cannot easily predict when that happens.
     downloaded.updatedAt = dset.updatedAt
@@ -57,7 +58,7 @@ def test_get_dataset_model_bad_id(scicat_client):
 
 def test_create_dataset_model(scicat_client, derived_dataset):
     finalized = scicat_client.create_dataset_model(derived_dataset)
-    downloaded = scicat_client.get_dataset_model(finalized.pid)
+    downloaded = scicat_client.get_dataset_model(finalized.pid, strict_validation=True)
     for key, expected in finalized:
         # The database populates a number of fields that are None in dset.
         # But we don't want to test those here as we don't want to test the database.
@@ -75,7 +76,7 @@ def test_validate_dataset_model(real_client, require_scicat_backend, derived_dat
 def test_get_dataset(client):
     dset = INITIAL_DATASETS["raw"]
     dblock = INITIAL_ORIG_DATABLOCKS["raw"][0]
-    downloaded = client.get_dataset(dset.pid)
+    downloaded = client.get_dataset(dset.pid, strict_validation=True)
 
     assert downloaded.source_folder == dset.sourceFolder
     assert downloaded.creation_time == dset.creationTime
@@ -96,7 +97,7 @@ def test_can_get_public_dataset_without_login(require_scicat_backend, scicat_acc
 
     dset = INITIAL_DATASETS["public"]
     dblock = INITIAL_ORIG_DATABLOCKS["public"][0]
-    downloaded = client.get_dataset(dset.pid)
+    downloaded = client.get_dataset(dset.pid, strict_validation=True)
 
     assert downloaded.source_folder == dset.sourceFolder
     assert downloaded.creation_time == dset.creationTime

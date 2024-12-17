@@ -101,6 +101,7 @@ def test_derived_dataset_default_values(
         accessGroups=["access1"],
         contactEmail="contact@email.com",
         creationTime=parse_date("2000-01-01T01:01:01.000Z"),
+        datasetName="Test derived dataset",
         inputDatasets=[PID(prefix="PID.prefix.a0b1", pid="abcd")],
         investigator="inv@esti.gator",
         numberOfFilesArchived=0,
@@ -117,8 +118,9 @@ def test_derived_dataset_default_values(
     assert finalized.accessGroups == ["access1"]
     assert finalized.contactEmail == "contact@email.com"
     assert finalized.creationTime == parse_date("2000-01-01T01:01:01.000Z")
+    assert finalized.datasetName == "Test derived dataset"
     assert finalized.inputDatasets == [PID(prefix="PID.prefix.a0b1", pid="abcd")]
-    assert finalized.investigator == "inv@esti.gator"
+    assert finalized.principalInvestigator == "inv@esti.gator"
     assert finalized.owner == scicat_access.user.username
     assert finalized.ownerGroup == scicat_access.user.group
     assert finalized.sourceFolder == "/source/folder"
@@ -128,7 +130,6 @@ def test_derived_dataset_default_values(
     assert finalized.createdAt  # some non-empty str
     assert finalized.createdBy  # some non-empty str
     assert finalized.classification  # some non-empty str
-    assert finalized.datasetName  # some non-empty str
     assert finalized.isPublished is False
     assert finalized.keywords == []
     assert finalized.numberOfFiles == 0
@@ -140,6 +141,7 @@ def test_derived_dataset_default_values(
     assert finalized.size == 0
     assert finalized.techniques == []
     assert finalized.updatedAt  # some non-empty str
+    assert finalized.version == "v3"
 
     # Left empty
     assert finalized.description is None is None
@@ -150,7 +152,6 @@ def test_derived_dataset_default_values(
     assert finalized.ownerEmail is None
     assert finalized.sourceFolderHost is None
     assert finalized.validationStatus is None
-    assert finalized.version is None
 
 
 def test_raw_dataset_default_values(real_client, require_scicat_backend, scicat_access):
@@ -159,56 +160,61 @@ def test_raw_dataset_default_values(real_client, require_scicat_backend, scicat_
         contactEmail="contact@email.com",
         creationTime=parse_date("2000-01-01T01:01:01.000Z"),
         creationLocation="site",
+        datasetName="Test raw dataset",
+        inputDatasets=[],
         numberOfFilesArchived=0,
         owner=scicat_access.user.username,
         ownerGroup=scicat_access.user.group,
         principalInvestigator="inv@esti.gator",
         sourceFolder=RemotePath("/source/folder"),
         type=DatasetType.RAW,
+        usedSoftware=["software1"],
     )
     pid = real_client.scicat.create_dataset_model(dset).pid
     finalized = real_client.scicat.get_dataset_model(pid)
 
     # Inputs
+    assert finalized.datasetName == "Test raw dataset"
     assert finalized.accessGroups == ["access1"]
     assert finalized.contactEmail == "contact@email.com"
     assert finalized.creationLocation == "site"
     assert finalized.creationTime == parse_date("2000-01-01T01:01:01.000Z")
+    assert finalized.inputDatasets == []
     assert finalized.owner == scicat_access.user.username
     assert finalized.ownerGroup == scicat_access.user.group
     assert finalized.principalInvestigator == "inv@esti.gator"
     assert finalized.sourceFolder == "/source/folder"
+    assert finalized.usedSoftware == ["software1"]
 
     # Default values
     assert finalized.createdAt  # some non-empty str
     assert finalized.createdBy  # some non-empty str
     assert finalized.classification  # some non-empty str
-    assert finalized.datasetName  # some non-empty str
+    assert finalized.instrumentIds == []
     assert finalized.isPublished is False
     assert finalized.keywords == []
     assert finalized.numberOfFiles == 0
     assert finalized.numberOfFilesArchived == 0
     assert finalized.packedSize == 0
     assert finalized.pid  # some non-empty str
+    assert finalized.proposalIds == []
+    assert finalized.sampleIds == []
     assert finalized.scientificMetadata == {}
     assert finalized.sharedWith == []
     assert finalized.size == 0
     assert finalized.techniques == []
     assert finalized.updatedAt  # some non-empty str
+    assert finalized.version == "v3"
 
     # Left empty
     assert finalized.dataFormat is None
     assert finalized.description is None
     assert finalized.endTime is None
-    assert finalized.instrumentId is None
     assert finalized.license is None
     assert finalized.orcidOfOwner is None
     assert finalized.ownerEmail is None
-    assert finalized.proposalId is None
-    assert finalized.sampleId is None
     assert finalized.sourceFolderHost is None
     assert finalized.validationStatus is None
-    assert finalized.version is None
 
 
 def test_default_masked_fields_are_dropped():
@@ -226,7 +232,6 @@ def test_default_masked_fields_are_dropped():
 
 def test_custom_masked_fields_are_dropped():
     mod = DownloadDataset(  # type: ignore[call-arg]
-        attachments=[{"id": "abc"}],
         id="abc",
         _id="def",
         _v="123",

@@ -30,10 +30,6 @@ def parse_field_type(spec: dict[str, Any]):
         return parse_field_type(spec["allOf"][0])
     if "$ref" in spec:
         return spec["$ref"].rsplit("/", 1)[1]
-    if "enum" in spec:
-        if spec["type"] != "string":
-            raise ValueError(f"Enum fields must have type 'string', got: {spec}")
-        return "Enum[" + ", ".join(spec["enum"]) + "]"
     if spec["type"] == "number":
         return "int"
     if spec["type"] == "string":

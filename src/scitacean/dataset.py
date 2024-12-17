@@ -437,7 +437,7 @@ class Dataset(DatasetBase):
         )
         # Datablocks are not included here because they are handled separately
         # by make_datablock_upload_models and their own endpoints.
-        special = ("relationships", "techniques")
+        special = ("relationships", "techniques", "input_datasets", "used_software")
         return model(
             numberOfFiles=self.number_of_files,
             numberOfFilesArchived=self.number_of_files_archived,
@@ -450,6 +450,8 @@ class Dataset(DatasetBase):
             relationships=convert_user_to_upload_model(  # type: ignore[arg-type]
                 self.relationships
             ),
+            inputDatasets=self.input_datasets or [],
+            usedSoftware=self.used_software or [],
             **{
                 field.scicat_name: value
                 for field in self.fields()

@@ -202,7 +202,9 @@ class DatasetBase:
         for field in DatasetBase._FIELD_SPEC:
             if field.read_only:
                 read_only["_"+field.name] = getattr(download_model, field.scicat_name)
-            else:
+            elif hasattr(
+                download_model, field.scicat_name
+            ):  # TODO remove condition in API v4
                 init_args[field.name] = getattr(download_model, field.scicat_name)
 
         init_args["meta"] = download_model.scientificMetadata

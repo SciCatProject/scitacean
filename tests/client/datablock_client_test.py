@@ -26,6 +26,7 @@ def scicat_client(client: Client) -> ScicatClient:
 @pytest.fixture
 def derived_dataset(scicat_access):
     return UploadDerivedDataset(
+        datasetName="Koelsche Lieder",
         contactEmail="black.foess@dom.koelle",
         creationTime=parse_date("1995-11-11T11:11:11.000Z"),
         owner="bfoess",

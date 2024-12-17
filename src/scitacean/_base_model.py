@@ -313,7 +313,7 @@ def _model_field_name_of(cls_name: str, name: str) -> str:
 
     Converts snake_case to camelCase and strips leading underscores.
     E.g.,
-    `proposal_id` -> `proposalId`,
+    `proposal_ids` -> `proposalIds`,
     `_created_at` -> `createdAt`,
     `_History__id` -> `id`.
     """

@@ -761,7 +761,7 @@ class ScicatClient:
 
         .. code-block:: python
 
-            scicat_client.query_datasets({'proposalId': 'abc.123'})
+            scicat_client.query_datasets({'proposalIds': ['abc.123']})
 
         Get all datasets that belong to proposal ``abc.123``
         **and** have name ``"ds name"``: (The name and proposal must match exactly.)
@@ -769,7 +769,7 @@ class ScicatClient:
         .. code-block:: python
 
             scicat_client.query_datasets({
-                'proposalId': 'abc.123',
+                'proposalIds': ['abc.123'],
                 'datasetName': 'ds name'
             })
 
@@ -778,7 +778,7 @@ class ScicatClient:
         .. code-block:: python
 
             scicat_client.query_datasets(
-                {'proposalId': 'bc.123'},
+                {'proposalIds': ['bc.123']},
                 limit=5,
                 order="creationTime:desc",
             )
@@ -1224,7 +1224,7 @@ def _log_in_via_users_login(
 ) -> httpx.Response:
     # Currently only used for functional accounts.
     response = httpx.post(
-        _url_concat(url, "Users/login"),
+        _url_concat(url, "auth/login"),
         json={"username": username.get_str(), "password": password.get_str()},
         timeout=timeout.seconds,
     )
