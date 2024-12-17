@@ -47,4 +47,3 @@ Consider using Pyscicat if you need to access, e.g. sample metadata, proposals, 
    user-guide/index
    reference/index
    developer/index
-   release-notes
