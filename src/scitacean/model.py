@@ -101,7 +101,10 @@ from .pid import PID
 from .thumbnail import Thumbnail
 
 
-class DownloadDataset(BaseModel, masked=("history",)):
+# TODO remove extra masks after API v4
+class DownloadDataset(
+    BaseModel, masked=("history", "proposalId", "sampleId", "instrumentId")
+):
     contactEmail: str | None = None
     creationLocation: str | None = None
     creationTime: datetime | None = None
@@ -163,6 +166,25 @@ class DownloadDataset(BaseModel, masked=("history",)):
     @pydantic.field_validator("orcidOfOwner", mode="before")
     def _validate_orcids(cls, value: Any) -> Any:
         return validate_orcids(value)
+
+    # TODO remove after API v4
+    @pydantic.field_validator("sampleIds", mode="before")
+    def _validate_sample_ids(cls, value: Any) -> Any:
+        if value == [None]:
+            return []
+        return value
+
+    @pydantic.field_validator("proposalIds", mode="before")
+    def _validate_proposal_ids(cls, value: Any) -> Any:
+        if value == [None]:
+            return []
+        return value
+
+    @pydantic.field_validator("instrumentIds", mode="before")
+    def _validate_instrument_ids(cls, value: Any) -> Any:
+        if value == [None]:
+            return []
+        return value
 
 
 class UploadDerivedDataset(BaseModel):
