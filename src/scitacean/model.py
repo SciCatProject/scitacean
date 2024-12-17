@@ -281,7 +281,7 @@ class UploadRawDataset(BaseModel):
 
     @pydantic.model_validator(mode="before")
     @classmethod
-    def _set_investigator(cls, data):
+    def _set_investigator(cls, data: Any) -> Any:
         # The model currently has both `investigator` and `principalInvestigator`
         # and both are mandatory. Eventually, `investigator` will be removed.
         # So make sure we can construct the model if only one is given.
