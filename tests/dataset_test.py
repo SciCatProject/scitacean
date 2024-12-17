@@ -335,11 +335,11 @@ def test_dataset_models_roundtrip(initial: Dataset) -> None:
     # TODO remove in API v4
     rebuilt.investigator = initial.investigator
     rebuilt.proposal_id = initial.proposal_id
-    initial._proposal_ids = rebuilt.proposal_ids
+    initial._proposal_ids = rebuilt.proposal_ids  # type: ignore[assignment]
     rebuilt.sample_id = initial.sample_id
-    initial._sample_ids = rebuilt.sample_ids
+    initial._sample_ids = rebuilt.sample_ids  # type: ignore[assignment]
     rebuilt.instrument_id = initial.instrument_id
-    initial._instrument_ids = rebuilt.instrument_ids
+    initial._instrument_ids = rebuilt.instrument_ids  # type: ignore[assignment]
 
     assert initial == rebuilt
 
