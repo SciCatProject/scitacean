@@ -324,10 +324,13 @@ def _process_dataset(
         )
     if "techniques" in fields:
         fields["techniques"] = list(map(_process_technique, fields["techniques"]))
+
     # TODO remove in API v4
     for singular in ("proposalId", "sampleId", "instrumentId"):
         if singular in fields:
             fields[singular + "s"] = [fields[singular]]
+    fields.pop("investigator")
+
     return model.construct(
         model.DownloadDataset,
         _strict_validation=False,
