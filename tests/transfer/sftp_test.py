@@ -402,6 +402,7 @@ def test_client_with_sftp(
         contact_email="p.stibbons@uu.am",
         creation_location="UU",
         creation_time=datetime(2023, 6, 23, 10, 0, 0, tzinfo=timezone.utc),
+        name="Secret Thaum Storage",
         owner="PonderStibbons",
         owner_group="uu",
         principal_investigator="MustrumRidcully",
