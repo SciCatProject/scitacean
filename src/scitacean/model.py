@@ -176,6 +176,7 @@ class UploadDerivedDataset(BaseModel):
     sourceFolder: RemotePath
     type: DatasetType
     usedSoftware: list[str]
+    datasetName: str
     accessGroups: list[str] | None = None
     classification: str | None = None
     comment: str | None = None
@@ -188,7 +189,6 @@ class UploadDerivedDataset(BaseModel):
     keywords: list[str] | None = None
     license: str | None = None
     scientificMetadata: dict[str, Any] | None = None
-    datasetName: str | None = None
     numberOfFiles: NonNegativeInt | None = None
     orcidOfOwner: str | None = None
     ownerEmail: str | None = None
@@ -226,6 +226,7 @@ class UploadRawDataset(BaseModel):
     sourceFolder: RemotePath
     type: DatasetType
     usedSoftware: list[str]
+    datasetName: str
     investigator: str | None = None
     accessGroups: list[str] | None = None
     classification: str | None = None
@@ -242,7 +243,6 @@ class UploadRawDataset(BaseModel):
     keywords: list[str] | None = None
     license: str | None = None
     scientificMetadata: dict[str, Any] | None = None
-    datasetName: str | None = None
     numberOfFiles: NonNegativeInt | None = None
     orcidOfOwner: str | None = None
     ownerEmail: str | None = None

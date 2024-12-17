@@ -335,6 +335,7 @@ def test_fields_read_only__and_type_filter():
 
 def test_make_raw_model():
     dset = Dataset(
+        name="raw-dataset-62",
         type="raw",
         contact_email="p.stibbons@uu.am",
         creation_time="2142-04-02T16:44:56",
@@ -349,6 +350,7 @@ def test_make_raw_model():
     expected = UploadRawDataset(
         contactEmail="p.stibbons@uu.am",
         creationTime=dateutil.parser.parse("2142-04-02T16:44:56"),
+        datasetName="raw-dataset-62",
         owner="Ponder Stibbons;Mustrum Ridcully",
         ownerGroup="faculty",
         principalInvestigator="my principal investigator",
@@ -370,6 +372,7 @@ def test_make_raw_model():
 def test_make_derived_model():
     dset = Dataset(
         type="derived",
+        name="derived-dataset",
         contact_email="p.stibbons@uu.am;m.ridcully@uu.am",
         creation_time="2142-04-02T16:44:56",
         owner="Ponder Stibbons;Mustrum Ridcully",
@@ -381,6 +384,7 @@ def test_make_derived_model():
         used_software=["scitacean", "magick"],
     )
     expected = UploadDerivedDataset(
+        datasetName="derived-dataset",
         contactEmail="p.stibbons@uu.am;m.ridcully@uu.am",
         creationTime=dateutil.parser.parse("2142-04-02T16:44:56"),
         owner="Ponder Stibbons;Mustrum Ridcully",
@@ -484,6 +488,7 @@ def test_email_validation(field):
 def test_orcid_validation_valid(good_orcid):
     dset = Dataset(
         type="raw",
+        name="test ORCID",
         contact_email="jan-lukas.wynen@ess.eu",
         creation_location="scitacean/tests",
         creation_time="2142-04-02T16:44:56",
