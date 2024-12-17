@@ -77,7 +77,6 @@ def test_get_dataset(client):
     dset = INITIAL_DATASETS["raw"]
     dblock = INITIAL_ORIG_DATABLOCKS["raw"][0]
     downloaded = client.get_dataset(dset.pid, strict_validation=True)
-    print(downloaded.source_folder)
 
     assert downloaded.source_folder == dset.sourceFolder
     assert downloaded.creation_time == dset.creationTime
