@@ -116,7 +116,7 @@ def _seed_database(request: pytest.FixtureRequest, scicat_access: SciCatAccess) 
 
     client = Client.from_credentials(
         url=scicat_access.url,
-        **scicat_access.user.credentials,  # type: ignore[arg-type]
+        **scicat_access.user.credentials,
     )
     for key, dset in UPLOAD_DATASETS.items():
         dset.ownerGroup = scicat_access.user.group
@@ -125,7 +125,7 @@ def _seed_database(request: pytest.FixtureRequest, scicat_access: SciCatAccess) 
 
 
 @pytest.mark.usefixtures("_seed_database")
-def test_query_dataset_multiple_by_single_field(real_client):
+def test_query_dataset_multiple_by_single_field(real_client: Client) -> None:
     datasets = real_client.scicat.query_datasets({"proposalIds": ["p0124"]})
     actual = {ds.pid: ds for ds in datasets}
     expected = {SEED[key].pid: SEED[key] for key in ("raw1", "raw2", "raw3")}
@@ -133,13 +133,13 @@ def test_query_dataset_multiple_by_single_field(real_client):
 
 
 @pytest.mark.usefixtures("_seed_database")
-def test_query_dataset_no_match(real_client):
+def test_query_dataset_no_match(real_client: Client) -> None:
     datasets = real_client.scicat.query_datasets({"owner": "librarian"})
     assert not datasets
 
 
 @pytest.mark.usefixtures("_seed_database")
-def test_query_dataset_multiple_by_multiple_fields(real_client):
+def test_query_dataset_multiple_by_multiple_fields(real_client: Client) -> None:
     datasets = real_client.scicat.query_datasets(
         {"proposalIds": ["p0124"], "principalInvestigator": "investigator 1"},
     )
@@ -149,7 +149,7 @@ def test_query_dataset_multiple_by_multiple_fields(real_client):
 
 
 @pytest.mark.usefixtures("_seed_database")
-def test_query_dataset_multiple_by_derived_field(real_client):
+def test_query_dataset_multiple_by_derived_field(real_client: Client) -> None:
     datasets = real_client.scicat.query_datasets(
         {"principalInvestigator": "investigator 1"}
     )
@@ -161,7 +161,7 @@ def test_query_dataset_multiple_by_derived_field(real_client):
 
 
 @pytest.mark.usefixtures("_seed_database")
-def test_query_dataset_uses_conjunction_of_fields(real_client):
+def test_query_dataset_uses_conjunction_of_fields(real_client: Client) -> None:
     datasets = real_client.scicat.query_datasets(
         {"proposalIds": ["p0124"], "principalInvestigator": "investigator X"},
     )
@@ -169,7 +169,7 @@ def test_query_dataset_uses_conjunction_of_fields(real_client):
 
 
 @pytest.mark.usefixtures("_seed_database")
-def test_query_dataset_can_use_custom_type(real_client):
+def test_query_dataset_can_use_custom_type(real_client: Client) -> None:
     datasets = real_client.scicat.query_datasets(
         {"sourceFolder": RemotePath("/hex/raw4")},
     )
@@ -178,7 +178,7 @@ def test_query_dataset_can_use_custom_type(real_client):
 
 
 @pytest.mark.usefixtures("_seed_database")
-def test_query_dataset_set_order(real_client):
+def test_query_dataset_set_order(real_client: Client) -> None:
     datasets = real_client.scicat.query_datasets(
         {"proposalIds": ["p0124"]},
         order="creationTime:desc",
@@ -189,7 +189,7 @@ def test_query_dataset_set_order(real_client):
 
 
 @pytest.mark.usefixtures("_seed_database")
-def test_query_dataset_limit_ascending_creation_time(real_client):
+def test_query_dataset_limit_ascending_creation_time(real_client: Client) -> None:
     datasets = real_client.scicat.query_datasets(
         {"proposalIds": "p0124"},
         limit=2,
@@ -201,7 +201,7 @@ def test_query_dataset_limit_ascending_creation_time(real_client):
 
 
 @pytest.mark.usefixtures("_seed_database")
-def test_query_dataset_limit_descending_creation_time(real_client):
+def test_query_dataset_limit_descending_creation_time(real_client: Client) -> None:
     datasets = real_client.scicat.query_datasets(
         {"proposalIds": ["p0124"]},
         limit=2,
@@ -213,7 +213,7 @@ def test_query_dataset_limit_descending_creation_time(real_client):
 
 
 @pytest.mark.usefixtures("_seed_database")
-def test_query_dataset_limit_needs_order(real_client):
+def test_query_dataset_limit_needs_order(real_client: Client) -> None:
     with pytest.raises(ValueError, match="limit"):
         real_client.scicat.query_datasets(
             {"proposalIds": ["p0124"]},
@@ -222,7 +222,7 @@ def test_query_dataset_limit_needs_order(real_client):
 
 
 @pytest.mark.usefixtures("_seed_database")
-def test_query_dataset_all(real_client):
+def test_query_dataset_all(real_client: Client) -> None:
     datasets = real_client.scicat.query_datasets({})
     actual = {ds.pid: ds for ds in datasets}
     # We cannot test `datasets` directly because there are other datasets

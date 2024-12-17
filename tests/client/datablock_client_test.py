@@ -13,6 +13,7 @@ from scitacean.model import (
     UploadDerivedDataset,
     UploadOrigDatablock,
 )
+from scitacean.testing.backend import config as backend_config
 from scitacean.testing.backend.seed import (
     INITIAL_ORIG_DATABLOCKS,
 )
@@ -24,7 +25,7 @@ def scicat_client(client: Client) -> ScicatClient:
 
 
 @pytest.fixture
-def derived_dataset(scicat_access):
+def derived_dataset(scicat_access: backend_config.SciCatAccess) -> UploadDerivedDataset:
     return UploadDerivedDataset(
         datasetName="Koelsche Lieder",
         contactEmail="black.foess@dom.koelle",
@@ -42,7 +43,7 @@ def derived_dataset(scicat_access):
 
 
 @pytest.fixture
-def orig_datablock(scicat_access):
+def orig_datablock(scicat_access: backend_config.SciCatAccess) -> UploadOrigDatablock:
     # NOTE the placeholder!
     return UploadOrigDatablock(
         size=9235,
@@ -55,24 +56,27 @@ def orig_datablock(scicat_access):
 
 
 @pytest.mark.parametrize("key", ["raw", "derived"])
-def test_get_orig_datablock(scicat_client, key):
+def test_get_orig_datablock(scicat_client: ScicatClient, key: str) -> None:
     dblock = INITIAL_ORIG_DATABLOCKS[key][0]
     downloaded = scicat_client.get_orig_datablocks(dblock.datasetId)
     assert downloaded == [dblock]
 
 
-def test_create_first_orig_datablock(scicat_client, derived_dataset, orig_datablock):
+def test_create_first_orig_datablock(
+    scicat_client: ScicatClient,
+    derived_dataset: UploadDerivedDataset,
+    orig_datablock: UploadOrigDatablock,
+) -> None:
     uploaded = scicat_client.create_dataset_model(derived_dataset)
     scicat_client.create_orig_datablock(orig_datablock, dataset_id=uploaded.pid)
-    downloaded = scicat_client.get_orig_datablocks(uploaded.pid)
-    assert len(downloaded) == 1
-    downloaded = downloaded[0]
+    [downloaded] = scicat_client.get_orig_datablocks(uploaded.pid)
     for key, expected in orig_datablock:
         # The database populates a number of fields that are orig_datablock in dset.
         # But we don't want to test those here as we don't want to test the database.
         if expected is not None and key != "dataFileList":
             assert dict(downloaded)[key] == expected, f"key = {key}"
     assert downloaded.accessGroups == derived_dataset.accessGroups
+    assert downloaded.dataFileList is not None
     for i in range(len(orig_datablock.dataFileList)):
         for key, expected in orig_datablock.dataFileList[i]:
             assert (

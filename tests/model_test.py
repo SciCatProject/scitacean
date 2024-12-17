@@ -8,7 +8,7 @@ from dateutil.parser import parse as parse_date
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from scitacean import PID, DatasetType, RemotePath, model
+from scitacean import PID, Client, DatasetType, RemotePath, model
 from scitacean.model import (
     DownloadAttachment,
     DownloadDataset,
@@ -16,6 +16,7 @@ from scitacean.model import (
     UploadDerivedDataset,
     UploadRawDataset,
 )
+from scitacean.testing.backend import config as backend_config
 
 T = TypeVar("T")
 
@@ -41,7 +42,10 @@ def build_user_model_for_upload(cls: type[T]) -> st.SearchStrategy[T]:
 )
 # Cannot test (model.Sample, model.UploadSample) because hypothesis
 # cannot handle fields with type Any.
-def test_can_make_upload_model(model_types, data):
+def test_can_make_upload_model(
+    model_types: tuple[type[model.BaseUserModel], type[model.BaseModel]],
+    data: st.DataObject,
+) -> None:
     user_model_type, upload_model_type = model_types
     user_model = data.draw(build_user_model_for_upload(user_model_type))
     upload_model = user_model.make_upload_model()
@@ -50,7 +54,7 @@ def test_can_make_upload_model(model_types, data):
 
 @settings(max_examples=10)
 @given(build_user_model_for_upload(model.Attachment))
-def test_upload_attachment_fields(attachment):
+def test_upload_attachment_fields(attachment: model.Attachment) -> None:
     upload_attachment = attachment.make_upload_model()
     assert upload_attachment.caption == attachment.caption
     assert upload_attachment.accessGroups == attachment.access_groups
@@ -59,7 +63,7 @@ def test_upload_attachment_fields(attachment):
 
 @settings(max_examples=10)
 @given(st.builds(model.Attachment))
-def test_upload_model_rejects_non_upload_fields(attachment):
+def test_upload_model_rejects_non_upload_fields(attachment: model.Attachment) -> None:
     attachment._created_by = "the-creator"
     with pytest.raises(ValueError, match="field.*upload"):
         attachment.make_upload_model()
@@ -78,7 +82,10 @@ def test_upload_model_rejects_non_upload_fields(attachment):
         (model.Relationship, model.DownloadRelationship),
     ],
 )
-def test_can_make_from_download_model(model_types, data):
+def test_can_make_from_download_model(
+    model_types: tuple[type[model.BaseUserModel], type[model.BaseModel]],
+    data: st.DataObject,
+) -> None:
     user_model_type, download_model_type = model_types
     download_model = data.draw(st.builds(download_model_type))
     # doesn't raise
@@ -87,7 +94,9 @@ def test_can_make_from_download_model(model_types, data):
 
 @settings(max_examples=10)
 @given(st.builds(model.DownloadAttachment))
-def test_download_attachment_fields(download_attachment):
+def test_download_attachment_fields(
+    download_attachment: model.DownloadAttachment,
+) -> None:
     attachment = model.Attachment.from_download_model(download_attachment)
     assert attachment.caption == download_attachment.caption
     assert attachment.dataset_id == download_attachment.datasetId
@@ -95,8 +104,10 @@ def test_download_attachment_fields(download_attachment):
 
 
 def test_derived_dataset_default_values(
-    real_client, require_scicat_backend, scicat_access
-):
+    real_client: Client,
+    require_scicat_backend: None,
+    scicat_access: backend_config.SciCatAccess,
+) -> None:
     dset = UploadDerivedDataset(
         accessGroups=["access1"],
         contactEmail="contact@email.com",
@@ -112,6 +123,7 @@ def test_derived_dataset_default_values(
         type=DatasetType.DERIVED,
     )
     pid = real_client.scicat.create_dataset_model(dset).pid
+    assert pid is not None
     finalized = real_client.scicat.get_dataset_model(pid)
 
     # Inputs
@@ -154,7 +166,11 @@ def test_derived_dataset_default_values(
     assert finalized.validationStatus is None
 
 
-def test_raw_dataset_default_values(real_client, require_scicat_backend, scicat_access):
+def test_raw_dataset_default_values(
+    real_client: Client,
+    require_scicat_backend: None,
+    scicat_access: backend_config.SciCatAccess,
+) -> None:
     dset = UploadRawDataset(
         accessGroups=["access1"],
         contactEmail="contact@email.com",
@@ -171,6 +187,7 @@ def test_raw_dataset_default_values(real_client, require_scicat_backend, scicat_
         usedSoftware=["software1"],
     )
     pid = real_client.scicat.create_dataset_model(dset).pid
+    assert pid is not None
     finalized = real_client.scicat.get_dataset_model(pid)
 
     # Inputs
@@ -217,7 +234,7 @@ def test_raw_dataset_default_values(real_client, require_scicat_backend, scicat_
     assert finalized.validationStatus is None
 
 
-def test_default_masked_fields_are_dropped():
+def test_default_masked_fields_are_dropped() -> None:
     mod = DownloadOrigDatablock(  # type: ignore[call-arg]
         id="abc",
         _v="123",
@@ -230,7 +247,7 @@ def test_default_masked_fields_are_dropped():
     assert not hasattr(mod, "__v")
 
 
-def test_custom_masked_fields_are_dropped():
+def test_custom_masked_fields_are_dropped() -> None:
     mod = DownloadDataset(  # type: ignore[call-arg]
         id="abc",
         _id="def",
@@ -244,7 +261,7 @@ def test_custom_masked_fields_are_dropped():
     assert not hasattr(mod, "__v")
 
 
-def test_fields_override_masks():
+def test_fields_override_masks() -> None:
     # '_id' is masked but the model has a field 'id' with alias '_id'.
     mod = DownloadOrigDatablock(  # type: ignore[call-arg]
         _id="abc",
@@ -254,7 +271,7 @@ def test_fields_override_masks():
     assert not hasattr(mod, "_id")
 
 
-def test_fields_override_masks_att():
+def test_fields_override_masks_att() -> None:
     # 'id' is masked but the model has a field 'id' without alias
     mod = DownloadAttachment(  # type: ignore[call-arg]
         _id="abc",

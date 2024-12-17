@@ -2,10 +2,10 @@
 # Copyright (c) 2024 SciCat Project (https://github.com/SciCatProject/scitacean)
 """Fake file transfer."""
 
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any
+from typing import Any, TypeVar
 
 try:
     from pyfakefs.fake_filesystem import FakeFilesystem
@@ -19,7 +19,10 @@ from ..file import File
 from ..filesystem import RemotePath
 from ..transfer.util import source_folder_for
 
+RemotePathOrStr = TypeVar("RemotePathOrStr", RemotePath, str, RemotePath | str)
 
+
+# TODO add conditionally_disabled feature and remove custom transfers in tests
 class FakeDownloadConnection:
     """'Download' files from a fake file transfer."""
 
@@ -110,8 +113,8 @@ class FakeFileTransfer:
         self,
         *,
         fs: FakeFilesystem | None = None,
-        files: dict[str | RemotePath, bytes] | None = None,
-        reverted: dict[str | RemotePath, bytes] | None = None,
+        files: Mapping[RemotePathOrStr, bytes] | None = None,
+        reverted: Mapping[RemotePathOrStr, bytes] | None = None,
         source_folder: str | RemotePath | None = None,
     ):
         """Initialize a file transfer.
@@ -157,7 +160,7 @@ class FakeFileTransfer:
 
 
 def _remote_path_dict(
-    d: dict[str | RemotePath, bytes] | None,
+    d: Mapping[RemotePathOrStr, bytes] | None,
 ) -> dict[RemotePath, bytes]:
     if d is None:
         return {}

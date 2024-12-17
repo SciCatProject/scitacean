@@ -9,6 +9,7 @@ import pytest
 from dateutil.parser import parse as parse_datetime
 from hypothesis import assume, given, settings
 from hypothesis import strategies as st
+from pyfakefs.fake_filesystem import FakeFilesystem
 
 from scitacean import PID, Dataset, DatasetType, File, RemotePath, model
 from scitacean.testing import strategies as sst
@@ -18,7 +19,7 @@ from .common.files import make_file
 
 
 @pytest.fixture
-def raw_download_model():
+def raw_download_model() -> model.DownloadDataset:
     return model.DownloadDataset(
         contactEmail="p.stibbons@uu.am",
         creationLocation="UnseenUniversity",
@@ -86,7 +87,7 @@ def raw_download_model():
 
 
 @pytest.fixture
-def derived_download_model():
+def derived_download_model() -> model.DownloadDataset:
     return model.DownloadDataset(
         contactEmail="p.stibbons@uu.am",
         creationLocation=None,
@@ -154,12 +155,14 @@ def derived_download_model():
 
 
 @pytest.fixture(params=["raw_download_model", "derived_download_model"])
-def dataset_download_model(request):
-    return request.getfixturevalue(request.param)
+def dataset_download_model(request: pytest.FixtureRequest) -> model.DownloadDataset:
+    return request.getfixturevalue(request.param)  # type: ignore[no-any-return]
 
 
-def test_from_download_models_initializes_fields(dataset_download_model):
-    def get_model_field(name):
+def test_from_download_models_initializes_fields(
+    dataset_download_model: model.DownloadDataset,
+) -> None:
+    def get_model_field(name: str) -> object:
         val = getattr(dataset_download_model, name)
         if name == "relationships":
             return [model.Relationship.from_download_model(v) for v in val]
@@ -177,7 +180,9 @@ def test_from_download_models_initializes_fields(dataset_download_model):
             assert getattr(dset, field.name) == get_model_field(field.scicat_name)
 
 
-def test_from_download_models_does_not_initialize_wrong_fields(dataset_download_model):
+def test_from_download_models_does_not_initialize_wrong_fields(
+    dataset_download_model: model.DownloadDataset,
+) -> None:
     dset = Dataset.from_download_models(dataset_download_model, [])
     for field in dset.fields():
         if field.name == "principal_investigator":
@@ -187,7 +192,7 @@ def test_from_download_models_does_not_initialize_wrong_fields(dataset_download_
 
 
 @pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
-def test_new_dataset_has_no_files(typ):
+def test_new_dataset_has_no_files(typ: DatasetType) -> None:
     dset = Dataset(type=typ)
     assert len(list(dset.files)) == 0
     assert dset.number_of_files == 0
@@ -197,7 +202,7 @@ def test_new_dataset_has_no_files(typ):
 
 
 @pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
-def test_add_local_file_to_new_dataset(typ, fs):
+def test_add_local_file_to_new_dataset(typ: DatasetType, fs: FakeFilesystem) -> None:
     file_data = make_file(fs, "local/folder/data.dat")
 
     dset = Dataset(type=typ)
@@ -222,7 +227,9 @@ def test_add_local_file_to_new_dataset(typ, fs):
 
 
 @pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
-def test_add_multiple_local_files_to_new_dataset(typ, fs):
+def test_add_multiple_local_files_to_new_dataset(
+    typ: DatasetType, fs: FakeFilesystem
+) -> None:
     file_data0 = make_file(fs, "common/location1/data.dat")
     file_data1 = make_file(fs, "common/song.mp3")
 
@@ -255,7 +262,9 @@ def test_add_multiple_local_files_to_new_dataset(typ, fs):
 
 
 @pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
-def test_add_multiple_local_files_to_new_dataset_with_base_path(typ, fs):
+def test_add_multiple_local_files_to_new_dataset_with_base_path(
+    typ: DatasetType, fs: FakeFilesystem
+) -> None:
     file_data0 = make_file(fs, "common/location1/data.dat")
     file_data1 = make_file(fs, "common/song.mp3")
 
@@ -291,7 +300,9 @@ def test_add_multiple_local_files_to_new_dataset_with_base_path(typ, fs):
 
 @pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
 @pytest.mark.parametrize("algorithm", ["sha256", None])
-def test_can_set_default_checksum_algorithm(typ, algorithm, fs):
+def test_can_set_default_checksum_algorithm(
+    typ: DatasetType, algorithm: str | None, fs: FakeFilesystem
+) -> None:
     make_file(fs, "local/data.dat")
 
     dset = Dataset(type=typ, checksum_algorithm=algorithm)
@@ -303,12 +314,12 @@ def test_can_set_default_checksum_algorithm(typ, algorithm, fs):
 
 @given(sst.datasets(for_upload=True))
 @settings(max_examples=100)
-def test_dataset_models_roundtrip(initial):
-    dataset_model = initial.make_upload_model()
-    dblock_models = initial.make_datablock_upload_models().orig_datablocks
-    attachment_models = initial.make_attachment_upload_models()
+def test_dataset_models_roundtrip(initial: Dataset) -> None:
+    dataset_upload_model = initial.make_upload_model()
+    dblock_upload_models = initial.make_datablock_upload_models().orig_datablocks
+    attachment_upload_models = initial.make_attachment_upload_models()
     dataset_model, dblock_models, attachment_models = process_uploaded_dataset(
-        dataset_model, dblock_models, attachment_models
+        dataset_upload_model, dblock_upload_models, attachment_upload_models
     )
     dataset_model.createdAt = None
     dataset_model.createdBy = None
@@ -324,24 +335,24 @@ def test_dataset_models_roundtrip(initial):
     # TODO remove in API v4
     rebuilt.investigator = initial.investigator
     rebuilt.proposal_id = initial.proposal_id
-    initial._proposal_ids = rebuilt.proposal_ids
+    initial._proposal_ids = rebuilt.proposal_ids  # type: ignore[assignment]
     rebuilt.sample_id = initial.sample_id
-    initial._sample_ids = rebuilt.sample_ids
+    initial._sample_ids = rebuilt.sample_ids  # type: ignore[assignment]
     rebuilt.instrument_id = initial.instrument_id
-    initial._instrument_ids = rebuilt.instrument_ids
+    initial._instrument_ids = rebuilt.instrument_ids  # type: ignore[assignment]
 
     assert initial == rebuilt
 
 
 @given(sst.datasets())
 @settings(max_examples=10)
-def test_make_scicat_models_datablock_without_files(dataset):
+def test_make_scicat_models_datablock_without_files(dataset: Dataset) -> None:
     assert dataset.make_datablock_upload_models().orig_datablocks is None
 
 
 @given(sst.datasets(pid=st.builds(PID)))
 @settings(max_examples=10)
-def test_make_scicat_models_datablock_with_one_file(dataset):
+def test_make_scicat_models_datablock_with_one_file(dataset: Dataset) -> None:
     file_model = model.DownloadDataFile(
         path="path",
         size=6163,
@@ -352,6 +363,7 @@ def test_make_scicat_models_datablock_with_one_file(dataset):
     dataset.add_files(File.from_download_model(local_path=None, model=file_model))
 
     blocks = dataset.make_datablock_upload_models().orig_datablocks
+    assert blocks is not None
     assert len(blocks) == 1
 
     block = blocks[0]
@@ -359,7 +371,7 @@ def test_make_scicat_models_datablock_with_one_file(dataset):
     assert block.dataFileList == [model.UploadDataFile(**file_model.model_dump())]
 
 
-def test_attachments_are_empty_by_default():
+def test_attachments_are_empty_by_default() -> None:
     dataset = Dataset(
         type="raw",
         owner="ridcully",
@@ -367,12 +379,16 @@ def test_attachments_are_empty_by_default():
     assert dataset.attachments == []
 
 
-def test_attachments_are_none_after_from_download_models(dataset_download_model):
+def test_attachments_are_none_after_from_download_models(
+    dataset_download_model: model.DownloadDataset,
+) -> None:
     dataset = Dataset.from_download_models(dataset_download_model, [])
     assert dataset.attachments is None
 
 
-def test_attachments_initialized_in_from_download_models(dataset_download_model):
+def test_attachments_initialized_in_from_download_models(
+    dataset_download_model: model.DownloadDataset,
+) -> None:
     dataset = Dataset.from_download_models(
         dataset_download_model,
         [],
@@ -392,7 +408,7 @@ def test_attachments_initialized_in_from_download_models(dataset_download_model)
     ]
 
 
-def test_can_add_attachment():
+def test_can_add_attachment() -> None:
     dataset = Dataset(type="raw", owner_group="dset-owner")
     dataset.attachments.append(
         model.Attachment(
@@ -408,7 +424,7 @@ def test_can_add_attachment():
     ]
 
 
-def test_can_assign_attachments():
+def test_can_assign_attachments() -> None:
     dataset = Dataset(type="derived", owner_group="dset-owner")
 
     dataset.attachments = [
@@ -438,7 +454,7 @@ def test_can_assign_attachments():
     ]
 
 
-def test_make_attachment_upload_models_fails_when_attachments_are_none():
+def test_make_attachment_upload_models_fails_when_attachments_are_none() -> None:
     dataset = Dataset(type="derived", owner_group="dset-owner")
     dataset.attachments = None
     with pytest.raises(ValueError, match="attachment"):
@@ -447,7 +463,7 @@ def test_make_attachment_upload_models_fails_when_attachments_are_none():
 
 @given(sst.datasets())
 @settings(max_examples=10)
-def test_eq_self(dset):
+def test_eq_self(dset: Dataset) -> None:
     dset.add_files(
         File.from_download_model(
             local_path=None,
@@ -480,7 +496,9 @@ _UNGENERATABLE_FIELDS = ("job_parameters", "meta")
 )
 @given(sst.datasets(), st.data())
 @settings(max_examples=10)
-def test_neq_single_mismatched_field_writable(field, initial, data):
+def test_neq_single_mismatched_field_writable(
+    field: Dataset.Field, initial: Dataset, data: st.DataObject
+) -> None:
     new_val = data.draw(st.from_type(field.type))
     assume(new_val != getattr(initial, field.name))
     modified = initial.replace(**{field.name: new_val})
@@ -490,7 +508,7 @@ def test_neq_single_mismatched_field_writable(field, initial, data):
 
 @given(sst.datasets())
 @settings(max_examples=10)
-def test_neq_single_mismatched_file(initial):
+def test_neq_single_mismatched_file(initial: Dataset) -> None:
     modified = initial.replace()
     modified.add_files(
         File.from_download_model(
@@ -514,7 +532,7 @@ def test_neq_single_mismatched_file(initial):
 
 @given(sst.datasets())
 @settings(max_examples=10)
-def test_neq_extra_file(initial):
+def test_neq_extra_file(initial: Dataset) -> None:
     modified = initial.replace()
     modified.add_files(
         File.from_download_model(
@@ -530,7 +548,7 @@ def test_neq_extra_file(initial):
 
 @given(sst.datasets())
 @settings(max_examples=1)
-def test_neq_attachment_none_vs_empty(initial):
+def test_neq_attachment_none_vs_empty(initial: Dataset) -> None:
     initial.attachments = []
     modified = initial.replace()
     modified.attachments = None
@@ -540,7 +558,7 @@ def test_neq_attachment_none_vs_empty(initial):
 
 @given(sst.datasets())
 @settings(max_examples=1)
-def test_neq_extra_attachment(initial):
+def test_neq_extra_attachment(initial: Dataset) -> None:
     initial.attachments = []
     modified = initial.replace()
     modified.attachments.append(
@@ -552,12 +570,12 @@ def test_neq_extra_attachment(initial):
 
 @given(sst.datasets())
 @settings(max_examples=1)
-def test_neq_mismatched_attachment(initial):
+def test_neq_mismatched_attachment(initial: Dataset) -> None:
     initial.attachments = [
         (model.Attachment(caption="The attachment", owner_group="owner"))
     ]
     modified = initial.replace()
-    modified.attachments[0] = model.Attachment(
+    modified.attachments[0] = model.Attachment(  # type: ignore[index]
         caption="Another attachment", owner_group="owner"
     )
     assert initial != modified
@@ -575,7 +593,9 @@ def test_neq_mismatched_attachment(initial):
 )
 @given(sst.datasets(), st.data())
 @settings(max_examples=5)
-def test_replace_replaces_single_writable_field(field, initial, data):
+def test_replace_replaces_single_writable_field(
+    field: Dataset.Field, initial: Dataset, data: st.DataObject
+) -> None:
     val = data.draw(st.from_type(field.type))
     replaced = initial.replace(**{field.name: val})
     assert getattr(replaced, field.name) == val
@@ -599,7 +619,9 @@ def test_replace_replaces_single_writable_field(field, initial, data):
 )
 @given(sst.datasets(), st.data())
 @settings(max_examples=5)
-def test_replace_replaces_single_read_only_field(field, initial, data):
+def test_replace_replaces_single_read_only_field(
+    field: Dataset.Field, initial: Dataset, data: st.DataObject
+) -> None:
     val = data.draw(st.from_type(field.type))
     replaced = initial.replace(_read_only={field.name: val})
     assert getattr(replaced, field.name) == val
@@ -607,7 +629,7 @@ def test_replace_replaces_single_read_only_field(field, initial, data):
 
 @given(sst.datasets())
 @settings(max_examples=5)
-def test_replace_replaces_multiple_fields(initial):
+def test_replace_replaces_multiple_fields(initial: Dataset) -> None:
     replaced = initial.replace(
         owner="a-new-owner",
         used_software=["software1"],
@@ -620,7 +642,7 @@ def test_replace_replaces_multiple_fields(initial):
 
 @given(sst.datasets())
 @settings(max_examples=5)
-def test_replace_other_fields_are_copied(initial):
+def test_replace_other_fields_are_copied(initial: Dataset) -> None:
     replaced = initial.replace(
         investigator="inv@esti.gator",
         techniques=[model.Technique(pid="tech/abcd.01", name="magick")],
@@ -634,14 +656,14 @@ def test_replace_other_fields_are_copied(initial):
 
 @given(sst.datasets())
 @settings(max_examples=1)
-def test_replace_rejects_bad_arguments(initial):
+def test_replace_rejects_bad_arguments(initial: Dataset) -> None:
     with pytest.raises(TypeError):
         initial.replace(this_is_not_a_valid="argument", owner="the-owner-of-it-all")
 
 
 @given(sst.datasets())
 @settings(max_examples=1)
-def test_replace_does_not_change_files_no_input_files(initial):
+def test_replace_does_not_change_files_no_input_files(initial: Dataset) -> None:
     replaced = initial.replace(owner="a-new-owner")
     assert replaced.number_of_files == 0
     assert replaced.size == 0
@@ -650,7 +672,7 @@ def test_replace_does_not_change_files_no_input_files(initial):
 
 @given(sst.datasets())
 @settings(max_examples=1)
-def test_replace_does_not_change_files_with_input_files(initial):
+def test_replace_does_not_change_files_with_input_files(initial: Dataset) -> None:
     file = File.from_download_model(
         local_path=None,
         model=model.DownloadDataFile(
@@ -666,7 +688,7 @@ def test_replace_does_not_change_files_with_input_files(initial):
 
 @given(sst.datasets())
 @settings(max_examples=1)
-def test_replace_preserves_meta(initial):
+def test_replace_preserves_meta(initial: Dataset) -> None:
     initial.meta["key"] = "val"
     replaced = initial.replace(owner="a-new-owner")
     assert replaced.meta == {"key": "val"}
@@ -674,7 +696,7 @@ def test_replace_preserves_meta(initial):
 
 @given(sst.datasets())
 @settings(max_examples=1)
-def test_replace_meta(initial):
+def test_replace_meta(initial: Dataset) -> None:
     initial.meta["key"] = {"value": 2, "unit": "m"}
     initial.meta["old-key"] = "old-val"
     replaced = initial.replace(
@@ -686,7 +708,7 @@ def test_replace_meta(initial):
 
 @given(sst.datasets())
 @settings(max_examples=1)
-def test_replace_remove_meta(initial):
+def test_replace_remove_meta(initial: Dataset) -> None:
     initial.meta["key"] = {"value": 2, "unit": "m"}
     initial.meta["old-key"] = "old-val"
     replaced = initial.replace(owner="a-new-owner", meta=None)
@@ -699,7 +721,9 @@ def test_replace_remove_meta(initial):
 )
 @given(initial=sst.datasets())
 @settings(max_examples=1)
-def test_replace_preserves_attachments(initial, attachments):
+def test_replace_preserves_attachments(
+    initial: Dataset, attachments: None | list[model.Attachment]
+) -> None:
     initial.attachments = attachments
     replaced = initial.replace(owner="a-new-owner")
     assert replaced.attachments == attachments
@@ -715,20 +739,25 @@ def test_replace_preserves_attachments(initial, attachments):
 )
 @given(initial=sst.datasets())
 @settings(max_examples=1)
-def test_replace_attachments(initial, attachments, target_attachments):
+def test_replace_attachments(
+    initial: Dataset,
+    attachments: None | list[model.Attachment],
+    target_attachments: None | list[model.Attachment],
+) -> None:
     replaced = initial.replace(attachments=target_attachments)
     assert replaced.attachments == target_attachments
 
 
 @given(sst.datasets())
 @settings(max_examples=5)
-def test_as_new(initial):
+def test_as_new(initial: Dataset) -> None:
     new = initial.as_new()
     assert new.created_at is None
     assert new.created_by is None
     assert new.updated_at is None
     assert new.updated_by is None
     assert new.lifecycle is None
+    assert new.creation_time is not None
     assert abs(new.creation_time - datetime.now(tz=timezone.utc)) < timedelta(seconds=1)
 
     assert new.number_of_files == initial.number_of_files
@@ -740,7 +769,7 @@ def test_as_new(initial):
 
 @given(sst.datasets(pid=PID(pid="some-id")))
 @settings(max_examples=5)
-def test_derive_default(initial):
+def test_derive_default(initial: Dataset) -> None:
     derived = initial.derive()
     assert derived.type == "derived"
     assert derived.input_datasets == [initial.pid]
@@ -761,7 +790,7 @@ def test_derive_default(initial):
 
 @given(sst.datasets(pid=PID(pid="some-id")))
 @settings(max_examples=5)
-def test_derive_set_keep(initial):
+def test_derive_set_keep(initial: Dataset) -> None:
     derived = initial.derive(keep=("name", "used_software"))
     assert derived.type == "derived"
     assert derived.input_datasets == [initial.pid]
@@ -776,7 +805,7 @@ def test_derive_set_keep(initial):
 
 @given(sst.datasets(pid=PID(pid="some-id")))
 @settings(max_examples=5)
-def test_derive_keep_nothing(initial):
+def test_derive_keep_nothing(initial: Dataset) -> None:
     derived = initial.derive(keep=())
     assert derived.type == "derived"
     assert derived.input_datasets == [initial.pid]
@@ -792,7 +821,7 @@ def test_derive_keep_nothing(initial):
 
 @given(sst.datasets(pid=None))
 @settings(max_examples=5)
-def test_derive_requires_pid(initial):
+def test_derive_requires_pid(initial: Dataset) -> None:
     with pytest.raises(ValueError, match="pid"):
         initial.derive()
 
@@ -803,7 +832,9 @@ def test_derive_requires_pid(initial):
 )
 @given(initial=sst.datasets(pid=PID(pid="some-id")))
 @settings(max_examples=1)
-def test_derive_removes_attachments(initial, attachments):
+def test_derive_removes_attachments(
+    initial: Dataset, attachments: None | list[model.Attachment]
+) -> None:
     initial.attachments = attachments
     derived = initial.derive()
     assert derived.attachments == []
@@ -847,7 +878,7 @@ def test_dataset_dict_like_items_with_invalid_field(initial: Dataset) -> None:
 
 @given(initial=sst.datasets(for_upload=True))
 @settings(max_examples=10)
-def test_dataset_dict_like_getitem(initial):
+def test_dataset_dict_like_getitem(initial: Dataset) -> None:
     assert initial["type"] == initial.type
 
 
@@ -856,7 +887,9 @@ def test_dataset_dict_like_getitem(initial):
 )
 @given(initial=sst.datasets(for_upload=True))
 @settings(max_examples=10)
-def test_dataset_dict_like_getitem_wrong_field_raises(initial, is_attr, wrong_field):
+def test_dataset_dict_like_getitem_wrong_field_raises(
+    initial: Dataset, is_attr: bool, wrong_field: str
+) -> None:
     # 'size' should be included in the field later.
     # It is now excluded because it is ``manual`` field. See issue#151.
     assert hasattr(initial, wrong_field) == is_attr
@@ -882,8 +915,8 @@ def test_dataset_dict_like_setitem(initial: Dataset) -> None:
 @given(initial=sst.datasets(for_upload=True))
 @settings(max_examples=10)
 def test_dataset_dict_like_setitem_wrong_field_raises(
-    initial, is_attr, wrong_field, wrong_value
-):
+    initial: Dataset, is_attr: bool, wrong_field: str, wrong_value: str | int
+) -> None:
     # ``manual`` fields such as ``size`` should raise with ``__setitem__``.
     # However, it may need more specific error message.
     assert hasattr(initial, wrong_field) == is_attr
