@@ -110,7 +110,7 @@ html_theme_options = {
     "secondary_sidebar_items": [],
     "navbar_persistent": ["search-button"],
     "show_nav_level": 1,
-    "header_links_before_dropdown": 4,
+    "header_links_before_dropdown": 3,
     "pygment_light_style": "github-light-high-contrast",
     "pygment_dark_style": "github-dark-high-contrast",
     "logo": {
@@ -193,8 +193,6 @@ doctest_default_flags = (
 linkcheck_ignore = [
     # Specific lines in GitHub blobs cannot be found by linkcheck.
     r"https?://github\.com/.*?/blob/[a-f0-9]+/.+?#",
-    # Many links for PRs from our release notes. Slow and unlikely to cause issues.
-    "https://github.com/SciCatProject/scitacean/pulls/[0-9]+",
 ]
 
 # -- Options for autodoc_pydantic -----------------------------------------
