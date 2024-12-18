@@ -76,7 +76,7 @@ def sftp_data_dir(sftp_base_dir: Path | None) -> Path | None:
 
 
 @pytest.fixture
-def require_sftp_fileserver(request, sftp_fileserver) -> None:  # noqa: PT004
+def require_sftp_fileserver(request, sftp_fileserver) -> None:
     """Fixture to declare that a test needs a local SFTP server.
 
     Like :func:`scitacean.testing.sftp.sftp_fileserver`

@@ -362,4 +362,4 @@ def _is_remote_dir(st_stat: SFTPAttributes) -> bool:
     return st_stat.st_mode & 0o040000 == 0o040000
 
 
-__all__ = ["SFTPFileTransfer", "SFTPUploadConnection", "SFTPDownloadConnection"]
+__all__ = ["SFTPDownloadConnection", "SFTPFileTransfer", "SFTPUploadConnection"]
