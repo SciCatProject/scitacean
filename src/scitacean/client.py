@@ -9,6 +9,7 @@ import datetime
 import json
 import re
 import warnings
+from collections import Counter
 from collections.abc import Callable, Iterable, Iterator
 from contextlib import contextmanager
 from pathlib import Path
@@ -414,6 +415,9 @@ class Client:
 
         Makes selected files available on the local filesystem using the file transfer
         object stored in the client.
+        All files are downloaded to the ``target`` directory.
+        Any directory structure on the remote system is discarded, that is all files
+        are placed directly in ``target``.
 
         Parameters
         ----------
@@ -488,6 +492,7 @@ class Client:
         downloaded_files = [
             f.downloaded(local_path=target / f.remote_path.to_local()) for f in files
         ]
+        _expect_no_duplicate_filenames(f.local_path for f in downloaded_files)
         if not force:
             to_download = _remove_up_to_date_local_files(
                 downloaded_files, checksum_algorithm=checksum_algorithm
@@ -1350,3 +1355,14 @@ class _NullUploadConnection:
         """Raise if given files."""
         if files:
             raise RuntimeError("Internal error: Bad upload connection")
+
+
+def _expect_no_duplicate_filenames(paths: Iterable[Path | None]) -> None:
+    counter = Counter(paths)
+    non_unique = [str(path) for path, count in counter.items() if count > 1]
+    if non_unique:
+        raise RuntimeError(
+            "Downloading selected files would result in duplicate local filenames: "
+            f"({', '.join(non_unique)}). Consider limiting which files get downloaded "
+            "using the `select` argument."
+        )
