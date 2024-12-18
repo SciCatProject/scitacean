@@ -60,11 +60,11 @@ class RemotePath:
         return RemotePath(path.as_posix())
 
     def to_local(self) -> PurePath:
-        """Return self as a local, OS-specific path."""
-        segments = self._path.split("/")
-        if segments[0] == "":
-            segments = ["/"] + segments[1:]
-        return PurePath(*segments)
+        """Return self as a local, OS-specific path.
+
+        This returns only the file name, discarding all parent path segments.
+        """
+        return PurePath(self.name)
 
     def __truediv__(self, other: str | RemotePath) -> RemotePath:
         """Join two path segments."""

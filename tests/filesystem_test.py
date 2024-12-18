@@ -70,10 +70,10 @@ def test_remote_path_repr() -> None:
 
 
 def test_remote_path_to_local() -> None:
-    assert RemotePath("folder/file.dat").to_local() == PurePath("folder", "file.dat")
-    assert RemotePath("/folder/file.dat").to_local() == PurePath("/folder", "file.dat")
-    assert RemotePath("folder//file.dat").to_local() == PurePath("folder", "file.dat")
-    assert RemotePath("folder/file.dat/").to_local() == PurePath("folder", "file.dat")
+    assert RemotePath("folder/file.dat").to_local() == PurePath("file.dat")
+    assert RemotePath("/folder/file.dat").to_local() == PurePath("file.dat")
+    assert RemotePath("folder//file.dat").to_local() == PurePath("file.dat")
+    assert RemotePath("folder/file.dat/").to_local() == PurePath("file.dat")
 
 
 @pytest.mark.parametrize(
