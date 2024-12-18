@@ -70,6 +70,10 @@ class RemotePath:
         """Join two path segments."""
         if isinstance(other, (PurePath, Path)):  # type: ignore[unreachable]
             raise TypeError("OS paths are not supported when concatenating RemotePath.")
+
+        if _posix(other).startswith("/"):
+            return RemotePath(other)  # other is absolute, do not concatenate
+
         this = _strip_trailing_slash(self.posix)
         other = _strip_leading_slash(_strip_trailing_slash(_posix(other)))
         return RemotePath(f"{this}/{other}")

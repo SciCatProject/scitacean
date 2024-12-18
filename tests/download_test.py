@@ -24,21 +24,13 @@ def _checksum(data: bytes) -> str:
     return checksum.hexdigest()
 
 
-@pytest.fixture(
-    params=[
-        "",  # file has relative path
-        # "/src/stibbons/774/",  # file has absolute path = sourceFolder
-        # "/src/ridcully/1/",  # file has absolute path != sourceFolder
-    ]
-)
-def data_files(
-    request: pytest.FixtureRequest,
-) -> tuple[list[DownloadDataFile], dict[str, bytes]]:
-    base_path = request.param
+@pytest.fixture
+def data_files() -> tuple[list[DownloadDataFile], dict[str, bytes]]:
     contents = {
-        f"{base_path}file1.dat": b"contents-of-file1",
-        f"{base_path}log/what-happened.log": b"ERROR Flux is off the scale",
-        f"{base_path}thaum.dat": b"0 4 2 59 330 2314552",
+        "file1.dat": b"contents-of-file1",
+        "log/what-happened.log": b"ERROR Flux is off the scale",
+        "/src/stibbons/774/thaum.dat": b"0 4 2 59 330 2314552",
+        "/src/ridcully/grades.csv": b"3,12,-2",
     }
     files = [
         DownloadDataFile(
@@ -52,7 +44,7 @@ def data_files(
     return files, contents
 
 
-DatasetAndFiles = tuple[Dataset, dict[RemotePath | str, bytes]]
+DatasetAndFiles = tuple[Dataset, dict[str, bytes]]
 
 
 @pytest.fixture
@@ -88,10 +80,18 @@ def dataset_and_files(
     dset = Dataset.from_download_models(
         dataset_model=model, orig_datablock_models=[block]
     )
-    return dset, {
-        dset.source_folder / name: content  # type: ignore[operator]
+
+    content_abs_path = {
+        file_absolute_path(name, dset.source_folder): content
         for name, content in data_files[1].items()
     }
+    return dset, content_abs_path
+
+
+def file_absolute_path(path: str, source_folder: RemotePath | None) -> str:
+    if path.startswith("/"):
+        return path
+    return (source_folder / path).posix  # type: ignore[operator]
 
 
 def load(name: str | Path) -> bytes:
@@ -113,6 +113,7 @@ def test_download_files_creates_local_files_select_all(
         == contents["/src/stibbons/774/log/what-happened.log"]
     )
     assert load("download/thaum.dat") == contents["/src/stibbons/774/thaum.dat"]
+    assert load("download/grades.csv") == contents["/src/ridcully/grades.csv"]
 
 
 def test_download_files_creates_local_files_select_none(
@@ -133,10 +134,11 @@ def test_download_files_creates_local_files_select_one_by_string(
     client = Client.without_login(
         url="/", file_transfer=FakeFileTransfer(fs=fs, files=contents)
     )
-    client.download_files(dataset, target="./download", select="thaum.dat")
+    client.download_files(
+        dataset, target="./download", select="/src/stibbons/774/thaum.dat"
+    )
+    assert len(list(Path("download").iterdir())) == 1
     assert load("download/thaum.dat") == contents["/src/stibbons/774/thaum.dat"]
-    assert not Path("download/file1.dat").exists()
-    assert not Path("download/log/what-happened.log").exists()
 
 
 def test_download_files_creates_local_files_select_two_by_string(
@@ -147,9 +149,11 @@ def test_download_files_creates_local_files_select_two_by_string(
         url="/", file_transfer=FakeFileTransfer(fs=fs, files=contents)
     )
     client.download_files(
-        dataset, target="./download", select=["thaum.dat", "log/what-happened.log"]
+        dataset,
+        target="./download",
+        select=["/src/stibbons/774/thaum.dat", "log/what-happened.log"],
     )
-    assert not Path("download/file1.dat").exists()
+    assert len(list(Path("download").iterdir())) == 2
     assert (
         load("download/what-happened.log")
         == contents["/src/stibbons/774/log/what-happened.log"]
@@ -165,8 +169,7 @@ def test_download_files_creates_local_files_select_one_by_regex_name_only(
         url="/", file_transfer=FakeFileTransfer(fs=fs, files=contents)
     )
     client.download_files(dataset, target="./download", select=re.compile("thaum"))
-    assert not Path("download/file1.dat").exists()
-    assert not Path("download/what-happened.log").exists()
+    assert len(list(Path("download").iterdir())) == 1
     assert load("download/thaum.dat") == contents["/src/stibbons/774/thaum.dat"]
 
 
@@ -178,8 +181,8 @@ def test_download_files_creates_local_files_select_two_by_regex_suffix(
         url="/", file_transfer=FakeFileTransfer(fs=fs, files=contents)
     )
     client.download_files(dataset, target="./download", select=re.compile(r"\.dat"))
+    assert len(list(Path("download").iterdir())) == 2
     assert load("download/file1.dat") == contents["/src/stibbons/774/file1.dat"]
-    assert not Path("download/what-happened.log").exists()
     assert load("download/thaum.dat") == contents["/src/stibbons/774/thaum.dat"]
 
 
@@ -193,9 +196,8 @@ def test_download_files_creates_local_files_select_one_by_regex_full_path(
     client.download_files(
         dataset, target="./download", select=re.compile(r"^file1\.dat$")
     )
+    assert len(list(Path("download").iterdir())) == 1
     assert load("download/file1.dat") == contents["/src/stibbons/774/file1.dat"]
-    assert not Path("download/what-happened.log").exists()
-    assert not Path("download/thaum.dat").exists()
 
 
 def test_download_files_creates_local_files_select_one_by_predicate(
@@ -208,9 +210,8 @@ def test_download_files_creates_local_files_select_one_by_predicate(
     client.download_files(
         dataset, target="./download", select=lambda f: f.remote_path == "file1.dat"
     )
+    assert len(list(Path("download").iterdir())) == 1
     assert load("download/file1.dat") == contents["/src/stibbons/774/file1.dat"]
-    assert not Path("download/what-happened.log").exists()
-    assert not Path("download/thaum.dat").exists()
 
 
 def test_download_files_refuses_download_if_flattening_creates_clash(

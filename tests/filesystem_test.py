@@ -99,8 +99,8 @@ def test_remote_path_join(types: Any) -> None:
     ta, tb = types
     assert ta("/source/123") / tb("file.data") == RemotePath("/source/123/file.data")
     assert ta("/source/123/") / tb("file.data") == RemotePath("/source/123/file.data")
-    assert ta("/source/123") / tb("/file.data") == RemotePath("/source/123/file.data")
-    assert ta("/source/123/") / tb("/file.data") == RemotePath("/source/123/file.data")
+    assert ta("/source/123") / tb("/file.data") == RemotePath("/file.data")
+    assert ta("/source/123/") / tb("/file.data") == RemotePath("/file.data")
 
 
 @pytest.mark.parametrize(
@@ -112,12 +112,6 @@ def test_remote_path_join_url(types: Any) -> None:
         "https://server.eu/1234-abcd/data.txt"
     )
     assert ta("https://server.eu/") / tb("1234-abcd/data.txt") == RemotePath(
-        "https://server.eu/1234-abcd/data.txt"
-    )
-    assert ta("https://server.eu") / tb("/1234-abcd/data.txt") == RemotePath(
-        "https://server.eu/1234-abcd/data.txt"
-    )
-    assert ta("https://server.eu/") / tb("/1234-abcd/data.txt") == RemotePath(
         "https://server.eu/1234-abcd/data.txt"
     )
 
