@@ -183,4 +183,4 @@ class LinkFileTransfer:
         )
 
 
-__all__ = ["LinkFileTransfer", "LinkUploadConnection", "LinkDownloadConnection"]
+__all__ = ["LinkDownloadConnection", "LinkFileTransfer", "LinkUploadConnection"]

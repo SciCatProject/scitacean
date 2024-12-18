@@ -22,6 +22,7 @@ from .thumbnail import Thumbnail
 from .warning import VisibleDeprecationWarning
 
 __all__ = (
+    "PID",
     "Attachment",
     "Client",
     "Dataset",
@@ -30,7 +31,6 @@ __all__ = (
     "FileUploadError",
     "IntegrityError",
     "OrigDatablock",
-    "PID",
     "RemotePath",
     "Sample",
     "ScicatCommError",

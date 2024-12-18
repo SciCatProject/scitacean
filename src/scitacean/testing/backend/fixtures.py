@@ -111,7 +111,7 @@ def client(request, scicat_backend) -> Client | FakeClient:
 
 
 @pytest.fixture
-def require_scicat_backend(request, scicat_backend) -> None:  # noqa: PT004
+def require_scicat_backend(request, scicat_backend) -> None:
     """Fixture to declare that a test needs a local scicat backend.
 
     Like :func:`scitacean.testing.backend.scicat_backend`
@@ -239,9 +239,9 @@ def _backend_is_running() -> bool:
 
 
 __all__ = [
+    "client",
+    "fake_client",
+    "real_client",
     "scicat_access",
     "scicat_backend",
-    "real_client",
-    "fake_client",
-    "client",
 ]

@@ -108,13 +108,13 @@ from ._sftp import (
 )
 
 __all__ = [
+    "IgnorePolicy",
+    "SFTPAccess",
+    "SFTPUser",
     "add_pytest_option",
     "configure",
     "local_access",
     "sftp_enabled",
     "skip_if_not_sftp",
     "wait_until_sftp_server_is_live",
-    "IgnorePolicy",
-    "SFTPAccess",
-    "SFTPUser",
 ]
