@@ -72,7 +72,6 @@ def compare_sample_after_upload(uploaded: Sample, downloaded: Sample) -> None:
             assert expected == getattr(downloaded, field.name), f"key = {field.name}"
 
 
-@pytest.mark.skip("Sample creation does not currently work")
 def test_create_sample_model_roundtrip(
     scicat_client: ScicatClient, sample: Sample
 ) -> None:
@@ -84,7 +83,6 @@ def test_create_sample_model_roundtrip(
     compare_sample_model_after_upload(finalized, downloaded)
 
 
-@pytest.mark.skip("Sample creation does not currently work")
 def test_create_sample_model_roundtrip_existing_id(
     scicat_client: ScicatClient, sample: Sample
 ) -> None:
@@ -97,7 +95,6 @@ def test_create_sample_model_roundtrip_existing_id(
         scicat_client.create_sample_model(upload_sample)
 
 
-@pytest.mark.skip("Sample creation does not currently work")
 def test_create_sample_model_populates_id(
     scicat_client: ScicatClient, sample: Sample
 ) -> None:
@@ -108,13 +105,11 @@ def test_create_sample_model_populates_id(
     assert downloaded.sampleId == finalized.sampleId
 
 
-@pytest.mark.skip("Sample creation does not currently work")
 def test_upload_sample_roundtrip(client: Client, sample: Sample) -> None:
     finalized = client.upload_new_sample_now(sample)
     compare_sample_after_upload(sample, finalized)
 
 
-@pytest.mark.skip("Sample creation does not currently work")
 def test_upload_sample_overrides_id(client: Client, sample: Sample) -> None:
     sample.sample_id = "my_sample-id"
     finalized = client.upload_new_sample_now(sample)
