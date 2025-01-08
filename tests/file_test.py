@@ -27,24 +27,7 @@ def test_file_from_local(fake_file: dict[str, Any]) -> None:
     file = replace(File.from_local(fake_file["path"]), checksum_algorithm="md5")
     assert file.remote_access_path("/remote") is None
     assert file.local_path == fake_file["path"]
-    assert file.remote_path == fake_file["path"].as_posix()
-    assert file.checksum() == fake_file["checksum"]
-    assert file.size == fake_file["size"]
-    assert file.remote_uid is None
-    assert file.remote_gid is None
-    assert file.remote_perm is None
-    assert abs(fake_file["creation_time"] - file.creation_time) < timedelta(seconds=1)
-
-
-def test_file_from_local_with_base_path(fake_file: dict[str, Any]) -> None:
-    assert fake_file["path"] == Path("local", "dir", "events.nxs")  # used below
-
-    file = replace(
-        File.from_local(fake_file["path"], base_path="local"), checksum_algorithm="md5"
-    )
-    assert file.remote_access_path("/remote") is None
-    assert file.local_path == fake_file["path"]
-    assert file.remote_path == "dir/events.nxs"
+    assert file.remote_path == fake_file["path"].name
     assert file.checksum() == fake_file["checksum"]
     assert file.size == fake_file["size"]
     assert file.remote_uid is None
@@ -73,7 +56,6 @@ def test_file_from_local_set_many_args(fake_file: dict[str, Any]) -> None:
     file = replace(
         File.from_local(
             fake_file["path"],
-            base_path="local",
             remote_uid="user-usy",
             remote_gid="groupy-group",
             remote_perm="wrx",
@@ -99,20 +81,10 @@ def test_file_from_local_select_checksum_algorithm(
     assert file.checksum() == expected
 
 
-def test_file_from_local_remote_path_uses_forward_slash(fs: FakeFilesystem) -> None:
+def test_file_from_local_remote_path_uses_discards_parents(fs: FakeFilesystem) -> None:
     fs.create_file(Path("data", "subdir", "file.dat"))
 
     file = File.from_local(Path("data", "subdir", "file.dat"))
-    assert file.remote_path == RemotePath("data/subdir/file.dat")
-    assert file.make_model().path == "data/subdir/file.dat"
-
-    file = File.from_local(Path("data", "subdir", "file.dat"), base_path=Path("data"))
-    assert file.remote_path == RemotePath("subdir/file.dat")
-    assert file.make_model().path == "subdir/file.dat"
-
-    file = File.from_local(
-        Path("data", "subdir", "file.dat"), base_path=Path("data") / "subdir"
-    )
     assert file.remote_path == RemotePath("file.dat")
     assert file.make_model().path == "file.dat"
 
@@ -214,7 +186,7 @@ def test_make_model_local_file(fake_file: dict[str, Any]) -> None:
         checksum_algorithm="blake2s",
     )
     model = file.make_model()
-    assert model.path == fake_file["path"].as_posix()
+    assert model.path == fake_file["path"].name
     assert model.size == fake_file["size"]
     assert model.chk == checksum_of_file(fake_file["path"], algorithm="blake2s")
     assert model.gid == "groupy-group"
@@ -238,7 +210,7 @@ def test_uploaded(fake_file: dict[str, Any]) -> None:
     assert uploaded.is_on_local
     assert uploaded.is_on_remote
 
-    assert uploaded.remote_path == fake_file["path"].as_posix()
+    assert uploaded.remote_path == fake_file["path"].name
     assert uploaded.local_path == fake_file["path"]
     assert uploaded.checksum() == checksum_of_file(
         fake_file["path"], algorithm="sha256"

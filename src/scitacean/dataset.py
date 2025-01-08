@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import dataclasses
 import itertools
+from collections import Counter
 from collections.abc import Generator, Iterable
 from datetime import datetime, timezone
 from pathlib import Path
@@ -205,24 +206,34 @@ class Dataset(DatasetBase):
 
     def add_files(self, *files: File, datablock: int | str | PID = -1) -> None:
         """Add files to the dataset."""
+        _deny_conflicting_files(files, self._orig_datablocks)
         self._get_or_add_orig_datablock(datablock).add_files(*files)
 
     def add_local_files(
         self,
         *paths: str | Path,
-        base_path: str | Path = "",
         datablock: int | str = -1,
     ) -> None:
         """Add files on the local file system to the dataset.
+
+        The files are set up to be uploaded to the dataset's source folder without
+        preserving the local directory structure.
+        That is, given
+
+        .. code-block::
+
+            dataset.source_folder = "remote/source"
+            dataset.add_local_files("/path/to/file1", "other_path/file2")
+
+        and uploading this dataset to SciCat, the files will be uploaded to::
+
+            remote/source/file1
+            remote/source/file2
 
         Parameters
         ----------
         paths:
             Local paths to the files.
-        base_path:
-            The remote paths will be set up according to
-
-            ``remotes = [path.relative_to(base_path) for path in paths]``.
         datablock:
             Advanced feature, do not set unless you know what this is!
 
@@ -231,8 +242,9 @@ class Dataset(DatasetBase):
             If a ``str`` or ``PID``, use the datablock with that id;
             if there is none with matching id, raise ``KeyError``.
         """
+        # TODO check for conflicts
         self.add_files(
-            *(File.from_local(path, base_path=base_path) for path in paths),
+            *(File.from_local(path) for path in paths),
             datablock=datablock,
         )
 
@@ -634,3 +646,21 @@ class DatablockUploadModels:
     # datablocks: Optional[List[UploadDatablock]]
     orig_datablocks: list[UploadOrigDatablock] | None
     """Orig datablocks"""
+
+
+def _deny_conflicting_files(
+    files: tuple[File, ...], orig_datablocks: list[OrigDatablock]
+) -> None:
+    names = Counter(f.remote_path.posix for f in files)
+    duplicates = [name for name, count in names.items() if count > 1]
+    if duplicates:
+        raise ValueError(f"Duplicate file names: {duplicates!r}")
+
+    for db in orig_datablocks:
+        names.update(Counter(f.remote_path.posix for f in db.files))
+    duplicates = [name for name, count in names.items() if count > 1]
+    if duplicates:
+        raise ValueError(
+            f"Cannot add files with names {duplicates!r} because "
+            "they already exist in the dataset."
+        )
