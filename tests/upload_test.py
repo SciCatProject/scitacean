@@ -276,6 +276,21 @@ def test_upload_uploads_files_to_source_folder(
     )
 
 
+@pytest.mark.parametrize("remote_prefix", ["../relative/", "/absolute/"])
+def test_upload_rejects_files_outside_of_source_folder(
+    client: FakeClient,
+    dataset_with_files: Dataset,
+    fs: FakeFilesystem,
+    remote_prefix: str,
+) -> None:
+    make_file(fs, path="bad", contents=b"This wants to be outside the source folder")
+    dataset_with_files.add_files(
+        File.from_local("bad", remote_path=remote_prefix + "bad")
+    )
+    with pytest.raises(ValueError, match="outside of the source folder"):
+        client.upload_new_dataset_now(dataset_with_files)
+
+
 def test_upload_does_not_create_dataset_if_file_upload_fails(
     dataset_with_files: Dataset, fs: FakeFilesystem
 ) -> None:

@@ -151,6 +151,29 @@ def test_remote_path_parent() -> None:
     assert RemotePath("relative/sub").parent == RemotePath("relative")
 
 
+def test_remote_path_resolve() -> None:
+    assert RemotePath("").resolve() == RemotePath("")
+    assert RemotePath("/").resolve() == RemotePath("/")
+    assert RemotePath("/a").resolve() == RemotePath("/a")
+    assert RemotePath("file").resolve() == RemotePath("file")
+    assert RemotePath("../up").resolve() == RemotePath("../up")
+    assert RemotePath("base/../up").resolve() == RemotePath("up")
+    assert RemotePath("/base/../up").resolve() == RemotePath("/up")
+    assert RemotePath("/base/../mid/../up").resolve() == RemotePath("/up")
+    assert RemotePath("/base/mid/../up").resolve() == RemotePath("/base/up")
+    assert RemotePath("base/mid/../up").resolve() == RemotePath("base/up")
+    assert RemotePath("base/mid/inner/../../file").resolve() == RemotePath("base/file")
+
+
+def test_remote_path_is_relative_to() -> None:
+    path = RemotePath("/source/nested/file.txt")
+    assert path.is_relative_to(RemotePath("/"))
+    assert path.is_relative_to(RemotePath("/source"))
+    assert path.is_relative_to(RemotePath("/source/nested"))
+    assert not path.is_relative_to(RemotePath("/other-top"))
+    assert not path.is_relative_to(RemotePath("/source/other-nested"))
+
+
 def test_remote_path_truncated() -> None:
     assert RemotePath("something-long.txt").truncated(10) == "someth.txt"
     assert RemotePath("longlonglong/short").truncated(5) == "longl/short"
