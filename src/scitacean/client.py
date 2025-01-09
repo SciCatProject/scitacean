@@ -277,7 +277,7 @@ class Client:
             Note the error message if that happens.
         """
         dataset = dataset.replace(source_folder=self._source_folder_for(dataset))
-        files_to_upload = _files_to_upload(dataset.files)
+        files_to_upload = _files_to_upload(dataset, self.file_transfer)
         self.scicat.validate_dataset_model(dataset.make_upload_model())
         with self._connect_for_file_upload(dataset, files_to_upload) as con:
             # TODO check if any remote file is out of date.
@@ -1327,15 +1327,39 @@ def _remove_up_to_date_local_files(
     ]
 
 
-def _files_to_upload(files: Iterable[File]) -> list[File]:
-    for file in files:
+def _files_to_upload(
+    dataset: Dataset,
+    file_transfer: FileTransfer | None,
+) -> list[File]:
+    for file in dataset.files:
         if file.is_on_local and file.is_on_remote:
             raise ValueError(
                 f"Refusing to upload file at remote_path={file.remote_path} "
                 "because it is both on local and remote and it is unclear what "
                 "to do. If you want to perform the upload, set the local path to None."
             )
-    return [file for file in files if file.local_path is not None]
+
+    to_upload = [file for file in dataset.files if file.is_on_local]
+    if not to_upload:
+        return []
+
+    if file_transfer is not None:
+        source_folder = file_transfer.source_folder_for(dataset)
+        outside = [
+            (file.remote_path, file.local_path)
+            for file in to_upload
+            if not (source_folder / file.remote_path)
+            .resolve()
+            .is_relative_to(source_folder)
+        ]
+        if outside:
+            raise ValueError(
+                "Refusing to upload files that would be placed outside of the "
+                f"source folder '{source_folder.posix}': {[str(l) for _, l in outside]}"
+                f" with remote paths {[r.posix for r, _ in outside]}."
+            )
+
+    return to_upload
 
 
 class _NullUploadConnection:

@@ -127,6 +127,36 @@ class RemotePath:
             return RemotePath(base)
         return RemotePath(parts[0] or base)
 
+    def is_absolute(self) -> bool:
+        """Return True if the path is absolute."""
+        return self._path.startswith("/")
+
+    def resolve(self) -> RemotePath:
+        """Resolve any parent segments in a path.
+
+        This does *not* resolve symlinks or the current working directory like
+        :meth:`pathlib.Path.resolve`.
+
+        Returns
+        -------
+        :
+            A new remote path with resolved parent segments.
+        """
+        parts: list[str] = []
+        for part in self._path.split("/"):
+            if part == ".." and parts:
+                parts.pop()
+            else:
+                parts.append(part)
+        res = RemotePath(*parts)
+        if self.is_absolute():
+            res._path = "/" + res._path
+        return res
+
+    def is_relative_to(self, other: RemotePath) -> bool:
+        """Check whether this path is relative to another."""
+        return self.posix.startswith(other.posix)
+
     def truncated(self, max_length: int = 255) -> RemotePath:
         """Return a new remote path with all path segments truncated.
 
