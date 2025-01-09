@@ -262,27 +262,36 @@ def test_add_multiple_local_files_to_new_dataset(
 
 
 @pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
-def test_add_multiple_local_files_to_new_dataset_with_base_path(
+def test_adding_multiple_conflicting_local_files_raises(typ: DatasetType) -> None:
+    dset = Dataset(type=typ)
+    with pytest.raises(ValueError, match="data.dat"):
+        dset.add_local_files("common/location1/data.dat", "common/data.dat")
+
+    assert not list(dset.files)
+    assert dset.number_of_files == 0
+    assert dset.number_of_files_archived == 0
+    assert dset.packed_size == 0
+    assert dset.size == 0
+
+
+@pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
+def test_adding_separate_conflicting_local_files_raises(
     typ: DatasetType, fs: FakeFilesystem
 ) -> None:
     file_data0 = make_file(fs, "common/location1/data.dat")
-    file_data1 = make_file(fs, "common/song.mp3")
 
     dset = Dataset(type=typ)
-    dset.add_local_files(
-        "common/location1/data.dat", "common/song.mp3", base_path="common"
-    )
+    dset.add_local_files("common/location1/data.dat")
+    with pytest.raises(ValueError, match="data.dat"):
+        dset.add_local_files("common/data.dat")
 
-    assert len(list(dset.files)) == 2
-    assert dset.number_of_files == 2
+    assert len(list(dset.files)) == 1
+    assert dset.number_of_files == 1
     assert dset.number_of_files_archived == 0
     assert dset.packed_size == 0
-    assert dset.size == file_data0["size"] + file_data1["size"]
+    assert dset.size == file_data0["size"]
 
-    [f0, f1] = dset.files
-    if f0.local_path.suffix == ".mp3":
-        f1, f0 = f0, f1
-
+    [f0] = dset.files
     assert not f0.is_on_remote
     assert f0.is_on_local
     assert f0.remote_access_path(dset.source_folder) is None
@@ -290,12 +299,33 @@ def test_add_multiple_local_files_to_new_dataset_with_base_path(
     assert f0.size == file_data0["size"]
     assert f0.checksum_algorithm == "blake2b"
 
-    assert not f1.is_on_remote
-    assert f1.is_on_local
-    assert f1.remote_access_path(dset.source_folder) is None
-    assert f1.local_path == Path("common/song.mp3")
-    assert f1.size == file_data1["size"]
-    assert f1.checksum_algorithm == "blake2b"
+
+@pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
+def test_adding_conflicting_local_files_in_multiple_datablocks_raises(
+    typ: DatasetType, fs: FakeFilesystem
+) -> None:
+    file_data0 = make_file(fs, "common/location1/data.dat")
+
+    dset = Dataset(type=typ)
+    dset.add_orig_datablock(checksum_algorithm="md5")
+    dset.add_orig_datablock(checksum_algorithm="md5")
+    dset.add_local_files("common/location1/data.dat", datablock=0)
+    with pytest.raises(ValueError, match="data.dat"):
+        dset.add_local_files("common/data.dat", datablock=1)
+
+    assert len(list(dset.files)) == 1
+    assert dset.number_of_files == 1
+    assert dset.number_of_files_archived == 0
+    assert dset.packed_size == 0
+    assert dset.size == file_data0["size"]
+
+    [f0] = dset.files
+    assert not f0.is_on_remote
+    assert f0.is_on_local
+    assert f0.remote_access_path(dset.source_folder) is None
+    assert f0.local_path == Path("common/location1/data.dat")
+    assert f0.size == file_data0["size"]
+    assert f0.checksum_algorithm == "md5"
 
 
 @pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])

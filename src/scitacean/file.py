@@ -67,36 +67,24 @@ class File:
         cls,
         path: str | Path,
         *,
-        base_path: str | Path = "",
         remote_path: str | RemotePath | None = None,
         remote_uid: str | None = None,
         remote_gid: str | None = None,
         remote_perm: str | None = None,
     ) -> File:
-        """Link a file on the local filesystem.
+        """Construct a File object for a file on the local filesystem.
 
-        Given following ``path``, ``base_path``, and ``source_folder``::
-
-            path:                      somewhere/on/local/folder/file.nxs
-            base_bath:                 somewhere/on/local
-            source_folder:             remote/storage
-
-        the file will be located on the remote at::
-
-            -> remote_path:            folder/file.nxs
-            -> actual remote location: remote/storage/folder/file.nxs
-
-        ``remote_path`` can also be overridden, in which case ``path`` and
-        ``base_path`` are not used to deduce the "actual remote location".
+        The returned object references a file that exists locally but not on the remote.
+        However, it does contain a ``remote_path`` which is constructed from the
+        provided local path or from the provided ``remote_path``.
 
         Parameters
         ----------
         path:
             Full path of the local file.
-        base_path:
-            Only use ``path.relative_to(base_path)`` to determine the remote location.
         remote_path:
-            Path on the remote, relative to ``source_folder``.
+            Path on the remote, relative to the ``source_folder`` of a dataset.
+            By default, it is constructed as ``path.name``.
         remote_uid:
             User ID on the remote. Will be determined automatically on upload.
         remote_gid:
@@ -111,7 +99,7 @@ class File:
         """
         path = Path(path)
         if not remote_path:
-            remote_path = RemotePath.from_local(path.relative_to(base_path))
+            remote_path = path.name
         return File(
             local_path=path,
             remote_path=RemotePath(remote_path),

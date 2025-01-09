@@ -130,8 +130,8 @@ def test_upload_two_files(
     with sftp.connect_for_upload(dataset=ds) as con:
         assert con.source_folder == RemotePath("/data/upload2")
         con.upload_files(
-            File.from_local(path=tmp_path / "file2.1.md", base_path=tmp_path),
-            File.from_local(path=tmp_path / "file2.2.md", base_path=tmp_path),
+            File.from_local(path=tmp_path / "file2.1.md"),
+            File.from_local(path=tmp_path / "file2.2.md"),
         )
 
     assert (
@@ -160,7 +160,7 @@ def test_upload_one_file_existing_source_folder(
     with sftp.connect_for_upload(dataset=ds) as con:
         assert con.source_folder == RemotePath("/data/upload-multiple")
         con.upload_files(
-            File.from_local(path=tmp_path / "file3.1.md", base_path=tmp_path),
+            File.from_local(path=tmp_path / "file3.1.md"),
         )
 
     # Second upload to test uploading to existing folder.
@@ -172,7 +172,7 @@ def test_upload_one_file_existing_source_folder(
     with sftp.connect_for_upload(dataset=ds) as con:
         assert con.source_folder == RemotePath("/data/upload-multiple")
         con.upload_files(
-            File.from_local(path=tmp_path / "file3.2.md", base_path=tmp_path),
+            File.from_local(path=tmp_path / "file3.2.md"),
         )
 
     assert (
@@ -197,7 +197,7 @@ def test_revert_all_uploaded_files_single(
         connect=sftp_connect_with_username_password,
     )
     with sftp.connect_for_upload(dataset=ds) as con:
-        file = File.from_local(path=tmp_path / "file3.txt", base_path=tmp_path)
+        file = File.from_local(path=tmp_path / "file3.txt")
         con.upload_files(file)
         con.revert_upload(file)
 
@@ -217,8 +217,8 @@ def test_revert_all_uploaded_files_two(
         connect=sftp_connect_with_username_password,
     )
     with sftp.connect_for_upload(dataset=ds) as con:
-        file1 = File.from_local(path=tmp_path / "file3.1.txt", base_path=tmp_path)
-        file2 = File.from_local(path=tmp_path / "file3.2.txt", base_path=tmp_path)
+        file1 = File.from_local(path=tmp_path / "file3.1.txt")
+        file2 = File.from_local(path=tmp_path / "file3.2.txt")
         con.upload_files(file1, file2)
         con.revert_upload(file1, file2)
 
@@ -238,8 +238,8 @@ def test_revert_one_uploaded_file(
         connect=sftp_connect_with_username_password,
     )
     with sftp.connect_for_upload(dataset=ds) as con:
-        file4 = File.from_local(path=tmp_path / "file4.txt", base_path=tmp_path)
-        file5 = File.from_local(path=tmp_path / "file5.txt", base_path=tmp_path)
+        file4 = File.from_local(path=tmp_path / "file4.txt")
+        file5 = File.from_local(path=tmp_path / "file5.txt")
         con.upload_files(file4, file5)
         con.revert_upload(file4)
 
@@ -417,7 +417,7 @@ def test_client_with_sftp(
         source_folder="/data",
         type="raw",
     )
-    ds.add_local_files(tmp_path / "file1.txt", base_path=tmp_path)
+    ds.add_local_files(tmp_path / "file1.txt")
     finalized = client.upload_new_dataset_now(ds)
 
     downloaded = client.get_dataset(finalized.pid)
