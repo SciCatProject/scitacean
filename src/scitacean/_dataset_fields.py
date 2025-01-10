@@ -4,7 +4,7 @@
 ##########################################
 
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2024 SciCat Project (https://github.com/SciCatProject/scitacean)
+# Copyright (c) 2025 SciCat Project (https://github.com/SciCatProject/scitacean)
 # flake8: noqa
 
 """Base class for Dataset."""
