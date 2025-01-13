@@ -79,6 +79,6 @@ def test_create_first_orig_datablock(
     assert downloaded.dataFileList is not None
     for i in range(len(orig_datablock.dataFileList)):
         for key, expected in orig_datablock.dataFileList[i]:
-            assert (
-                dict(downloaded.dataFileList[i])[key] == expected
-            ), f"i = {i}, key = {key}"
+            assert dict(downloaded.dataFileList[i])[key] == expected, (
+                f"i = {i}, key = {key}"
+            )

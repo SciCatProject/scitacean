@@ -46,7 +46,7 @@ class RemotePath:
                 )
             if not isinstance(segment, (str, RemotePath)):
                 raise TypeError(
-                    "Expected str or RemotePath, " f"got {type(segment).__name__}"
+                    f"Expected str or RemotePath, got {type(segment).__name__}"
                 )
         self._path = "/".join(s for segment in path_segments if (s := _posix(segment)))
 
