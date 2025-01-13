@@ -147,8 +147,12 @@ def scicat_backend(request, tmp_path_factory, scicat_access):
         ):
             yield False
     else:
+        version = request.config.getoption("--scitacean-backend-version")
         with _prepare_with_backend(
-            scicat_access=scicat_access, target_dir=target_dir, counter=counter
+            scicat_access=scicat_access,
+            target_dir=target_dir,
+            counter=counter,
+            version=version,
         ):
             yield True
 
@@ -174,11 +178,12 @@ def _prepare_with_backend(
     scicat_access: SciCatAccess,
     counter: FileCounter | NullCounter,
     target_dir: Path,
+    version: str | None,
 ) -> Generator[None, None, None]:
     try:
         with counter.increment() as count:
             if count == 1:
-                _backend_docker_up(target_dir)
+                _backend_docker_up(target_dir, version)
                 _seed_database(
                     Client, scicat_access=scicat_access, target_dir=target_dir
                 )
@@ -206,7 +211,7 @@ def _seed_database(
     seed.save_seed(target_dir)
 
 
-def _backend_docker_up(target_dir: Path) -> None:
+def _backend_docker_up(target_dir: Path, version: str | None) -> None:
     if _backend_is_running():
         raise RuntimeError("SciCat docker container is already running")
     docker_compose_file = target_dir / "docker-compose.yaml"
@@ -214,7 +219,7 @@ def _backend_docker_up(target_dir: Path) -> None:
     log.info(
         "Starting docker container with SciCat backend from %s", docker_compose_file
     )
-    configure(docker_compose_file)
+    configure(docker_compose_file, version=version)
     docker.docker_compose_up(docker_compose_file)
     log.info("Waiting for SciCat docker to become accessible")
     wait_until_backend_is_live(max_time=60, n_tries=40)

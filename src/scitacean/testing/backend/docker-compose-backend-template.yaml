@@ -3,8 +3,8 @@
 # before it can be used by docker compose.
 #
 # The images are based on the CI setup of the SciCat backend
-# and the latest stable package:
-# https://github.com/SciCatProject/scicat-backend-next/pkgs/container/backend-next/97880429?tag=stable
+# and a released package of the version configured in pyproject.toml:
+# https://github.com/SciCatProject/scicat-backend-next/pkgs/container/backend-next/versions
 #
 # See https://scicatproject.github.io/documentation/Development/v4.x/backend/configuration.html
 # for a list of all env variables.

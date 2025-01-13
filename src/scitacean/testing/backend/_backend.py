@@ -31,7 +31,9 @@ def _docker_compose_template() -> dict[str, Any]:
 
 
 def _apply_config(
-    template: dict[str, Any], account_config_path: Path
+    template: dict[str, Any],
+    account_config_path: Path,
+    version: str | None,
 ) -> dict[str, Any]:
     res = deepcopy(template)
     scicat = res["services"]["scicat"]
@@ -47,20 +49,29 @@ def _apply_config(
         f"{account_config_path}:/home/node/app/functionalAccounts.json",
     ]
 
+    if version is not None:
+        url = scicat["image"].split(":")[0]
+        scicat["image"] = f"{url}:{version}"
+
     return res
 
 
-def configure(target_path: _PathLike) -> None:
+def configure(target_path: _PathLike, *, version: str | None = None) -> None:
     """Build a docker-compose file for the testing backend.
 
     Parameters
     ----------
     target_path:
         Generate a docker-compose file at this path.
+    version:
+        The backend version to use, e.g., ``"v4.8.0"``.
+        If not provided, the latest version will be used that is known to be compatible.
     """
     account_config_path = Path(target_path).parent / "functionalAccounts.json"
     config.dump_account_config(account_config_path)
-    c = yaml.dump(_apply_config(_docker_compose_template(), account_config_path))
+    c = yaml.dump(
+        _apply_config(_docker_compose_template(), account_config_path, version)
+    )
     if "PLACEHOLDER" in c:
         raise RuntimeError("Incorrect config")
 
