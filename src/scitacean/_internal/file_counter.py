@@ -52,7 +52,7 @@ class FileCounter:
             count = self._read() - 1
             if count < 0:
                 raise RuntimeError(
-                    f"Broken file counter, got a file with a count of {count-1}."
+                    f"Broken file counter, got a file with a count of {count - 1}."
                 )
             if count == 0:
                 self._path.unlink()

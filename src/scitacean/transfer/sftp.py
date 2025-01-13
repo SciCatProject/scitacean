@@ -90,8 +90,7 @@ class SFTPUploadConnection:
     def _upload_file(self, file: File) -> File:
         if file.local_path is None:
             raise ValueError(
-                f"Cannot upload file to {file.remote_path}, "
-                "the file has no local path"
+                f"Cannot upload file to {file.remote_path}, the file has no local path"
             )
         remote_path = self.remote_path(file.remote_path)
         get_logger().info(

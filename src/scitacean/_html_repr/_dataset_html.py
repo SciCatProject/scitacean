@@ -202,7 +202,7 @@ def _human_readable_size(size_in_bytes: int) -> str:
     for power, prefix in ((4, "T"), (3, "G"), (2, "M"), (1, "k")):
         n = 1024**power
         if size_in_bytes >= n:
-            return f"{size_in_bytes/n:.2f} {prefix}iB"
+            return f"{size_in_bytes / n:.2f} {prefix}iB"
     return f"{size_in_bytes} B"
 
 

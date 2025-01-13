@@ -89,7 +89,7 @@ def configure(target_dir: Path | str) -> Path:
     target_dir.joinpath("Dockerfile-sftp-server").write_text(_docker_file())
 
     target_dir.joinpath(".env").write_text(
-        f"""DATA_DIR={target_dir / 'data'}
+        f"""DATA_DIR={target_dir / "data"}
 SEED_DIR={target_seed_dir}"""
     )
 
