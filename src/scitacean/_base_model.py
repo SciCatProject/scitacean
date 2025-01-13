@@ -10,7 +10,6 @@ from collections.abc import Iterable
 from datetime import datetime
 from typing import (
     Any,
-    ClassVar,
     TypeVar,
     overload,
 )
@@ -47,50 +46,6 @@ except ImportError:
 
 class BaseModel(pydantic.BaseModel):
     """Base class for Pydantic models for communication with SciCat."""
-
-    model_config = pydantic.ConfigDict(
-        extra="forbid",
-    )
-
-    _user_mask: ClassVar[tuple[str, ...]]
-    _masked_fields: ClassVar[tuple[str, ...] | None] = None
-
-    # Some schemas contain fields that we don't want to use in Scitacean.
-    # Normally, omitting them from the model would result in an error when
-    # building a model from the JSON returned by SciCat.
-    # The following subclass hook allows models to mark fields as masked.
-    # Those will be silently dropped by __init__.
-    # Note also the comment for _IGNORED_KWARGS below.
-    def __init_subclass__(
-        cls, /, masked: Iterable[str] | None = None, **kwargs: Any
-    ) -> None:
-        super().__init_subclass__(**kwargs)
-        cls._user_mask = tuple(masked) if masked is not None else ()
-
-    def __init__(self, **kwargs: Any) -> None:
-        self._delete_ignored_args(kwargs)
-        super().__init__(**kwargs)
-
-    def _delete_ignored_args(self, args: dict[str, Any]) -> None:
-        if self._masked_fields is None:
-            self._init_mask(self)
-        for key in self._masked_fields:  # type: ignore[union-attr]
-            args.pop(key, None)
-
-    # Initializing the mask requires the field names which
-    # are only available on instances.
-    # So initialization needs to be deferred until the first instantiation of the model.
-    # The mask is cached afterward.
-    @classmethod
-    def _init_mask(cls: type[ModelType], instance: ModelType) -> None:
-        def get_name(name: str, field: Any) -> Any:
-            return field.alias if field.alias is not None else name
-
-        field_names = {
-            get_name(name, field) for name, field in instance.model_fields.items()
-        }
-        default_mask = tuple(key for key in _IGNORED_KWARGS if key not in field_names)
-        cls._masked_fields = cls._user_mask + default_mask
 
     @classmethod
     def user_model_type(cls) -> type[BaseUserModel] | None:

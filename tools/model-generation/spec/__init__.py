@@ -162,7 +162,7 @@ def _collect_schemas(
         "Dataset": _DatasetSchemas(
             upload_derived=schemas["CreateDerivedDatasetObsoleteDto"],
             upload_raw=schemas["CreateRawDatasetObsoleteDto"],
-            download=schemas["DatasetClass"],
+            download=schemas["OutputDatasetObsoleteDto"],
         ),
         **{
             name: _UpDownSchemas(
@@ -291,31 +291,6 @@ def _build_dataset_spec(name: str, schemas: _DatasetSchemas) -> DatasetSpec:
 
 
 @lru_cache
-def _masked_fields() -> dict[str, list[str]]:
-    with open(Path(__file__).resolve().parent / "masked-fields.yml") as f:
-        return yaml.safe_load(f)
-
-
-def _mask_fields(spec: Spec) -> Spec:
-    spec = deepcopy(spec)
-    masked = _masked_fields()
-    for field_name in masked.get(spec.name, []):
-        if isinstance(field_name, dict):
-            ((field_name, updown),) = field_name.items()
-            if updown == "upload":
-                spec.fields[field_name].upload = False
-                spec.masked_fields_upload[field_name] = spec.fields[field_name]
-            elif updown == "download":
-                spec.masked_fields_download[field_name] = spec.fields[field_name]
-            else:
-                raise ValueError("Invalid mask value")
-        else:
-            spec.masked_fields_upload[field_name] = spec.fields[field_name]
-            spec.masked_fields_download[field_name] = spec.fields.pop(field_name)
-    return spec
-
-
-@lru_cache
 def _field_name_overrides() -> dict[str, dict[str, str]]:
     with open(Path(__file__).resolve().parent / "field-name-overrides.yml") as f:
         return yaml.safe_load(f)
@@ -403,7 +378,7 @@ def load_specs(schema_url: str) -> dict[str, Any]:
     }
     return {
         name: _assign_validations(
-            _postprocess_field_types(_postprocess_field_names(_mask_fields(spec)))
+            _postprocess_field_types(_postprocess_field_names(spec))
         )
         for name, spec in specs.items()
     }

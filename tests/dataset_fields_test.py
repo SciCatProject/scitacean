@@ -10,7 +10,7 @@ from datetime import datetime, timedelta, timezone
 import dateutil.parser
 import pydantic
 import pytest
-from hypothesis import assume, given, settings
+from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from scitacean import PID, Dataset, DatasetType
@@ -354,6 +354,7 @@ def test_make_raw_model() -> None:
         owner="Ponder Stibbons;Mustrum Ridcully",
         ownerGroup="faculty",
         principalInvestigator="my principal investigator",
+        investigator="my principal investigator",
         sourceFolder=RemotePath("/hex/source62"),
         type=DatasetType.RAW,
         scientificMetadata=None,
@@ -402,67 +403,6 @@ def test_make_derived_model() -> None:
         size=0,
     )
     assert dset.make_upload_model() == expected
-
-
-@pytest.mark.parametrize(
-    "field",
-    (
-        f
-        for f in Dataset.fields(dataset_type="derived", read_only=False)
-        if not f.used_by_raw and f.name not in _UNGENERATABLE_FIELDS
-    ),
-    ids=lambda f: f.name,
-)
-@given(st.data())
-@settings(max_examples=10)
-def test_make_raw_model_raises_if_derived_field_set(
-    field: Dataset.Field, data: st.DataObject
-) -> None:
-    dset = Dataset(
-        type="raw",
-        contact_email="p.stibbons@uu.am",
-        creation_time="2142-04-02T16:44:56",
-        owner="Mustrum Ridcully",
-        owner_group="faculty",
-        principal_investigator="p.stibbons@uu.am",
-        source_folder=RemotePath("/hex/source62"),
-    )
-    val = data.draw(st.from_type(field.type))
-    assume(val is not None)
-    with pytest.raises(pydantic.ValidationError):
-        dset.make_upload_model()
-
-
-@pytest.mark.parametrize(
-    "field",
-    (
-        f
-        for f in Dataset.fields(dataset_type="raw", read_only=False)
-        if not f.used_by_derived and f.name not in _UNGENERATABLE_FIELDS
-    ),
-    ids=lambda f: f.name,
-)
-@given(st.data())
-@settings(max_examples=10)
-def test_make_derived_model_raises_if_raw_field_set(
-    field: Dataset.Field, data: st.DataObject
-) -> None:
-    dset = Dataset(
-        type="derived",
-        contact_email="p.stibbons@uu.am",
-        creation_time="2142-04-02T16:44:56",
-        owner="Ponder Stibbons",
-        owner_group="faculty",
-        investigator="p.stibbons@uu.am",
-        source_folder=RemotePath("/hex/source62"),
-        input_datasets=[PID(pid="623-122")],
-        used_software=["scitacean", "magick"],
-    )
-    val = data.draw(st.from_type(field.type))
-    assume(val is not None)
-    setattr(dset, field.name, val)
-    with pytest.raises(pydantic.ValidationError):
-        dset.make_upload_model()
 
 
 @pytest.mark.parametrize("field", ["contact_email", "owner_email"])

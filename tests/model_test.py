@@ -182,6 +182,7 @@ def test_raw_dataset_default_values(
         owner=scicat_access.user.username,
         ownerGroup=scicat_access.user.group,
         principalInvestigator="inv@esti.gator",
+        investigator="inv@esti.gator",
         sourceFolder=RemotePath("/source/folder"),
         type=DatasetType.RAW,
         usedSoftware=["software1"],
@@ -207,15 +208,15 @@ def test_raw_dataset_default_values(
     assert finalized.createdAt  # some non-empty str
     assert finalized.createdBy  # some non-empty str
     assert finalized.classification  # some non-empty str
-    assert finalized.instrumentIds == []
+    assert finalized.instrumentId is None
     assert finalized.isPublished is False
     assert finalized.keywords == []
     assert finalized.numberOfFiles == 0
     assert finalized.numberOfFilesArchived == 0
     assert finalized.packedSize == 0
     assert finalized.pid  # some non-empty str
-    assert finalized.proposalIds == []
-    assert finalized.sampleIds == []
+    assert finalized.proposalId is None
+    assert finalized.sampleId is None
     assert finalized.scientificMetadata == {}
     assert finalized.sharedWith == []
     assert finalized.size == 0
@@ -271,7 +272,7 @@ def test_fields_override_masks() -> None:
     assert not hasattr(mod, "_id")
 
 
-def test_fields_override_masks_att() -> None:
+def test_fields_override_masks_attachment() -> None:
     # 'id' is masked but the model has a field 'id' without alias
     mod = DownloadAttachment(  # type: ignore[call-arg]
         _id="abc",

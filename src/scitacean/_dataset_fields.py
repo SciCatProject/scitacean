@@ -99,7 +99,7 @@ class DatasetBase:
         ),
         Field(
             name="access_groups",
-            description="Optional additional groups which have read access to the data. Users which are members in one of the groups listed here are allowed to access this data. The special group 'public' makes data available to all users.",
+            description="List of groups which have access to this item.",
             read_only=False,
             required=False,
             scicat_name="accessGroups",
@@ -109,7 +109,7 @@ class DatasetBase:
         ),
         Field(
             name="api_version",
-            description="Version of the API used when the dataset was created or last updated. API version is defined in code for each release. Managed by the system.",
+            description="Version of the API used in creation of the dataset.",
             read_only=True,
             required=False,
             scicat_name="version",
@@ -119,7 +119,7 @@ class DatasetBase:
         ),
         Field(
             name="classification",
-            description="ACIA information about AUthenticity,COnfidentiality,INtegrity and AVailability requirements of dataset. E.g. AV(ailabilty)=medium could trigger the creation of a two tape copies. Format 'AV=medium,CO=low'. Please check the following post for more info: https://en.wikipedia.org/wiki/Parkerian_Hexad",
+            description="ACIA information about AUthenticity,COnfidentiality,INtegrity and AVailability requirements of dataset. E.g. AV(ailabilty)=medium could trigger the creation of a two tape copies. Format 'AV=medium,CO=low'",
             read_only=False,
             required=False,
             scicat_name="classification",
@@ -129,7 +129,7 @@ class DatasetBase:
         ),
         Field(
             name="comment",
-            description="Short comment provided by the user about a given dataset. This is additional to the description field.",
+            description="Comment the user has about a given dataset.",
             read_only=False,
             required=False,
             scicat_name="comment",
@@ -169,7 +169,7 @@ class DatasetBase:
         ),
         Field(
             name="creation_location",
-            description="Unique location identifier where data was acquired. Usually in the form /Site-name/facility-name/instrumentOrBeamline-name.",
+            description="Unique location identifier where data was taken, usually in the form /Site-name/facility-name/instrumentOrBeamline-name. This field is required if the dataset is a Raw dataset.",
             read_only=False,
             required=True,
             scicat_name="creationLocation",
@@ -199,7 +199,7 @@ class DatasetBase:
         ),
         Field(
             name="data_quality_metrics",
-            description="Data Quality Metrics given by the user to rate the dataset.",
+            description="Data Quality Metrics is a number given by the user to rate the dataset.",
             read_only=False,
             required=False,
             scicat_name="dataQualityMetrics",
@@ -239,7 +239,7 @@ class DatasetBase:
         ),
         Field(
             name="instrument_group",
-            description="Optional additional groups which have read and write access to the data. Users which are members in one of the groups listed here are allowed to access this data.",
+            description="Group of the instrument which this item was acquired on.",
             read_only=False,
             required=False,
             scicat_name="instrumentGroup",
@@ -258,18 +258,8 @@ class DatasetBase:
             used_by_raw=True,
         ),
         Field(
-            name="instrument_ids",
-            description="Id of the instrument or array of IDS of the instruments where the data contained in this dataset was created/acquired.",
-            read_only=True,
-            required=False,
-            scicat_name="instrumentIds",
-            type=list[str],
-            used_by_derived=True,
-            used_by_raw=True,
-        ),
-        Field(
             name="investigator",
-            description="",
+            description="First name and last name of the person or people pursuing the data analysis. The string may contain a list of names, which should then be separated by semicolons.",
             read_only=False,
             required=True,
             scicat_name="investigator",
@@ -339,9 +329,9 @@ class DatasetBase:
         ),
         Field(
             name="name",
-            description="A name for the dataset, given by the creator to carry some semantic meaning. Useful for display purposes e.g. instead of displaying the pid.",
+            description="A name for the dataset, given by the creator to carry some semantic meaning. Useful for display purposes e.g. instead of displaying the pid. Will be autofilled if missing using info from sourceFolder.",
             read_only=False,
-            required=True,
+            required=False,
             scicat_name="datasetName",
             type=str,
             used_by_derived=True,
@@ -379,7 +369,7 @@ class DatasetBase:
         ),
         Field(
             name="owner_group",
-            description="Defines the group which owns the data, and therefore has unrestricted access to this data. Usually a pgroup like p12151",
+            description="Name of the group owning this item.",
             read_only=False,
             required=True,
             scicat_name="ownerGroup",
@@ -389,7 +379,7 @@ class DatasetBase:
         ),
         Field(
             name="pid",
-            description="Persistent Identifier for datasets derived from UUIDv4 and prepended automatically by site specific PID prefix like 20.500.12345/",
+            description="Persistent identifier of the dataset.",
             read_only=True,
             required=False,
             scicat_name="pid",
@@ -418,22 +408,22 @@ class DatasetBase:
             used_by_raw=True,
         ),
         Field(
-            name="proposal_ids",
-            description="The ID of the proposal to which the dataset belongs to and it has been acquired under.",
-            read_only=True,
-            required=False,
-            scicat_name="proposalIds",
-            type=list[str],
-            used_by_derived=True,
-            used_by_raw=True,
-        ),
-        Field(
             name="relationships",
-            description="Array of relationships with other datasets. It contains relationship type and destination dataset",
+            description="Stores the relationships with other datasets.",
             read_only=False,
             required=False,
             scicat_name="relationships",
             type=list[Relationship],
+            used_by_derived=True,
+            used_by_raw=True,
+        ),
+        Field(
+            name="run_number",
+            description="Run number assigned by the system to the data acquisition for the current dataset.",
+            read_only=False,
+            required=False,
+            scicat_name="runNumber",
+            type=str,
             used_by_derived=True,
             used_by_raw=True,
         ),
@@ -448,18 +438,8 @@ class DatasetBase:
             used_by_raw=True,
         ),
         Field(
-            name="sample_ids",
-            description="Single ID or array of IDS of the samples used when collecting the data.",
-            read_only=True,
-            required=False,
-            scicat_name="sampleIds",
-            type=list[str],
-            used_by_derived=True,
-            used_by_raw=True,
-        ),
-        Field(
             name="shared_with",
-            description="List of additional users that the dataset has been shared with.",
+            description="List of users that the dataset has been shared with.",
             read_only=False,
             required=False,
             scicat_name="sharedWith",
@@ -499,7 +479,7 @@ class DatasetBase:
         ),
         Field(
             name="techniques",
-            description="Array of techniques information, with technique name and pid.",
+            description="Stores the metadata information for techniques.",
             read_only=False,
             required=False,
             scicat_name="techniques",
@@ -552,6 +532,7 @@ class DatasetBase:
     __slots__ = (
         "_access_groups",
         "_api_version",
+        "_attachments",
         "_classification",
         "_comment",
         "_contact_email",
@@ -566,7 +547,6 @@ class DatasetBase:
         "_input_datasets",
         "_instrument_group",
         "_instrument_id",
-        "_instrument_ids",
         "_investigator",
         "_is_published",
         "_job_log_data",
@@ -582,10 +562,9 @@ class DatasetBase:
         "_pid",
         "_principal_investigator",
         "_proposal_id",
-        "_proposal_ids",
         "_relationships",
+        "_run_number",
         "_sample_id",
-        "_sample_ids",
         "_shared_with",
         "_source_folder",
         "_source_folder_host",
@@ -624,6 +603,7 @@ class DatasetBase:
         job_parameters: dict[str, Any] | None = None,
         keywords: list[str] | None = None,
         license: str | None = None,
+        lifecycle: Lifecycle | None = None,
         name: str | None = None,
         orcid_of_owner: str | None = None,
         owner: str | None = None,
@@ -632,6 +612,7 @@ class DatasetBase:
         principal_investigator: str | None = None,
         proposal_id: str | None = None,
         relationships: list[Relationship] | None = None,
+        run_number: str | None = None,
         sample_id: str | None = None,
         shared_with: list[str] | None = None,
         source_folder: RemotePath | str | None = None,
@@ -663,6 +644,7 @@ class DatasetBase:
         self._job_parameters = job_parameters
         self._keywords = keywords
         self._license = license
+        self._lifecycle = lifecycle
         self._name = name
         self._orcid_of_owner = orcid_of_owner
         self._owner = owner
@@ -671,6 +653,7 @@ class DatasetBase:
         self._principal_investigator = principal_investigator
         self._proposal_id = proposal_id
         self._relationships = relationships
+        self._run_number = run_number
         self._sample_id = sample_id
         self._shared_with = shared_with
         self._source_folder = _parse_remote_path(source_folder)
@@ -682,11 +665,7 @@ class DatasetBase:
         self._api_version = None
         self._created_at = None
         self._created_by = None
-        self._instrument_ids = None
-        self._lifecycle = None
         self._pid = None
-        self._proposal_ids = None
-        self._sample_ids = None
         self._updated_at = None
         self._updated_by = None
         self._meta = meta or {}
@@ -698,37 +677,37 @@ class DatasetBase:
 
     @property
     def access_groups(self) -> list[str] | None:
-        """Optional additional groups which have read access to the data. Users which are members in one of the groups listed here are allowed to access this data. The special group 'public' makes data available to all users."""
+        """List of groups which have access to this item."""
         return self._access_groups
 
     @access_groups.setter
     def access_groups(self, access_groups: list[str] | None) -> None:
-        """Optional additional groups which have read access to the data. Users which are members in one of the groups listed here are allowed to access this data. The special group 'public' makes data available to all users."""
+        """List of groups which have access to this item."""
         self._access_groups = access_groups
 
     @property
     def api_version(self) -> str | None:
-        """Version of the API used when the dataset was created or last updated. API version is defined in code for each release. Managed by the system."""
+        """Version of the API used in creation of the dataset."""
         return self._api_version
 
     @property
     def classification(self) -> str | None:
-        """ACIA information about AUthenticity,COnfidentiality,INtegrity and AVailability requirements of dataset. E.g. AV(ailabilty)=medium could trigger the creation of a two tape copies. Format 'AV=medium,CO=low'. Please check the following post for more info: https://en.wikipedia.org/wiki/Parkerian_Hexad"""
+        """ACIA information about AUthenticity,COnfidentiality,INtegrity and AVailability requirements of dataset. E.g. AV(ailabilty)=medium could trigger the creation of a two tape copies. Format 'AV=medium,CO=low'"""
         return self._classification
 
     @classification.setter
     def classification(self, classification: str | None) -> None:
-        """ACIA information about AUthenticity,COnfidentiality,INtegrity and AVailability requirements of dataset. E.g. AV(ailabilty)=medium could trigger the creation of a two tape copies. Format 'AV=medium,CO=low'. Please check the following post for more info: https://en.wikipedia.org/wiki/Parkerian_Hexad"""
+        """ACIA information about AUthenticity,COnfidentiality,INtegrity and AVailability requirements of dataset. E.g. AV(ailabilty)=medium could trigger the creation of a two tape copies. Format 'AV=medium,CO=low'"""
         self._classification = classification
 
     @property
     def comment(self) -> str | None:
-        """Short comment provided by the user about a given dataset. This is additional to the description field."""
+        """Comment the user has about a given dataset."""
         return self._comment
 
     @comment.setter
     def comment(self, comment: str | None) -> None:
-        """Short comment provided by the user about a given dataset. This is additional to the description field."""
+        """Comment the user has about a given dataset."""
         self._comment = comment
 
     @property
@@ -753,12 +732,12 @@ class DatasetBase:
 
     @property
     def creation_location(self) -> str | None:
-        """Unique location identifier where data was acquired. Usually in the form /Site-name/facility-name/instrumentOrBeamline-name."""
+        """Unique location identifier where data was taken, usually in the form /Site-name/facility-name/instrumentOrBeamline-name. This field is required if the dataset is a Raw dataset."""
         return self._creation_location
 
     @creation_location.setter
     def creation_location(self, creation_location: str | None) -> None:
-        """Unique location identifier where data was acquired. Usually in the form /Site-name/facility-name/instrumentOrBeamline-name."""
+        """Unique location identifier where data was taken, usually in the form /Site-name/facility-name/instrumentOrBeamline-name. This field is required if the dataset is a Raw dataset."""
         self._creation_location = creation_location
 
     @property
@@ -783,12 +762,12 @@ class DatasetBase:
 
     @property
     def data_quality_metrics(self) -> int | None:
-        """Data Quality Metrics given by the user to rate the dataset."""
+        """Data Quality Metrics is a number given by the user to rate the dataset."""
         return self._data_quality_metrics
 
     @data_quality_metrics.setter
     def data_quality_metrics(self, data_quality_metrics: int | None) -> None:
-        """Data Quality Metrics given by the user to rate the dataset."""
+        """Data Quality Metrics is a number given by the user to rate the dataset."""
         self._data_quality_metrics = data_quality_metrics
 
     @property
@@ -823,12 +802,12 @@ class DatasetBase:
 
     @property
     def instrument_group(self) -> str | None:
-        """Optional additional groups which have read and write access to the data. Users which are members in one of the groups listed here are allowed to access this data."""
+        """Group of the instrument which this item was acquired on."""
         return self._instrument_group
 
     @instrument_group.setter
     def instrument_group(self, instrument_group: str | None) -> None:
-        """Optional additional groups which have read and write access to the data. Users which are members in one of the groups listed here are allowed to access this data."""
+        """Group of the instrument which this item was acquired on."""
         self._instrument_group = instrument_group
 
     @property
@@ -842,18 +821,13 @@ class DatasetBase:
         self._instrument_id = instrument_id
 
     @property
-    def instrument_ids(self) -> list[str] | None:
-        """Id of the instrument or array of IDS of the instruments where the data contained in this dataset was created/acquired."""
-        return self._instrument_ids
-
-    @property
     def investigator(self) -> str | None:
-        """"""
+        """First name and last name of the person or people pursuing the data analysis. The string may contain a list of names, which should then be separated by semicolons."""
         return self._investigator
 
     @investigator.setter
     def investigator(self, investigator: str | None) -> None:
-        """"""
+        """First name and last name of the person or people pursuing the data analysis. The string may contain a list of names, which should then be separated by semicolons."""
         self._investigator = investigator
 
     @property
@@ -913,12 +887,12 @@ class DatasetBase:
 
     @property
     def name(self) -> str | None:
-        """A name for the dataset, given by the creator to carry some semantic meaning. Useful for display purposes e.g. instead of displaying the pid."""
+        """A name for the dataset, given by the creator to carry some semantic meaning. Useful for display purposes e.g. instead of displaying the pid. Will be autofilled if missing using info from sourceFolder."""
         return self._name
 
     @name.setter
     def name(self, name: str | None) -> None:
-        """A name for the dataset, given by the creator to carry some semantic meaning. Useful for display purposes e.g. instead of displaying the pid."""
+        """A name for the dataset, given by the creator to carry some semantic meaning. Useful for display purposes e.g. instead of displaying the pid. Will be autofilled if missing using info from sourceFolder."""
         self._name = name
 
     @property
@@ -953,17 +927,17 @@ class DatasetBase:
 
     @property
     def owner_group(self) -> str | None:
-        """Defines the group which owns the data, and therefore has unrestricted access to this data. Usually a pgroup like p12151"""
+        """Name of the group owning this item."""
         return self._owner_group
 
     @owner_group.setter
     def owner_group(self, owner_group: str | None) -> None:
-        """Defines the group which owns the data, and therefore has unrestricted access to this data. Usually a pgroup like p12151"""
+        """Name of the group owning this item."""
         self._owner_group = owner_group
 
     @property
     def pid(self) -> PID | None:
-        """Persistent Identifier for datasets derived from UUIDv4 and prepended automatically by site specific PID prefix like 20.500.12345/"""
+        """Persistent identifier of the dataset."""
         return self._pid
 
     @property
@@ -987,19 +961,24 @@ class DatasetBase:
         self._proposal_id = proposal_id
 
     @property
-    def proposal_ids(self) -> list[str] | None:
-        """The ID of the proposal to which the dataset belongs to and it has been acquired under."""
-        return self._proposal_ids
-
-    @property
     def relationships(self) -> list[Relationship] | None:
-        """Array of relationships with other datasets. It contains relationship type and destination dataset"""
+        """Stores the relationships with other datasets."""
         return self._relationships
 
     @relationships.setter
     def relationships(self, relationships: list[Relationship] | None) -> None:
-        """Array of relationships with other datasets. It contains relationship type and destination dataset"""
+        """Stores the relationships with other datasets."""
         self._relationships = relationships
+
+    @property
+    def run_number(self) -> str | None:
+        """Run number assigned by the system to the data acquisition for the current dataset."""
+        return self._run_number
+
+    @run_number.setter
+    def run_number(self, run_number: str | None) -> None:
+        """Run number assigned by the system to the data acquisition for the current dataset."""
+        self._run_number = run_number
 
     @property
     def sample_id(self) -> str | None:
@@ -1012,18 +991,13 @@ class DatasetBase:
         self._sample_id = sample_id
 
     @property
-    def sample_ids(self) -> list[str] | None:
-        """Single ID or array of IDS of the samples used when collecting the data."""
-        return self._sample_ids
-
-    @property
     def shared_with(self) -> list[str] | None:
-        """List of additional users that the dataset has been shared with."""
+        """List of users that the dataset has been shared with."""
         return self._shared_with
 
     @shared_with.setter
     def shared_with(self, shared_with: list[str] | None) -> None:
-        """List of additional users that the dataset has been shared with."""
+        """List of users that the dataset has been shared with."""
         self._shared_with = shared_with
 
     @property
@@ -1058,12 +1032,12 @@ class DatasetBase:
 
     @property
     def techniques(self) -> list[Technique] | None:
-        """Array of techniques information, with technique name and pid."""
+        """Stores the metadata information for techniques."""
         return self._techniques
 
     @techniques.setter
     def techniques(self, techniques: list[Technique] | None) -> None:
-        """Array of techniques information, with technique name and pid."""
+        """Stores the metadata information for techniques."""
         self._techniques = techniques
 
     @property
