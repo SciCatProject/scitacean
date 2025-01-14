@@ -10,7 +10,7 @@ on:
 jobs:
   formatting:
     name: Formatting and static analysis
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -24,7 +24,7 @@ jobs:
   type-checking:
     name: Type checking
     needs: formatting
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -35,28 +35,23 @@ jobs:
       - run: tox -e mypy
 
   tests:
-    name: Tests ${{ matrix.os }} ${{ matrix.tox }}
+    name: Tests
     needs: formatting
-    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         include:
-          - {python: '3.13', os: ubuntu-22.04, tox: py313-full}
-          - {python: '3.12', os: ubuntu-22.04, tox: py312-full}
-          - {python: '3.11', os: ubuntu-22.04, tox: py311-full}
-          - {python: '3.10', os: ubuntu-22.04, tox: py310-full}
+          - {python: '3.13', os: ubuntu-24.04, tox: py313-full}
+          - {python: '3.12', os: ubuntu-24.04, tox: py312-full}
+          - {python: '3.11', os: ubuntu-24.04, tox: py311-full}
+          - {python: '3.10', os: ubuntu-24.04, tox: py310-full}
           - {python: '3.10', os: macos-14, tox: py310}
           - {python: '3.10', os: windows-2022, tox: py310}
-    steps:
-      - run: sudo apt install --yes docker-compose
-        if: ${{ contains(matrix.os, 'ubuntu') }}
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python }}
-      - run: python -m pip install --upgrade pip
-      - run: python -m pip install -r requirements/ci.txt
-      - run: tox -e ${{ matrix.tox }}
+    uses: ./.github/workflows/test.yml
+    with:
+      os-variant: ${{ matrix.os }}
+      python-version: ${{ matrix.python }}
+      tox-env: ${{ matrix.tox }}
+    secrets: inherit
 
   docs:
     needs: tests

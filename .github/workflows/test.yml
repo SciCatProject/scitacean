@@ -1,0 +1,60 @@
+name: Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      os-variant:
+        default: 'ubuntu-24.04'
+        type: string
+        description: 'Operating system'
+      python-version:
+        type: string
+        description: 'Python interpreter version'
+      tox-env:
+        default: 'test'
+        type: string
+        description: 'Tox environment to run'
+      checkout-ref:
+        default: ''
+        type: string
+        description: 'Git ref to checkout'
+      backend-version:
+        default: ''
+        type: string
+        description: 'SciCat backend version, e.g., "v4.8.0"'
+  workflow_call:
+    inputs:
+      os-variant:
+        default: 'ubuntu-24.04'
+        type: string
+      python-version:
+        type: string
+      tox-env:
+        default: 'test'
+        type: string
+      checkout-ref:
+        default: ''
+        type: string
+      backend-version:
+        default: ''
+        type: string
+
+jobs:
+  tests:
+    name: Tests ${{ inputs.os-variant }} ${{ inputs.tox-env }}
+    runs-on: ${{ inputs.os-variant }}
+    steps:
+      - run: sudo apt install --yes docker-compose
+        if: ${{ contains(inputs.os-variant, 'ubuntu') }}
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.checkout-ref }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -r requirements/ci.txt
+      - run: tox -e ${{ inputs.tox-env }}
+        if: ${{ !inputs.backend-version }}
+      - run: tox -e ${{ inputs.tox-env }} -- ${{ inputs.backend-version }}
+        if: ${{ inputs.backend-version }}

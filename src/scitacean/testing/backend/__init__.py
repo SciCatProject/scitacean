@@ -61,7 +61,7 @@ If a test requires a backend but wants to construct a client manually, use
 .. autosummary::
    :toctree: ../functions
 
-   add_pytest_option
+   add_pytest_options
    backend_enabled
    configure
    skip_if_not_backend
@@ -77,10 +77,10 @@ from ._backend import (
     stop_backend,
     wait_until_backend_is_live,
 )
-from ._pytest_helpers import add_pytest_option, backend_enabled, skip_if_not_backend
+from ._pytest_helpers import add_pytest_options, backend_enabled, skip_if_not_backend
 
 __all__ = [
-    "add_pytest_option",
+    "add_pytest_options",
     "backend_enabled",
     "config",
     "configure",

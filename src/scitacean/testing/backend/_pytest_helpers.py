@@ -7,15 +7,15 @@ import pytest
 _COMMAND_LINE_OPTION: str | None = None
 
 
-def add_pytest_option(parser: pytest.Parser, option: str = "--backend-tests") -> None:
-    """Add a command-line option to pytest to toggle backend tests.
+def add_pytest_options(parser: pytest.Parser, option: str = "--backend-tests") -> None:
+    """Add command-line options to pytest to control backend tests.
 
     Parameters
     ----------
     parser:
         Pytest's command-line argument parser.
     option:
-        Name of the command-line option.
+        Name of the command-line option to toggle backend tests.
     """
     parser.addoption(
         option,
@@ -25,6 +25,12 @@ def add_pytest_option(parser: pytest.Parser, option: str = "--backend-tests") ->
     )
     global _COMMAND_LINE_OPTION
     _COMMAND_LINE_OPTION = option
+
+    parser.addoption(
+        "--scitacean-backend-version",
+        default=None,
+        help="Specify a version for the SciCat backend",
+    )
 
 
 def skip_if_not_backend(request: pytest.FixtureRequest) -> None:
