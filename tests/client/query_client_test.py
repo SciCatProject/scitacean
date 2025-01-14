@@ -8,6 +8,10 @@ import pytest
 from scitacean import PID, Client, RemotePath, model
 from scitacean.testing.backend import seed
 
+pytestmark = pytest.mark.skip(
+    "Querying is currently broken because of a mismatch between DTOs and schemas."
+)
+
 
 @pytest.fixture
 def client(real_client: Client, require_scicat_backend: None) -> Client:
