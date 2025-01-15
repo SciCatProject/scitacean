@@ -10,12 +10,6 @@
 {%- endfor %}
 {% endmacro -%}
 
-{% macro mask_keyword(spec, kind) %}
-{% if kind == "download" and spec.masked_fields_download %}
-, masked=({{ spec.masked_fields_download|map("quote")|join(", ") }},)
-{% endif %}
-{% endmacro %}
-
 {% macro field_default(field) %}
 {%- if not field.required -%}
  = None
@@ -113,7 +107,7 @@ from .pid import PID
 from .thumbnail import Thumbnail
 
 {% set fields = dset_spec.fields_for("download") -%}
-class DownloadDataset(BaseModel{{ mask_keyword(dset_spec, "download") }}):
+class DownloadDataset(BaseModel):
 {%- for field in fields -%}
 {{ model_field(field, "download") }}
 {%- endfor %}
@@ -121,7 +115,7 @@ class DownloadDataset(BaseModel{{ mask_keyword(dset_spec, "download") }}):
 
 {% for dset_type in ("derived", "raw") %}
 {%- set fields = dset_spec.dset_fields_for("upload", dset_type) -%}
-class Upload{{ dset_type|capitalize }}Dataset(BaseModel{{ mask_keyword(dset_spec, "upload") }}):
+class Upload{{ dset_type|capitalize }}Dataset(BaseModel):
 {%- for field in fields -%}
 {{ model_field(field, "upload") }}
 {%- endfor %}
@@ -133,7 +127,7 @@ class Upload{{ dset_type|capitalize }}Dataset(BaseModel{{ mask_keyword(dset_spec
 {% for name, kind in ((spec.download_name, "download"), (spec.upload_name, "upload")) %}
 {%- set fields = spec.fields_for(kind) -%}
 {%- if fields -%}
-class {{ name }}(BaseModel{{ mask_keyword(spec, kind) }}):
+class {{ name }}(BaseModel):
 {% for field in fields -%}
 {{ model_field(field, kind) }}
 {%- endfor %}

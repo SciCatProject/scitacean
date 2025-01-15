@@ -101,14 +101,12 @@ from .pid import PID
 from .thumbnail import Thumbnail
 
 
-# TODO remove extra masks after API v4
-class DownloadDataset(
-    BaseModel, masked=("history", "proposalId", "sampleId", "instrumentId")
-):
+class DownloadDataset(BaseModel):
     contactEmail: str | None = None
     creationLocation: str | None = None
     creationTime: datetime | None = None
     inputDatasets: list[PID] | None = None
+    investigator: str | None = None
     numberOfFilesArchived: NonNegativeInt | None = None
     owner: str | None = None
     ownerGroup: str | None = None
@@ -127,7 +125,7 @@ class DownloadDataset(
     description: str | None = None
     endTime: datetime | None = None
     instrumentGroup: str | None = None
-    instrumentIds: list[str] | None = None
+    instrumentId: str | None = None
     isPublished: bool | None = None
     jobLogData: str | None = None
     jobParameters: dict[str, Any] | None = None
@@ -141,9 +139,10 @@ class DownloadDataset(
     ownerEmail: str | None = None
     packedSize: NonNegativeInt | None = None
     pid: PID | None = None
-    proposalIds: list[str] | None = None
+    proposalId: str | None = None
     relationships: list[DownloadRelationship] | None = None
-    sampleIds: list[str] | None = None
+    runNumber: str | None = None
+    sampleId: str | None = None
     sharedWith: list[str] | None = None
     size: NonNegativeInt | None = None
     sourceFolderHost: str | None = None
@@ -167,25 +166,6 @@ class DownloadDataset(
     def _validate_orcids(cls, value: Any) -> Any:
         return validate_orcids(value)
 
-    # TODO remove after API v4
-    @pydantic.field_validator("sampleIds", mode="before")
-    def _validate_sample_ids(cls, value: Any) -> Any:
-        if value == [None]:
-            return []
-        return value
-
-    @pydantic.field_validator("proposalIds", mode="before")
-    def _validate_proposal_ids(cls, value: Any) -> Any:
-        if value == [None]:
-            return []
-        return value
-
-    @pydantic.field_validator("instrumentIds", mode="before")
-    def _validate_instrument_ids(cls, value: Any) -> Any:
-        if value == [None]:
-            return []
-        return value
-
 
 class UploadDerivedDataset(BaseModel):
     contactEmail: str
@@ -198,7 +178,6 @@ class UploadDerivedDataset(BaseModel):
     sourceFolder: RemotePath
     type: DatasetType
     usedSoftware: list[str]
-    datasetName: str
     accessGroups: list[str] | None = None
     classification: str | None = None
     comment: str | None = None
@@ -211,12 +190,14 @@ class UploadDerivedDataset(BaseModel):
     keywords: list[str] | None = None
     license: str | None = None
     scientificMetadata: dict[str, Any] | None = None
+    datasetName: str | None = None
     numberOfFiles: NonNegativeInt | None = None
     orcidOfOwner: str | None = None
     ownerEmail: str | None = None
     packedSize: NonNegativeInt | None = None
     proposalId: str | None = None
     relationships: list[UploadRelationship] | None = None
+    runNumber: str | None = None
     sharedWith: list[str] | None = None
     size: NonNegativeInt | None = None
     sourceFolderHost: str | None = None
@@ -241,6 +222,7 @@ class UploadRawDataset(BaseModel):
     creationLocation: str
     creationTime: datetime
     inputDatasets: list[PID]
+    investigator: str
     numberOfFilesArchived: NonNegativeInt
     owner: str
     ownerGroup: str
@@ -248,8 +230,6 @@ class UploadRawDataset(BaseModel):
     sourceFolder: RemotePath
     type: DatasetType
     usedSoftware: list[str]
-    datasetName: str
-    investigator: str | None = None
     accessGroups: list[str] | None = None
     classification: str | None = None
     comment: str | None = None
@@ -265,12 +245,14 @@ class UploadRawDataset(BaseModel):
     keywords: list[str] | None = None
     license: str | None = None
     scientificMetadata: dict[str, Any] | None = None
+    datasetName: str | None = None
     numberOfFiles: NonNegativeInt | None = None
     orcidOfOwner: str | None = None
     ownerEmail: str | None = None
     packedSize: NonNegativeInt | None = None
     proposalId: str | None = None
     relationships: list[UploadRelationship] | None = None
+    runNumber: str | None = None
     sampleId: str | None = None
     sharedWith: list[str] | None = None
     size: NonNegativeInt | None = None

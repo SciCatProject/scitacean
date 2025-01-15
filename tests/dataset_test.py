@@ -43,7 +43,7 @@ def raw_download_model() -> model.DownloadDataset:
         description="Some shady data",
         endTime=parse_datetime("1995-08-03T00:00:00Z"),
         instrumentGroup="professors",
-        instrumentIds=["0000-aa"],
+        instrumentId="0000-aa",
         isPublished=True,
         jobLogData=None,
         jobParameters=None,
@@ -55,8 +55,8 @@ def raw_download_model() -> model.DownloadDataset:
         ownerEmail="m.ridcully@uu.am",
         packedSize=0,
         pid=PID.parse("123.cc/948.f7.2a"),
-        proposalIds=["33.dc"],
-        sampleIds=["bac.a4"],
+        proposalId="33.dc",
+        sampleId="bac.a4",
         sharedWith=["librarian"],
         size=400,
         sourceFolderHost="ftp://uu.am/data",
@@ -111,7 +111,7 @@ def derived_download_model() -> model.DownloadDataset:
         description="Dubiously analyzed data",
         endTime=None,
         instrumentGroup="professors",
-        instrumentIds=None,
+        instrumentId=None,
         isPublished=True,
         jobLogData="process interrupted",
         jobParameters={"nodes": 4},
@@ -123,8 +123,8 @@ def derived_download_model() -> model.DownloadDataset:
         ownerEmail="m.ridcully@uu.am",
         packedSize=0,
         pid=PID.parse("123.cc/948.f7.2a"),
-        proposalIds=None,
-        sampleIds=None,
+        proposalId=None,
+        sampleId=None,
         sharedWith=["librarian"],
         size=400,
         sourceFolderHost="ftp://uu.am/data",
@@ -365,11 +365,8 @@ def test_dataset_models_roundtrip(initial: Dataset) -> None:
     # TODO remove in API v4
     rebuilt.investigator = initial.investigator
     rebuilt.proposal_id = initial.proposal_id
-    initial._proposal_ids = rebuilt.proposal_ids  # type: ignore[assignment]
     rebuilt.sample_id = initial.sample_id
-    initial._sample_ids = rebuilt.sample_ids  # type: ignore[assignment]
     rebuilt.instrument_id = initial.instrument_id
-    initial._instrument_ids = rebuilt.instrument_ids  # type: ignore[assignment]
 
     assert initial == rebuilt
 
