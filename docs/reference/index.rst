@@ -45,6 +45,7 @@ Auxiliary classes
    datablock.OrigDatablock
    dataset.DatablockUploadModels
    PID
+   Profile
    RemotePath
    Thumbnail
    DatasetType
