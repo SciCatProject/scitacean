@@ -27,6 +27,7 @@ from .file import File
 from .filesystem import RemotePath
 from .logging import get_logger
 from .pid import PID
+from .profile import Profile, make_client_params
 from .typing import DownloadConnection, FileTransfer, UploadConnection
 from .util.credentials import ExpiringToken, SecretStr, StrStorage
 
@@ -126,7 +127,11 @@ class Client:
 
     @classmethod
     def without_login(
-        cls, *, url: str, file_transfer: FileTransfer | None = None
+        cls,
+        profile: str | Path | Profile | None = None,
+        *,
+        url: str | None = None,
+        file_transfer: FileTransfer | None = None,
     ) -> Client:
         """Create a new client without authentication.
 
@@ -134,9 +139,13 @@ class Client:
 
         Parameters
         ----------
+        profile:
+            Encodes how to connect to SciCat.
+            Elements are overridden by the other arguments if provided.
         url:
             URL of the SciCat api.
-            It should include the suffix `api/vn` where `n` is a number.
+            It typically should include the suffix `api/vn` where `n` is a number
+            Must be provided is ``profile is None``.
         file_transfer:
             Handler for down-/uploads of files.
 
@@ -145,8 +154,12 @@ class Client:
         :
             A new client.
         """
+        params = make_client_params(
+            profile=profile, url=url, file_transfer=file_transfer
+        )
         return Client(
-            client=ScicatClient.without_login(url=url), file_transfer=file_transfer
+            client=ScicatClient.without_login(url=params.url),
+            file_transfer=params.file_transfer,
         )
 
     @property
