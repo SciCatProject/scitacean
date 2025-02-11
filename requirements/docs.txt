@@ -47,7 +47,7 @@ charset-normalizer==3.4.0
     # via requests
 comm==0.2.2
     # via ipykernel
-cryptography==43.0.3
+cryptography==44.0.1
     # via paramiko
 debugpy==1.8.9
     # via ipykernel
