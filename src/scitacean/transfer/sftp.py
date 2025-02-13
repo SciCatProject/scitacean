@@ -11,11 +11,11 @@ from pathlib import Path
 from paramiko import SFTPAttributes, SFTPClient, SSHClient
 
 from ..dataset import Dataset
-from ..error import FileUploadError
+from ..error import FileNotAccessibleError, FileUploadError
 from ..file import File
 from ..filesystem import RemotePath
 from ..logging import get_logger
-from .util import source_folder_for
+from ._util import source_folder_for
 
 
 class SFTPDownloadConnection:
@@ -42,7 +42,12 @@ class SFTPDownloadConnection:
             self._host,
             local,
         )
-        self._sftp_client.get(remotepath=remote.posix, localpath=os.fspath(local))
+        try:
+            self._sftp_client.get(remotepath=remote.posix, localpath=os.fspath(local))
+        except FileNotFoundError:
+            raise FileNotAccessibleError(
+                f"File {remote} not found on SFTP host {self._host}", remote_path=remote
+            ) from None
 
 
 class SFTPUploadConnection:

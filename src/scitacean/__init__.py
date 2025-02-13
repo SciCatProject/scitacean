@@ -13,7 +13,13 @@ except importlib.metadata.PackageNotFoundError:
 from .client import Client
 from .datablock import OrigDatablock
 from .dataset import Dataset
-from .error import FileUploadError, IntegrityError, ScicatCommError, ScicatLoginError
+from .error import (
+    FileNotAccessibleError,
+    FileUploadError,
+    IntegrityError,
+    ScicatCommError,
+    ScicatLoginError,
+)
 from .file import File
 from .filesystem import RemotePath
 from .model import Attachment, DatasetType, Sample
@@ -28,6 +34,7 @@ __all__ = (
     "Dataset",
     "DatasetType",
     "File",
+    "FileNotAccessibleError",
     "FileUploadError",
     "IntegrityError",
     "OrigDatablock",

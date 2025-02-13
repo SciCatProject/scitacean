@@ -7,10 +7,11 @@ from contextlib import contextmanager
 from pathlib import Path
 
 from ..dataset import Dataset
+from ..error import FileNotAccessibleError
 from ..file import File
 from ..filesystem import RemotePath
 from ..logging import get_logger
-from .util import source_folder_for
+from ._util import source_folder_for
 
 
 class LinkDownloadConnection:
@@ -34,10 +35,11 @@ class LinkDownloadConnection:
         )
         remote_path = Path(remote.posix)
         if not remote_path.exists():
-            raise FileNotFoundError(
+            raise FileNotAccessibleError(
                 f"Unable to link to remote file {remote_path}: File does not exist. "
                 "This might mean that your machine does not have direct filesystem "
-                "access to the file server. Consider using a different file transfer."
+                "access to the file server. Consider using a different file transfer.",
+                remote_path=remote,
             )
         local.symlink_to(remote_path)
 
