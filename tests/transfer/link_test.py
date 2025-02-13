@@ -7,8 +7,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
+from pyfakefs.fake_filesystem import FakeFilesystem
 
-from scitacean import PID, Dataset, DatasetType, RemotePath
+from scitacean import PID, Dataset, DatasetType, FileNotAccessibleError, RemotePath
 from scitacean.model import DownloadDataFile, DownloadDataset, DownloadOrigDatablock
 from scitacean.testing.client import FakeClient
 from scitacean.transfer.link import LinkFileTransfer
@@ -58,11 +59,52 @@ def test_download_two_files(tmp_path: Path) -> None:
     )
 
 
+def test_link_transfer_creates_symlink(tmp_path: Path) -> None:
+    remote_dir = tmp_path / "server"
+    remote_dir.mkdir()
+    remote_dir.joinpath("text.txt").write_text("This is some text for testing.\n")
+    local_dir = tmp_path / "user"
+    local_dir.mkdir()
+
+    linker = LinkFileTransfer()
+    with linker.connect_for_download() as con:
+        con.download_files(
+            remote=[RemotePath(str(remote_dir / "text.txt"))],
+            local=[local_dir / "text.txt"],
+        )
+    assert local_dir.joinpath("text.txt").is_symlink()
+
+
 def test_link_transfer_cannot_upload() -> None:
     ds = Dataset(type="raw", source_folder=RemotePath("/data/upload"))
     linker = LinkFileTransfer()
     with pytest.raises(NotImplementedError):
         linker.connect_for_upload(ds)
+
+
+def test_link_transfer_raises_if_file_does_not_exist(fs: FakeFilesystem):
+    fs.create_dir("data")
+
+    linker = LinkFileTransfer()
+    with linker.connect_for_download() as con:
+        with pytest.raises(FileNotAccessibleError) as exc_info:
+            con.download_files(
+                remote=[RemotePath("data/non_existent.txt")],
+                local=["non_existent.txt"],
+            )
+    assert exc_info.value.remote_path == "data/non_existent.txt"
+
+
+def test_link_transfer_raises_if_folder_does_not_exist(fs: FakeFilesystem):
+    linker = LinkFileTransfer()
+    with linker.connect_for_download() as con:
+        with pytest.raises(FileNotAccessibleError) as exc_info:
+            con.download_files(
+                remote=[RemotePath("data/non_existent.txt")],
+                local=["non_existent.txt"],
+            )
+    assert exc_info.value.remote_path == "data/non_existent.txt"
+
 
 
 def test_client_with_link(tmp_path: Path) -> None:
@@ -232,18 +274,3 @@ def test_client_with_link_local_file_exists_clashing_content(tmp_path: Path) -> 
     with pytest.raises(FileExistsError):
         # We do not overwrite existing files
         client.download_files(downloaded, target=local_dir)
-
-
-def test_download_file_does_not_exist(tmp_path: Path) -> None:
-    remote_dir = tmp_path / "server"
-    remote_dir.mkdir()
-    local_dir = tmp_path / "user"
-    local_dir.mkdir()
-
-    linker = LinkFileTransfer()
-    with linker.connect_for_download() as con:
-        with pytest.raises(FileNotFoundError):
-            con.download_files(
-                remote=[RemotePath(str(remote_dir / "text.txt"))],
-                local=[local_dir / "text.txt"],
-            )

@@ -12,7 +12,7 @@ from pathlib import Path
 import paramiko
 import pytest
 
-from scitacean import Dataset, File, RemotePath
+from scitacean import Dataset, File, FileNotAccessibleError, RemotePath
 from scitacean.testing.client import FakeClient
 from scitacean.testing.sftp import IgnorePolicy, skip_if_not_sftp
 from scitacean.transfer.sftp import (
@@ -64,6 +64,23 @@ def test_download_two_files(
     assert (
         tmp_path.joinpath("text.txt").read_text() == "This is some text for testing.\n"
     )
+
+
+def test_download_raises_if_file_does_not_exist(
+    sftp_access, sftp_connect_with_username_password, tmp_path
+) -> None:
+    sftp = SFTPFileTransfer(
+        host=sftp_access.host,
+        port=sftp_access.port,
+        connect=sftp_connect_with_username_password,
+    )
+    with sftp.connect_for_download() as con:
+        with pytest.raises(FileNotAccessibleError) as exc_info:
+            con.download_files(
+                remote=[RemotePath("/data/does_not_exist.txt")],
+                local=[tmp_path / "text.txt"],
+            )
+    assert exc_info.value.remote_path == "/data/does_not_exist.txt"
 
 
 def test_upload_one_file_source_folder_in_dataset(
