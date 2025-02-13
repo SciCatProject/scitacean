@@ -2,7 +2,6 @@
 # Copyright (c) 2025 SciCat Project (https://github.com/SciCatProject/scitacean)
 
 import hashlib
-import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -12,9 +11,6 @@ from scitacean import PID, Dataset, DatasetType, RemotePath
 from scitacean.model import DownloadDataFile, DownloadDataset, DownloadOrigDatablock
 from scitacean.testing.client import FakeClient
 from scitacean.transfer.link import LinkFileTransfer
-
-if sys.platform.startswith("win"):
-    pytest.skip("LinkFileTransfer does not work on Windows", allow_module_level=True)
 
 
 def test_download_one_file(tmp_path: Path) -> None:
