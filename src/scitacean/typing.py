@@ -30,13 +30,31 @@ class DownloadConnection(Protocol):
 class Downloader(Protocol):
     """Handler for file downloads."""
 
-    def connect_for_download(self) -> AbstractContextManager[DownloadConnection]:
+    def connect_for_download(
+        self, dataset: Dataset, representative_file_path: RemotePath
+    ) -> AbstractContextManager[DownloadConnection]:
         """Open a connection to the file server.
+
+        Parameters
+        ----------
+        dataset:
+            The dataset for which to download files.
+        representative_file_path:
+            A path to a file that can be used to check whether files for this
+            dataset are accessible.
+            The transfer assumes that, if this path is accessible,
+            all files for this dataset are.
 
         Returns
         -------
         :
             A connection object that can download files.
+
+        Raises
+        ------
+        RuntimeError
+            If files for the given dataset cannot be downloaded
+            based on ``representative_file_path``.
         """
 
 
@@ -92,7 +110,7 @@ class Uploader(Protocol):
         """
 
     def connect_for_upload(
-        self, dataset: Dataset
+        self, dataset: Dataset, representative_file_path: RemotePath
     ) -> AbstractContextManager[UploadConnection]:
         """Open a connection to the file server.
 
@@ -100,11 +118,22 @@ class Uploader(Protocol):
         ----------
         dataset:
             Dataset whose files will be uploaded.
+        representative_file_path:
+            A path on the remote to check whether files for this
+            dataset can be written.
+            The transfer assumes that, if it is possible to write to this path,
+            it is possible to write to the paths of all files to be uploaded.
 
         Returns
         -------
         :
             A connection object that can upload files.
+
+        Raises
+        ------
+        RuntimeError
+            If files for the given dataset cannot be uploaded
+            based on ``representative_file_path``.
         """
 
 

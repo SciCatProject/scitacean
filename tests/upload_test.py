@@ -16,6 +16,7 @@ from scitacean import (
     Dataset,
     DatasetType,
     File,
+    RemotePath,
     ScicatCommError,
     Thumbnail,
 )
@@ -304,7 +305,9 @@ def test_upload_does_not_create_dataset_if_file_upload_fails(
             raise RuntimeError("Not allowed to revert uploads")
 
         @contextmanager
-        def connect_for_upload(self, pid: object) -> Iterator[UploadConnection]:  # type: ignore[override]
+        def connect_for_upload(  # type: ignore[override]
+            self, dataset: Dataset, representative_file_path: RemotePath
+        ) -> Iterator[UploadConnection]:
             yield self
 
     client = FakeClient(file_transfer=RaisingUpload(fs=fs))

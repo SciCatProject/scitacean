@@ -376,12 +376,14 @@ class Client:
 
     @contextmanager
     def _connect_for_file_upload(
-        self, dataset: Dataset, files_to_upload: Iterable[File]
+        self, dataset: Dataset, files_to_upload: list[File]
     ) -> Iterator[UploadConnection]:
         if not files_to_upload:
             yield _NullUploadConnection()
         else:
-            with self._expect_file_transfer().connect_for_upload(dataset) as con:
+            with self._expect_file_transfer().connect_for_upload(
+                dataset, files_to_upload[0].remote_path
+            ) as con:
                 yield con
 
     def _source_folder_for(self, dataset: Dataset) -> RemotePath:
@@ -503,7 +505,9 @@ class Client:
         if not to_download:
             return dataset.replace_files(*downloaded_files)
 
-        with self._connect_for_file_download() as con:
+        with self._connect_for_file_download(
+            dataset, to_download[0].remote_path
+        ) as con:
             con.download_files(
                 remote=[
                     p
@@ -517,13 +521,12 @@ class Client:
         return dataset.replace_files(*downloaded_files)
 
     @contextmanager
-    def _connect_for_file_download(self) -> Iterator[DownloadConnection]:
-        if self.file_transfer is None:
-            raise ValueError(
-                "Cannot download files because no file transfer is set. "
-                "Specify one when constructing a client."
-            )
-        with self.file_transfer.connect_for_download() as con:
+    def _connect_for_file_download(
+        self, dataset: Dataset, representative_file_path: RemotePath
+    ) -> Iterator[DownloadConnection]:
+        with self._expect_file_transfer().connect_for_download(
+            dataset, representative_file_path
+        ) as con:
             yield con
 
     def download_attachments_for(self, target: Dataset) -> Dataset:

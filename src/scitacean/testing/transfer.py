@@ -17,7 +17,7 @@ except ImportError:
 from ..dataset import Dataset
 from ..file import File
 from ..filesystem import RemotePath
-from ..transfer.util import source_folder_for
+from ..transfer._util import source_folder_for
 
 RemotePathOrStr = TypeVar("RemotePathOrStr", RemotePath, str, RemotePath | str)
 
@@ -145,12 +145,16 @@ class FakeFileTransfer:
         return source_folder_for(dataset, self._source_folder_pattern)
 
     @contextmanager
-    def connect_for_download(self) -> Iterator[FakeDownloadConnection]:
+    def connect_for_download(
+        self, dataset: Dataset, representative_file_path: RemotePath
+    ) -> Iterator[FakeDownloadConnection]:
         """Open a connection for downloads."""
         yield FakeDownloadConnection(fs=self.fs, files=self.files)
 
     @contextmanager
-    def connect_for_upload(self, dataset: Dataset) -> Iterator[FakeUploadConnection]:
+    def connect_for_upload(
+        self, dataset: Dataset, representative_file_path: RemotePath
+    ) -> Iterator[FakeUploadConnection]:
         """Open a connection for uploads."""
         yield FakeUploadConnection(
             files=self.files,

@@ -29,6 +29,7 @@ File transfer
    :recursive:
 
    transfer.link.LinkFileTransfer
+   transfer.select.SelectFileTransfer
    transfer.sftp.SFTPFileTransfer
 
 Auxiliary classes
