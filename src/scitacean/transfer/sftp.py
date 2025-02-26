@@ -282,16 +282,40 @@ class SFTPFileTransfer:
         return source_folder_for(dataset, self._source_folder_pattern)
 
     @contextmanager
-    def connect_for_download(self) -> Iterator[SFTPDownloadConnection]:
-        """Create a connection for downloads, use as a context manager."""
+    def connect_for_download(
+        self, dataset: Dataset, representative_file_path: RemotePath
+    ) -> Iterator[SFTPDownloadConnection]:
+        """Create a connection for downloads, use as a context manager.
+
+        Parameters
+        ----------
+        dataset:
+            The connection will be used to download files of this dataset.
+        representative_file_path:
+            A path on the SFTP host to check whether files for this
+            dataset can be read.
+            The transfer assumes that, if it is possible to read from this path,
+            it is possible to read from the paths of all files to be downloaded.
+
+        Returns
+        -------
+        :
+            An open :class:`SFTPDownloadConnection` object.
+        """
         sftp_client = _connect(self._host, self._port, connect=self._connect)
         try:
+            # Check if the representative file can be read, an exception means that
+            # transfer cannot be used for this file.
+            test_path = self.source_folder_for(dataset) / representative_file_path
+            _ = sftp_client.stat(test_path.posix)
             yield SFTPDownloadConnection(sftp_client=sftp_client, host=self._host)
         finally:
             sftp_client.close()
 
     @contextmanager
-    def connect_for_upload(self, dataset: Dataset) -> Iterator[SFTPUploadConnection]:
+    def connect_for_upload(
+        self, dataset: Dataset, representative_file_path: RemotePath
+    ) -> Iterator[SFTPUploadConnection]:
         """Create a connection for uploads, use as a context manager.
 
         Parameters
@@ -299,6 +323,15 @@ class SFTPFileTransfer:
         dataset:
             The connection will be used to upload files of this dataset.
             Used to determine the target folder.
+        representative_file_path:
+            This is not used by :class:`SFTPFileTransfer`.
+            The transfer assumes that all paths are writable when connecting.
+            The actual upload fails if the user lacks sufficient permissions.
+
+        Returns
+        -------
+        :
+            An open :class:`SFTPUploadConnection` object.
         """
         source_folder = self.source_folder_for(dataset)
         sftp_client = _connect(self._host, self._port, connect=self._connect)

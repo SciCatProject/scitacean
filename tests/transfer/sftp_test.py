@@ -27,15 +27,20 @@ def _server(request, sftp_fileserver) -> None:
     skip_if_not_sftp(request)
 
 
+@pytest.fixture
+def dataset() -> Dataset:
+    return Dataset(type="raw", source_folder=RemotePath("/data"))
+
+
 def test_download_one_file(
-    sftp_access, sftp_connect_with_username_password, tmp_path
+    sftp_access, sftp_connect_with_username_password, tmp_path, dataset: Dataset
 ) -> None:
     sftp = SFTPFileTransfer(
         host=sftp_access.host,
         port=sftp_access.port,
         connect=sftp_connect_with_username_password,
     )
-    with sftp.connect_for_download() as con:
+    with sftp.connect_for_download(dataset, RemotePath("/data")) as con:
         con.download_files(
             remote=[RemotePath("/data/seed/text.txt")], local=[tmp_path / "text.txt"]
         )
@@ -45,14 +50,14 @@ def test_download_one_file(
 
 
 def test_download_two_files(
-    sftp_access, sftp_connect_with_username_password, tmp_path
+    sftp_access, sftp_connect_with_username_password, tmp_path, dataset: Dataset
 ) -> None:
     sftp = SFTPFileTransfer(
         host=sftp_access.host,
         port=sftp_access.port,
         connect=sftp_connect_with_username_password,
     )
-    with sftp.connect_for_download() as con:
+    with sftp.connect_for_download(dataset, RemotePath("/data")) as con:
         con.download_files(
             remote=[
                 RemotePath("/data/seed/table.csv"),
@@ -67,14 +72,14 @@ def test_download_two_files(
 
 
 def test_download_raises_if_file_does_not_exist(
-    sftp_access, sftp_connect_with_username_password, tmp_path
+    sftp_access, sftp_connect_with_username_password, tmp_path, dataset: Dataset
 ) -> None:
     sftp = SFTPFileTransfer(
         host=sftp_access.host,
         port=sftp_access.port,
         connect=sftp_connect_with_username_password,
     )
-    with sftp.connect_for_download() as con:
+    with sftp.connect_for_download(dataset, RemotePath("/data")) as con:
         with pytest.raises(FileNotAccessibleError) as exc_info:
             con.download_files(
                 remote=[RemotePath("/data/does_not_exist.txt")],
@@ -84,7 +89,11 @@ def test_download_raises_if_file_does_not_exist(
 
 
 def test_upload_one_file_source_folder_in_dataset(
-    sftp_access, sftp_connect_with_username_password, tmp_path, sftp_data_dir
+    sftp_access,
+    sftp_connect_with_username_password,
+    tmp_path,
+    sftp_data_dir,
+    dataset: Dataset,
 ):
     ds = Dataset(type="raw", source_folder=RemotePath("/data/upload"))
     tmp_path.joinpath("file0.txt").write_text("File to test upload123")
@@ -94,7 +103,7 @@ def test_upload_one_file_source_folder_in_dataset(
         port=sftp_access.port,
         connect=sftp_connect_with_username_password,
     )
-    with sftp.connect_for_upload(dataset=ds) as con:
+    with sftp.connect_for_upload(ds, RemotePath("/data/upload")) as con:
         assert con.source_folder == RemotePath("/data/upload")
         con.upload_files(
             File.from_local(path=tmp_path / "file0.txt", remote_path="upload_0.txt")
@@ -118,7 +127,7 @@ def test_upload_one_file_source_folder_in_transfer(
         source_folder="/data/upload/{owner}",
         connect=sftp_connect_with_username_password,
     )
-    with sftp.connect_for_upload(dataset=ds) as con:
+    with sftp.connect_for_upload(ds, RemotePath("/data/upload")) as con:
         assert con.source_folder == RemotePath("/data/upload/librarian")
         con.upload_files(
             File.from_local(
@@ -144,7 +153,7 @@ def test_upload_two_files(
         port=sftp_access.port,
         connect=sftp_connect_with_username_password,
     )
-    with sftp.connect_for_upload(dataset=ds) as con:
+    with sftp.connect_for_upload(ds, RemotePath("/data/upload2")) as con:
         assert con.source_folder == RemotePath("/data/upload2")
         con.upload_files(
             File.from_local(path=tmp_path / "file2.1.md"),
@@ -174,7 +183,7 @@ def test_upload_one_file_existing_source_folder(
         port=sftp_access.port,
         connect=sftp_connect_with_username_password,
     )
-    with sftp.connect_for_upload(dataset=ds) as con:
+    with sftp.connect_for_upload(ds, RemotePath("/data/upload-multiple")) as con:
         assert con.source_folder == RemotePath("/data/upload-multiple")
         con.upload_files(
             File.from_local(path=tmp_path / "file3.1.md"),
@@ -186,7 +195,7 @@ def test_upload_one_file_existing_source_folder(
         port=sftp_access.port,
         connect=sftp_connect_with_username_password,
     )
-    with sftp.connect_for_upload(dataset=ds) as con:
+    with sftp.connect_for_upload(ds, RemotePath("/data/upload-multiple")) as con:
         assert con.source_folder == RemotePath("/data/upload-multiple")
         con.upload_files(
             File.from_local(path=tmp_path / "file3.2.md"),
@@ -213,7 +222,7 @@ def test_revert_all_uploaded_files_single(
         port=sftp_access.port,
         connect=sftp_connect_with_username_password,
     )
-    with sftp.connect_for_upload(dataset=ds) as con:
+    with sftp.connect_for_upload(ds, RemotePath("/data")) as con:
         file = File.from_local(path=tmp_path / "file3.txt")
         con.upload_files(file)
         con.revert_upload(file)
@@ -233,7 +242,7 @@ def test_revert_all_uploaded_files_two(
         port=sftp_access.port,
         connect=sftp_connect_with_username_password,
     )
-    with sftp.connect_for_upload(dataset=ds) as con:
+    with sftp.connect_for_upload(ds, RemotePath("/data")) as con:
         file1 = File.from_local(path=tmp_path / "file3.1.txt")
         file2 = File.from_local(path=tmp_path / "file3.2.txt")
         con.upload_files(file1, file2)
@@ -254,7 +263,7 @@ def test_revert_one_uploaded_file(
         port=sftp_access.port,
         connect=sftp_connect_with_username_password,
     )
-    with sftp.connect_for_upload(dataset=ds) as con:
+    with sftp.connect_for_upload(ds, RemotePath("/data")) as con:
         file4 = File.from_local(path=tmp_path / "file4.txt")
         file5 = File.from_local(path=tmp_path / "file5.txt")
         con.upload_files(file4, file5)
@@ -280,7 +289,7 @@ def test_stat_uploaded_file(
         port=sftp_access.port,
         connect=sftp_connect_with_username_password,
     )
-    with sftp.connect_for_upload(dataset=ds) as con:
+    with sftp.connect_for_upload(ds, RemotePath("/data")) as con:
         [uploaded] = con.upload_files(
             File.from_local(path=tmp_path / "file6.txt", remote_path="upload_6.txt")
         )
@@ -377,7 +386,7 @@ def test_upload_file_reverts_if_upload_fails(
     sftp = SFTPFileTransfer(
         host=sftp_access.host, port=sftp_access.port, connect=sftp_raising_connect
     )
-    with sftp.connect_for_upload(dataset=ds) as con:
+    with sftp.connect_for_upload(ds, RemotePath("/data")) as con:
         with pytest.raises(RuntimeError):
             con.upload_files(
                 File.from_local(
@@ -394,13 +403,21 @@ class SFTPTestFileTransfer(SFTPFileTransfer):
         super().__init__(**kwargs)
 
     @contextmanager
-    def connect_for_download(self) -> Iterator[SFTPDownloadConnection]:
-        with super().connect_for_download() as connection:
+    def connect_for_download(
+        self, dataset: Dataset, representative_file_path: RemotePath
+    ) -> Iterator[SFTPDownloadConnection]:
+        with super().connect_for_download(
+            dataset, representative_file_path
+        ) as connection:
             yield connection
 
     @contextmanager
-    def connect_for_upload(self, dataset: Dataset) -> Iterator[SFTPUploadConnection]:
-        with super().connect_for_upload(dataset=dataset) as connection:
+    def connect_for_upload(
+        self, dataset: Dataset, representative_file_path: RemotePath
+    ) -> Iterator[SFTPUploadConnection]:
+        with super().connect_for_upload(
+            dataset, representative_file_path
+        ) as connection:
             yield connection
 
 

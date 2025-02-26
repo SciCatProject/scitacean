@@ -358,7 +358,9 @@ def test_download_does_not_download_up_to_date_file(
         source_dir = "/"
 
         @contextmanager
-        def connect_for_download(self) -> Iterator[FakeDownloadConnection]:
+        def connect_for_download(
+            self, dataset: Dataset, representative_file_path: RemotePath
+        ) -> Iterator[FakeDownloadConnection]:
             raise RuntimeError("Download disabled")
 
     client = Client.without_login(
@@ -385,7 +387,9 @@ def test_download_does_not_download_up_to_date_file_manual_checksum(
         source_dir = "/"
 
         @contextmanager
-        def connect_for_download(self) -> Iterator[FakeDownloadConnection]:
+        def connect_for_download(
+            self, dataset: Dataset, representative_file_path: RemotePath
+        ) -> Iterator[FakeDownloadConnection]:
             raise RuntimeError("Download disabled")
 
     client = Client.without_login(
@@ -414,7 +418,9 @@ def test_override_datablock_checksum(
         source_dir = "/"
 
         @contextmanager
-        def connect_for_download(self) -> Iterator[FakeDownloadConnection]:
+        def connect_for_download(
+            self, dataset: Dataset, representative_file_path: RemotePath
+        ) -> Iterator[FakeDownloadConnection]:
             raise RuntimeError("Download disabled")
 
     client = Client.without_login(
@@ -445,7 +451,9 @@ def test_force_file_download(
         source_dir = "/"
 
         @contextmanager
-        def connect_for_download(self) -> Iterator[FakeDownloadConnection]:
+        def connect_for_download(
+            self, dataset: Dataset, representative_file_path: RemotePath
+        ) -> Iterator[FakeDownloadConnection]:
             raise RuntimeError("Download disabled")
 
     client = Client.without_login(

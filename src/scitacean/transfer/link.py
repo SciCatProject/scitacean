@@ -158,12 +158,48 @@ class LinkFileTransfer:
         return source_folder_for(dataset, self._source_folder_pattern)
 
     @contextmanager
-    def connect_for_download(self) -> Iterator[LinkDownloadConnection]:
-        """Create a connection for downloads, use as a context manager."""
+    def connect_for_download(
+        self, dataset: Dataset, representative_file_path: RemotePath
+    ) -> Iterator[LinkDownloadConnection]:
+        """Create a connection for downloads, use as a context manager.
+
+        Parameters
+        ----------
+        dataset:
+            The dataset for which to download files.
+        representative_file_path:
+            A path to a file that can be used to check whether files for this
+            dataset are accessible.
+            The transfer assumes that, if this path is accessible,
+            all files for this dataset are.
+
+        Returns
+        -------
+        :
+            A connection object that can download files.
+
+        Raises
+        ------
+        FileNotAccessibleError
+            If files for the given dataset cannot be accessed
+            based on ``representative_file_path``.
+        """
+        source_folder = self.source_folder_for(dataset)
+        if not Path(source_folder.posix).exists():
+            raise FileNotAccessibleError(
+                "Cannot directly access the source folder",
+                remote_path=source_folder,
+            )
+        if not Path((source_folder / representative_file_path).posix).exists():
+            raise FileNotAccessibleError(
+                "Cannot directly access the file", remote_path=representative_file_path
+            )
         yield LinkDownloadConnection()
 
     @contextmanager
-    def connect_for_upload(self, dataset: Dataset) -> Iterator[LinkUploadConnection]:
+    def connect_for_upload(
+        self, dataset: Dataset, representative_file_path: RemotePath
+    ) -> Iterator[LinkUploadConnection]:
         """Create a connection for uploads, use as a context manager.
 
         Parameters
@@ -171,6 +207,11 @@ class LinkFileTransfer:
         dataset:
             The connection will be used to upload files of this dataset.
             Used to determine the target folder.
+        representative_file_path:
+            A path on the remote to check whether files for this
+            dataset can be written.
+            The transfer assumes that, if it is possible to write to this path,
+            it is possible to write to the paths of all files to be uploaded.
 
         Raises
         ------
