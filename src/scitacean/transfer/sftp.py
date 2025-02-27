@@ -15,6 +15,7 @@ from ..error import FileNotAccessibleError, FileUploadError
 from ..file import File
 from ..filesystem import RemotePath
 from ..logging import get_logger
+from ..util.credentials import SecretStr, StrStorage
 from ._util import source_folder_for
 
 
@@ -161,13 +162,16 @@ class SFTPFileTransfer:
     as the ``host`` constructor argument.
     This may be
 
-    - a full url such as ``some.fileserver.edu``,
-    - or an IP address like ``127.0.0.1``.
+    - a full url such as ``"some.fileserver.edu"``,
+    - or an IP address like ``"127.0.0.1"``.
 
-    The file transfer can currently only authenticate through an SSH agent.
-    The agent must be set up for the chosen host and hold a valid key.
-    If this is not the case, it is possible to inject a custom ``connect`` function
-    that authenticates in a different way.
+    The file transfer relies on :class:`paramiko.client.SSHClient` for authentication
+    and arguments are passed along to the constructor of ``SSHClient``.
+    See its documentation for details.
+    ``SFTPFileTransfer`` can use an SSH agent if one is configured or use
+    explicitly provided username and password or a key file.
+    If none of these options work, you can define a custom ``connect`` function
+    which creates a :class:`paramiko.sftp_client.SFTPClient`.
     See the examples below.
 
     Upload folder
@@ -214,7 +218,7 @@ class SFTPFileTransfer:
     .. code-block:: python
 
         file_transfer = SFTPFileTransfer(host="fileserver",
-                                        source_folder="transfer/{name}")
+                                         source_folder="transfer/{name}")
 
     A useful approach is to include a unique ID in the source folder, for example,
     ``"/some/base/folder/{uid}"``, to avoid clashes between different datasets.
@@ -249,6 +253,9 @@ class SFTPFileTransfer:
         *,
         host: str,
         port: int = 22,
+        username: str | None = None,
+        password: str | StrStorage | None = None,
+        key_filename: str | None = None,
         source_folder: str | RemotePath | None = None,
         connect: Callable[[str, int | None], SFTPClient] | None = None,
     ) -> None:
@@ -260,6 +267,13 @@ class SFTPFileTransfer:
             URL or name of the server to connect to.
         port:
             Port of the server.
+        username:
+            Username for the server.
+        password:
+            Password for the user.
+            Or passphrase for the private key, if ``key_filename`` is provided.
+        key_filename:
+            Path to a private key file for authentication.
         source_folder:
             Upload files to this folder if set.
             Otherwise, upload to the dataset's source_folder.
@@ -272,6 +286,9 @@ class SFTPFileTransfer:
         """
         self._host = host
         self._port = port
+        self._username = username
+        self._password = SecretStr(password) if isinstance(password, str) else password
+        self._key_filename = key_filename
         self._source_folder_pattern = (
             RemotePath(source_folder) if source_folder is not None else None
         )
@@ -302,7 +319,14 @@ class SFTPFileTransfer:
         :
             An open :class:`SFTPDownloadConnection` object.
         """
-        sftp_client = _connect(self._host, self._port, connect=self._connect)
+        sftp_client = _connect(
+            self._host,
+            self._port,
+            self._username,
+            self._password,
+            self._key_filename,
+            connect=self._connect,
+        )
         try:
             # Check if the representative file can be read, an exception means that
             # transfer cannot be used for this file.
@@ -334,7 +358,14 @@ class SFTPFileTransfer:
             An open :class:`SFTPUploadConnection` object.
         """
         source_folder = self.source_folder_for(dataset)
-        sftp_client = _connect(self._host, self._port, connect=self._connect)
+        sftp_client = _connect(
+            self._host,
+            self._port,
+            self._username,
+            self._password,
+            self._key_filename,
+            connect=self._connect,
+        )
         try:
             yield SFTPUploadConnection(
                 sftp_client=sftp_client, source_folder=source_folder, host=self._host
@@ -343,30 +374,51 @@ class SFTPFileTransfer:
             sftp_client.close()
 
 
-def _default_connect(host: str, port: int | None) -> SFTPClient:
+def _default_connect(
+    host: str,
+    port: int | None,
+    username: str | None,
+    password: StrStorage | None,
+    key_filename: str | None,
+) -> SFTPClient:
     client = SSHClient()
     client.load_system_host_keys()
-    if port is not None:
-        client.connect(hostname=host, port=port)
-    else:
-        client.connect(hostname=host)
+    args = {
+        "hostname": host,
+        "port": port,
+        "username": username,
+        "password": None if password is None else password.get_str(),
+        "key_filename": key_filename,
+    }
+    args = {name: value for name, value in args.items() if value is not None}
+    client.connect(**args)  # type: ignore[arg-type]
     return client.open_sftp()
 
 
 def _connect(
     host: str,
     port: int,
+    username: str | None,
+    password: StrStorage | None,
+    key_filename: str | None,
     connect: Callable[[str, int | None], SFTPClient] | None,
 ) -> SFTPClient:
     try:
         if connect is None:
-            connect = _default_connect
+            return _default_connect(host, port, username, password, key_filename)
         return connect(host, port)
-    except Exception as exc:
+    except Exception as exception:
+        new_exception = type(exception)(exception.args)
+        if "known_host" in new_exception.args[0]:
+            new_exception.__notes__ = [
+                "You may have to connect to the server using a different method first "
+                "and accept the server's host key. E.g., in a terminal, run "
+                f"`ssh {host}` (you may need to specify a username and port.)."
+            ]
         # We pass secrets as arguments to functions called in this block, and those
         # can be leaked through exception handlers. So catch all exceptions
         # and strip the backtrace up to this point to hide those secrets.
-        raise type(exc)(exc.args) from None
+        raise new_exception from None
 
 
 def _remote_folder_is_empty(sftp: SFTPClient, path: RemotePath) -> bool:
