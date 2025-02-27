@@ -39,7 +39,6 @@ extensions = [
 ]
 
 intersphinx_mapping = {
-    "fabric": ("https://docs.fabfile.org/en/latest", None),
     "hypothesis": ("https://hypothesis.readthedocs.io/en/latest", None),
     "paramiko": ("https://docs.paramiko.org/en/latest", None),
     "pydantic": ("https://docs.pydantic.dev/latest", None),
