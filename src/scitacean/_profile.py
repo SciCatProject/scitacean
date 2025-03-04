@@ -112,7 +112,7 @@ class ClientParams:
 
 def make_client_params(
     *,
-    profile: str | Profile | None,
+    profile: str | Path | Profile | None,
     url: str | None,
     file_transfer: FileTransfer | None,
 ) -> ClientParams:
@@ -128,9 +128,9 @@ def _get_url(profile: Profile | None, url: str | None) -> str:
         case (None, None):
             raise TypeError("Either `profile` or `url` must be provided")
         case (p, None):
-            return p.url
+            return p.url  # type: ignore[union-attr]
         case _:
-            return url
+            return url  # type: ignore[return-value]
 
 
 def _get_file_transfer(
