@@ -15,37 +15,41 @@ from .typing import FileTransfer
 
 @dataclass(frozen=True, slots=True)
 class Profile:
-    """Parameters for connecting to a specific instance of SciCat."""
+    """Parameters for connecting to a specific instance of SciCat.
+
+    The fields of a profile correspond to the arguments of the constructors
+    of :class:`Client`.
+    They can be overridden by the explicit constructor arguments.
+
+    When constructing a client from a profile, the ``profile`` argument may be one of:
+
+    - If ``profile`` is a :class:`Profile`, it is returned as is.
+    - If ``profile`` is a :class:`pathlib.Path`, a profile is loaded from
+      the file at that path.
+    - If ``profile`` is a :class:`str`
+        * and ``profile`` matches the name of a builtin profile,
+          that profile is returned.
+        * Otherwise, a profile is loaded from a file with this path, potentially
+          by appending ``".profile.toml"`` to the name.
+    """
 
     url: str
+    """URL of the SciCat API.
+
+    Note that this is the URL to the API, *not* the web interface.
+    For example, at ESS, the web interface URL is ``"https://scicat.ess.eu"``.
+    But the API URL is ``"https://scicat.ess.eu/api/v3"`` (at the time of writing).
+    """
     file_transfer: FileTransfer | None
+    """A file transfer object for uploading and downloading files.
+
+    See the `File transfer <../../reference/index.rst#file-transfer>`_. section for
+    implementations provided by Scitacean.
+    """
 
 
 def locate_profile(spec: str | Path | Profile) -> Profile:
-    """Find and return a specified profile.
-
-    This function tries to find a profile for constructing a client
-    from several sources:
-
-    - If ``spec`` is a :class:`Profile`, it is returned as is.
-    - If ``spec`` is a :class:`pathlib.Path`, a profile is loaded from
-      the file at that path.
-    - If ``spec`` is a :class:`str`:
-
-        - and ``spec`` matches the name of a builtin profile, that profile is returned.
-        - otherwise, a profile is loaded from a file with this path, potentially
-          by appending ``".profile.toml"`` to the name.
-
-    Parameters
-    ----------
-    spec:
-        Specifies which profile to locate.
-
-    Returns
-    -------
-    :
-        The located profile.
-    """
+    """Find and return a specified profile."""
     if isinstance(spec, Profile):
         return spec
 
