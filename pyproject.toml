@@ -33,6 +33,7 @@ dependencies = [
     "httpx >= 0.24",
     "pydantic >= 2",
     "python-dateutil >= 2.8",
+    "tomli >= 2.2.0",  # TODO remove when we drop py3.10
 ]
 dynamic = ["version"]
 
