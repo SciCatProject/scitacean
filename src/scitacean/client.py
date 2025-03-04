@@ -76,6 +76,7 @@ class Client:
         profile:
             Encodes how to connect to SciCat.
             Elements are overridden by the other arguments if provided.
+            The behaviour is described in :class:`Profile`.
         url:
             URL of the SciCat api.
         token:
@@ -114,6 +115,7 @@ class Client:
         profile:
             Encodes how to connect to SciCat.
             Elements are overridden by the other arguments if provided.
+            The behaviour is described in :class:`Profile`.
         url:
             URL of the SciCat api.
             It should include the suffix `api/vn` where `n` is a number.
@@ -156,6 +158,7 @@ class Client:
         profile:
             Encodes how to connect to SciCat.
             Elements are overridden by the other arguments if provided.
+            The behaviour is described in :class:`Profile`.
         url:
             URL of the SciCat api.
             It typically should include the suffix `api/vn` where `n` is a number
