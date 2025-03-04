@@ -9,9 +9,11 @@ import functools
 import uuid
 from collections.abc import Callable
 from copy import deepcopy
+from pathlib import Path
 from typing import Any
 
 from .. import model
+from .._profile import Profile, make_client_params
 from ..client import Client, ScicatClient
 from ..error import ScicatCommError
 from ..pid import PID
@@ -132,8 +134,9 @@ class FakeClient(Client):
     @classmethod
     def from_token(
         cls,
+        profile: str | Path | Profile | None = None,
         *,
-        url: str,
+        url: str | None = None,
         token: str | StrStorage,
         file_transfer: FileTransfer | None = None,
     ) -> FakeClient:
@@ -141,13 +144,17 @@ class FakeClient(Client):
 
         All arguments except ``file_Transfer`` are ignored.
         """
-        return FakeClient(file_transfer=file_transfer)
+        params = make_client_params(
+            profile=profile, url=url, file_transfer=file_transfer
+        )
+        return FakeClient(file_transfer=params.file_transfer)
 
     @classmethod
     def from_credentials(
         cls,
+        profile: str | Path | Profile | None = None,
         *,
-        url: str,
+        url: str | None = None,
         username: str | StrStorage,
         password: str | StrStorage,
         file_transfer: FileTransfer | None = None,
@@ -156,17 +163,27 @@ class FakeClient(Client):
 
         All arguments except ``file_Transfer`` are ignored.
         """
-        return FakeClient(file_transfer=file_transfer)
+        params = make_client_params(
+            profile=profile, url=url, file_transfer=file_transfer
+        )
+        return FakeClient(file_transfer=params.file_transfer)
 
     @classmethod
     def without_login(
-        cls, *, url: str, file_transfer: FileTransfer | None = None
+        cls,
+        profile: str | Path | Profile | None = None,
+        *,
+        url: str | None = None,
+        file_transfer: FileTransfer | None = None,
     ) -> FakeClient:
         """Create a new fake client.
 
         All arguments except ``file_Transfer`` are ignored.
         """
-        return FakeClient(file_transfer=file_transfer)
+        params = make_client_params(
+            profile=profile, url=url, file_transfer=file_transfer
+        )
+        return FakeClient(file_transfer=params.file_transfer)
 
 
 class FakeScicatClient(ScicatClient):
