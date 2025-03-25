@@ -6,14 +6,11 @@ from __future__ import annotations
 
 import dataclasses
 import itertools
+import os
 from collections import Counter
 from collections.abc import Generator, Iterable
 from datetime import datetime, timezone
-from pathlib import Path
-from typing import (
-    Any,
-    Literal,
-)
+from typing import Any, Literal, TypeVar
 
 from ._base_model import convert_download_to_user_model, convert_user_to_upload_model
 from ._dataset_fields import DatasetBase
@@ -31,6 +28,9 @@ from .model import (
     UploadRawDataset,
 )
 from .pid import PID
+from .thumbnail import Thumbnail
+
+_T = TypeVar("_T")
 
 
 class Dataset(DatasetBase):
@@ -204,6 +204,71 @@ class Dataset(DatasetBase):
         """
         self._attachments = attachments
 
+    def add_attachment(
+        self,
+        thumbnail: str | os.PathLike[str] | Thumbnail | None = None,
+        *,
+        caption: str,
+        owner_group: str | None = None,
+        access_groups: list[str] | None = None,
+        instrument_group: str | None = None,
+        proposal_id: str | None = None,
+        sample_id: str | None = None,
+    ) -> None:
+        """Create a new attachment and add it to the dataset.
+
+        Parameters
+        ----------
+        thumbnail:
+            If a :class:`scitacean.thumbnail.Thumbnail` object, it is added to the
+            attachment. If a string or path, a thumbnail is loaded from that path.
+        caption:
+            Caption of the attachment.
+        owner_group:
+            Owner group of the attachment. Defaults to ``self.owner_group``.
+        access_groups:
+            Access groups of the attachment. Defaults to ``self.access_groups``.
+        instrument_group:
+            Instrument group of the attachment. Defaults to ``self.instrument_group``.
+        proposal_id:
+            Proposal ID of the attachment. Defaults to ``self.proposal_id``.
+        sample_id:
+            Sample ID of the attachment. Defaults to ``self.sample_id``.
+        """
+        if self.attachments is None:
+            raise ValueError(
+                "The attachments have not been initialized. This likely means "
+                "that you did not download them from SciCat."
+            )
+
+        owner = _select_non_none_value(owner_group, self.owner_group)
+        if owner is None:
+            raise ValueError("Cannot add attachments without owner group")
+        access = _select_non_none_value(access_groups, self.access_groups)
+        instrument = _select_non_none_value(instrument_group, self.instrument_group)
+        proposal = _select_non_none_value(proposal_id, self.proposal_id)
+        sample = _select_non_none_value(sample_id, self.sample_id)
+
+        match thumbnail:
+            case None:
+                thumb = None
+            case Thumbnail() as t:
+                thumb = t
+            case path:
+                thumb = Thumbnail.load_file(path)
+
+        self.attachments.append(
+            Attachment(
+                thumbnail=thumb,
+                caption=caption,
+                owner_group=owner,
+                access_groups=access,
+                instrument_group=instrument,
+                proposal_id=proposal,
+                sample_id=sample,
+            )
+        )
+
     def add_files(self, *files: File, datablock: int | str | PID = -1) -> None:
         """Add files to the dataset."""
         _deny_conflicting_files(files, self._orig_datablocks)
@@ -211,7 +276,7 @@ class Dataset(DatasetBase):
 
     def add_local_files(
         self,
-        *paths: str | Path,
+        *paths: str | os.PathLike[str],
         datablock: int | str = -1,
     ) -> None:
         """Add files on the local file system to the dataset.
@@ -664,3 +729,16 @@ def _deny_conflicting_files(
             f"Cannot add files with names {duplicates!r} because "
             "they already exist in the dataset."
         )
+
+
+def _select_non_none_value(a: _T | None, b: _T | None) -> _T | None:
+    match (a, b):
+        case (None, None):
+            return None
+        case (None, x):
+            return x
+        case (x, None):
+            return x
+        case (x, _):  # Prefer a over b
+            return x
+    return None  #  This should be unreachable but Mypy complains without it.
