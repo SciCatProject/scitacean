@@ -225,8 +225,10 @@ class LinkFileTransfer:
             "`LinkFileTransfer` cannot be used for uploading files. "
             "If you have direct access to the file server, consider either "
             "copying the files into place or writing them directly to the "
-            "'remote folder'."
+            "'remote folder'. See also scitacean.transfer.copy.CopyFileTransfer.",
         )
+        # This is needed to make this function a context manager:
+        yield LinkUploadConnection(source_folder=self.source_folder)  # type: ignore[unreachable]
 
 
 __all__ = ["LinkDownloadConnection", "LinkFileTransfer", "LinkUploadConnection"]

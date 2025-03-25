@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import dataclasses
+import sys
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
@@ -11,6 +12,8 @@ from typing import cast
 import pytest
 
 from scitacean import Dataset, File, RemotePath
+from scitacean.transfer.copy import CopyFileTransfer
+from scitacean.transfer.link import LinkFileTransfer
 from scitacean.transfer.select import SelectFileTransfer
 
 
@@ -300,3 +303,24 @@ def test_select_upload_uses_second_child_transfer_success(dataset: Dataset) -> N
     assert transfer_2.uploaded == [file.local_path]
     assert not transfer_2.downloaded
     assert not transfer_2.reverted
+
+
+@pytest.mark.skipif(
+    sys.platform.startswith("win"),
+    reason="Copy and link transfers do not support Windows",
+)
+@pytest.mark.parametrize("hard_link", [True, False])
+def test_copy_and_link_transfers_fall_back(dataset: Dataset, hard_link: bool) -> None:
+    copier = CopyFileTransfer(hard_link=hard_link)
+    linker = LinkFileTransfer()
+    fallback = SuccessfulTransfer()
+    transfer = SelectFileTransfer([copier, linker, fallback])
+
+    file = File.from_local("/not-a-real-parent/local_file", remote_path="remote_file")
+    with transfer.connect_for_upload(dataset, RemotePath("remote_file")) as con:
+        con.upload_files(file)
+
+    assert not fallback.is_open_for_download
+    assert fallback.uploaded == [file.local_path]
+    assert not fallback.downloaded
+    assert not fallback.reverted

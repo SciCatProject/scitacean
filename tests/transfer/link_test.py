@@ -88,7 +88,8 @@ def test_link_transfer_cannot_upload() -> None:
     ds = Dataset(type="raw", source_folder=RemotePath("/data/upload"))
     linker = LinkFileTransfer()
     with pytest.raises(NotImplementedError):
-        linker.connect_for_upload(ds, cast(RemotePath, ds.source_folder))
+        with linker.connect_for_upload(ds, cast(RemotePath, ds.source_folder)):
+            ...
 
 
 def test_link_transfer_raises_if_file_does_not_exist(

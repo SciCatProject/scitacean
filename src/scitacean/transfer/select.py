@@ -151,7 +151,7 @@ class SelectFileTransfer:
                     # a different transfer if the actual download / upload fails
                     # but only if connecting fails.
                     connection = connection_manager.__enter__()
-                except RuntimeError as error:
+                except (RuntimeError, NotImplementedError) as error:
                     errors.append(error)
                     continue
                 success = True
