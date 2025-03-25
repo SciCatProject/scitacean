@@ -91,6 +91,29 @@ def test_download_makes_a_copy(tmp_path: Path, dataset: Dataset) -> None:
     assert not local_dir.joinpath("text.txt").is_symlink()
 
 
+def test_download_with_hard_link(tmp_path: Path, dataset: Dataset) -> None:
+    remote_dir = tmp_path / "server"
+    remote_dir.mkdir()
+    remote_dir.joinpath("text.txt").write_text("This is some text for testing.\n")
+    local_dir = tmp_path / "user"
+    local_dir.mkdir()
+
+    dataset.source_folder = RemotePath.from_local(remote_dir)
+    copier = CopyFileTransfer(hard_link=True)
+    with copier.connect_for_download(dataset, RemotePath.from_local(tmp_path)) as con:
+        con.download_files(
+            remote=[RemotePath(str(remote_dir / "text.txt"))],
+            local=[local_dir / "text.txt"],
+        )
+    assert (
+        local_dir.joinpath("text.txt").read_text() == "This is some text for testing.\n"
+    )
+    assert not local_dir.joinpath("text.txt").is_symlink()
+
+    local_dir.joinpath("text.txt").write_text("New content")
+    assert remote_dir.joinpath("text.txt").read_text() == "New content"
+
+
 def test_upload_one_file(tmp_path: Path, dataset: Dataset) -> None:
     remote_dir = tmp_path / "server"
 
@@ -110,6 +133,30 @@ def test_upload_one_file(tmp_path: Path, dataset: Dataset) -> None:
         == "This is some text for testing.\n"
     )
     assert not remote_dir.joinpath("text.txt").is_symlink()
+
+
+def test_upload_with_hard_link(tmp_path: Path, dataset: Dataset) -> None:
+    remote_dir = tmp_path / "server"
+
+    local_dir = tmp_path / "user"
+    local_dir.mkdir()
+    local_dir.joinpath("text.txt").write_text("This is some text for testing.\n")
+
+    dataset.source_folder = RemotePath.from_local(remote_dir)
+    copier = CopyFileTransfer(hard_link=True)
+    with copier.connect_for_upload(dataset, RemotePath.from_local(tmp_path)) as con:
+        assert con.source_folder == dataset.source_folder
+        con.upload_files(
+            File.from_local(path=local_dir / "text.txt", remote_path="text.txt")
+        )
+    assert (
+        remote_dir.joinpath("text.txt").read_text()
+        == "This is some text for testing.\n"
+    )
+    assert not remote_dir.joinpath("text.txt").is_symlink()
+
+    remote_dir.joinpath("text.txt").write_text("New content")
+    assert local_dir.joinpath("text.txt").read_text() == "New content"
 
 
 def test_revert_one_uploaded_file(

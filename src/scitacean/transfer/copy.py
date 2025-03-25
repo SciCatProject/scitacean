@@ -48,9 +48,9 @@ class CopyDownloadConnection:
                 remote_path=remote,
             )
         if self._hard_link:
-            _hard_link_or_copy2(src=remote_path, dst=local)
+            os.link(src=remote_path, dst=local)
         else:
-            shutil.copy2(src=remote_path, dst=local)
+            shutil.copy(src=remote_path, dst=local)
 
 
 class CopyUploadConnection:
@@ -103,7 +103,10 @@ class CopyUploadConnection:
             file.local_path,
             remote_path,
         )
-        _hard_link_or_copy(src=file.local_path, dst=remote_path.posix)
+        if self._hard_link:
+            os.link(src=file.local_path, dst=remote_path.posix)
+        else:
+            shutil.copy(src=file.local_path, dst=remote_path.posix)
         st = file.local_path.stat()
         return file.uploaded(
             remote_gid=str(st.st_gid),
@@ -200,9 +203,16 @@ class CopyFileTransfer:
         self,
         *,
         source_folder: str | RemotePath | None = None,
-        hard_link: bool = True,
+        hard_link: bool = False,
     ) -> None:
         """Construct a new Copy file transfer.
+
+        Warning
+        -------
+        When using hard links (with ``hard_link = True``), the downloaded
+        or uploaded files will refer to the same bytes.
+        So if one is modified, the other will be modified as well.
+        Use this feature with care!
 
         Parameters
         ----------
@@ -313,36 +323,6 @@ def _remote_folder_is_empty(path: RemotePath) -> bool:
     except StopIteration:
         return True
     return False
-
-
-def _hard_link_or_copy(
-    src: os.PathLike[str] | str, dst: os.PathLike[str] | str
-) -> None:
-    try:
-        os.link(src=src, dst=dst)
-    except OSError as err:
-        get_logger().info(
-            "Failed to create a hard link from %s to %s (%s). Falling back to copying.",
-            src,
-            dst,
-            err,
-        )
-        shutil.copy(src=src, dst=dst)
-
-
-def _hard_link_or_copy2(
-    src: os.PathLike[str] | str, dst: os.PathLike[str] | str
-) -> None:
-    try:
-        os.link(src=src, dst=dst)
-    except OSError as err:
-        get_logger().info(
-            "Failed to create a hard link from %s to %s (%s). Falling back to copying.",
-            src,
-            dst,
-            err,
-        )
-        shutil.copy2(src=src, dst=dst)
 
 
 __all__ = ["CopyDownloadConnection", "CopyFileTransfer", "CopyUploadConnection"]
