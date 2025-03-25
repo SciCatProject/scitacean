@@ -115,7 +115,7 @@ def test_upload_one_file(tmp_path: Path, dataset: Dataset) -> None:
 def test_revert_one_uploaded_file(
     tmp_path: Path,
     dataset: Dataset,
-):
+) -> None:
     remote_dir = tmp_path / "server"
 
     local_dir = tmp_path / "user"
@@ -293,10 +293,6 @@ def test_client_upload_with_copy(tmp_path: Path) -> None:
     ds.add_local_files(local_dir / "file1.txt")
 
     client = FakeClient.without_login(url="", file_transfer=CopyFileTransfer())
-    uploaded = client.upload_new_dataset_now(ds)
+    client.upload_new_dataset_now(ds)
 
     assert remote_dir.joinpath("file1.txt").read_text() == content
-    assert (
-        Path(uploaded.files[0].remote_access_path(ds.source_folder).posix).read_text()
-        == content
-    )

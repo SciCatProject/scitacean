@@ -2,6 +2,7 @@
 # Copyright (c) 2025 SciCat Project (https://github.com/SciCatProject/scitacean)
 """File transfer that copies file between locations on the same filesystem."""
 
+import os
 import shutil
 from collections.abc import Iterator
 from contextlib import contextmanager
@@ -16,13 +17,15 @@ from ..logging import get_logger
 from ._util import source_folder_for
 
 
-# TODO try hard link if possible
 class CopyDownloadConnection:
     """Connection for 'downloading' files by copying them.
 
     Should be created using
     :meth:`scitacean.transfer.copy.CopyFileTransfer.connect_for_download`.
     """
+
+    def __init__(self, hard_link: bool) -> None:
+        self._hard_link = hard_link
 
     def download_files(self, *, remote: list[RemotePath], local: list[Path]) -> None:
         """Download files from the given remote path."""
@@ -44,7 +47,10 @@ class CopyDownloadConnection:
                 "access to the file server. Consider using a different file transfer.",
                 remote_path=remote,
             )
-        shutil.copy2(src=remote_path, dst=local)
+        if self._hard_link:
+            _hard_link_or_copy2(src=remote_path, dst=local)
+        else:
+            shutil.copy2(src=remote_path, dst=local)
 
 
 class CopyUploadConnection:
@@ -54,8 +60,9 @@ class CopyUploadConnection:
     :meth:`scitacean.transfer.copy.CopyFileTransfer.connect_for_upload`.
     """
 
-    def __init__(self, *, source_folder: RemotePath) -> None:
+    def __init__(self, *, source_folder: RemotePath, hard_link: bool) -> None:
         self._source_folder = source_folder
+        self._hard_link = hard_link
 
     @property
     def source_folder(self) -> RemotePath:
@@ -96,7 +103,7 @@ class CopyUploadConnection:
             file.local_path,
             remote_path,
         )
-        shutil.copy(src=file.local_path, dst=remote_path.posix)
+        _hard_link_or_copy(src=file.local_path, dst=remote_path.posix)
         st = file.local_path.stat()
         return file.uploaded(
             remote_gid=str(st.st_gid),
@@ -193,6 +200,7 @@ class CopyFileTransfer:
         self,
         *,
         source_folder: str | RemotePath | None = None,
+        hard_link: bool = True,
     ) -> None:
         """Construct a new Copy file transfer.
 
@@ -202,10 +210,13 @@ class CopyFileTransfer:
             Upload files to this folder if set.
             Otherwise, upload to the dataset's source_folder.
             Ignored when downloading files.
+        hard_link:
+            If True, try to use hard links instead of copies.
         """
         self._source_folder_pattern = (
             RemotePath(source_folder) if source_folder is not None else None
         )
+        self._hard_link = hard_link
 
     def source_folder_for(self, dataset: Dataset) -> RemotePath:
         """Return the source folder used for the given dataset."""
@@ -248,7 +259,7 @@ class CopyFileTransfer:
             raise FileNotAccessibleError(
                 "Cannot directly access the file", remote_path=representative_file_path
             )
-        yield CopyDownloadConnection()
+        yield CopyDownloadConnection(self._hard_link)
 
     @contextmanager
     def connect_for_upload(
@@ -291,7 +302,9 @@ class CopyFileTransfer:
                 "Cannot directly access the source folder",
                 remote_path=self.source_folder_for(dataset),
             )
-        yield CopyUploadConnection(source_folder=self.source_folder_for(dataset))
+        yield CopyUploadConnection(
+            source_folder=self.source_folder_for(dataset), hard_link=self._hard_link
+        )
 
 
 def _remote_folder_is_empty(path: RemotePath) -> bool:
@@ -300,6 +313,24 @@ def _remote_folder_is_empty(path: RemotePath) -> bool:
     except StopIteration:
         return True
     return False
+
+
+def _hard_link_or_copy(
+    src: os.PathLike[str] | str, dst: os.PathLike[str] | str
+) -> None:
+    try:
+        os.link(src=src, dst=dst)
+    except OSError:
+        shutil.copy(src=src, dst=dst)
+
+
+def _hard_link_or_copy2(
+    src: os.PathLike[str] | str, dst: os.PathLike[str] | str
+) -> None:
+    try:
+        os.link(src=src, dst=dst)
+    except OSError:
+        shutil.copy2(src=src, dst=dst)
 
 
 __all__ = ["CopyDownloadConnection", "CopyFileTransfer", "CopyUploadConnection"]
