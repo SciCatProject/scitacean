@@ -28,6 +28,7 @@ File transfer
    :template: scitacean-class-template.rst
    :recursive:
 
+   transfer.copy.CopyFileTransfer
    transfer.link.LinkFileTransfer
    transfer.select.SelectFileTransfer
    transfer.sftp.SFTPFileTransfer
