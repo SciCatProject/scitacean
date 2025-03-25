@@ -320,7 +320,13 @@ def _hard_link_or_copy(
 ) -> None:
     try:
         os.link(src=src, dst=dst)
-    except OSError:
+    except OSError as err:
+        get_logger().info(
+            "Failed to create a hard link from %s to %s (%s). Falling back to copying.",
+            src,
+            dst,
+            err,
+        )
         shutil.copy(src=src, dst=dst)
 
 
@@ -329,7 +335,13 @@ def _hard_link_or_copy2(
 ) -> None:
     try:
         os.link(src=src, dst=dst)
-    except OSError:
+    except OSError as err:
+        get_logger().info(
+            "Failed to create a hard link from %s to %s (%s). Falling back to copying.",
+            src,
+            dst,
+            err,
+        )
         shutil.copy2(src=src, dst=dst)
 
 
