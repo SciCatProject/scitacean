@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import dataclasses
+import os
 import warnings
 from datetime import datetime, timezone
 from pathlib import Path
@@ -65,7 +66,7 @@ class File:
     @classmethod
     def from_local(
         cls,
-        path: str | Path,
+        path: str | os.PathLike[str],
         *,
         remote_path: str | RemotePath | None = None,
         remote_uid: str | None = None,
@@ -182,7 +183,7 @@ class File:
         model: DownloadDataFile,
         *,
         checksum_algorithm: str | None = None,
-        local_path: str | Path | None = None,
+        local_path: str | os.PathLike[str] | None = None,
     ) -> File:
         """Construct a new file object from a SciCat download model.
 
@@ -202,7 +203,7 @@ class File:
         """
         return File(
             checksum_algorithm=checksum_algorithm,
-            local_path=Path(local_path) if isinstance(local_path, str) else local_path,
+            local_path=Path(local_path) if local_path is not None else None,
             remote_path=RemotePath(model.path),  # type: ignore[arg-type]
             remote_gid=model.gid,
             remote_perm=model.perm,
@@ -381,7 +382,7 @@ class File:
             **{key: val for key, val in args.items() if val is not None},  # type: ignore[arg-type]
         )
 
-    def downloaded(self, *, local_path: str | Path) -> File:
+    def downloaded(self, *, local_path: str | os.PathLike[str]) -> File:
         """Return new file metadata after a download.
 
         Assumes that the input file exists on remote.

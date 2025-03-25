@@ -11,7 +11,7 @@ from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 from pyfakefs.fake_filesystem import FakeFilesystem
 
-from scitacean import PID, Dataset, DatasetType, File, RemotePath, model
+from scitacean import PID, Dataset, DatasetType, File, RemotePath, Thumbnail, model
 from scitacean.testing import strategies as sst
 from scitacean.testing.client import process_uploaded_dataset
 
@@ -435,7 +435,7 @@ def test_attachments_initialized_in_from_download_models(
     ]
 
 
-def test_can_add_attachment() -> None:
+def test_can_append_attachment() -> None:
     dataset = Dataset(type="raw", owner_group="dset-owner")
     dataset.attachments.append(
         model.Attachment(
@@ -477,6 +477,61 @@ def test_can_assign_attachments() -> None:
         model.Attachment(
             caption="Attachment 2",
             owner_group="other_owner",
+        )
+    ]
+
+
+def test_add_attachment_from_file(fs: FakeFilesystem) -> None:
+    fs.create_file("fingers.jpg", contents=b"jal2l9vun2")
+
+    dataset = Dataset(
+        type="raw",
+        owner_group="owner",
+        proposal_id="dset-proposal",
+        access_groups=["dset-access"],
+    )
+    dataset.add_attachment(
+        caption="The attachment",
+        thumbnail="fingers.jpg",
+        access_groups=["attachment-access"],
+        sample_id="attachment-sample",
+    )
+    assert dataset.attachments == [
+        model.Attachment(
+            caption="The attachment",
+            owner_group="owner",
+            thumbnail=Thumbnail.load_file("fingers.jpg"),
+            proposal_id="dset-proposal",
+            access_groups=["attachment-access"],
+            sample_id="attachment-sample",
+        )
+    ]
+
+
+def test_add_attachment_from_thumbnail(fs: FakeFilesystem) -> None:
+    fs.create_file("fingers.jpg", contents=b"jal2l9vun2")
+    thumbnail = Thumbnail.load_file("fingers.jpg")
+
+    dataset = Dataset(
+        type="raw",
+        owner_group="owner",
+        proposal_id="dset-proposal",
+        access_groups=["dset-access"],
+    )
+    dataset.add_attachment(
+        caption="The attachment",
+        thumbnail=thumbnail,
+        access_groups=["attachment-access"],
+        sample_id="attachment-sample",
+    )
+    assert dataset.attachments == [
+        model.Attachment(
+            caption="The attachment",
+            owner_group="owner",
+            thumbnail=thumbnail,
+            proposal_id="dset-proposal",
+            access_groups=["attachment-access"],
+            sample_id="attachment-sample",
         )
     ]
 
