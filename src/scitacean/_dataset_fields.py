@@ -5,7 +5,7 @@
 
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2025 SciCat Project (https://github.com/SciCatProject/scitacean)
-# flake8: noqa
+# ruff: noqa: D400, D401, E501, RUF023
 
 """Base class for Dataset."""
 
@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Any, Literal, TypeVar
+from typing import Any, ClassVar, Literal, TypeVar
 
 import dateutil.parser
 
@@ -21,7 +21,6 @@ from ._base_model import DatasetType
 from .datablock import OrigDatablock
 from .filesystem import RemotePath
 from .model import (
-    construct,
     Attachment,
     BaseModel,
     BaseUserModel,
@@ -30,9 +29,9 @@ from .model import (
     Lifecycle,
     Relationship,
     Technique,
+    construct,
 )
 from .pid import PID
-
 
 M = TypeVar("M", bound=BaseModel)
 
@@ -86,7 +85,7 @@ class DatasetBase:
                 else self.used_by_derived
             )
 
-    _FIELD_SPEC = [
+    _FIELD_SPEC: ClassVar[list[Field]] = [
         Field(
             name="type",
             description="Characterize type of dataset, either 'raw' or 'derived'. Autofilled when choosing the proper inherited models.",
