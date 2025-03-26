@@ -7,6 +7,7 @@ from pathlib import Path
 
 import tomli
 
+from .transfer.copy import CopyFileTransfer
 from .transfer.link import LinkFileTransfer
 from .transfer.select import SelectFileTransfer
 from .transfer.sftp import SFTPFileTransfer
@@ -91,6 +92,7 @@ def _ess_file_transfer() -> FileTransfer:
     return SelectFileTransfer(
         [
             LinkFileTransfer(),
+            CopyFileTransfer(),
             SFTPFileTransfer(host="login.esss.dk"),
         ]
     )
