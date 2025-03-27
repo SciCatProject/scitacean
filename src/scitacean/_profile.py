@@ -10,7 +10,6 @@ import tomli
 from .transfer.copy import CopyFileTransfer
 from .transfer.link import LinkFileTransfer
 from .transfer.select import SelectFileTransfer
-from .transfer.sftp import SFTPFileTransfer
 from .typing import FileTransfer
 
 
@@ -89,13 +88,25 @@ def _builtin_profile(name: str) -> Profile:
 
 
 def _ess_file_transfer() -> FileTransfer:
-    return SelectFileTransfer(
-        [
-            LinkFileTransfer(),
-            CopyFileTransfer(),
-            SFTPFileTransfer(host="login.esss.dk"),
-        ]
-    )
+    children: list[FileTransfer] = [
+        LinkFileTransfer(),
+        CopyFileTransfer(),
+    ]
+
+    try:
+        from .transfer.sftp import SFTPFileTransfer
+
+        children.append(SFTPFileTransfer(host="login.esss.dk"))
+    except ModuleNotFoundError as err:
+        from .logging import get_logger
+
+        get_logger().warning(
+            "SFTP is not available, only file transfers on the same system "
+            "are supported. Error: %s",
+            err,
+        )
+
+    return SelectFileTransfer(children)
 
 
 def _load_profile_from_file(name: str | Path) -> Profile:
