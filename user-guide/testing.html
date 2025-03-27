@@ -1,0 +1,1051 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Testing code with Scitacean &#8212; Scitacean</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=7776b8de" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=15bde43d"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user-guide/testing';</script>
+    <script src="../_static/anaconda-icon.js?v=461bdc62"></script>
+    <link rel="icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Classes and concepts" href="classes-and-concepts.html" />
+    <link rel="prev" title="Uploading datasets" href="uploading.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="25.3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/logo.svg" class="logo__image only-light" alt="Scitacean - Home"/>
+    <img src="../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="Scitacean - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../reference/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../developer/index.html">
+    Developer documentation
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-external" href="https://scicatproject.github.io/">
+    SciCat
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-external" href="https://scicatproject.github.io/documentation/">
+    SciCat backend
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SciCatProject/scitacean" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/scitacean/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://anaconda.org/conda-forge/scitacean" title="Conda" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-custom fa-anaconda fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Conda</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../reference/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../developer/index.html">
+    Developer documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://scicatproject.github.io/">
+    SciCat
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://scicatproject.github.io/documentation/">
+    SciCat backend
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SciCatProject/scitacean" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/scitacean/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://anaconda.org/conda-forge/scitacean" title="Conda" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-custom fa-anaconda fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Conda</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="downloading.html">Downloading datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="uploading.html">Uploading datasets</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Testing code with Scitacean</a></li>
+<li class="toctree-l1"><a class="reference internal" href="classes-and-concepts.html">Classes and concepts</a></li>
+</ul>
+</div>
+</nav></div>
+        <div class="sidebar-primary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#FakeClient">FakeClient</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Upload">Upload</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Download">Download</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Fidelity">Fidelity</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#FakeFileTransfer">FakeFileTransfer</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Local-SciCat-server">Local SciCat server</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Set-up">Set up</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Use-SciCat-in-tests">Use SciCat in tests</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Seed-data">Seed data</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Local-SFTP-fileserver">Local SFTP fileserver</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Set up</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Use-SFTP-in-tests">Use SFTP in tests</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Seed data</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/user-guide/testing.ipynb"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Testing code with Scitacean</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="Testing-code-with-Scitacean">
+<h1>Testing code with Scitacean<a class="headerlink" href="#Testing-code-with-Scitacean" title="Link to this heading">#</a></h1>
+<p>Testing programs that use Scitacean can be tricky as those tests might require access to a SciCat server or fileserver. Scitacean provides two way to help with this, tools for deploying servers on the local machine as well as fakes to perform tests without any actual servers. This guide describes both methods.</p>
+<p>Firstly, faking is implemented by <a class="reference internal" href="../generated/modules/scitacean.testing.client.FakeClient.html"><span class="doc">FakeClient</span></a> and <a class="reference internal" href="../generated/modules/scitacean.testing.transfer.FakeFileTransfer.html"><span class="doc">FakeFileTransfer</span></a> . Those two classes follow the same separation of concerns as the real classes. That is <code class="docutils literal notranslate"><span class="pre">FakeClient</span></code> handles metadata and <code class="docutils literal notranslate"><span class="pre">FakeFileTransfer</span></code> handles files. They can be mixed and matched freely with the real client and file transfers. But it is generally recommended to combine them.</p>
+<p>Secondly, SciCat servers and fileservers are managed by the <a class="reference internal" href="../generated/modules/scitacean.testing.backend.fixtures.scicat_backend.html"><span class="doc">scicat_backend</span></a> and <a class="reference internal" href="../generated/modules/scitacean.testing.sftp.fixtures.sftp_fileserver.html"><span class="doc">sftp_fileserver</span></a> pytest fixtures.</p>
+<p>First, create a test dataset and file.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scitacean</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span>
+
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span>
+    <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Important data&quot;</span><span class="p">,</span>
+    <span class="n">owner_group</span><span class="o">=</span><span class="s2">&quot;faculty&quot;</span><span class="p">,</span>
+    <span class="n">owner</span><span class="o">=</span><span class="s2">&quot;ridcully&quot;</span><span class="p">,</span>
+    <span class="n">principal_investigator</span><span class="o">=</span><span class="s2">&quot;Ridcully&quot;</span><span class="p">,</span>
+    <span class="n">contact_email</span><span class="o">=</span><span class="s2">&quot;ridcully@uu.am&quot;</span><span class="p">,</span>
+    <span class="n">data_format</span><span class="o">=</span><span class="s2">&quot;spellbook-9000&quot;</span><span class="p">,</span>
+    <span class="n">source_folder</span><span class="o">=</span><span class="s2">&quot;/upload/abcd&quot;</span><span class="p">,</span>
+    <span class="n">creation_location</span><span class="o">=</span><span class="s2">&quot;UnseenUniversity&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;test-data/spellbook.txt&quot;</span><span class="p">)</span>
+<span class="n">path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;fireball power=1000 mana=123&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span><span class="o">.</span><span class="n">add_local_files</span><span class="p">(</span><span class="s2">&quot;test-data/spellbook.txt&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<section id="FakeClient">
+<h2>FakeClient<a class="headerlink" href="#FakeClient" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../generated/modules/scitacean.testing.client.FakeClient.html"><span class="doc">scitacean.testing.client.FakeClient</span></a> has the same interface as the regular <a class="reference internal" href="../generated/classes/scitacean.Client.html"><span class="doc">Client</span></a> but never connects to any SciCat server. Instead, it maintains an internal record of datasets and datablocks. It is easiest to explain with an example. First, create a <code class="docutils literal notranslate"><span class="pre">FakeClient</span></code>. The url is completely arbitrary and only needs to be passed for parity with the real client.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scitacean.testing.client</span><span class="w"> </span><span class="kn">import</span> <span class="n">FakeClient</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scitacean.testing.transfer</span><span class="w"> </span><span class="kn">import</span> <span class="n">FakeFileTransfer</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">FakeClient</span><span class="o">.</span><span class="n">without_login</span><span class="p">(</span>
+    <span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://fake.scicat&quot;</span><span class="p">,</span>
+    <span class="n">file_transfer</span><span class="o">=</span><span class="n">FakeFileTransfer</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<section id="Upload">
+<h3>Upload<a class="headerlink" href="#Upload" title="Link to this heading">#</a></h3>
+<p>And now we can upload our test dataset as usual:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">finalized</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">upload_new_dataset_now</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+<span class="nb">str</span><span class="p">(</span><span class="n">finalized</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&#34;Dataset(type=raw, contact_email=ridcully@uu.am, created_at=2025-03-27 09:34:26.981236+00:00, created_by=fake, creation_location=UnseenUniversity, creation_time=2025-03-27 09:34:26.923196+00:00, data_format=spellbook-9000, input_datasets=[], name=Important data, owner=ridcully, owner_group=faculty, pid=PID.prefix.a0b1/30ba752c-1583-48e9-8b4b-c4adf7b463c3, principal_investigator=Ridcully, source_folder=RemotePath(&#39;/upload/abcd&#39;), updated_at=2025-03-27 09:34:26.981236+00:00, updated_by=fake, used_software=[])&#34;
+</pre></div></div>
+</div>
+<p>However, this did not talk to a SciCat server. We can check if the fake upload was successful by inspecting the <code class="docutils literal notranslate"><span class="pre">client</span></code>. <code class="docutils literal notranslate"><span class="pre">client.datasets</span></code> is a <code class="docutils literal notranslate"><span class="pre">dict</span></code> that contains all datasets known to the fake server keyed by PID:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">client</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+dict_keys([PID(prefix=&#39;PID.prefix.a0b1&#39;, pid=&#39;30ba752c-1583-48e9-8b4b-c4adf7b463c3&#39;)])
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pid</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">client</span><span class="o">.</span><span class="n">datasets</span><span class="p">[</span><span class="n">pid</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+DownloadDataset(contactEmail=&#39;ridcully@uu.am&#39;, creationLocation=&#39;UnseenUniversity&#39;, creationTime=datetime.datetime(2025, 3, 27, 9, 34, 26, 923196, tzinfo=datetime.timezone.utc), inputDatasets=[], investigator=None, numberOfFilesArchived=0, owner=&#39;ridcully&#39;, ownerGroup=&#39;faculty&#39;, principalInvestigator=&#39;Ridcully&#39;, sourceFolder=RemotePath(&#39;/upload/abcd&#39;), type=&lt;DatasetType.RAW: &#39;raw&#39;&gt;, usedSoftware=[], accessGroups=None, version=None, classification=None, comment=None, createdAt=datetime.datetime(2025, 3, 27, 9, 34, 26, 981236, tzinfo=datetime.timezone.utc), createdBy=&#39;fake&#39;, dataFormat=&#39;spellbook-9000&#39;, dataQualityMetrics=None, description=None, endTime=None, instrumentGroup=None, instrumentId=None, isPublished=None, jobLogData=None, jobParameters=None, keywords=None, license=None, datasetlifecycle=None, scientificMetadata=None, datasetName=&#39;Important data&#39;, numberOfFiles=1, orcidOfOwner=None, ownerEmail=None, packedSize=0, pid=PID(prefix=&#39;PID.prefix.a0b1&#39;, pid=&#39;30ba752c-1583-48e9-8b4b-c4adf7b463c3&#39;), proposalId=None, relationships=None, runNumber=None, sampleId=None, sharedWith=None, size=28, sourceFolderHost=None, startTime=None, techniques=None, updatedAt=datetime.datetime(2025, 3, 27, 9, 34, 26, 981236, tzinfo=datetime.timezone.utc), updatedBy=&#39;fake&#39;, validationStatus=None)
+</pre></div></div>
+</div>
+<p>The client has recorded the upload from earlier. However, it stored the dataset as a <a class="reference internal" href="../generated/modules/scitacean.model.html"><span class="doc">model</span></a>, not as a regular <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> object. In addition, since the dataset has a file, an original datablock was uploaded as well: (Datablocks store metadata and paths of files in SciCat.)</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">client</span><span class="o">.</span><span class="n">orig_datablocks</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+dict_keys([PID(prefix=&#39;PID.prefix.a0b1&#39;, pid=&#39;30ba752c-1583-48e9-8b4b-c4adf7b463c3&#39;)])
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># use the pid of the dataset</span>
+<span class="n">client</span><span class="o">.</span><span class="n">orig_datablocks</span><span class="p">[</span><span class="n">pid</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[DownloadOrigDatablock(dataFileList=[DownloadDataFile(path=&#39;spellbook.txt&#39;, size=28, time=datetime.datetime(2025, 3, 27, 9, 34, 26, 927485, tzinfo=datetime.timezone.utc), chk=&#39;5cfe25239cedd2b6fdd72b50d40e2535d59329dcb3c576a36f8c8bfb90f78c1cbd1030ae8801bd8e6f130fa8b441562c2e04b52552260f378df5be24e8b16fee&#39;, gid=None, perm=None, uid=None)], size=28, id=None, accessGroups=None, chkAlg=&#39;blake2b&#39;, createdAt=datetime.datetime(2025, 3, 27, 9, 34, 26, 981658, tzinfo=datetime.timezone.utc), createdBy=&#39;fake&#39;, datasetId=PID(prefix=&#39;PID.prefix.a0b1&#39;, pid=&#39;30ba752c-1583-48e9-8b4b-c4adf7b463c3&#39;), instrumentGroup=None, isPublished=None, ownerGroup=None, updatedAt=datetime.datetime(2025, 3, 27, 9, 34, 26, 981658, tzinfo=datetime.timezone.utc), updatedBy=&#39;fake&#39;)]
+</pre></div></div>
+</div>
+<p>When writing tests, those recorded dataset and datablock models can be used to check if an upload worked.</p>
+</section>
+<section id="Download">
+<h3>Download<a class="headerlink" href="#Download" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">FakeClient</span></code> can also download datasets that are stored in its <code class="docutils literal notranslate"><span class="pre">datasets</span></code> dictionary:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">downloaded</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span><span class="n">pid</span><span class="p">)</span>
+<span class="nb">str</span><span class="p">(</span><span class="n">downloaded</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&#34;Dataset(type=raw, contact_email=ridcully@uu.am, created_at=2025-03-27 09:34:26.981236+00:00, created_by=fake, creation_location=UnseenUniversity, creation_time=2025-03-27 09:34:26.923196+00:00, data_format=spellbook-9000, input_datasets=[], name=Important data, owner=ridcully, owner_group=faculty, pid=PID.prefix.a0b1/30ba752c-1583-48e9-8b4b-c4adf7b463c3, principal_investigator=Ridcully, source_folder=RemotePath(&#39;/upload/abcd&#39;), updated_at=2025-03-27 09:34:26.981236+00:00, updated_by=fake, used_software=[])&#34;
+</pre></div></div>
+</div>
+<p>This is now an actual <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> object like you would get from a real client.</p>
+<p>If we want to test downloads independently of uploads, we can populate <code class="docutils literal notranslate"><span class="pre">client.datasets</span></code> and <code class="docutils literal notranslate"><span class="pre">cliend.orig_datablocks</span></code> manually. But keep in mind that those store <em>models</em>. See the <a class="reference internal" href="../generated/modules/scitacean.model.html"><span class="doc">model reference</span></a> for an overview. And also note that <code class="docutils literal notranslate"><span class="pre">orig_datablocks</span></code> stores a list of models for each dataset as there can be multiple datablocks per dataset.</p>
+</section>
+<section id="Fidelity">
+<h3>Fidelity<a class="headerlink" href="#Fidelity" title="Link to this heading">#</a></h3>
+<p>Although <code class="docutils literal notranslate"><span class="pre">FakeClient</span></code> is sufficient for many tests, it does not behave exactly the same way as a real client. For example, it does not perform any validation of datasets or handle credentials. In addition, it does not modify uploaded datasets like a real server would. This can be seen from both the <code class="docutils literal notranslate"><span class="pre">finalized</span></code> dataset returned by <code class="docutils literal notranslate"><span class="pre">client.upload_new_dataset_now(dataset)</span></code> above and <code class="docutils literal notranslate"><span class="pre">downloaded</span></code>.</p>
+<p>If a test requires these properties, consider using a locally deployed SciCat server. See in particular the <a class="reference internal" href="../developer/testing.html"><span class="doc">developer documentation on testing</span></a>.</p>
+</section>
+</section>
+<section id="FakeFileTransfer">
+<h2>FakeFileTransfer<a class="headerlink" href="#FakeFileTransfer" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">FakeClient</span></code> used above only fakes a SciCat server, i.e. handling of metadata. If we also want to test file uploads and downloads, we can use <a class="reference internal" href="../generated/modules/scitacean.testing.transfer.FakeFileTransfer.html"><span class="doc">scitacean.testing.transfer.FakeFileTransfer</span></a>.</p>
+<p>Starting from a clean slate, create a fake client with a fake file transfer as above:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scitacean.testing.client</span><span class="w"> </span><span class="kn">import</span> <span class="n">FakeClient</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scitacean.testing.transfer</span><span class="w"> </span><span class="kn">import</span> <span class="n">FakeFileTransfer</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">FakeClient</span><span class="o">.</span><span class="n">without_login</span><span class="p">(</span>
+    <span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://fake.scicat&quot;</span><span class="p">,</span>
+    <span class="n">file_transfer</span><span class="o">=</span><span class="n">FakeFileTransfer</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<p>And upload a dataset:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">finalized</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">upload_new_dataset_now</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>The file transfer has recorded the upload of the file without actually uploading it anywhere. We can inspect all files on the fake fileserver using:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">client</span><span class="o">.</span><span class="n">file_transfer</span><span class="o">.</span><span class="n">files</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{RemotePath(&#39;/upload/abcd/spellbook.txt&#39;): b&#39;fireball power=1000 mana=123&#39;}
+</pre></div></div>
+</div>
+<p>This is a dictionary keyed by <a class="reference internal" href="../generated/classes/scitacean.File.html#scitacean.File.remote_access_path"><span class="std std-ref">remote_access_path</span></a> to the content of the file.</p>
+<p>We can also download the file.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">downloaded</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span><span class="n">finalized</span><span class="o">.</span><span class="n">pid</span><span class="p">)</span>
+<span class="n">with_downloaded_file</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">download_files</span><span class="p">(</span><span class="n">downloaded</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;test-data/download&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">file</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">with_downloaded_file</span><span class="o">.</span><span class="n">files</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">file</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+File(local_path=PosixPath(&#39;test-data/download/spellbook.txt&#39;), remote_path=RemotePath(&#39;spellbook.txt&#39;), remote_gid=None, remote_perm=None, remote_uid=None, checksum_algorithm=&#39;blake2b&#39;)
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">file</span><span class="o">.</span><span class="n">local_path</span><span class="o">.</span><span class="n">open</span><span class="p">()</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+fireball power=1000 mana=123
+</pre></div></div>
+</div>
+<p>If we want to test downloads independently of uploads, we can populate <code class="docutils literal notranslate"><span class="pre">client.file_transfer.files</span></code> manually.</p>
+</section>
+<section id="Local-SciCat-server">
+<h2>Local SciCat server<a class="headerlink" href="#Local-SciCat-server" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../generated/modules/scitacean.testing.backend.html"><span class="doc">scitacean.testing.backend</span></a> provides tools to set up a SciCat backend and API in a Docker container on the local machine. It is primarily intended to be used via the <a class="reference external" href="https://docs.pytest.org/">pytest</a> fixtures in <a class="reference internal" href="../generated/modules/scitacean.testing.backend.fixtures.html"><span class="doc">scitacean.testing.backend.fixtures</span></a>.</p>
+<p>The fixtures can configure, spin up, and seed a SciCat server and database in Docker containers. They can furthermore provide easy access to the server by building clients. And they clean up after the test session by stopping the Docker containers.</p>
+<p>Note the caveats in <a class="reference internal" href="../generated/modules/scitacean.testing.backend.html"><span class="doc">scitacean.testing.backend</span></a> about clean up and use of <code class="docutils literal notranslate"><span class="pre">pytest-xdist</span></code>.</p>
+<section id="Set-up">
+<h3>Set up<a class="headerlink" href="#Set-up" title="Link to this heading">#</a></h3>
+<p>First, ensure that <a class="reference external" href="https://www.docker.com/">Docker</a> is installed and running on your machine. Then, configure pytest by</p>
+<ul class="simple">
+<li><p>registering the fixtures and</p></li>
+<li><p>adding a command line option to enable backend tests.</p></li>
+</ul>
+<p>To this end, add the following in your <code class="docutils literal notranslate"><span class="pre">conftest.py</span></code>:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scitacean.testing.backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_pytest_options</span> <span class="k">as</span> <span class="n">add_backend_options</span>
+
+
+<span class="n">pytest_plugins</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;scitacean.testing.backend.fixtures&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">pytest_addoption</span><span class="p">(</span><span class="n">parser</span><span class="p">:</span> <span class="n">pytest</span><span class="o">.</span><span class="n">Parser</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">add_backend_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>The backend will only be launched when the corresponding command line option is given. By default, this is <code class="docutils literal notranslate"><span class="pre">--backend-tests</span></code> but it can be changed via the <code class="docutils literal notranslate"><span class="pre">option</span></code> argument of <code class="docutils literal notranslate"><span class="pre">add_pytest_options</span></code>.</p>
+</section>
+<section id="Use-SciCat-in-tests">
+<h3>Use SciCat in tests<a class="headerlink" href="#Use-SciCat-in-tests" title="Link to this heading">#</a></h3>
+<p>Tests that require the server can now request it as a fixture:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">test_something_with_scicat</span><span class="p">(</span><span class="n">require_scicat_backend</span><span class="p">):</span>
+    <span class="c1"># test something</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">require_scicat_backend</span></code> fixture will ensure that the backend is running during the test. If backend tests have not been enabled by the command line option, the test will be skipped.</p>
+<p>The simplest way to connect to the server is to request the <code class="docutils literal notranslate"><span class="pre">client</span></code> or <code class="docutils literal notranslate"><span class="pre">real_client</span></code> fixture:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">test_something_with_scicat_client</span><span class="p">(</span><span class="n">client</span><span class="p">):</span>
+    <span class="c1"># test something</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">client</span></code> fixture provides both a client connected to the SciCat server and a fake client. (Both without a file transfer). The test will run two times, once with each client if backend tests are enabled. If they are disabled, the test will only run with a fake client.</p>
+<p>If your test does not work with a fake client, you can request <code class="docutils literal notranslate"><span class="pre">real_client</span></code> instead of <code class="docutils literal notranslate"><span class="pre">client</span></code> to only get the real client. Make sure to also request <code class="docutils literal notranslate"><span class="pre">require_scicat_backend</span></code> in this case to skip the test if backend tests are disabled. Or skip them explicitly:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">test_something_with_real_client</span><span class="p">(</span><span class="n">real_client</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">real_client</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">pytest</span><span class="o">.</span><span class="n">skip</span><span class="p">(</span><span class="s2">&quot;Backend tests disabled&quot;</span><span class="p">)</span>
+        <span class="c1"># or do something else</span>
+
+    <span class="c1"># do the actual tests</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Seed-data">
+<h3>Seed data<a class="headerlink" href="#Seed-data" title="Link to this heading">#</a></h3>
+<p>The database used by the local SciCat server is seeded with a number of datasets from <a class="reference internal" href="../generated/modules/scitacean.testing.backend.seed.html"><span class="doc">scitacean.testing.backend.seed</span></a>. These datasets are accessible via both real and fake clients.</p>
+<p>To access the seed, use for example:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scitacean.testing.backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">seed</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_download_raw</span><span class="p">(</span><span class="n">client</span><span class="p">):</span>
+    <span class="n">dset</span> <span class="o">=</span> <span class="n">seed</span><span class="o">.</span><span class="n">INITIAL_DATASETS</span><span class="p">[</span><span class="s2">&quot;raw&quot;</span><span class="p">]</span>
+    <span class="n">downloaded</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span><span class="n">dset</span><span class="o">.</span><span class="n">pid</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">downloaded</span><span class="o">.</span><span class="n">owner</span> <span class="o">==</span> <span class="n">dset</span><span class="o">.</span><span class="n">owner</span>
+</pre></div>
+</div>
+</div>
+<p>Both clients, i.e., also the fake client, require that the database has been seeded, even when backend tests are disabled. You can ensure this by requesting either <code class="docutils literal notranslate"><span class="pre">scicat_backend</span></code> or <code class="docutils literal notranslate"><span class="pre">require_scicat_backend</span></code> along <code class="docutils literal notranslate"><span class="pre">fake_client</span></code> in your test. To write a test that uses only a fake client but with seed, use</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">test_seeded_fake</span><span class="p">(</span><span class="n">fake_client</span><span class="p">,</span> <span class="n">scicat_backend</span><span class="p">):</span>
+    <span class="n">dset</span> <span class="o">=</span> <span class="n">seed</span><span class="o">.</span><span class="n">INITIAL_DATASETS</span><span class="p">[</span><span class="s2">&quot;raw&quot;</span><span class="p">]</span>
+    <span class="n">downloaded</span> <span class="o">=</span> <span class="n">fake_client</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span><span class="n">dset</span><span class="o">.</span><span class="n">pid</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">downloaded</span><span class="o">.</span><span class="n">owner</span> <span class="o">==</span> <span class="n">dset</span><span class="o">.</span><span class="n">owner</span>
+</pre></div>
+</div>
+</div>
+<p>This will run the test both when backend tests are enabled and disabled. In the latter case, the server is never launched and <code class="docutils literal notranslate"><span class="pre">fake_client</span></code> is seeded in a different way. This different way of seeding corresponds to how <a class="reference internal" href="../generated/modules/scitacean.testing.client.FakeClient.html"><span class="doc">scitacean.testing.client.FakeClient</span></a> processes uploaded files. So it may not be entirely the same as with a real backend. See in particular the <a class="reference internal" href="#Fidelity"><span class="std std-ref">Fidelity</span></a> section</p>
+</section>
+</section>
+<section id="Local-SFTP-fileserver">
+<h2>Local SFTP fileserver<a class="headerlink" href="#Local-SFTP-fileserver" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../generated/modules/scitacean.testing.sftp.html"><span class="doc">scitacean.testing.sftp</span></a> provides tools to set up an SFTP server in a Docker container on the local machine. It is primarily intended to be used via the <a class="reference external" href="https://docs.pytest.org/">pytest</a> fixtures in <a class="reference internal" href="../generated/modules/scitacean.testing.sftp.fixtures.html"><span class="doc">scitacean.testing.sftp.fixtures</span></a>.</p>
+<p>The fixtures can configure, spin up, and seed an SFTP server in a Docker container. They also clean up after the test session by stopping the Docker container. (Scritly speaking, the server is an SSH server but all users except root are restricted to SFTP.)</p>
+<p>Note the caveats in <a class="reference internal" href="../generated/modules/scitacean.testing.sftp.html"><span class="doc">scitacean.testing.sftp</span></a> about clean up and use of <code class="docutils literal notranslate"><span class="pre">pytest-xdist</span></code>.</p>
+<section id="id1">
+<h3>Set up<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<p>First, ensure that <a class="reference external" href="https://www.docker.com/">Docker</a> is installed and running on your machine. Then, configure pytest by</p>
+<ul class="simple">
+<li><p>registering the fixtures and</p></li>
+<li><p>adding a command line option to enable sftp tests.</p></li>
+</ul>
+<p>To this end, add the following in your <code class="docutils literal notranslate"><span class="pre">conftest.py</span></code>: (Or merge it into the setup for backend tests from above.)</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scitacean.testing.sftp</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_pytest_option</span> <span class="k">as</span> <span class="n">add_sftp_option</span>
+
+
+<span class="n">pytest_plugins</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;scitacean.testing.sftp.fixtures&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">pytest_addoption</span><span class="p">(</span><span class="n">parser</span><span class="p">:</span> <span class="n">pytest</span><span class="o">.</span><span class="n">Parser</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">add_sftp_option</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>The SFTP server will only be launched when the corresponding command line option is given. By default, this is <code class="docutils literal notranslate"><span class="pre">--sftp-tests</span></code> but it can be changed via the <code class="docutils literal notranslate"><span class="pre">option</span></code> argument of <code class="docutils literal notranslate"><span class="pre">add_pytest_option</span></code>.</p>
+</section>
+<section id="Use-SFTP-in-tests">
+<h3>Use SFTP in tests<a class="headerlink" href="#Use-SFTP-in-tests" title="Link to this heading">#</a></h3>
+<p>Tests that require the server can now request it as a fixture:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">test_something_with_sftp</span><span class="p">(</span><span class="n">require_sftp_fileserver</span><span class="p">):</span>
+    <span class="c1"># test something</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">require_sftp_fileserver</span></code> fixture will ensure that the SFTP server is running during the test. If SFTP tests have not been enabled by the command line option, the test will be skipped.</p>
+<p>Connecting to the server is not as straight forward as for the SciCat backend. It requires passing a special <code class="docutils literal notranslate"><span class="pre">connect</span></code> function to the file transfer. This can be done by requesting <code class="docutils literal notranslate"><span class="pre">sftp_connect_with_username_password</span></code>. For example, the following opens a connection to the server to upload a file:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scitacean.transfer.sftp</span><span class="w"> </span><span class="kn">import</span> <span class="n">SFTPFileTransfer</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_sftp_upload</span><span class="p">(</span>
+    <span class="n">sftp_access</span><span class="p">,</span>
+    <span class="n">sftp_connect_with_username_password</span><span class="p">,</span>
+    <span class="n">require_sftp_fileserver</span><span class="p">,</span>
+    <span class="n">sftp_data_dir</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">sftp</span> <span class="o">=</span> <span class="n">SFTPFileTransfer</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="n">sftp_access</span><span class="o">.</span><span class="n">host</span><span class="p">,</span>
+                            <span class="n">port</span><span class="o">=</span><span class="n">sftp_access</span><span class="o">.</span><span class="n">port</span><span class="p">,</span>
+                            <span class="n">connect</span><span class="o">=</span><span class="n">sftp_connect_with_username_password</span><span class="p">)</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">sftp</span><span class="o">.</span><span class="n">connect_for_upload</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">ds</span><span class="p">)</span> <span class="k">as</span> <span class="n">connection</span><span class="p">:</span>
+        <span class="c1"># do upload</span>
+        <span class="o">...</span>
+    <span class="c1"># assert that the file has been copied to sftp_data_dir</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+</div>
+<p>Uploaded files are readable on the host. So the test can read from <code class="docutils literal notranslate"><span class="pre">sftp_data_dir</span></code> to check if the upload succeeded. This directory is mounted as <code class="docutils literal notranslate"><span class="pre">/data</span></code> on the server.</p>
+<p>Using an SFTP file transfer with <code class="docutils literal notranslate"><span class="pre">Client</span></code> requires some extra steps. An example is given by <code class="docutils literal notranslate"><span class="pre">test_client_with_sftp</span></code> in <a class="github reference external" href="https://github.com/SciCatProject/scitacean/blob/main/tests/transfer/sftp_test.py">SciCatProject/scitacean</a>. It uses a subclass of <code class="docutils literal notranslate"><span class="pre">SFTPFileTransfer</span></code> to pass <code class="docutils literal notranslate"><span class="pre">sftp_connect_with_username_password</span></code> to the connection as <code class="docutils literal notranslate"><span class="pre">Client</span></code> cannot do this itself.</p>
+</section>
+<section id="id2">
+<h3>Seed data<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<p>The server’s filesystem gets seeded with some files from <a class="github reference external" href="https://github.com/SciCatProject/scitacean/tree/main/src/scitacean/testing/sftp/sftp_server_seed">SciCatProject/scitacean</a>. Those files are copied to <code class="docutils literal notranslate"><span class="pre">sftp_data_dir</span></code> on the host which is mounted to <code class="docutils literal notranslate"><span class="pre">/data/seed</span></code> on the server.</p>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="uploading.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Uploading datasets</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="classes-and-concepts.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Classes and concepts</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2023 SciCat Project.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><!-- This will display the version of the docs -->
+Current scitacean version: 25.3.2 (<a href="https://github.com/SciCatProject/scitacean/releases">older versions</a>).</div>
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

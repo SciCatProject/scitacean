@@ -1,0 +1,1313 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>scitacean.dataset &#8212; Scitacean</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=7776b8de" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=15bde43d"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/scitacean/dataset';</script>
+    <script src="../../_static/anaconda-icon.js?v=461bdc62"></script>
+    <link rel="icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="25.3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo.svg" class="logo__image only-light" alt="Scitacean - Home"/>
+    <img src="../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="Scitacean - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user-guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../reference/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../developer/index.html">
+    Developer documentation
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-external" href="https://scicatproject.github.io/">
+    SciCat
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-external" href="https://scicatproject.github.io/documentation/">
+    SciCat backend
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SciCatProject/scitacean" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/scitacean/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://anaconda.org/conda-forge/scitacean" title="Conda" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-custom fa-anaconda fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Conda</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user-guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../reference/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../developer/index.html">
+    Developer documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://scicatproject.github.io/">
+    SciCat
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://scicatproject.github.io/documentation/">
+    SciCat backend
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SciCatProject/scitacean" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/scitacean/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://anaconda.org/conda-forge/scitacean" title="Conda" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-custom fa-anaconda fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Conda</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">scitacean.dataset</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for scitacean.dataset</h1><div class="highlight"><pre>
+<span></span><span class="c1"># SPDX-License-Identifier: BSD-3-Clause</span>
+<span class="c1"># Copyright (c) 2025 SciCat Project (https://github.com/SciCatProject/scitacean)</span>
+<span class="sd">&quot;&quot;&quot;Main dataset structure.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">Iterable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">TypeVar</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">._base_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">convert_download_to_user_model</span><span class="p">,</span> <span class="n">convert_user_to_upload_model</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._dataset_fields</span><span class="w"> </span><span class="kn">import</span> <span class="n">DatasetBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.datablock</span><span class="w"> </span><span class="kn">import</span> <span class="n">OrigDatablock</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.file</span><span class="w"> </span><span class="kn">import</span> <span class="n">File</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.model</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Attachment</span><span class="p">,</span>
+    <span class="n">DatasetType</span><span class="p">,</span>
+    <span class="n">DownloadAttachment</span><span class="p">,</span>
+    <span class="n">DownloadDataset</span><span class="p">,</span>
+    <span class="n">DownloadOrigDatablock</span><span class="p">,</span>
+    <span class="n">UploadAttachment</span><span class="p">,</span>
+    <span class="n">UploadDerivedDataset</span><span class="p">,</span>
+    <span class="n">UploadOrigDatablock</span><span class="p">,</span>
+    <span class="n">UploadRawDataset</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.pid</span><span class="w"> </span><span class="kn">import</span> <span class="n">PID</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.thumbnail</span><span class="w"> </span><span class="kn">import</span> <span class="n">Thumbnail</span>
+
+<span class="n">_T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_T&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Dataset">
+<a class="viewcode-back" href="../../generated/classes/scitacean.Dataset.html#scitacean.Dataset">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Dataset</span><span class="p">(</span><span class="n">DatasetBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Metadata and linked data files for a measurement, simulation, or analysis.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Dataset.from_download_models">
+<a class="viewcode-back" href="../../generated/classes/scitacean.Dataset.html#scitacean.Dataset.from_download_models">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_download_models</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">dataset_model</span><span class="p">:</span> <span class="n">DownloadDataset</span><span class="p">,</span>
+        <span class="n">orig_datablock_models</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">DownloadOrigDatablock</span><span class="p">],</span>
+        <span class="n">attachment_models</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">DownloadAttachment</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct a new dataset from SciCat download models.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dataset_model:</span>
+<span class="sd">            Model of the dataset.</span>
+<span class="sd">        orig_datablock_models:</span>
+<span class="sd">            List of all associated original datablock models for the dataset.</span>
+<span class="sd">        attachment_models:</span>
+<span class="sd">            List of all associated attachment models for the dataset.</span>
+<span class="sd">            Use ``None`` if the attachments were not downloaded.</span>
+<span class="sd">            Use an empty list if the attachments were downloaded, but there aren&#39;t any.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :</span>
+<span class="sd">            A new Dataset instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">init_args</span><span class="p">,</span> <span class="n">read_only</span> <span class="o">=</span> <span class="n">DatasetBase</span><span class="o">.</span><span class="n">_prepare_fields_from_download</span><span class="p">(</span><span class="n">dataset_model</span><span class="p">)</span>
+        <span class="n">dset</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">init_args</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">read_only</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">dset</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+        <span class="n">dset</span><span class="o">.</span><span class="n">_attachments</span> <span class="o">=</span> <span class="n">convert_download_to_user_model</span><span class="p">(</span>  <span class="c1"># type: ignore[assignment]</span>
+            <span class="n">attachment_models</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">orig_datablock_models</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dset</span><span class="o">.</span><span class="n">_orig_datablocks</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="nb">map</span><span class="p">(</span><span class="n">OrigDatablock</span><span class="o">.</span><span class="n">from_download_model</span><span class="p">,</span> <span class="n">orig_datablock_models</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">dset</span></div>
+
+
+<div class="viewcode-block" id="Dataset.fields">
+<a class="viewcode-back" href="../../generated/classes/scitacean.Dataset.html#scitacean.Dataset.fields">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fields</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">dataset_type</span><span class="p">:</span> <span class="n">DatasetType</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;derived&quot;</span><span class="p">,</span> <span class="s2">&quot;raw&quot;</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">read_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Dataset</span><span class="o">.</span><span class="n">Field</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Iterate over dataset fields.</span>
+
+<span class="sd">        This is similar to :func:`dataclasses.fields`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dataset_type:</span>
+<span class="sd">            If set, return only the fields for this dataset type.</span>
+<span class="sd">            If unset, do not filter fields.</span>
+<span class="sd">        read_only:</span>
+<span class="sd">            If true or false, return only fields which are read-only</span>
+<span class="sd">            or allow write-access, respectively.</span>
+<span class="sd">            If unset, do not filter fields.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :</span>
+<span class="sd">            Iterable over the fields of datasets.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">it</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">DatasetBase</span><span class="o">.</span><span class="n">_FIELD_SPEC</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dataset_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">attr</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;used_by_derived&quot;</span>
+                <span class="k">if</span> <span class="n">dataset_type</span> <span class="o">==</span> <span class="n">DatasetType</span><span class="o">.</span><span class="n">DERIVED</span>
+                <span class="k">else</span> <span class="s2">&quot;used_by_raw&quot;</span>
+            <span class="p">)</span>
+            <span class="n">it</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">field</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">attr</span><span class="p">),</span> <span class="n">it</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">read_only</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">it</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">field</span><span class="p">:</span> <span class="n">field</span><span class="o">.</span><span class="n">read_only</span> <span class="o">==</span> <span class="n">read_only</span><span class="p">,</span> <span class="n">it</span><span class="p">)</span>
+        <span class="k">yield from</span> <span class="n">it</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">()</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">:=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Dataset(</span><span class="si">{</span><span class="n">args</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_repr_html_</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="c1"># Import here to prevent cycle.</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">._html_repr</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataset_html_repr</span>
+
+        <span class="k">return</span> <span class="n">dataset_html_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Dataset</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">eq</span> <span class="o">=</span> <span class="nb">all</span><span class="p">(</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">fields</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="n">eq</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">eq</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_orig_datablocks</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_orig_datablocks</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attachments</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_attachments</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">eq</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">number_of_files</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Number of files in directly accessible storage in the dataset.</span>
+
+<span class="sd">        This includes files on both the local and remote filesystems.</span>
+
+<span class="sd">        Corresponds to OrigDatablocks.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">dblock</span><span class="o">.</span><span class="n">files</span><span class="p">))</span> <span class="k">for</span> <span class="n">dblock</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_orig_datablocks</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">number_of_files_archived</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Total number of archived files in the dataset.</span>
+
+<span class="sd">        Corresponds to Datablocks.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">packed_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Total size of all datablock package files created for this dataset.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Total size of files in directly accessible storage in the dataset.</span>
+
+<span class="sd">        This includes files on both the local and remote filesystems.</span>
+
+<span class="sd">        Corresponds to OrigDatablocks.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">size</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">files</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">File</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Files linked with the dataset.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span>
+            <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span>
+                <span class="n">dblock</span><span class="o">.</span><span class="n">files</span> <span class="k">for</span> <span class="n">dblock</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_orig_datablocks</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">attachments</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Attachment</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;List of attachments for this dataset.</span>
+
+<span class="sd">        This property can be in two distinct &#39;falsy&#39; states:</span>
+
+<span class="sd">        - ``dset.attachments is None``: It is unknown whether there are attachments.</span>
+<span class="sd">          This happens when datasets are downloaded without downloading the attachments.</span>
+<span class="sd">        - ``dset.attachments == []``: It is known that there are no attachments.</span>
+<span class="sd">          This happens either when downloading datasets or when initializing datasets</span>
+<span class="sd">          locally without assigning attachments.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attachments</span>
+
+    <span class="nd">@attachments</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">attachments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attachments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Attachment</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;List of attachments for this dataset.</span>
+
+<span class="sd">        See the docs of the getter for an explanation of ``None`` vs ``[]``.</span>
+<span class="sd">        It is unlikely that you ever need to set the attachments to ``None``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_attachments</span> <span class="o">=</span> <span class="n">attachments</span>
+
+<div class="viewcode-block" id="Dataset.add_attachment">
+<a class="viewcode-back" href="../../generated/classes/scitacean.Dataset.html#scitacean.Dataset.add_attachment">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_attachment</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">thumbnail</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="n">Thumbnail</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">caption</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">owner_group</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">access_groups</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">instrument_group</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">proposal_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">sample_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new attachment and add it to the dataset.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        thumbnail:</span>
+<span class="sd">            If a :class:`scitacean.thumbnail.Thumbnail` object, it is added to the</span>
+<span class="sd">            attachment. If a string or path, a thumbnail is loaded from that path.</span>
+<span class="sd">        caption:</span>
+<span class="sd">            Caption of the attachment.</span>
+<span class="sd">        owner_group:</span>
+<span class="sd">            Owner group of the attachment. Defaults to ``self.owner_group``.</span>
+<span class="sd">        access_groups:</span>
+<span class="sd">            Access groups of the attachment. Defaults to ``self.access_groups``.</span>
+<span class="sd">        instrument_group:</span>
+<span class="sd">            Instrument group of the attachment. Defaults to ``self.instrument_group``.</span>
+<span class="sd">        proposal_id:</span>
+<span class="sd">            Proposal ID of the attachment. Defaults to ``self.proposal_id``.</span>
+<span class="sd">        sample_id:</span>
+<span class="sd">            Sample ID of the attachment. Defaults to ``self.sample_id``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">attachments</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;The attachments have not been initialized. This likely means &quot;</span>
+                <span class="s2">&quot;that you did not download them from SciCat.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">owner</span> <span class="o">=</span> <span class="n">_select_non_none_value</span><span class="p">(</span><span class="n">owner_group</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner_group</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">owner</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot add attachments without owner group&quot;</span><span class="p">)</span>
+        <span class="n">access</span> <span class="o">=</span> <span class="n">_select_non_none_value</span><span class="p">(</span><span class="n">access_groups</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_groups</span><span class="p">)</span>
+        <span class="n">instrument</span> <span class="o">=</span> <span class="n">_select_non_none_value</span><span class="p">(</span><span class="n">instrument_group</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">instrument_group</span><span class="p">)</span>
+        <span class="n">proposal</span> <span class="o">=</span> <span class="n">_select_non_none_value</span><span class="p">(</span><span class="n">proposal_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">proposal_id</span><span class="p">)</span>
+        <span class="n">sample</span> <span class="o">=</span> <span class="n">_select_non_none_value</span><span class="p">(</span><span class="n">sample_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_id</span><span class="p">)</span>
+
+        <span class="k">match</span> <span class="n">thumbnail</span><span class="p">:</span>
+            <span class="k">case</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">thumb</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">case</span> <span class="n">Thumbnail</span><span class="p">()</span> <span class="k">as</span> <span class="n">t</span><span class="p">:</span>
+                <span class="n">thumb</span> <span class="o">=</span> <span class="n">t</span>
+            <span class="k">case</span> <span class="n">path</span><span class="p">:</span>
+                <span class="n">thumb</span> <span class="o">=</span> <span class="n">Thumbnail</span><span class="o">.</span><span class="n">load_file</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">attachments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">Attachment</span><span class="p">(</span>
+                <span class="n">thumbnail</span><span class="o">=</span><span class="n">thumb</span><span class="p">,</span>
+                <span class="n">caption</span><span class="o">=</span><span class="n">caption</span><span class="p">,</span>
+                <span class="n">owner_group</span><span class="o">=</span><span class="n">owner</span><span class="p">,</span>
+                <span class="n">access_groups</span><span class="o">=</span><span class="n">access</span><span class="p">,</span>
+                <span class="n">instrument_group</span><span class="o">=</span><span class="n">instrument</span><span class="p">,</span>
+                <span class="n">proposal_id</span><span class="o">=</span><span class="n">proposal</span><span class="p">,</span>
+                <span class="n">sample_id</span><span class="o">=</span><span class="n">sample</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Dataset.add_files">
+<a class="viewcode-back" href="../../generated/classes/scitacean.Dataset.html#scitacean.Dataset.add_files">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">files</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span> <span class="n">datablock</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PID</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add files to the dataset.&quot;&quot;&quot;</span>
+        <span class="n">_deny_conflicting_files</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_orig_datablocks</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_or_add_orig_datablock</span><span class="p">(</span><span class="n">datablock</span><span class="p">)</span><span class="o">.</span><span class="n">add_files</span><span class="p">(</span><span class="o">*</span><span class="n">files</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Dataset.add_local_files">
+<a class="viewcode-back" href="../../generated/classes/scitacean.Dataset.html#scitacean.Dataset.add_local_files">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_local_files</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">paths</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">datablock</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add files on the local file system to the dataset.</span>
+
+<span class="sd">        The files are set up to be uploaded to the dataset&#39;s source folder without</span>
+<span class="sd">        preserving the local directory structure.</span>
+<span class="sd">        That is, given</span>
+
+<span class="sd">        .. code-block::</span>
+
+<span class="sd">            dataset.source_folder = &quot;remote/source&quot;</span>
+<span class="sd">            dataset.add_local_files(&quot;/path/to/file1&quot;, &quot;other_path/file2&quot;)</span>
+
+<span class="sd">        and uploading this dataset to SciCat, the files will be uploaded to::</span>
+
+<span class="sd">            remote/source/file1</span>
+<span class="sd">            remote/source/file2</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        paths:</span>
+<span class="sd">            Local paths to the files.</span>
+<span class="sd">        datablock:</span>
+<span class="sd">            Advanced feature, do not set unless you know what this is!</span>
+
+<span class="sd">            Select the orig datablock to store the file in.</span>
+<span class="sd">            If an ``int``, use the datablock with that index.</span>
+<span class="sd">            If a ``str`` or ``PID``, use the datablock with that id;</span>
+<span class="sd">            if there is none with matching id, raise ``KeyError``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO check for conflicts</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_files</span><span class="p">(</span>
+            <span class="o">*</span><span class="p">(</span><span class="n">File</span><span class="o">.</span><span class="n">from_local</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">),</span>
+            <span class="n">datablock</span><span class="o">=</span><span class="n">datablock</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Dataset.replace">
+<a class="viewcode-back" href="../../generated/classes/scitacean.Dataset.html#scitacean.Dataset.replace">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">replace</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">_read_only</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">_orig_datablocks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">OrigDatablock</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">replacements</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a new dataset with replaced fields.</span>
+
+<span class="sd">        Parameters starting with an underscore are for internal use.</span>
+<span class="sd">        Using them may result in a broken dataset.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        replacements:</span>
+<span class="sd">            New field values.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :</span>
+<span class="sd">            The new dataset has the same fields as the input but all fields given</span>
+<span class="sd">            as keyword arguments are replaced by the given values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_read_only</span> <span class="o">=</span> <span class="n">_read_only</span> <span class="ow">or</span> <span class="p">{}</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">get_val</span><span class="p">(</span><span class="n">source</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">source</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+        <span class="n">read_only</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">get_val</span><span class="p">(</span><span class="n">_read_only</span><span class="p">,</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">fields</span><span class="p">(</span><span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="n">DatasetBase</span><span class="o">.</span><span class="n">_convert_readonly_fields_in_place</span><span class="p">(</span><span class="n">read_only</span><span class="p">)</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="o">**</span><span class="p">{</span>
+                <span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">get_val</span><span class="p">(</span><span class="n">replacements</span><span class="p">,</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">fields</span><span class="p">(</span><span class="n">read_only</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="p">},</span>
+        <span class="p">}</span>
+        <span class="n">attachments</span> <span class="o">=</span> <span class="n">get_val</span><span class="p">(</span><span class="n">replacements</span><span class="p">,</span> <span class="s2">&quot;attachments&quot;</span><span class="p">)</span>
+        <span class="n">meta</span> <span class="o">=</span> <span class="n">get_val</span><span class="p">(</span><span class="n">replacements</span><span class="p">,</span> <span class="s2">&quot;meta&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">replacements</span> <span class="ow">or</span> <span class="n">_read_only</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Invalid arguments: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="o">*</span><span class="n">replacements</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">_read_only</span><span class="p">))</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="n">dset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="n">meta</span><span class="o">=</span><span class="n">meta</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">dset</span><span class="o">.</span><span class="n">_orig_datablocks</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+            <span class="n">_orig_datablocks</span> <span class="k">if</span> <span class="n">_orig_datablocks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_orig_datablocks</span>
+        <span class="p">)</span>
+        <span class="n">dset</span><span class="o">.</span><span class="n">_attachments</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">attachments</span><span class="p">)</span> <span class="k">if</span> <span class="n">attachments</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">read_only</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">dset</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">dset</span></div>
+
+
+<div class="viewcode-block" id="Dataset.as_new">
+<a class="viewcode-back" href="../../generated/classes/scitacean.Dataset.html#scitacean.Dataset.as_new">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">as_new</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a new dataset with lifecycle-related fields erased.</span>
+
+<span class="sd">        The returned dataset has the same fields as ``self``.</span>
+<span class="sd">        But fields that indicate when the dataset was created or</span>
+<span class="sd">        by who are set to ``None``.</span>
+<span class="sd">        This if, for example, ``created_at``, ``history``, and ``lifecycle``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :</span>
+<span class="sd">            A new dataset without lifecycle-related fields.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+            <span class="n">_read_only</span><span class="o">=</span><span class="p">{</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">fields</span><span class="p">(</span><span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)},</span>
+            <span class="n">creation_time</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">tz</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">),</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Dataset.derive">
+<a class="viewcode-back" href="../../generated/classes/scitacean.Dataset.html#scitacean.Dataset.derive">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">derive</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">keep</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;contact_email&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;investigator&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;orcid_of_owner&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;owner&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;owner_email&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;techniques&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a new dataset that is derived from self.</span>
+
+<span class="sd">        The returned dataset has most fields set to ``None``.</span>
+<span class="sd">        But a number of fields can be carried over from ``self``.</span>
+<span class="sd">        By default, this assumes that the owner of the derived dataset is the same</span>
+<span class="sd">        as the owner of the original.</span>
+<span class="sd">        This can be customized with the ``keep`` argument.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        keep:</span>
+<span class="sd">            Fields to copy over to the derived dataset.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :</span>
+<span class="sd">            A new derived dataset.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If ``self`` has no PID.</span>
+<span class="sd">            The derived dataset requires a PID in order to link back to ``self``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot make a derived datasets because self.pid is None.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Dataset</span><span class="p">(</span>
+            <span class="nb">type</span><span class="o">=</span><span class="n">DatasetType</span><span class="o">.</span><span class="n">DERIVED</span><span class="p">,</span>
+            <span class="n">input_datasets</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pid</span><span class="p">],</span>
+            <span class="n">creation_time</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">tz</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">),</span>
+            <span class="o">**</span><span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">keep</span><span class="p">},</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Dataset.replace_files">
+<a class="viewcode-back" href="../../generated/classes/scitacean.Dataset.html#scitacean.Dataset.replace_files">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">replace_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">files</span><span class="p">:</span> <span class="n">File</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a new dataset with replaced files.</span>
+
+<span class="sd">        For each argument, if the input dataset has a file with the</span>
+<span class="sd">        same remote path, that file is replaced.</span>
+<span class="sd">        Otherwise, a new file is added.</span>
+<span class="sd">        Other existing files are kept in the returned dataset.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        files:</span>
+<span class="sd">            New files for the dataset.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :</span>
+<span class="sd">            A new dataset with given files.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">new_or_old</span><span class="p">(</span><span class="n">old</span><span class="p">:</span> <span class="n">File</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">File</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">new</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">old</span><span class="o">.</span><span class="n">remote_path</span> <span class="o">==</span> <span class="n">new</span><span class="o">.</span><span class="n">remote_path</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">new</span>
+            <span class="k">return</span> <span class="n">old</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+            <span class="n">_orig_datablocks</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">dataclasses</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">dblock</span><span class="p">,</span> <span class="n">init_files</span><span class="o">=</span><span class="nb">map</span><span class="p">(</span><span class="n">new_or_old</span><span class="p">,</span> <span class="n">dblock</span><span class="o">.</span><span class="n">files</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">dblock</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_orig_datablocks</span>
+            <span class="p">]</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Dataset.add_orig_datablock">
+<a class="viewcode-back" href="../../generated/classes/scitacean.Dataset.html#scitacean.Dataset.add_orig_datablock">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_orig_datablock</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">checksum_algorithm</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OrigDatablock</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Append a new orig datablock to the list of orig datablocks.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        checksum_algorithm:</span>
+<span class="sd">            Use this algorithm to compute checksums of files</span>
+<span class="sd">            associated with this datablock.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :</span>
+<span class="sd">            The newly added datablock.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dblock</span> <span class="o">=</span> <span class="n">OrigDatablock</span><span class="p">(</span>
+            <span class="n">checksum_algorithm</span><span class="o">=</span><span class="n">checksum_algorithm</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_orig_datablocks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dblock</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">dblock</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_lookup_orig_datablock</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">id_</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OrigDatablock</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="n">db</span> <span class="k">for</span> <span class="n">db</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_orig_datablocks</span> <span class="k">if</span> <span class="n">db</span><span class="o">.</span><span class="n">datablock_id</span> <span class="o">==</span> <span class="n">id_</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No OrigDatablock with id </span><span class="si">{</span><span class="n">id_</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_or_add_orig_datablock</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PID</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OrigDatablock</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">PID</span><span class="p">):</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">PID</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lookup_orig_datablock</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="c1"># The 0th datablock is implicitly always there and created on demand.</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_orig_datablocks</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_orig_datablock</span><span class="p">(</span>
+                <span class="n">checksum_algorithm</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_checksum_algorithm</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_orig_datablocks</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Dataset.make_upload_model">
+<a class="viewcode-back" href="../../generated/classes/scitacean.Dataset.html#scitacean.Dataset.make_upload_model">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">make_upload_model</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UploadDerivedDataset</span> <span class="o">|</span> <span class="n">UploadRawDataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct a SciCat upload model from self.&quot;&quot;&quot;</span>
+        <span class="n">model</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">UploadRawDataset</span> <span class="o">|</span> <span class="n">UploadDerivedDataset</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">UploadRawDataset</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">DatasetType</span><span class="o">.</span><span class="n">RAW</span> <span class="k">else</span> <span class="n">UploadDerivedDataset</span>
+        <span class="p">)</span>
+        <span class="c1"># Datablocks are not included here because they are handled separately</span>
+        <span class="c1"># by make_datablock_upload_models and their own endpoints.</span>
+        <span class="n">special</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;relationships&quot;</span><span class="p">,</span> <span class="s2">&quot;techniques&quot;</span><span class="p">,</span> <span class="s2">&quot;input_datasets&quot;</span><span class="p">,</span> <span class="s2">&quot;used_software&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">model</span><span class="p">(</span>
+            <span class="n">numberOfFiles</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">number_of_files</span><span class="p">,</span>
+            <span class="n">numberOfFilesArchived</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">number_of_files_archived</span><span class="p">,</span>
+            <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
+            <span class="n">packedSize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">packed_size</span><span class="p">,</span>
+            <span class="n">scientificMetadata</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_meta</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">techniques</span><span class="o">=</span><span class="n">convert_user_to_upload_model</span><span class="p">(</span>  <span class="c1"># type: ignore[arg-type]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">techniques</span>
+            <span class="p">),</span>
+            <span class="n">relationships</span><span class="o">=</span><span class="n">convert_user_to_upload_model</span><span class="p">(</span>  <span class="c1"># type: ignore[arg-type]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">relationships</span>
+            <span class="p">),</span>
+            <span class="n">inputDatasets</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">input_datasets</span> <span class="ow">or</span> <span class="p">[],</span>
+            <span class="n">usedSoftware</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">used_software</span> <span class="ow">or</span> <span class="p">[],</span>
+            <span class="o">**</span><span class="p">{</span>
+                <span class="n">field</span><span class="o">.</span><span class="n">scicat_name</span><span class="p">:</span> <span class="n">value</span>
+                <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">special</span>
+                <span class="ow">and</span> <span class="p">(</span><span class="n">value</span> <span class="o">:=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="p">},</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Dataset.make_datablock_upload_models">
+<a class="viewcode-back" href="../../generated/classes/scitacean.Dataset.html#scitacean.Dataset.make_datablock_upload_models">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">make_datablock_upload_models</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatablockUploadModels</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build models for all contained (orig) datablocks.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :</span>
+<span class="sd">            Structure with datablock and orig datablock models.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_of_files</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">DatablockUploadModels</span><span class="p">(</span><span class="n">orig_datablocks</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">DatablockUploadModels</span><span class="p">(</span>
+            <span class="n">orig_datablocks</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">dblock</span><span class="o">.</span><span class="n">make_upload_model</span><span class="p">()</span> <span class="k">for</span> <span class="n">dblock</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_orig_datablocks</span>
+            <span class="p">]</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Dataset.make_attachment_upload_models">
+<a class="viewcode-back" href="../../generated/classes/scitacean.Dataset.html#scitacean.Dataset.make_attachment_upload_models">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">make_attachment_upload_models</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">UploadAttachment</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build models for all registered attachments.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If ``self.attachments`` is ``None``,</span>
+<span class="sd">            i.e., the attachments are uninitialized.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :</span>
+<span class="sd">            List of attachment models.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">attachments</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Cannot make upload models for attachments because &quot;</span>
+                <span class="s2">&quot;the attachments are uninitialized.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">make_upload_model</span><span class="p">()</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attachments</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Dataset.validate">
+<a class="viewcode-back" href="../../generated/classes/scitacean.Dataset.html#scitacean.Dataset.validate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate the fields of the dataset.</span>
+
+<span class="sd">        Raises :class:`pydantic.ValidationError` if validation fails.</span>
+<span class="sd">        Returns normally if it passes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">make_upload_model</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Dataset.keys">
+<a class="viewcode-back" href="../../generated/classes/scitacean.Dataset.html#scitacean.Dataset.keys">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">keys</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Dict-like keys(names of fields) method.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :</span>
+<span class="sd">            Generator of names of all fields corresponding to ``self.type``</span>
+<span class="sd">            and other fields that are not ``None``.</span>
+
+
+<span class="sd">        .. versionadded:: 23.10.0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">chain</span>
+
+        <span class="n">all_fields</span> <span class="o">=</span> <span class="p">{</span><span class="n">field</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">()}</span>
+        <span class="n">my_fields</span> <span class="o">=</span> <span class="p">{</span><span class="n">field</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">(</span><span class="n">dataset_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">)}</span>
+        <span class="n">other_fields</span> <span class="o">=</span> <span class="n">all_fields</span> <span class="o">-</span> <span class="n">my_fields</span>
+        <span class="n">invalid_fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">f_name</span> <span class="k">for</span> <span class="n">f_name</span> <span class="ow">in</span> <span class="n">other_fields</span> <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f_name</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">chain</span><span class="p">(</span><span class="n">my_fields</span><span class="p">,</span> <span class="n">invalid_fields</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Dataset.values">
+<a class="viewcode-back" href="../../generated/classes/scitacean.Dataset.html#scitacean.Dataset.values">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">values</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Dict-like values(values of fields) method.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :</span>
+<span class="sd">            Generator of values of all fields corresponding to ``self.type``</span>
+<span class="sd">            and other fields that are not ``None``.</span>
+
+
+<span class="sd">        .. versionadded:: 23.10.0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_name</span><span class="p">)</span> <span class="k">for</span> <span class="n">field_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="Dataset.items">
+<a class="viewcode-back" href="../../generated/classes/scitacean.Dataset.html#scitacean.Dataset.items">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">items</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Dict-like items(name and value pairs of fields) method.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :</span>
+<span class="sd">            Generator of (Name, Value) pairs of all fields</span>
+<span class="sd">            corresponding to ``self.type``</span>
+<span class="sd">            and other fields that are not ``None``.</span>
+
+
+<span class="sd">        .. versionadded:: 23.10.0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">))</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
+
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_field_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">field_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate ``field_name``.</span>
+
+<span class="sd">        If ``field_name`` is a ``name`` of any</span>
+<span class="sd">        :class:`DatasetBase.Field` objects in ``self.fields()``.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        field_name:</span>
+<span class="sd">            Name of the field to validate.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        KeyError</span>
+<span class="sd">            If validation fails.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">field_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">fields</span><span class="p">()):</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s2"> is not a valid field name.&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Dict-like get-item method.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        field_name:</span>
+<span class="sd">            Name of the field to retrieve.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :</span>
+<span class="sd">            Value of the field with the name ``field_name``.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        :</span>
+<span class="sd">            :class:`KeyError` if ``field_name`` does not mach any names of fields.</span>
+
+
+<span class="sd">        .. versionadded:: 23.10.0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_field_name</span><span class="p">(</span><span class="n">field_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_name</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">field_value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Dict-like set-item method.</span>
+
+<span class="sd">        Set the value of the field with name ``field_name`` as ``field_value``.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        field_name:</span>
+<span class="sd">            Name of the field to set.</span>
+
+<span class="sd">        field_value:</span>
+<span class="sd">            Value of the field to set.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        :</span>
+<span class="sd">            :class:`KeyError` if ``field_name`` does not mach any names of fields.</span>
+
+
+<span class="sd">        .. versionadded:: 23.10.0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_field_name</span><span class="p">(</span><span class="n">field_name</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">field_value</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="DatablockUploadModels">
+<a class="viewcode-back" href="../../generated/classes/scitacean.dataset.DatablockUploadModels.html#scitacean.DatablockUploadModels">[docs]</a>
+<span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DatablockUploadModels</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pydantic models for (orig) datablocks.&quot;&quot;&quot;</span>
+
+    <span class="c1"># TODO</span>
+    <span class="c1"># datablocks: Optional[List[UploadDatablock]]</span>
+    <span class="n">orig_datablocks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">UploadOrigDatablock</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Orig datablocks&quot;&quot;&quot;</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_deny_conflicting_files</span><span class="p">(</span>
+    <span class="n">files</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">File</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">orig_datablocks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">OrigDatablock</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">remote_path</span><span class="o">.</span><span class="n">posix</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">)</span>
+    <span class="n">duplicates</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">names</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">duplicates</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Duplicate file names: </span><span class="si">{</span><span class="n">duplicates</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">db</span> <span class="ow">in</span> <span class="n">orig_datablocks</span><span class="p">:</span>
+        <span class="n">names</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">Counter</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">remote_path</span><span class="o">.</span><span class="n">posix</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">db</span><span class="o">.</span><span class="n">files</span><span class="p">))</span>
+    <span class="n">duplicates</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">names</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">duplicates</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Cannot add files with names </span><span class="si">{</span><span class="n">duplicates</span><span class="si">!r}</span><span class="s2"> because &quot;</span>
+            <span class="s2">&quot;they already exist in the dataset.&quot;</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_select_non_none_value</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">_T</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">_T</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">match</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+        <span class="k">case</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">case</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">x</span>
+        <span class="k">case</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">x</span>
+        <span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="k">_</span><span class="p">):</span>  <span class="c1"># Prefer a over b</span>
+            <span class="k">return</span> <span class="n">x</span>
+    <span class="k">return</span> <span class="kc">None</span>  <span class="c1">#  This should be unreachable but Mypy complains without it.</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2023 SciCat Project.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><!-- This will display the version of the docs -->
+Current scitacean version: 25.3.2 (<a href="https://github.com/SciCatProject/scitacean/releases">older versions</a>).</div>
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

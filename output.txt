@@ -1,0 +1,8 @@
+generated/modules/scitacean.testing.client.FakeClient.rst:6: [redirected permanently] https://docs.pydantic.dev/ to https://docs.pydantic.dev/latest/
+user-guide/testing.ipynb:597: [redirected with Found] https://docs.pytest.org/ to https://docs.pytest.org/en/stable/
+generated/modules/scitacean.testing.backend.rst:3: [redirected with Found] https://docs.pytest.org to https://docs.pytest.org/en/stable/
+developer/index.rst:10: [redirected with Found] https://github.com/SciCatProject/scitacean/issues/new to https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2FSciCatProject%2Fscitacean%2Fissues%2Fnew
+index.rst:23: [redirected permanently] https://scicatproject.github.io/ to http://www.scicatproject.org/
+developer/index.rst:15: [redirected permanently] https://scicatproject.github.io/scitacean/developer/index.html to https://www.scicatproject.org/scitacean/developer/index.html
+index.rst:30: [redirected permanently] https://scicatproject.github.io/pyscicat/ to https://www.scicatproject.org/pyscicat/
+developer/testing.rst:33: [redirected permanently] https://scicatproject.github.io/scitacean/user-guide/testing.html#Local-SFTP-fileserver to https://www.scicatproject.org/scitacean/user-guide/testing.html

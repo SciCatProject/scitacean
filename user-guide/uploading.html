@@ -1,0 +1,2849 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Uploading datasets &#8212; Scitacean</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=7776b8de" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=15bde43d"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user-guide/uploading';</script>
+    <script src="../_static/anaconda-icon.js?v=461bdc62"></script>
+    <link rel="icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Testing code with Scitacean" href="testing.html" />
+    <link rel="prev" title="Downloading datasets" href="downloading.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="25.3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/logo.svg" class="logo__image only-light" alt="Scitacean - Home"/>
+    <img src="../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="Scitacean - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../reference/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../developer/index.html">
+    Developer documentation
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-external" href="https://scicatproject.github.io/">
+    SciCat
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-external" href="https://scicatproject.github.io/documentation/">
+    SciCat backend
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SciCatProject/scitacean" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/scitacean/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://anaconda.org/conda-forge/scitacean" title="Conda" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-custom fa-anaconda fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Conda</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../reference/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../developer/index.html">
+    Developer documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://scicatproject.github.io/">
+    SciCat
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://scicatproject.github.io/documentation/">
+    SciCat backend
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SciCatProject/scitacean" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/scitacean/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://anaconda.org/conda-forge/scitacean" title="Conda" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-custom fa-anaconda fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Conda</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="downloading.html">Downloading datasets</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Uploading datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing code with Scitacean</a></li>
+<li class="toctree-l1"><a class="reference internal" href="classes-and-concepts.html">Classes and concepts</a></li>
+</ul>
+</div>
+</nav></div>
+        <div class="sidebar-primary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-a-new-dataset">Create a new dataset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Upload-the-dataset">Upload the dataset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Location-of-uploaded-files">Location of uploaded files</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Attaching-images-to-datasets">Attaching images to datasets</a></li>
+</ul>
+  </nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/user-guide/uploading.ipynb"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Uploading datasets</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="Uploading-datasets">
+<h1>Uploading datasets<a class="headerlink" href="#Uploading-datasets" title="Link to this heading">#</a></h1>
+<p>Please read <a class="reference internal" href="downloading.html"><span class="doc">Downloading datasets</span></a> first as it explains the general setup.</p>
+<p>We connect to SciCat and a file server using a <a class="reference internal" href="../generated/classes/scitacean.Client.html"><span class="doc">Client</span></a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scitacean</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scitacean.transfer.sftp</span><span class="w"> </span><span class="kn">import</span> <span class="n">SFTPFileTransfer</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="o">.</span><span class="n">from_token</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://scicat.ess.eu/api/v3&quot;</span><span class="p">,</span>
+                           <span class="n">token</span><span class="o">=...</span><span class="p">,</span>
+                           <span class="n">file_transfer</span><span class="o">=</span><span class="n">SFTPFileTransfer</span><span class="p">(</span>
+                               <span class="n">host</span><span class="o">=</span><span class="s2">&quot;login.esss.dk&quot;</span>
+                           <span class="p">))</span>
+</pre></div>
+</div>
+<p>This code is identical to the one used for <a class="reference internal" href="downloading.html"><span class="doc">downloading</span></a> . As with the downloading guide, we use a fake client instead of the real one shown above.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scitacean.testing.docs</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_fake_client</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">setup_fake_client</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>This is especially useful here as datasets cannot be deleted from SciCat by regular users, and we don’t want to pollute the database with our test data.</p>
+<p>First, we need to generate some data to upload:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;data/witchcraft.dat&quot;</span><span class="p">)</span>
+<span class="n">path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;7.9 13 666&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<section id="Create-a-new-dataset">
+<h2>Create a new dataset<a class="headerlink" href="#Create-a-new-dataset" title="Link to this heading">#</a></h2>
+<p>With the totally realistic data in hand, we can construct a dataset.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scitacean</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span>
+
+<span class="n">dset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Spellpower of the Three Witches&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The spellpower of the maiden, mother, and crone.&quot;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span>
+
+    <span class="n">owner_group</span><span class="o">=</span><span class="s2">&quot;wyrdsisters&quot;</span><span class="p">,</span>
+    <span class="n">access_groups</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;witches&quot;</span><span class="p">],</span>
+
+    <span class="n">owner</span><span class="o">=</span><span class="s2">&quot;Nanny Ogg&quot;</span><span class="p">,</span>
+    <span class="n">principal_investigator</span><span class="o">=</span><span class="s2">&quot;Esme Weatherwax&quot;</span><span class="p">,</span>
+    <span class="n">contact_email</span><span class="o">=</span><span class="s2">&quot;nogg@wyrd.lancre&quot;</span><span class="p">,</span>
+
+    <span class="n">creation_location</span><span class="o">=</span><span class="s2">&quot;lancre/whichhut&quot;</span><span class="p">,</span>
+    <span class="n">data_format</span><span class="o">=</span><span class="s2">&quot;space-separated&quot;</span><span class="p">,</span>
+    <span class="n">source_folder</span><span class="o">=</span><span class="s2">&quot;/somewhere/on/remote&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>There are many more fields that can be filled in as needed. See <a class="reference internal" href="../generated/classes/scitacean.Dataset.html"><span class="doc">scitacean.Dataset</span></a>.</p>
+<p>Some fields require an explanation:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">dataset_type</span></code> is either <code class="docutils literal notranslate"><span class="pre">raw</span></code> or <code class="docutils literal notranslate"><span class="pre">derived</span></code>. The main difference is that derived datasets point to one or more input datasets.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">owner_group</span></code> and <code class="docutils literal notranslate"><span class="pre">access_groups</span></code> correspond to users/usergroups on the file server and determine who can access the files.</p></li>
+</ul>
+<p>Now we can attach our file:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dset</span><span class="o">.</span><span class="n">add_local_files</span><span class="p">(</span><span class="s2">&quot;data/witchcraft.dat&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Now, let’s inspect the dataset.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dset</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+    <style>body[data-jp-theme-light="true"],body[data-jp-theme-light="false"]{--cean-font-color-field-type:var(--jp-content-font-color2);--cean-font-color-field-description:var(--jp-content-font-color1);--cean-font-color-file-info-size:var(--jp-content-font-color1);--cean-font-color-empty:var(--jp-content-font-color2);--cean-lock-fill:var(--jp-content-font-color2);--cean-error-color:var(--jp-error-color0);--cean-layout-color-border:var(--jp-layout-color3);--cean-layout-color-background:var(--jp-layout-color0);}body[data-vscode-theme-kind="vscode-dark"],body[data-vscode-theme-kind="vscode-light"]{--cean-error-color:var(--vscode-editorError-foreground);--cean-layout-color-border:var(--vscode-editorWidget-border);--cean-layout-color-background:var(--vscode-editorWidget-background);}body[data-vscode-theme-kind="vscode-dark"]{--cean-font-color-field-type:rgba(204,204,204,0.54);--cean-font-color-field-description:rgba(204,204,204,0.87);--cean-font-color-file-info-size:rgba(204,204,204,0.87);--cean-font-color-empty:rgba(204,204,204,0.54);--cean-lock-fill:rgba(204,204,204,0.54);}body[data-vscode-theme-kind="vscode-light"]{--cean-font-color-field-type:rgba(59,59,59,0.54);--cean-font-color-field-description:rgba(59,59,59,0.87);--cean-font-color-file-info-size:rgba(59,59,59,0.87);--cean-font-color-empty:rgba(59,59,59,0.54);--cean-lock-fill:rgba(59,59,59,0.54);}</style><style>.cean-attachment{display:table;clear:both}.cean-attachment-info{float:left;width:75%}.cean-thumbnail{float:left;width:20%;margin-left:5%;}tr.cean-header{border-bottom:2px solid var(--cean-layout-color-border);}.jp-RenderedHTMLCommon tbody tr.cean-header:hover{background:var(--cean-layout-color-background);}.cean-info-line{margin-left:1em;}.cean-dataset-type{font-weight:bold;}.cean-dataset th{text-align:left !important;}.cean-dataset td{white-space:nowrap !important;overflow:hidden;text-overflow:ellipsis;}.cean-field-flag{width:2%;}.cean-field-flag div{font-weight:bold;}.cean-field-name{width:20%;text-align:left !important;}.cean-field-type{width:12%;text-align:left !important;}td.cean-field-type{color:var(--cean-font-color-field-type);}.cean-field-value{width:39%;text-align:left !important;}.cean-field-description{width:27%;text-align:left !important;}td.cean-field-description{color:var(--cean-font-color-field-description);}.cean-field-value:hover span,.cean-field-description:hover span{white-space:normal;overflow:visible;}.cean-empty-field{color:var(--cean-font-color-empty);}.cean-missing-value,.cean-error{border-left:var(--cean-error-color) 4px solid !important;border-right:var(--cean-error-color) 4px solid !important;}.cean-missing-value .cean-empty-field,.cean-error .cean-field-value{color:var(--cean-error-color);}table.cean-dataset{margin-left:1em !important;margin-bottom:0;table-layout:fixed;width:100%;}.cean-dataset-details table.cean-dataset{margin-bottom:1em;border-top:2px solid var(--cean-layout-color-border);}details[open].cean-dataset-details summary{height:0;padding:0;}details[open].cean-dataset-details summary span{visibility:hidden;}details summary{cursor:pointer;}.cean-file-info{padding-left:1em;}.cean-archived-file-info{padding-left:4em;}.cean-file-info-size{color:var(--cean-font-color-file-info-size);}table.cean-files,table.cean-metadata{margin-left:1em !important;width:100%;}.cean-file-local-path,.cean-file-remote-path{width:40%;text-align:left !important;}.cean-file-size{width:10%;text-align:left !important;}.cean-metadata-name{width:30%;text-align:left !important;}.cean-metadata-value{width:70%;text-align:left !important;}.cean-lock{width:1.4ch;height:auto;}.cean-lock svg{max-width:100%;height:auto;}.cean-lock path{fill:var(--cean-lock-fill) !important;}</style>
+    <div class="cean-info-line">
+        <span class="cean-dataset-type">RawDataset</span>
+    </div>
+    <table class="cean-dataset">
+        <tr class="cean-header">
+            <th class="cean-field-flag"></th>
+            <th class="cean-field-name">Name</th>
+            <th class="cean-field-type">Type</th>
+            <th class="cean-field-value">Value</th>
+            <th class="cean-field-description">Description</th>
+        </tr>
+        <tr class="cean-field " >
+    <td class="cean-field-flag"><div style="color: var(--jp-error-color0)">*</div></td>
+    <td class="cean-field-name">creation_time</td>
+    <td class="cean-field-type">datetime</td>
+    <td class="cean-field-value"><span>2025-03-27 09:34:29+0000</span></td>
+    <td class="cean-field-description"><span>Time when dataset became fully available on disk, i.e. all containing files have been written,  or the dataset was created in SciCat.&lt;br&gt;It is expected to be in ISO8601 format according to specifications for internet date/time format in RFC 3339, chapter 5.6 (https://www.rfc-editor.org/rfc/rfc3339#section-5).&lt;br&gt;Local times without timezone/offset info are automatically transformed to UTC using the timezone of the API server.</span></td>
+</tr>
+
+<tr class="cean-field cean-missing-value" title="Missing required field">
+    <td class="cean-field-flag"><div style="color: var(--jp-error-color0)">*</div></td>
+    <td class="cean-field-name">input_datasets</td>
+    <td class="cean-field-type">list[PID]</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>Array of input dataset identifiers used in producing the derived dataset. Ideally these are the global identifier to existing datasets inside this or federated data catalogs.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"><div style="color: var(--jp-error-color0)">*</div></td>
+    <td class="cean-field-name">source_folder</td>
+    <td class="cean-field-type">RemotePath</td>
+    <td class="cean-field-value"><span>RemotePath(&#x27;/somewhere/on/remote&#x27;)</span></td>
+    <td class="cean-field-description"><span>Absolute file path on file server containing the files of this dataset, e.g. /some/path/to/sourcefolder. In case of a single file dataset, e.g. HDF5 data, it contains the path up to, but excluding the filename. Trailing slashes are removed.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">description</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span>The spellpower of the maiden, mother, and crone.</span></td>
+    <td class="cean-field-description"><span>Free text explanation of contents of dataset.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">name</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span>Spellpower of the Three Witches</span></td>
+    <td class="cean-field-description"><span>A name for the dataset, given by the creator to carry some semantic meaning. Useful for display purposes e.g. instead of displaying the pid. Will be autofilled if missing using info from sourceFolder.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"><div class="cean-lock"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.361915mm"
+   height="17.348812mm"
+   viewBox="0 0 14.361915 17.348812"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="lock.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.551292"
+     inkscape:cx="-119.90006"
+     inkscape:cy="-33.198134"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.3422388,-6.5584985)">
+    <path
+       id="circle3527"
+       style="color:#000000;fill:#4d4d4d;stroke-width:0.999997;-inkscape-stroke:none"
+       d="m 15.523713,6.5584985 c -2.767358,-1.8e-5 -5.027101,2.260239 -5.027083,5.0276005 v 1.369942 C 9.2424668,13.371803 8.3422388,14.550409 8.3422388,15.94759 v 4.807458 c 0,1.746404 1.405859,3.152263 3.1522632,3.152263 h 8.057389 c 1.746403,0 3.152262,-1.405859 3.152262,-3.152263 V 15.94759 c 0,-1.397019 -0.899938,-2.575141 -2.153873,-2.991032 v -1.370459 c 2e-5,-2.7673615 -2.259206,-5.0276195 -5.026567,-5.0276005 z m 0,1.521871 c 1.944936,-1.3e-5 3.504192,1.560794 3.504179,3.5057295 v 1.209229 h -7.009908 v -1.209229 c -1.2e-5,-1.9449345 1.560797,-3.5057425 3.505729,-3.5057295 z m -5.17e-4,7.4476075 c 0.904731,0 1.633492,0.656354 1.633492,1.471745 0,0.432939 -0.205768,0.821008 -0.533817,1.089856 2.1e-4,0.008 5.17e-4,0.01629 5.17e-4,0.02429 v 2.440678 c 0,0.542024 -0.48431,0.978235 -1.085722,0.978235 -0.601412,0 -1.085722,-0.436211 -1.085722,-0.978235 v -2.440678 -0.0021 c -0.344426,-0.269453 -0.561723,-0.666871 -0.561723,-1.112077 0,-0.815391 0.728244,-1.471745 1.632975,-1.471745 z" />
+  </g>
+</svg>
+</div></td>
+    <td class="cean-field-name">pid</td>
+    <td class="cean-field-type">PID</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>Persistent identifier of the dataset.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">proposal_id</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>The ID of the proposal to which the dataset belongs.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">sample_id</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>ID of the sample used when collecting the data.</span></td>
+</tr>
+
+    </table>
+    <details class="cean-dataset-details">
+        <summary><span>Advanced fields</span></summary>
+        <table class="cean-dataset">
+            <tr class="cean-field " >
+    <td class="cean-field-flag"><div style="color: var(--jp-error-color0)">*</div></td>
+    <td class="cean-field-name">contact_email</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span>nogg@wyrd.lancre</span></td>
+    <td class="cean-field-description"><span>Email of the contact person for this dataset. The string may contain a list of emails, which should then be separated by semicolons.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"><div style="color: var(--jp-error-color0)">*</div></td>
+    <td class="cean-field-name">creation_location</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span>lancre/whichhut</span></td>
+    <td class="cean-field-description"><span>Unique location identifier where data was taken, usually in the form /Site-name/facility-name/instrumentOrBeamline-name. This field is required if the dataset is a Raw dataset.</span></td>
+</tr>
+
+<tr class="cean-field cean-missing-value" title="Missing required field">
+    <td class="cean-field-flag"><div style="color: var(--jp-error-color0)">*</div></td>
+    <td class="cean-field-name">investigator</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>First name and last name of the person or people pursuing the data analysis. The string may contain a list of names, which should then be separated by semicolons.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"><div style="color: var(--jp-error-color0)">*</div></td>
+    <td class="cean-field-name">owner</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span>Nanny Ogg</span></td>
+    <td class="cean-field-description"><span>Owner or custodian of the dataset, usually first name + last name. The string may contain a list of persons, which should then be separated by semicolons.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"><div style="color: var(--jp-error-color0)">*</div></td>
+    <td class="cean-field-name">owner_group</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span>wyrdsisters</span></td>
+    <td class="cean-field-description"><span>Name of the group owning this item.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"><div style="color: var(--jp-error-color0)">*</div></td>
+    <td class="cean-field-name">principal_investigator</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span>Esme Weatherwax</span></td>
+    <td class="cean-field-description"><span>First name and last name of principal investigator(s). If multiple PIs are present, use a semicolon separated list. This field is required if the dataset is a Raw dataset.</span></td>
+</tr>
+
+<tr class="cean-field cean-missing-value" title="Missing required field">
+    <td class="cean-field-flag"><div style="color: var(--jp-error-color0)">*</div></td>
+    <td class="cean-field-name">used_software</td>
+    <td class="cean-field-type">list[str]</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>A list of links to software repositories which uniquely identifies the pieces of software, including versions, used for yielding the derived data.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">access_groups</td>
+    <td class="cean-field-type">list[str]</td>
+    <td class="cean-field-value"><span>[&#x27;witches&#x27;]</span></td>
+    <td class="cean-field-description"><span>List of groups which have access to this item.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"><div class="cean-lock"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.361915mm"
+   height="17.348812mm"
+   viewBox="0 0 14.361915 17.348812"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="lock.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.551292"
+     inkscape:cx="-119.90006"
+     inkscape:cy="-33.198134"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.3422388,-6.5584985)">
+    <path
+       id="circle3527"
+       style="color:#000000;fill:#4d4d4d;stroke-width:0.999997;-inkscape-stroke:none"
+       d="m 15.523713,6.5584985 c -2.767358,-1.8e-5 -5.027101,2.260239 -5.027083,5.0276005 v 1.369942 C 9.2424668,13.371803 8.3422388,14.550409 8.3422388,15.94759 v 4.807458 c 0,1.746404 1.405859,3.152263 3.1522632,3.152263 h 8.057389 c 1.746403,0 3.152262,-1.405859 3.152262,-3.152263 V 15.94759 c 0,-1.397019 -0.899938,-2.575141 -2.153873,-2.991032 v -1.370459 c 2e-5,-2.7673615 -2.259206,-5.0276195 -5.026567,-5.0276005 z m 0,1.521871 c 1.944936,-1.3e-5 3.504192,1.560794 3.504179,3.5057295 v 1.209229 h -7.009908 v -1.209229 c -1.2e-5,-1.9449345 1.560797,-3.5057425 3.505729,-3.5057295 z m -5.17e-4,7.4476075 c 0.904731,0 1.633492,0.656354 1.633492,1.471745 0,0.432939 -0.205768,0.821008 -0.533817,1.089856 2.1e-4,0.008 5.17e-4,0.01629 5.17e-4,0.02429 v 2.440678 c 0,0.542024 -0.48431,0.978235 -1.085722,0.978235 -0.601412,0 -1.085722,-0.436211 -1.085722,-0.978235 v -2.440678 -0.0021 c -0.344426,-0.269453 -0.561723,-0.666871 -0.561723,-1.112077 0,-0.815391 0.728244,-1.471745 1.632975,-1.471745 z" />
+  </g>
+</svg>
+</div></td>
+    <td class="cean-field-name">api_version</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>Version of the API used in creation of the dataset.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">classification</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>ACIA information about AUthenticity,COnfidentiality,INtegrity and AVailability requirements of dataset. E.g. AV(ailabilty)=medium could trigger the creation of a two tape copies. Format &#x27;AV=medium,CO=low&#x27;</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">comment</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>Comment the user has about a given dataset.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"><div class="cean-lock"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.361915mm"
+   height="17.348812mm"
+   viewBox="0 0 14.361915 17.348812"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="lock.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.551292"
+     inkscape:cx="-119.90006"
+     inkscape:cy="-33.198134"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.3422388,-6.5584985)">
+    <path
+       id="circle3527"
+       style="color:#000000;fill:#4d4d4d;stroke-width:0.999997;-inkscape-stroke:none"
+       d="m 15.523713,6.5584985 c -2.767358,-1.8e-5 -5.027101,2.260239 -5.027083,5.0276005 v 1.369942 C 9.2424668,13.371803 8.3422388,14.550409 8.3422388,15.94759 v 4.807458 c 0,1.746404 1.405859,3.152263 3.1522632,3.152263 h 8.057389 c 1.746403,0 3.152262,-1.405859 3.152262,-3.152263 V 15.94759 c 0,-1.397019 -0.899938,-2.575141 -2.153873,-2.991032 v -1.370459 c 2e-5,-2.7673615 -2.259206,-5.0276195 -5.026567,-5.0276005 z m 0,1.521871 c 1.944936,-1.3e-5 3.504192,1.560794 3.504179,3.5057295 v 1.209229 h -7.009908 v -1.209229 c -1.2e-5,-1.9449345 1.560797,-3.5057425 3.505729,-3.5057295 z m -5.17e-4,7.4476075 c 0.904731,0 1.633492,0.656354 1.633492,1.471745 0,0.432939 -0.205768,0.821008 -0.533817,1.089856 2.1e-4,0.008 5.17e-4,0.01629 5.17e-4,0.02429 v 2.440678 c 0,0.542024 -0.48431,0.978235 -1.085722,0.978235 -0.601412,0 -1.085722,-0.436211 -1.085722,-0.978235 v -2.440678 -0.0021 c -0.344426,-0.269453 -0.561723,-0.666871 -0.561723,-1.112077 0,-0.815391 0.728244,-1.471745 1.632975,-1.471745 z" />
+  </g>
+</svg>
+</div></td>
+    <td class="cean-field-name">created_at</td>
+    <td class="cean-field-type">datetime</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>Date and time when this record was created. This field is managed by mongoose with through the timestamp settings. The field should be a string containing a date in ISO 8601 format (2024-02-27T12:26:57.313Z)</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"><div class="cean-lock"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.361915mm"
+   height="17.348812mm"
+   viewBox="0 0 14.361915 17.348812"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="lock.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.551292"
+     inkscape:cx="-119.90006"
+     inkscape:cy="-33.198134"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.3422388,-6.5584985)">
+    <path
+       id="circle3527"
+       style="color:#000000;fill:#4d4d4d;stroke-width:0.999997;-inkscape-stroke:none"
+       d="m 15.523713,6.5584985 c -2.767358,-1.8e-5 -5.027101,2.260239 -5.027083,5.0276005 v 1.369942 C 9.2424668,13.371803 8.3422388,14.550409 8.3422388,15.94759 v 4.807458 c 0,1.746404 1.405859,3.152263 3.1522632,3.152263 h 8.057389 c 1.746403,0 3.152262,-1.405859 3.152262,-3.152263 V 15.94759 c 0,-1.397019 -0.899938,-2.575141 -2.153873,-2.991032 v -1.370459 c 2e-5,-2.7673615 -2.259206,-5.0276195 -5.026567,-5.0276005 z m 0,1.521871 c 1.944936,-1.3e-5 3.504192,1.560794 3.504179,3.5057295 v 1.209229 h -7.009908 v -1.209229 c -1.2e-5,-1.9449345 1.560797,-3.5057425 3.505729,-3.5057295 z m -5.17e-4,7.4476075 c 0.904731,0 1.633492,0.656354 1.633492,1.471745 0,0.432939 -0.205768,0.821008 -0.533817,1.089856 2.1e-4,0.008 5.17e-4,0.01629 5.17e-4,0.02429 v 2.440678 c 0,0.542024 -0.48431,0.978235 -1.085722,0.978235 -0.601412,0 -1.085722,-0.436211 -1.085722,-0.978235 v -2.440678 -0.0021 c -0.344426,-0.269453 -0.561723,-0.666871 -0.561723,-1.112077 0,-0.815391 0.728244,-1.471745 1.632975,-1.471745 z" />
+  </g>
+</svg>
+</div></td>
+    <td class="cean-field-name">created_by</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>Indicate the user who created this record. This property is added and maintained by the system.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">data_format</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span>space-separated</span></td>
+    <td class="cean-field-description"><span>Defines the format of the data files in this dataset, e.g Nexus Version x.y.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">data_quality_metrics</td>
+    <td class="cean-field-type">int</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>Data Quality Metrics is a number given by the user to rate the dataset.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">end_time</td>
+    <td class="cean-field-type">datetime</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>End time of data acquisition for the current dataset.&lt;br&gt;It is expected to be in ISO8601 format according to specifications for internet date/time format in RFC 3339, chapter 5.6 (https://www.rfc-editor.org/rfc/rfc3339#section-5).&lt;br&gt;Local times without timezone/offset info are automatically transformed to UTC using the timezone of the API server.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">instrument_group</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>Group of the instrument which this item was acquired on.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">instrument_id</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>ID of the instrument where the data was created.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">is_published</td>
+    <td class="cean-field-type">bool</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>Flag is true when data are made publicly available.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">job_log_data</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>The output job logfile. Keep the size of this log data well below 15 MB.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">job_parameters</td>
+    <td class="cean-field-type">dict[str, typing.Any]</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>The creation process of the derived data will usually depend on input job parameters. The full structure of these input parameters are stored here.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">keywords</td>
+    <td class="cean-field-type">list[str]</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>Array of tags associated with the meaning or contents of this dataset. Values should ideally come from defined vocabularies, taxonomies, ontologies or knowledge graphs.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">license</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>Name of the license under which the data can be used.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"><div class="cean-lock"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.361915mm"
+   height="17.348812mm"
+   viewBox="0 0 14.361915 17.348812"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="lock.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.551292"
+     inkscape:cx="-119.90006"
+     inkscape:cy="-33.198134"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.3422388,-6.5584985)">
+    <path
+       id="circle3527"
+       style="color:#000000;fill:#4d4d4d;stroke-width:0.999997;-inkscape-stroke:none"
+       d="m 15.523713,6.5584985 c -2.767358,-1.8e-5 -5.027101,2.260239 -5.027083,5.0276005 v 1.369942 C 9.2424668,13.371803 8.3422388,14.550409 8.3422388,15.94759 v 4.807458 c 0,1.746404 1.405859,3.152263 3.1522632,3.152263 h 8.057389 c 1.746403,0 3.152262,-1.405859 3.152262,-3.152263 V 15.94759 c 0,-1.397019 -0.899938,-2.575141 -2.153873,-2.991032 v -1.370459 c 2e-5,-2.7673615 -2.259206,-5.0276195 -5.026567,-5.0276005 z m 0,1.521871 c 1.944936,-1.3e-5 3.504192,1.560794 3.504179,3.5057295 v 1.209229 h -7.009908 v -1.209229 c -1.2e-5,-1.9449345 1.560797,-3.5057425 3.505729,-3.5057295 z m -5.17e-4,7.4476075 c 0.904731,0 1.633492,0.656354 1.633492,1.471745 0,0.432939 -0.205768,0.821008 -0.533817,1.089856 2.1e-4,0.008 5.17e-4,0.01629 5.17e-4,0.02429 v 2.440678 c 0,0.542024 -0.48431,0.978235 -1.085722,0.978235 -0.601412,0 -1.085722,-0.436211 -1.085722,-0.978235 v -2.440678 -0.0021 c -0.344426,-0.269453 -0.561723,-0.666871 -0.561723,-1.112077 0,-0.815391 0.728244,-1.471745 1.632975,-1.471745 z" />
+  </g>
+</svg>
+</div></td>
+    <td class="cean-field-name">lifecycle</td>
+    <td class="cean-field-type">Lifecycle</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>Describes the current status of the dataset during its lifetime with respect to the storage handling systems.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">orcid_of_owner</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>ORCID of the owner or custodian. The string may contain a list of ORCIDs, which should then be separated by semicolons.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">owner_email</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>Email of the owner or custodian of the dataset. The string may contain a list of emails, which should then be separated by semicolons.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">relationships</td>
+    <td class="cean-field-type">list[Relationship]</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>Stores the relationships with other datasets.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">run_number</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>Run number assigned by the system to the data acquisition for the current dataset.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">shared_with</td>
+    <td class="cean-field-type">list[str]</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>List of users that the dataset has been shared with.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">source_folder_host</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>DNS host name of file server hosting sourceFolder, optionally including a protocol e.g. [protocol://]fileserver1.example.com</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">start_time</td>
+    <td class="cean-field-type">datetime</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>Start time of data acquisition for the current dataset.&lt;br&gt;It is expected to be in ISO8601 format according to specifications for internet date/time format in RFC 3339, chapter 5.6 (https://www.rfc-editor.org/rfc/rfc3339#section-5).&lt;br&gt;Local times without timezone/offset info are automatically transformed to UTC using the timezone of the API server.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">techniques</td>
+    <td class="cean-field-type">list[Technique]</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>Stores the metadata information for techniques.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"><div class="cean-lock"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.361915mm"
+   height="17.348812mm"
+   viewBox="0 0 14.361915 17.348812"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="lock.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.551292"
+     inkscape:cx="-119.90006"
+     inkscape:cy="-33.198134"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.3422388,-6.5584985)">
+    <path
+       id="circle3527"
+       style="color:#000000;fill:#4d4d4d;stroke-width:0.999997;-inkscape-stroke:none"
+       d="m 15.523713,6.5584985 c -2.767358,-1.8e-5 -5.027101,2.260239 -5.027083,5.0276005 v 1.369942 C 9.2424668,13.371803 8.3422388,14.550409 8.3422388,15.94759 v 4.807458 c 0,1.746404 1.405859,3.152263 3.1522632,3.152263 h 8.057389 c 1.746403,0 3.152262,-1.405859 3.152262,-3.152263 V 15.94759 c 0,-1.397019 -0.899938,-2.575141 -2.153873,-2.991032 v -1.370459 c 2e-5,-2.7673615 -2.259206,-5.0276195 -5.026567,-5.0276005 z m 0,1.521871 c 1.944936,-1.3e-5 3.504192,1.560794 3.504179,3.5057295 v 1.209229 h -7.009908 v -1.209229 c -1.2e-5,-1.9449345 1.560797,-3.5057425 3.505729,-3.5057295 z m -5.17e-4,7.4476075 c 0.904731,0 1.633492,0.656354 1.633492,1.471745 0,0.432939 -0.205768,0.821008 -0.533817,1.089856 2.1e-4,0.008 5.17e-4,0.01629 5.17e-4,0.02429 v 2.440678 c 0,0.542024 -0.48431,0.978235 -1.085722,0.978235 -0.601412,0 -1.085722,-0.436211 -1.085722,-0.978235 v -2.440678 -0.0021 c -0.344426,-0.269453 -0.561723,-0.666871 -0.561723,-1.112077 0,-0.815391 0.728244,-1.471745 1.632975,-1.471745 z" />
+  </g>
+</svg>
+</div></td>
+    <td class="cean-field-name">updated_at</td>
+    <td class="cean-field-type">datetime</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>Date and time when this record was updated last. This field is managed by mongoose with through the timestamp settings. The field should be a string containing a date in ISO 8601 format (2024-02-27T12:26:57.313Z)</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"><div class="cean-lock"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.361915mm"
+   height="17.348812mm"
+   viewBox="0 0 14.361915 17.348812"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="lock.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.551292"
+     inkscape:cx="-119.90006"
+     inkscape:cy="-33.198134"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.3422388,-6.5584985)">
+    <path
+       id="circle3527"
+       style="color:#000000;fill:#4d4d4d;stroke-width:0.999997;-inkscape-stroke:none"
+       d="m 15.523713,6.5584985 c -2.767358,-1.8e-5 -5.027101,2.260239 -5.027083,5.0276005 v 1.369942 C 9.2424668,13.371803 8.3422388,14.550409 8.3422388,15.94759 v 4.807458 c 0,1.746404 1.405859,3.152263 3.1522632,3.152263 h 8.057389 c 1.746403,0 3.152262,-1.405859 3.152262,-3.152263 V 15.94759 c 0,-1.397019 -0.899938,-2.575141 -2.153873,-2.991032 v -1.370459 c 2e-5,-2.7673615 -2.259206,-5.0276195 -5.026567,-5.0276005 z m 0,1.521871 c 1.944936,-1.3e-5 3.504192,1.560794 3.504179,3.5057295 v 1.209229 h -7.009908 v -1.209229 c -1.2e-5,-1.9449345 1.560797,-3.5057425 3.505729,-3.5057295 z m -5.17e-4,7.4476075 c 0.904731,0 1.633492,0.656354 1.633492,1.471745 0,0.432939 -0.205768,0.821008 -0.533817,1.089856 2.1e-4,0.008 5.17e-4,0.01629 5.17e-4,0.02429 v 2.440678 c 0,0.542024 -0.48431,0.978235 -1.085722,0.978235 -0.601412,0 -1.085722,-0.436211 -1.085722,-0.978235 v -2.440678 -0.0021 c -0.344426,-0.269453 -0.561723,-0.666871 -0.561723,-1.112077 0,-0.815391 0.728244,-1.471745 1.632975,-1.471745 z" />
+  </g>
+</svg>
+</div></td>
+    <td class="cean-field-name">updated_by</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>Indicate the user who updated this record last. This property is added and maintained by the system.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">validation_status</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>Defines a level of trust, e.g. a measure of how much data was verified or used by other persons.</span></td>
+</tr>
+
+        </table>
+    </details>
+    <details class="cean-dataset-files">
+        <summary><span>Files:</span>
+            <span class="cean-file-info"> 1 <span class="cean-file-info-size">(10 B)</span></span>
+            <span class="cean-archived-file-info"></span>
+        </summary>
+        <table class="cean-files">
+            <tr class="cean-header">
+                <th class="cean-file-local-path">Local</th>
+                <th class="cean-file-remote-path">Remote</th>
+                <th class="cean-file-size">Size</th>
+            </tr>
+            <tr class="file">
+    <td class="cean-file-local-path">data/witchcraft.dat</td>
+    <td class="cean-file-remote-path"><span class="cean-empty-field">None</span></td>
+    <td class="cean-file-size">10 B</td>
+</tr>
+
+        </table>
+    </details>
+    <details class="cean-dataset-metadata">
+        <summary><span>Scientific Metadata</span></summary>
+        <table class="cean-metadata">
+            <tr class="cean-header">
+                <th class="cean-metadata-name">Name</th>
+                <th class="cean-metadata-value">Value</th>
+            </tr>
+
+        </table>
+    </details>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">dset</span><span class="o">.</span><span class="n">files</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+1
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dset</span><span class="o">.</span><span class="n">size</span>  <span class="c1"># in bytes</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+10
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">file</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dset</span><span class="o">.</span><span class="n">files</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">remote_access_path</span><span class="p">(</span><span class="n">dset</span><span class="o">.</span><span class="n">source_folder</span><span class="p">)</span><span class="w"> </span><span class="si">= }</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">local_path</span><span class="w"> </span><span class="si">= }</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">size</span><span class="w"> </span><span class="si">= }</span><span class="s2"> bytes&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+file.remote_access_path(dset.source_folder) = None
+file.local_path = PosixPath(&#39;data/witchcraft.dat&#39;)
+file.size = 10 bytes
+</pre></div></div>
+</div>
+<p>The file has a <code class="docutils literal notranslate"><span class="pre">local_path</span></code> but no <code class="docutils literal notranslate"><span class="pre">remote_access_path</span></code> which means that it exists on the local file system (where we put it earlier) but not on the remote file server accessible by SciCat. The location can also be queried using <code class="docutils literal notranslate"><span class="pre">file.is_on_local</span></code> and <code class="docutils literal notranslate"><span class="pre">file.is_on_remote</span></code>.</p>
+<p>Likewise, the dataset only exists in memory on our local machine and not on SciCat. Nothing has been uploaded yet. So we can freely modify the dataset or bail out by deleting the Python object if we need to.</p>
+</section>
+<section id="Upload-the-dataset">
+<h2>Upload the dataset<a class="headerlink" href="#Upload-the-dataset" title="Link to this heading">#</a></h2>
+<p>Once the dataset is ready, we can upload it using</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">finalized</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">upload_new_dataset_now</span><span class="p">(</span><span class="n">dset</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">WARNING:</p>
+<p>This action cannot be undone by a regular user! Contact an admin if you uploaded a dataset accidentally.</p>
+</div>
+<p><a class="reference internal" href="../generated/classes/scitacean.Client.html#scitacean.Client.upload_new_dataset_now"><span class="std std-ref">scitacean.Client.upload_new_dataset_now</span></a> uploads the dataset (i.e. metadata) to SciCat and the files to the file server. And it does so in such a way that it always creates a new dataset and new files without overwriting any existing (meta) data.</p>
+<p>It returns a new dataset that is a copy of the input with some updated information generated by SciCat and the file transfer. For example, it has been assigned a new ID:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">finalized</span><span class="o">.</span><span class="n">pid</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PID(prefix=&#39;PID.prefix.a0b1&#39;, pid=&#39;64b46030-9b2a-4178-8221-bf20d0f92896&#39;)
+</pre></div></div>
+</div>
+<p>And the remote access path of our file has been set:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">list</span><span class="p">(</span><span class="n">finalized</span><span class="o">.</span><span class="n">files</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">remote_access_path</span><span class="p">(</span><span class="n">finalized</span><span class="o">.</span><span class="n">source_folder</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+RemotePath(&#39;/somewhere/on/remote/witchcraft.dat&#39;)
+</pre></div></div>
+</div>
+</section>
+<section id="Location-of-uploaded-files">
+<h2>Location of uploaded files<a class="headerlink" href="#Location-of-uploaded-files" title="Link to this heading">#</a></h2>
+<p>All files associated with a dataset will be uploaded to the same folder. This folder may be at the path we specify when making the dataset, i.e. <code class="docutils literal notranslate"><span class="pre">dset.source_folder</span></code>. However, the folder is ultimately determined by the file transfer (in this case <code class="docutils literal notranslate"><span class="pre">SFTPFileTransfer</span></code>) and it may choose to override the <code class="docutils literal notranslate"><span class="pre">source_folder</span></code> that we set. In this example, since we don’t tell the file transfer otherwise, it respects <code class="docutils literal notranslate"><span class="pre">dset.source_folder</span></code> and uploads the files to that location. See the <a class="reference internal" href="../reference/index.html#file-transfer"><span class="std std-ref">File
+transfer</span></a> reference for information how to control this behavior. The reason for this is that facilities may have a specific structure on their file server and Scitacean’s file transfers can be used to enforce that.</p>
+<p>In any case, we can find out where files were uploaded by inspecting the finalized dataset that was returned by <code class="docutils literal notranslate"><span class="pre">client.upload_new_dataset_now</span></code>:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">finalized</span><span class="o">.</span><span class="n">source_folder</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+RemotePath(&#39;/somewhere/on/remote&#39;)
+</pre></div></div>
+</div>
+<p>Or by looking at each file individually as shown in the section above.</p>
+</section>
+<section id="Attaching-images-to-datasets">
+<h2>Attaching images to datasets<a class="headerlink" href="#Attaching-images-to-datasets" title="Link to this heading">#</a></h2>
+<p>It is possible to attach <em>small</em> images to datasets. In SciCat, this is done by creating ‘attachment’ objects which contain the image. Scitacean handles those via the <code class="docutils literal notranslate"><span class="pre">attachments</span></code> property of <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>. For our locally created dataset, the property is an empty list and we can add an attachment like this:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dset</span><span class="o">.</span><span class="n">add_attachment</span><span class="p">(</span>
+    <span class="n">caption</span><span class="o">=</span><span class="s2">&quot;Scitacean logo&quot;</span><span class="p">,</span>
+    <span class="n">thumbnail</span><span class="o">=</span><span class="s2">&quot;./logo.png&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">dset</span><span class="o">.</span><span class="n">attachments</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+    <style>body[data-jp-theme-light="true"],body[data-jp-theme-light="false"]{--cean-font-color-field-type:var(--jp-content-font-color2);--cean-font-color-field-description:var(--jp-content-font-color1);--cean-font-color-file-info-size:var(--jp-content-font-color1);--cean-font-color-empty:var(--jp-content-font-color2);--cean-lock-fill:var(--jp-content-font-color2);--cean-error-color:var(--jp-error-color0);--cean-layout-color-border:var(--jp-layout-color3);--cean-layout-color-background:var(--jp-layout-color0);}body[data-vscode-theme-kind="vscode-dark"],body[data-vscode-theme-kind="vscode-light"]{--cean-error-color:var(--vscode-editorError-foreground);--cean-layout-color-border:var(--vscode-editorWidget-border);--cean-layout-color-background:var(--vscode-editorWidget-background);}body[data-vscode-theme-kind="vscode-dark"]{--cean-font-color-field-type:rgba(204,204,204,0.54);--cean-font-color-field-description:rgba(204,204,204,0.87);--cean-font-color-file-info-size:rgba(204,204,204,0.87);--cean-font-color-empty:rgba(204,204,204,0.54);--cean-lock-fill:rgba(204,204,204,0.54);}body[data-vscode-theme-kind="vscode-light"]{--cean-font-color-field-type:rgba(59,59,59,0.54);--cean-font-color-field-description:rgba(59,59,59,0.87);--cean-font-color-file-info-size:rgba(59,59,59,0.87);--cean-font-color-empty:rgba(59,59,59,0.54);--cean-lock-fill:rgba(59,59,59,0.54);}</style><style>tr.cean-header{border-bottom:2px solid var(--cean-layout-color-border);}.jp-RenderedHTMLCommon tbody tr.cean-header:hover{background:var(--cean-layout-color-background);}.cean-attachment .cean-info-line{margin-left:1em;font-weight:bold;}.cean-attachment th{text-align:left !important;}.cean-attachment td{white-space:nowrap !important;overflow:hidden;text-overflow:ellipsis;}.cean-field-flag{width:2%;}.cean-field-flag div{font-weight:bold;}.cean-field-name{width:20%;text-align:left !important;}.cean-field-type{width:12%;text-align:left !important;}td.cean-field-type{color:var(--cean-font-color-field-type);}.cean-field-value{width:39%;text-align:left !important;}.cean-field-description{width:27%;text-align:left !important;}td.cean-field-description{color:var(--cean-font-color-field-description);}.cean-field-value:hover span,.cean-field-description:hover span{white-space:normal;overflow:visible;}.cean-empty-field{color:var(--cean-font-color-empty);}table.cean-attachment-table{margin-left:1em !important;margin-bottom:0;table-layout:fixed;width:100%;}details[open].cean-attachment-details summary{height:0;padding:0;}details[open].cean-attachment-details summary span{visibility:hidden;}details summary{cursor:pointer;}.cean-lock{width:1.4ch;height:auto;}.cean-lock svg{max-width:100%;height:auto;}.cean-lock path{fill:var(--cean-lock-fill) !important;}</style>
+    <div class="cean-attachment">
+        <div class="cean-attachment-info">
+            <div class="cean-info-line">Scitacean logo</div>
+            <details class="cean-attachment-details">
+                <summary><span>Fields</span></summary>
+                <table class="cean-attachment-table">
+                    <tr class="cean-header">
+                        <th class="cean-field-flag"></th>
+                        <th class="cean-field-name">Name</th>
+                        <th class="cean-field-type">Type</th>
+                        <th class="cean-field-value">Value</th>
+                    </tr>
+                    <tr class="field">
+    <td class="cean-field-flag"><div class="cean-lock"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.361915mm"
+   height="17.348812mm"
+   viewBox="0 0 14.361915 17.348812"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="lock.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.551292"
+     inkscape:cx="-119.90006"
+     inkscape:cy="-33.198134"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.3422388,-6.5584985)">
+    <path
+       id="circle3527"
+       style="color:#000000;fill:#4d4d4d;stroke-width:0.999997;-inkscape-stroke:none"
+       d="m 15.523713,6.5584985 c -2.767358,-1.8e-5 -5.027101,2.260239 -5.027083,5.0276005 v 1.369942 C 9.2424668,13.371803 8.3422388,14.550409 8.3422388,15.94759 v 4.807458 c 0,1.746404 1.405859,3.152263 3.1522632,3.152263 h 8.057389 c 1.746403,0 3.152262,-1.405859 3.152262,-3.152263 V 15.94759 c 0,-1.397019 -0.899938,-2.575141 -2.153873,-2.991032 v -1.370459 c 2e-5,-2.7673615 -2.259206,-5.0276195 -5.026567,-5.0276005 z m 0,1.521871 c 1.944936,-1.3e-5 3.504192,1.560794 3.504179,3.5057295 v 1.209229 h -7.009908 v -1.209229 c -1.2e-5,-1.9449345 1.560797,-3.5057425 3.505729,-3.5057295 z m -5.17e-4,7.4476075 c 0.904731,0 1.633492,0.656354 1.633492,1.471745 0,0.432939 -0.205768,0.821008 -0.533817,1.089856 2.1e-4,0.008 5.17e-4,0.01629 5.17e-4,0.02429 v 2.440678 c 0,0.542024 -0.48431,0.978235 -1.085722,0.978235 -0.601412,0 -1.085722,-0.436211 -1.085722,-0.978235 v -2.440678 -0.0021 c -0.344426,-0.269453 -0.561723,-0.666871 -0.561723,-1.112077 0,-0.815391 0.728244,-1.471745 1.632975,-1.471745 z" />
+  </g>
+</svg>
+</div></td>
+    <td class="cean-field-name">access_groups</td>
+    <td class="cean-field-type">list[str] | None</td>
+    <td class="cean-field-value"><span>[&#x27;witches&#x27;]</span></td>
+</tr>
+
+<tr class="field">
+    <td class="cean-field-flag"><div class="cean-lock"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.361915mm"
+   height="17.348812mm"
+   viewBox="0 0 14.361915 17.348812"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="lock.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.551292"
+     inkscape:cx="-119.90006"
+     inkscape:cy="-33.198134"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.3422388,-6.5584985)">
+    <path
+       id="circle3527"
+       style="color:#000000;fill:#4d4d4d;stroke-width:0.999997;-inkscape-stroke:none"
+       d="m 15.523713,6.5584985 c -2.767358,-1.8e-5 -5.027101,2.260239 -5.027083,5.0276005 v 1.369942 C 9.2424668,13.371803 8.3422388,14.550409 8.3422388,15.94759 v 4.807458 c 0,1.746404 1.405859,3.152263 3.1522632,3.152263 h 8.057389 c 1.746403,0 3.152262,-1.405859 3.152262,-3.152263 V 15.94759 c 0,-1.397019 -0.899938,-2.575141 -2.153873,-2.991032 v -1.370459 c 2e-5,-2.7673615 -2.259206,-5.0276195 -5.026567,-5.0276005 z m 0,1.521871 c 1.944936,-1.3e-5 3.504192,1.560794 3.504179,3.5057295 v 1.209229 h -7.009908 v -1.209229 c -1.2e-5,-1.9449345 1.560797,-3.5057425 3.505729,-3.5057295 z m -5.17e-4,7.4476075 c 0.904731,0 1.633492,0.656354 1.633492,1.471745 0,0.432939 -0.205768,0.821008 -0.533817,1.089856 2.1e-4,0.008 5.17e-4,0.01629 5.17e-4,0.02429 v 2.440678 c 0,0.542024 -0.48431,0.978235 -1.085722,0.978235 -0.601412,0 -1.085722,-0.436211 -1.085722,-0.978235 v -2.440678 -0.0021 c -0.344426,-0.269453 -0.561723,-0.666871 -0.561723,-1.112077 0,-0.815391 0.728244,-1.471745 1.632975,-1.471745 z" />
+  </g>
+</svg>
+</div></td>
+    <td class="cean-field-name">created_at</td>
+    <td class="cean-field-type">datetime | None</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+</tr>
+
+<tr class="field">
+    <td class="cean-field-flag"><div class="cean-lock"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.361915mm"
+   height="17.348812mm"
+   viewBox="0 0 14.361915 17.348812"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="lock.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.551292"
+     inkscape:cx="-119.90006"
+     inkscape:cy="-33.198134"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.3422388,-6.5584985)">
+    <path
+       id="circle3527"
+       style="color:#000000;fill:#4d4d4d;stroke-width:0.999997;-inkscape-stroke:none"
+       d="m 15.523713,6.5584985 c -2.767358,-1.8e-5 -5.027101,2.260239 -5.027083,5.0276005 v 1.369942 C 9.2424668,13.371803 8.3422388,14.550409 8.3422388,15.94759 v 4.807458 c 0,1.746404 1.405859,3.152263 3.1522632,3.152263 h 8.057389 c 1.746403,0 3.152262,-1.405859 3.152262,-3.152263 V 15.94759 c 0,-1.397019 -0.899938,-2.575141 -2.153873,-2.991032 v -1.370459 c 2e-5,-2.7673615 -2.259206,-5.0276195 -5.026567,-5.0276005 z m 0,1.521871 c 1.944936,-1.3e-5 3.504192,1.560794 3.504179,3.5057295 v 1.209229 h -7.009908 v -1.209229 c -1.2e-5,-1.9449345 1.560797,-3.5057425 3.505729,-3.5057295 z m -5.17e-4,7.4476075 c 0.904731,0 1.633492,0.656354 1.633492,1.471745 0,0.432939 -0.205768,0.821008 -0.533817,1.089856 2.1e-4,0.008 5.17e-4,0.01629 5.17e-4,0.02429 v 2.440678 c 0,0.542024 -0.48431,0.978235 -1.085722,0.978235 -0.601412,0 -1.085722,-0.436211 -1.085722,-0.978235 v -2.440678 -0.0021 c -0.344426,-0.269453 -0.561723,-0.666871 -0.561723,-1.112077 0,-0.815391 0.728244,-1.471745 1.632975,-1.471745 z" />
+  </g>
+</svg>
+</div></td>
+    <td class="cean-field-name">created_by</td>
+    <td class="cean-field-type">str | None</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+</tr>
+
+<tr class="field">
+    <td class="cean-field-flag"><div class="cean-lock"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.361915mm"
+   height="17.348812mm"
+   viewBox="0 0 14.361915 17.348812"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="lock.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.551292"
+     inkscape:cx="-119.90006"
+     inkscape:cy="-33.198134"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.3422388,-6.5584985)">
+    <path
+       id="circle3527"
+       style="color:#000000;fill:#4d4d4d;stroke-width:0.999997;-inkscape-stroke:none"
+       d="m 15.523713,6.5584985 c -2.767358,-1.8e-5 -5.027101,2.260239 -5.027083,5.0276005 v 1.369942 C 9.2424668,13.371803 8.3422388,14.550409 8.3422388,15.94759 v 4.807458 c 0,1.746404 1.405859,3.152263 3.1522632,3.152263 h 8.057389 c 1.746403,0 3.152262,-1.405859 3.152262,-3.152263 V 15.94759 c 0,-1.397019 -0.899938,-2.575141 -2.153873,-2.991032 v -1.370459 c 2e-5,-2.7673615 -2.259206,-5.0276195 -5.026567,-5.0276005 z m 0,1.521871 c 1.944936,-1.3e-5 3.504192,1.560794 3.504179,3.5057295 v 1.209229 h -7.009908 v -1.209229 c -1.2e-5,-1.9449345 1.560797,-3.5057425 3.505729,-3.5057295 z m -5.17e-4,7.4476075 c 0.904731,0 1.633492,0.656354 1.633492,1.471745 0,0.432939 -0.205768,0.821008 -0.533817,1.089856 2.1e-4,0.008 5.17e-4,0.01629 5.17e-4,0.02429 v 2.440678 c 0,0.542024 -0.48431,0.978235 -1.085722,0.978235 -0.601412,0 -1.085722,-0.436211 -1.085722,-0.978235 v -2.440678 -0.0021 c -0.344426,-0.269453 -0.561723,-0.666871 -0.561723,-1.112077 0,-0.815391 0.728244,-1.471745 1.632975,-1.471745 z" />
+  </g>
+</svg>
+</div></td>
+    <td class="cean-field-name">dataset_id</td>
+    <td class="cean-field-type">PID | None</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+</tr>
+
+<tr class="field">
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">id</td>
+    <td class="cean-field-type">str | None</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+</tr>
+
+<tr class="field">
+    <td class="cean-field-flag"><div class="cean-lock"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.361915mm"
+   height="17.348812mm"
+   viewBox="0 0 14.361915 17.348812"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="lock.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.551292"
+     inkscape:cx="-119.90006"
+     inkscape:cy="-33.198134"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.3422388,-6.5584985)">
+    <path
+       id="circle3527"
+       style="color:#000000;fill:#4d4d4d;stroke-width:0.999997;-inkscape-stroke:none"
+       d="m 15.523713,6.5584985 c -2.767358,-1.8e-5 -5.027101,2.260239 -5.027083,5.0276005 v 1.369942 C 9.2424668,13.371803 8.3422388,14.550409 8.3422388,15.94759 v 4.807458 c 0,1.746404 1.405859,3.152263 3.1522632,3.152263 h 8.057389 c 1.746403,0 3.152262,-1.405859 3.152262,-3.152263 V 15.94759 c 0,-1.397019 -0.899938,-2.575141 -2.153873,-2.991032 v -1.370459 c 2e-5,-2.7673615 -2.259206,-5.0276195 -5.026567,-5.0276005 z m 0,1.521871 c 1.944936,-1.3e-5 3.504192,1.560794 3.504179,3.5057295 v 1.209229 h -7.009908 v -1.209229 c -1.2e-5,-1.9449345 1.560797,-3.5057425 3.505729,-3.5057295 z m -5.17e-4,7.4476075 c 0.904731,0 1.633492,0.656354 1.633492,1.471745 0,0.432939 -0.205768,0.821008 -0.533817,1.089856 2.1e-4,0.008 5.17e-4,0.01629 5.17e-4,0.02429 v 2.440678 c 0,0.542024 -0.48431,0.978235 -1.085722,0.978235 -0.601412,0 -1.085722,-0.436211 -1.085722,-0.978235 v -2.440678 -0.0021 c -0.344426,-0.269453 -0.561723,-0.666871 -0.561723,-1.112077 0,-0.815391 0.728244,-1.471745 1.632975,-1.471745 z" />
+  </g>
+</svg>
+</div></td>
+    <td class="cean-field-name">instrument_group</td>
+    <td class="cean-field-type">str | None</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+</tr>
+
+<tr class="field">
+    <td class="cean-field-flag"><div class="cean-lock"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.361915mm"
+   height="17.348812mm"
+   viewBox="0 0 14.361915 17.348812"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="lock.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.551292"
+     inkscape:cx="-119.90006"
+     inkscape:cy="-33.198134"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.3422388,-6.5584985)">
+    <path
+       id="circle3527"
+       style="color:#000000;fill:#4d4d4d;stroke-width:0.999997;-inkscape-stroke:none"
+       d="m 15.523713,6.5584985 c -2.767358,-1.8e-5 -5.027101,2.260239 -5.027083,5.0276005 v 1.369942 C 9.2424668,13.371803 8.3422388,14.550409 8.3422388,15.94759 v 4.807458 c 0,1.746404 1.405859,3.152263 3.1522632,3.152263 h 8.057389 c 1.746403,0 3.152262,-1.405859 3.152262,-3.152263 V 15.94759 c 0,-1.397019 -0.899938,-2.575141 -2.153873,-2.991032 v -1.370459 c 2e-5,-2.7673615 -2.259206,-5.0276195 -5.026567,-5.0276005 z m 0,1.521871 c 1.944936,-1.3e-5 3.504192,1.560794 3.504179,3.5057295 v 1.209229 h -7.009908 v -1.209229 c -1.2e-5,-1.9449345 1.560797,-3.5057425 3.505729,-3.5057295 z m -5.17e-4,7.4476075 c 0.904731,0 1.633492,0.656354 1.633492,1.471745 0,0.432939 -0.205768,0.821008 -0.533817,1.089856 2.1e-4,0.008 5.17e-4,0.01629 5.17e-4,0.02429 v 2.440678 c 0,0.542024 -0.48431,0.978235 -1.085722,0.978235 -0.601412,0 -1.085722,-0.436211 -1.085722,-0.978235 v -2.440678 -0.0021 c -0.344426,-0.269453 -0.561723,-0.666871 -0.561723,-1.112077 0,-0.815391 0.728244,-1.471745 1.632975,-1.471745 z" />
+  </g>
+</svg>
+</div></td>
+    <td class="cean-field-name">is_published</td>
+    <td class="cean-field-type">bool | None</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+</tr>
+
+<tr class="field">
+    <td class="cean-field-flag"><div class="cean-lock"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.361915mm"
+   height="17.348812mm"
+   viewBox="0 0 14.361915 17.348812"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="lock.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.551292"
+     inkscape:cx="-119.90006"
+     inkscape:cy="-33.198134"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.3422388,-6.5584985)">
+    <path
+       id="circle3527"
+       style="color:#000000;fill:#4d4d4d;stroke-width:0.999997;-inkscape-stroke:none"
+       d="m 15.523713,6.5584985 c -2.767358,-1.8e-5 -5.027101,2.260239 -5.027083,5.0276005 v 1.369942 C 9.2424668,13.371803 8.3422388,14.550409 8.3422388,15.94759 v 4.807458 c 0,1.746404 1.405859,3.152263 3.1522632,3.152263 h 8.057389 c 1.746403,0 3.152262,-1.405859 3.152262,-3.152263 V 15.94759 c 0,-1.397019 -0.899938,-2.575141 -2.153873,-2.991032 v -1.370459 c 2e-5,-2.7673615 -2.259206,-5.0276195 -5.026567,-5.0276005 z m 0,1.521871 c 1.944936,-1.3e-5 3.504192,1.560794 3.504179,3.5057295 v 1.209229 h -7.009908 v -1.209229 c -1.2e-5,-1.9449345 1.560797,-3.5057425 3.505729,-3.5057295 z m -5.17e-4,7.4476075 c 0.904731,0 1.633492,0.656354 1.633492,1.471745 0,0.432939 -0.205768,0.821008 -0.533817,1.089856 2.1e-4,0.008 5.17e-4,0.01629 5.17e-4,0.02429 v 2.440678 c 0,0.542024 -0.48431,0.978235 -1.085722,0.978235 -0.601412,0 -1.085722,-0.436211 -1.085722,-0.978235 v -2.440678 -0.0021 c -0.344426,-0.269453 -0.561723,-0.666871 -0.561723,-1.112077 0,-0.815391 0.728244,-1.471745 1.632975,-1.471745 z" />
+  </g>
+</svg>
+</div></td>
+    <td class="cean-field-name">owner_group</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span>wyrdsisters</span></td>
+</tr>
+
+<tr class="field">
+    <td class="cean-field-flag"><div class="cean-lock"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.361915mm"
+   height="17.348812mm"
+   viewBox="0 0 14.361915 17.348812"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="lock.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.551292"
+     inkscape:cx="-119.90006"
+     inkscape:cy="-33.198134"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.3422388,-6.5584985)">
+    <path
+       id="circle3527"
+       style="color:#000000;fill:#4d4d4d;stroke-width:0.999997;-inkscape-stroke:none"
+       d="m 15.523713,6.5584985 c -2.767358,-1.8e-5 -5.027101,2.260239 -5.027083,5.0276005 v 1.369942 C 9.2424668,13.371803 8.3422388,14.550409 8.3422388,15.94759 v 4.807458 c 0,1.746404 1.405859,3.152263 3.1522632,3.152263 h 8.057389 c 1.746403,0 3.152262,-1.405859 3.152262,-3.152263 V 15.94759 c 0,-1.397019 -0.899938,-2.575141 -2.153873,-2.991032 v -1.370459 c 2e-5,-2.7673615 -2.259206,-5.0276195 -5.026567,-5.0276005 z m 0,1.521871 c 1.944936,-1.3e-5 3.504192,1.560794 3.504179,3.5057295 v 1.209229 h -7.009908 v -1.209229 c -1.2e-5,-1.9449345 1.560797,-3.5057425 3.505729,-3.5057295 z m -5.17e-4,7.4476075 c 0.904731,0 1.633492,0.656354 1.633492,1.471745 0,0.432939 -0.205768,0.821008 -0.533817,1.089856 2.1e-4,0.008 5.17e-4,0.01629 5.17e-4,0.02429 v 2.440678 c 0,0.542024 -0.48431,0.978235 -1.085722,0.978235 -0.601412,0 -1.085722,-0.436211 -1.085722,-0.978235 v -2.440678 -0.0021 c -0.344426,-0.269453 -0.561723,-0.666871 -0.561723,-1.112077 0,-0.815391 0.728244,-1.471745 1.632975,-1.471745 z" />
+  </g>
+</svg>
+</div></td>
+    <td class="cean-field-name">proposal_id</td>
+    <td class="cean-field-type">str | None</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+</tr>
+
+<tr class="field">
+    <td class="cean-field-flag"><div class="cean-lock"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.361915mm"
+   height="17.348812mm"
+   viewBox="0 0 14.361915 17.348812"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="lock.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.551292"
+     inkscape:cx="-119.90006"
+     inkscape:cy="-33.198134"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.3422388,-6.5584985)">
+    <path
+       id="circle3527"
+       style="color:#000000;fill:#4d4d4d;stroke-width:0.999997;-inkscape-stroke:none"
+       d="m 15.523713,6.5584985 c -2.767358,-1.8e-5 -5.027101,2.260239 -5.027083,5.0276005 v 1.369942 C 9.2424668,13.371803 8.3422388,14.550409 8.3422388,15.94759 v 4.807458 c 0,1.746404 1.405859,3.152263 3.1522632,3.152263 h 8.057389 c 1.746403,0 3.152262,-1.405859 3.152262,-3.152263 V 15.94759 c 0,-1.397019 -0.899938,-2.575141 -2.153873,-2.991032 v -1.370459 c 2e-5,-2.7673615 -2.259206,-5.0276195 -5.026567,-5.0276005 z m 0,1.521871 c 1.944936,-1.3e-5 3.504192,1.560794 3.504179,3.5057295 v 1.209229 h -7.009908 v -1.209229 c -1.2e-5,-1.9449345 1.560797,-3.5057425 3.505729,-3.5057295 z m -5.17e-4,7.4476075 c 0.904731,0 1.633492,0.656354 1.633492,1.471745 0,0.432939 -0.205768,0.821008 -0.533817,1.089856 2.1e-4,0.008 5.17e-4,0.01629 5.17e-4,0.02429 v 2.440678 c 0,0.542024 -0.48431,0.978235 -1.085722,0.978235 -0.601412,0 -1.085722,-0.436211 -1.085722,-0.978235 v -2.440678 -0.0021 c -0.344426,-0.269453 -0.561723,-0.666871 -0.561723,-1.112077 0,-0.815391 0.728244,-1.471745 1.632975,-1.471745 z" />
+  </g>
+</svg>
+</div></td>
+    <td class="cean-field-name">sample_id</td>
+    <td class="cean-field-type">str | None</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+</tr>
+
+<tr class="field">
+    <td class="cean-field-flag"><div class="cean-lock"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.361915mm"
+   height="17.348812mm"
+   viewBox="0 0 14.361915 17.348812"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="lock.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.551292"
+     inkscape:cx="-119.90006"
+     inkscape:cy="-33.198134"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.3422388,-6.5584985)">
+    <path
+       id="circle3527"
+       style="color:#000000;fill:#4d4d4d;stroke-width:0.999997;-inkscape-stroke:none"
+       d="m 15.523713,6.5584985 c -2.767358,-1.8e-5 -5.027101,2.260239 -5.027083,5.0276005 v 1.369942 C 9.2424668,13.371803 8.3422388,14.550409 8.3422388,15.94759 v 4.807458 c 0,1.746404 1.405859,3.152263 3.1522632,3.152263 h 8.057389 c 1.746403,0 3.152262,-1.405859 3.152262,-3.152263 V 15.94759 c 0,-1.397019 -0.899938,-2.575141 -2.153873,-2.991032 v -1.370459 c 2e-5,-2.7673615 -2.259206,-5.0276195 -5.026567,-5.0276005 z m 0,1.521871 c 1.944936,-1.3e-5 3.504192,1.560794 3.504179,3.5057295 v 1.209229 h -7.009908 v -1.209229 c -1.2e-5,-1.9449345 1.560797,-3.5057425 3.505729,-3.5057295 z m -5.17e-4,7.4476075 c 0.904731,0 1.633492,0.656354 1.633492,1.471745 0,0.432939 -0.205768,0.821008 -0.533817,1.089856 2.1e-4,0.008 5.17e-4,0.01629 5.17e-4,0.02429 v 2.440678 c 0,0.542024 -0.48431,0.978235 -1.085722,0.978235 -0.601412,0 -1.085722,-0.436211 -1.085722,-0.978235 v -2.440678 -0.0021 c -0.344426,-0.269453 -0.561723,-0.666871 -0.561723,-1.112077 0,-0.815391 0.728244,-1.471745 1.632975,-1.471745 z" />
+  </g>
+</svg>
+</div></td>
+    <td class="cean-field-name">updated_at</td>
+    <td class="cean-field-type">datetime | None</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+</tr>
+
+<tr class="field">
+    <td class="cean-field-flag"><div class="cean-lock"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.361915mm"
+   height="17.348812mm"
+   viewBox="0 0 14.361915 17.348812"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="lock.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.551292"
+     inkscape:cx="-119.90006"
+     inkscape:cy="-33.198134"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.3422388,-6.5584985)">
+    <path
+       id="circle3527"
+       style="color:#000000;fill:#4d4d4d;stroke-width:0.999997;-inkscape-stroke:none"
+       d="m 15.523713,6.5584985 c -2.767358,-1.8e-5 -5.027101,2.260239 -5.027083,5.0276005 v 1.369942 C 9.2424668,13.371803 8.3422388,14.550409 8.3422388,15.94759 v 4.807458 c 0,1.746404 1.405859,3.152263 3.1522632,3.152263 h 8.057389 c 1.746403,0 3.152262,-1.405859 3.152262,-3.152263 V 15.94759 c 0,-1.397019 -0.899938,-2.575141 -2.153873,-2.991032 v -1.370459 c 2e-5,-2.7673615 -2.259206,-5.0276195 -5.026567,-5.0276005 z m 0,1.521871 c 1.944936,-1.3e-5 3.504192,1.560794 3.504179,3.5057295 v 1.209229 h -7.009908 v -1.209229 c -1.2e-5,-1.9449345 1.560797,-3.5057425 3.505729,-3.5057295 z m -5.17e-4,7.4476075 c 0.904731,0 1.633492,0.656354 1.633492,1.471745 0,0.432939 -0.205768,0.821008 -0.533817,1.089856 2.1e-4,0.008 5.17e-4,0.01629 5.17e-4,0.02429 v 2.440678 c 0,0.542024 -0.48431,0.978235 -1.085722,0.978235 -0.601412,0 -1.085722,-0.436211 -1.085722,-0.978235 v -2.440678 -0.0021 c -0.344426,-0.269453 -0.561723,-0.666871 -0.561723,-1.112077 0,-0.815391 0.728244,-1.471745 1.632975,-1.471745 z" />
+  </g>
+</svg>
+</div></td>
+    <td class="cean-field-name">updated_by</td>
+    <td class="cean-field-type">str | None</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+</tr>
+
+                </table>
+            </details>
+        </div>
+        <div class="cean-thumbnail">
+            <img src=data:image/png;base64,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>
+        </div>
+    </div>
+</div></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Dataset.add_attachment</span></code> can load an image from a file and properly encode it for SciCat. We could also use a more manual approach and construct <code class="docutils literal notranslate"><span class="pre">scitacean.Attachment</span></code> and <code class="docutils literal notranslate"><span class="pre">scitacean.Thumbnail</span></code> objects ourselves and append them to <code class="docutils literal notranslate"><span class="pre">dset.attachments</span></code>.</p>
+<p>When we then upload the dataset, the client automatically uploads all attachments as well. Note that this creates a new dataset in SciCat. If you want to add attachments to an existing dataset after upload, you need to use the lower-level API through <code class="docutils literal notranslate"><span class="pre">client.scicat.create_attachment_for_dataset</span></code> or the web interface directly.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">finalized</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">upload_new_dataset_now</span><span class="p">(</span><span class="n">dset</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>In order to download the attachments again, we can pass <code class="docutils literal notranslate"><span class="pre">attachments=True</span></code> when downloading the dataset:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">downloaded</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span><span class="n">finalized</span><span class="o">.</span><span class="n">pid</span><span class="p">,</span> <span class="n">attachments</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">downloaded</span><span class="o">.</span><span class="n">attachments</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+    <style>body[data-jp-theme-light="true"],body[data-jp-theme-light="false"]{--cean-font-color-field-type:var(--jp-content-font-color2);--cean-font-color-field-description:var(--jp-content-font-color1);--cean-font-color-file-info-size:var(--jp-content-font-color1);--cean-font-color-empty:var(--jp-content-font-color2);--cean-lock-fill:var(--jp-content-font-color2);--cean-error-color:var(--jp-error-color0);--cean-layout-color-border:var(--jp-layout-color3);--cean-layout-color-background:var(--jp-layout-color0);}body[data-vscode-theme-kind="vscode-dark"],body[data-vscode-theme-kind="vscode-light"]{--cean-error-color:var(--vscode-editorError-foreground);--cean-layout-color-border:var(--vscode-editorWidget-border);--cean-layout-color-background:var(--vscode-editorWidget-background);}body[data-vscode-theme-kind="vscode-dark"]{--cean-font-color-field-type:rgba(204,204,204,0.54);--cean-font-color-field-description:rgba(204,204,204,0.87);--cean-font-color-file-info-size:rgba(204,204,204,0.87);--cean-font-color-empty:rgba(204,204,204,0.54);--cean-lock-fill:rgba(204,204,204,0.54);}body[data-vscode-theme-kind="vscode-light"]{--cean-font-color-field-type:rgba(59,59,59,0.54);--cean-font-color-field-description:rgba(59,59,59,0.87);--cean-font-color-file-info-size:rgba(59,59,59,0.87);--cean-font-color-empty:rgba(59,59,59,0.54);--cean-lock-fill:rgba(59,59,59,0.54);}</style><style>tr.cean-header{border-bottom:2px solid var(--cean-layout-color-border);}.jp-RenderedHTMLCommon tbody tr.cean-header:hover{background:var(--cean-layout-color-background);}.cean-attachment .cean-info-line{margin-left:1em;font-weight:bold;}.cean-attachment th{text-align:left !important;}.cean-attachment td{white-space:nowrap !important;overflow:hidden;text-overflow:ellipsis;}.cean-field-flag{width:2%;}.cean-field-flag div{font-weight:bold;}.cean-field-name{width:20%;text-align:left !important;}.cean-field-type{width:12%;text-align:left !important;}td.cean-field-type{color:var(--cean-font-color-field-type);}.cean-field-value{width:39%;text-align:left !important;}.cean-field-description{width:27%;text-align:left !important;}td.cean-field-description{color:var(--cean-font-color-field-description);}.cean-field-value:hover span,.cean-field-description:hover span{white-space:normal;overflow:visible;}.cean-empty-field{color:var(--cean-font-color-empty);}table.cean-attachment-table{margin-left:1em !important;margin-bottom:0;table-layout:fixed;width:100%;}details[open].cean-attachment-details summary{height:0;padding:0;}details[open].cean-attachment-details summary span{visibility:hidden;}details summary{cursor:pointer;}.cean-lock{width:1.4ch;height:auto;}.cean-lock svg{max-width:100%;height:auto;}.cean-lock path{fill:var(--cean-lock-fill) !important;}</style>
+    <div class="cean-attachment">
+        <div class="cean-attachment-info">
+            <div class="cean-info-line">Scitacean logo</div>
+            <details class="cean-attachment-details">
+                <summary><span>Fields</span></summary>
+                <table class="cean-attachment-table">
+                    <tr class="cean-header">
+                        <th class="cean-field-flag"></th>
+                        <th class="cean-field-name">Name</th>
+                        <th class="cean-field-type">Type</th>
+                        <th class="cean-field-value">Value</th>
+                    </tr>
+                    <tr class="field">
+    <td class="cean-field-flag"><div class="cean-lock"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.361915mm"
+   height="17.348812mm"
+   viewBox="0 0 14.361915 17.348812"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="lock.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.551292"
+     inkscape:cx="-119.90006"
+     inkscape:cy="-33.198134"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.3422388,-6.5584985)">
+    <path
+       id="circle3527"
+       style="color:#000000;fill:#4d4d4d;stroke-width:0.999997;-inkscape-stroke:none"
+       d="m 15.523713,6.5584985 c -2.767358,-1.8e-5 -5.027101,2.260239 -5.027083,5.0276005 v 1.369942 C 9.2424668,13.371803 8.3422388,14.550409 8.3422388,15.94759 v 4.807458 c 0,1.746404 1.405859,3.152263 3.1522632,3.152263 h 8.057389 c 1.746403,0 3.152262,-1.405859 3.152262,-3.152263 V 15.94759 c 0,-1.397019 -0.899938,-2.575141 -2.153873,-2.991032 v -1.370459 c 2e-5,-2.7673615 -2.259206,-5.0276195 -5.026567,-5.0276005 z m 0,1.521871 c 1.944936,-1.3e-5 3.504192,1.560794 3.504179,3.5057295 v 1.209229 h -7.009908 v -1.209229 c -1.2e-5,-1.9449345 1.560797,-3.5057425 3.505729,-3.5057295 z m -5.17e-4,7.4476075 c 0.904731,0 1.633492,0.656354 1.633492,1.471745 0,0.432939 -0.205768,0.821008 -0.533817,1.089856 2.1e-4,0.008 5.17e-4,0.01629 5.17e-4,0.02429 v 2.440678 c 0,0.542024 -0.48431,0.978235 -1.085722,0.978235 -0.601412,0 -1.085722,-0.436211 -1.085722,-0.978235 v -2.440678 -0.0021 c -0.344426,-0.269453 -0.561723,-0.666871 -0.561723,-1.112077 0,-0.815391 0.728244,-1.471745 1.632975,-1.471745 z" />
+  </g>
+</svg>
+</div></td>
+    <td class="cean-field-name">access_groups</td>
+    <td class="cean-field-type">list[str] | None</td>
+    <td class="cean-field-value"><span>[&#x27;witches&#x27;]</span></td>
+</tr>
+
+<tr class="field">
+    <td class="cean-field-flag"><div class="cean-lock"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.361915mm"
+   height="17.348812mm"
+   viewBox="0 0 14.361915 17.348812"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="lock.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.551292"
+     inkscape:cx="-119.90006"
+     inkscape:cy="-33.198134"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.3422388,-6.5584985)">
+    <path
+       id="circle3527"
+       style="color:#000000;fill:#4d4d4d;stroke-width:0.999997;-inkscape-stroke:none"
+       d="m 15.523713,6.5584985 c -2.767358,-1.8e-5 -5.027101,2.260239 -5.027083,5.0276005 v 1.369942 C 9.2424668,13.371803 8.3422388,14.550409 8.3422388,15.94759 v 4.807458 c 0,1.746404 1.405859,3.152263 3.1522632,3.152263 h 8.057389 c 1.746403,0 3.152262,-1.405859 3.152262,-3.152263 V 15.94759 c 0,-1.397019 -0.899938,-2.575141 -2.153873,-2.991032 v -1.370459 c 2e-5,-2.7673615 -2.259206,-5.0276195 -5.026567,-5.0276005 z m 0,1.521871 c 1.944936,-1.3e-5 3.504192,1.560794 3.504179,3.5057295 v 1.209229 h -7.009908 v -1.209229 c -1.2e-5,-1.9449345 1.560797,-3.5057425 3.505729,-3.5057295 z m -5.17e-4,7.4476075 c 0.904731,0 1.633492,0.656354 1.633492,1.471745 0,0.432939 -0.205768,0.821008 -0.533817,1.089856 2.1e-4,0.008 5.17e-4,0.01629 5.17e-4,0.02429 v 2.440678 c 0,0.542024 -0.48431,0.978235 -1.085722,0.978235 -0.601412,0 -1.085722,-0.436211 -1.085722,-0.978235 v -2.440678 -0.0021 c -0.344426,-0.269453 -0.561723,-0.666871 -0.561723,-1.112077 0,-0.815391 0.728244,-1.471745 1.632975,-1.471745 z" />
+  </g>
+</svg>
+</div></td>
+    <td class="cean-field-name">created_at</td>
+    <td class="cean-field-type">datetime | None</td>
+    <td class="cean-field-value"><span>2025-03-27 09:34:29+0000</span></td>
+</tr>
+
+<tr class="field">
+    <td class="cean-field-flag"><div class="cean-lock"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.361915mm"
+   height="17.348812mm"
+   viewBox="0 0 14.361915 17.348812"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="lock.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.551292"
+     inkscape:cx="-119.90006"
+     inkscape:cy="-33.198134"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.3422388,-6.5584985)">
+    <path
+       id="circle3527"
+       style="color:#000000;fill:#4d4d4d;stroke-width:0.999997;-inkscape-stroke:none"
+       d="m 15.523713,6.5584985 c -2.767358,-1.8e-5 -5.027101,2.260239 -5.027083,5.0276005 v 1.369942 C 9.2424668,13.371803 8.3422388,14.550409 8.3422388,15.94759 v 4.807458 c 0,1.746404 1.405859,3.152263 3.1522632,3.152263 h 8.057389 c 1.746403,0 3.152262,-1.405859 3.152262,-3.152263 V 15.94759 c 0,-1.397019 -0.899938,-2.575141 -2.153873,-2.991032 v -1.370459 c 2e-5,-2.7673615 -2.259206,-5.0276195 -5.026567,-5.0276005 z m 0,1.521871 c 1.944936,-1.3e-5 3.504192,1.560794 3.504179,3.5057295 v 1.209229 h -7.009908 v -1.209229 c -1.2e-5,-1.9449345 1.560797,-3.5057425 3.505729,-3.5057295 z m -5.17e-4,7.4476075 c 0.904731,0 1.633492,0.656354 1.633492,1.471745 0,0.432939 -0.205768,0.821008 -0.533817,1.089856 2.1e-4,0.008 5.17e-4,0.01629 5.17e-4,0.02429 v 2.440678 c 0,0.542024 -0.48431,0.978235 -1.085722,0.978235 -0.601412,0 -1.085722,-0.436211 -1.085722,-0.978235 v -2.440678 -0.0021 c -0.344426,-0.269453 -0.561723,-0.666871 -0.561723,-1.112077 0,-0.815391 0.728244,-1.471745 1.632975,-1.471745 z" />
+  </g>
+</svg>
+</div></td>
+    <td class="cean-field-name">created_by</td>
+    <td class="cean-field-type">str | None</td>
+    <td class="cean-field-value"><span>fake</span></td>
+</tr>
+
+<tr class="field">
+    <td class="cean-field-flag"><div class="cean-lock"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.361915mm"
+   height="17.348812mm"
+   viewBox="0 0 14.361915 17.348812"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="lock.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.551292"
+     inkscape:cx="-119.90006"
+     inkscape:cy="-33.198134"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.3422388,-6.5584985)">
+    <path
+       id="circle3527"
+       style="color:#000000;fill:#4d4d4d;stroke-width:0.999997;-inkscape-stroke:none"
+       d="m 15.523713,6.5584985 c -2.767358,-1.8e-5 -5.027101,2.260239 -5.027083,5.0276005 v 1.369942 C 9.2424668,13.371803 8.3422388,14.550409 8.3422388,15.94759 v 4.807458 c 0,1.746404 1.405859,3.152263 3.1522632,3.152263 h 8.057389 c 1.746403,0 3.152262,-1.405859 3.152262,-3.152263 V 15.94759 c 0,-1.397019 -0.899938,-2.575141 -2.153873,-2.991032 v -1.370459 c 2e-5,-2.7673615 -2.259206,-5.0276195 -5.026567,-5.0276005 z m 0,1.521871 c 1.944936,-1.3e-5 3.504192,1.560794 3.504179,3.5057295 v 1.209229 h -7.009908 v -1.209229 c -1.2e-5,-1.9449345 1.560797,-3.5057425 3.505729,-3.5057295 z m -5.17e-4,7.4476075 c 0.904731,0 1.633492,0.656354 1.633492,1.471745 0,0.432939 -0.205768,0.821008 -0.533817,1.089856 2.1e-4,0.008 5.17e-4,0.01629 5.17e-4,0.02429 v 2.440678 c 0,0.542024 -0.48431,0.978235 -1.085722,0.978235 -0.601412,0 -1.085722,-0.436211 -1.085722,-0.978235 v -2.440678 -0.0021 c -0.344426,-0.269453 -0.561723,-0.666871 -0.561723,-1.112077 0,-0.815391 0.728244,-1.471745 1.632975,-1.471745 z" />
+  </g>
+</svg>
+</div></td>
+    <td class="cean-field-name">dataset_id</td>
+    <td class="cean-field-type">PID | None</td>
+    <td class="cean-field-value"><span>PID.prefix.a0b1/bf94db05-8e83-4612-aa07-3d5537fab55a</span></td>
+</tr>
+
+<tr class="field">
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">id</td>
+    <td class="cean-field-type">str | None</td>
+    <td class="cean-field-value"><span>23b7ac6d-df2d-4ded-8d80-79778c391497</span></td>
+</tr>
+
+<tr class="field">
+    <td class="cean-field-flag"><div class="cean-lock"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.361915mm"
+   height="17.348812mm"
+   viewBox="0 0 14.361915 17.348812"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="lock.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.551292"
+     inkscape:cx="-119.90006"
+     inkscape:cy="-33.198134"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.3422388,-6.5584985)">
+    <path
+       id="circle3527"
+       style="color:#000000;fill:#4d4d4d;stroke-width:0.999997;-inkscape-stroke:none"
+       d="m 15.523713,6.5584985 c -2.767358,-1.8e-5 -5.027101,2.260239 -5.027083,5.0276005 v 1.369942 C 9.2424668,13.371803 8.3422388,14.550409 8.3422388,15.94759 v 4.807458 c 0,1.746404 1.405859,3.152263 3.1522632,3.152263 h 8.057389 c 1.746403,0 3.152262,-1.405859 3.152262,-3.152263 V 15.94759 c 0,-1.397019 -0.899938,-2.575141 -2.153873,-2.991032 v -1.370459 c 2e-5,-2.7673615 -2.259206,-5.0276195 -5.026567,-5.0276005 z m 0,1.521871 c 1.944936,-1.3e-5 3.504192,1.560794 3.504179,3.5057295 v 1.209229 h -7.009908 v -1.209229 c -1.2e-5,-1.9449345 1.560797,-3.5057425 3.505729,-3.5057295 z m -5.17e-4,7.4476075 c 0.904731,0 1.633492,0.656354 1.633492,1.471745 0,0.432939 -0.205768,0.821008 -0.533817,1.089856 2.1e-4,0.008 5.17e-4,0.01629 5.17e-4,0.02429 v 2.440678 c 0,0.542024 -0.48431,0.978235 -1.085722,0.978235 -0.601412,0 -1.085722,-0.436211 -1.085722,-0.978235 v -2.440678 -0.0021 c -0.344426,-0.269453 -0.561723,-0.666871 -0.561723,-1.112077 0,-0.815391 0.728244,-1.471745 1.632975,-1.471745 z" />
+  </g>
+</svg>
+</div></td>
+    <td class="cean-field-name">instrument_group</td>
+    <td class="cean-field-type">str | None</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+</tr>
+
+<tr class="field">
+    <td class="cean-field-flag"><div class="cean-lock"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.361915mm"
+   height="17.348812mm"
+   viewBox="0 0 14.361915 17.348812"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="lock.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.551292"
+     inkscape:cx="-119.90006"
+     inkscape:cy="-33.198134"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.3422388,-6.5584985)">
+    <path
+       id="circle3527"
+       style="color:#000000;fill:#4d4d4d;stroke-width:0.999997;-inkscape-stroke:none"
+       d="m 15.523713,6.5584985 c -2.767358,-1.8e-5 -5.027101,2.260239 -5.027083,5.0276005 v 1.369942 C 9.2424668,13.371803 8.3422388,14.550409 8.3422388,15.94759 v 4.807458 c 0,1.746404 1.405859,3.152263 3.1522632,3.152263 h 8.057389 c 1.746403,0 3.152262,-1.405859 3.152262,-3.152263 V 15.94759 c 0,-1.397019 -0.899938,-2.575141 -2.153873,-2.991032 v -1.370459 c 2e-5,-2.7673615 -2.259206,-5.0276195 -5.026567,-5.0276005 z m 0,1.521871 c 1.944936,-1.3e-5 3.504192,1.560794 3.504179,3.5057295 v 1.209229 h -7.009908 v -1.209229 c -1.2e-5,-1.9449345 1.560797,-3.5057425 3.505729,-3.5057295 z m -5.17e-4,7.4476075 c 0.904731,0 1.633492,0.656354 1.633492,1.471745 0,0.432939 -0.205768,0.821008 -0.533817,1.089856 2.1e-4,0.008 5.17e-4,0.01629 5.17e-4,0.02429 v 2.440678 c 0,0.542024 -0.48431,0.978235 -1.085722,0.978235 -0.601412,0 -1.085722,-0.436211 -1.085722,-0.978235 v -2.440678 -0.0021 c -0.344426,-0.269453 -0.561723,-0.666871 -0.561723,-1.112077 0,-0.815391 0.728244,-1.471745 1.632975,-1.471745 z" />
+  </g>
+</svg>
+</div></td>
+    <td class="cean-field-name">is_published</td>
+    <td class="cean-field-type">bool | None</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+</tr>
+
+<tr class="field">
+    <td class="cean-field-flag"><div class="cean-lock"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.361915mm"
+   height="17.348812mm"
+   viewBox="0 0 14.361915 17.348812"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="lock.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.551292"
+     inkscape:cx="-119.90006"
+     inkscape:cy="-33.198134"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.3422388,-6.5584985)">
+    <path
+       id="circle3527"
+       style="color:#000000;fill:#4d4d4d;stroke-width:0.999997;-inkscape-stroke:none"
+       d="m 15.523713,6.5584985 c -2.767358,-1.8e-5 -5.027101,2.260239 -5.027083,5.0276005 v 1.369942 C 9.2424668,13.371803 8.3422388,14.550409 8.3422388,15.94759 v 4.807458 c 0,1.746404 1.405859,3.152263 3.1522632,3.152263 h 8.057389 c 1.746403,0 3.152262,-1.405859 3.152262,-3.152263 V 15.94759 c 0,-1.397019 -0.899938,-2.575141 -2.153873,-2.991032 v -1.370459 c 2e-5,-2.7673615 -2.259206,-5.0276195 -5.026567,-5.0276005 z m 0,1.521871 c 1.944936,-1.3e-5 3.504192,1.560794 3.504179,3.5057295 v 1.209229 h -7.009908 v -1.209229 c -1.2e-5,-1.9449345 1.560797,-3.5057425 3.505729,-3.5057295 z m -5.17e-4,7.4476075 c 0.904731,0 1.633492,0.656354 1.633492,1.471745 0,0.432939 -0.205768,0.821008 -0.533817,1.089856 2.1e-4,0.008 5.17e-4,0.01629 5.17e-4,0.02429 v 2.440678 c 0,0.542024 -0.48431,0.978235 -1.085722,0.978235 -0.601412,0 -1.085722,-0.436211 -1.085722,-0.978235 v -2.440678 -0.0021 c -0.344426,-0.269453 -0.561723,-0.666871 -0.561723,-1.112077 0,-0.815391 0.728244,-1.471745 1.632975,-1.471745 z" />
+  </g>
+</svg>
+</div></td>
+    <td class="cean-field-name">owner_group</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span>wyrdsisters</span></td>
+</tr>
+
+<tr class="field">
+    <td class="cean-field-flag"><div class="cean-lock"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.361915mm"
+   height="17.348812mm"
+   viewBox="0 0 14.361915 17.348812"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="lock.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.551292"
+     inkscape:cx="-119.90006"
+     inkscape:cy="-33.198134"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.3422388,-6.5584985)">
+    <path
+       id="circle3527"
+       style="color:#000000;fill:#4d4d4d;stroke-width:0.999997;-inkscape-stroke:none"
+       d="m 15.523713,6.5584985 c -2.767358,-1.8e-5 -5.027101,2.260239 -5.027083,5.0276005 v 1.369942 C 9.2424668,13.371803 8.3422388,14.550409 8.3422388,15.94759 v 4.807458 c 0,1.746404 1.405859,3.152263 3.1522632,3.152263 h 8.057389 c 1.746403,0 3.152262,-1.405859 3.152262,-3.152263 V 15.94759 c 0,-1.397019 -0.899938,-2.575141 -2.153873,-2.991032 v -1.370459 c 2e-5,-2.7673615 -2.259206,-5.0276195 -5.026567,-5.0276005 z m 0,1.521871 c 1.944936,-1.3e-5 3.504192,1.560794 3.504179,3.5057295 v 1.209229 h -7.009908 v -1.209229 c -1.2e-5,-1.9449345 1.560797,-3.5057425 3.505729,-3.5057295 z m -5.17e-4,7.4476075 c 0.904731,0 1.633492,0.656354 1.633492,1.471745 0,0.432939 -0.205768,0.821008 -0.533817,1.089856 2.1e-4,0.008 5.17e-4,0.01629 5.17e-4,0.02429 v 2.440678 c 0,0.542024 -0.48431,0.978235 -1.085722,0.978235 -0.601412,0 -1.085722,-0.436211 -1.085722,-0.978235 v -2.440678 -0.0021 c -0.344426,-0.269453 -0.561723,-0.666871 -0.561723,-1.112077 0,-0.815391 0.728244,-1.471745 1.632975,-1.471745 z" />
+  </g>
+</svg>
+</div></td>
+    <td class="cean-field-name">proposal_id</td>
+    <td class="cean-field-type">str | None</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+</tr>
+
+<tr class="field">
+    <td class="cean-field-flag"><div class="cean-lock"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.361915mm"
+   height="17.348812mm"
+   viewBox="0 0 14.361915 17.348812"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="lock.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.551292"
+     inkscape:cx="-119.90006"
+     inkscape:cy="-33.198134"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.3422388,-6.5584985)">
+    <path
+       id="circle3527"
+       style="color:#000000;fill:#4d4d4d;stroke-width:0.999997;-inkscape-stroke:none"
+       d="m 15.523713,6.5584985 c -2.767358,-1.8e-5 -5.027101,2.260239 -5.027083,5.0276005 v 1.369942 C 9.2424668,13.371803 8.3422388,14.550409 8.3422388,15.94759 v 4.807458 c 0,1.746404 1.405859,3.152263 3.1522632,3.152263 h 8.057389 c 1.746403,0 3.152262,-1.405859 3.152262,-3.152263 V 15.94759 c 0,-1.397019 -0.899938,-2.575141 -2.153873,-2.991032 v -1.370459 c 2e-5,-2.7673615 -2.259206,-5.0276195 -5.026567,-5.0276005 z m 0,1.521871 c 1.944936,-1.3e-5 3.504192,1.560794 3.504179,3.5057295 v 1.209229 h -7.009908 v -1.209229 c -1.2e-5,-1.9449345 1.560797,-3.5057425 3.505729,-3.5057295 z m -5.17e-4,7.4476075 c 0.904731,0 1.633492,0.656354 1.633492,1.471745 0,0.432939 -0.205768,0.821008 -0.533817,1.089856 2.1e-4,0.008 5.17e-4,0.01629 5.17e-4,0.02429 v 2.440678 c 0,0.542024 -0.48431,0.978235 -1.085722,0.978235 -0.601412,0 -1.085722,-0.436211 -1.085722,-0.978235 v -2.440678 -0.0021 c -0.344426,-0.269453 -0.561723,-0.666871 -0.561723,-1.112077 0,-0.815391 0.728244,-1.471745 1.632975,-1.471745 z" />
+  </g>
+</svg>
+</div></td>
+    <td class="cean-field-name">sample_id</td>
+    <td class="cean-field-type">str | None</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+</tr>
+
+<tr class="field">
+    <td class="cean-field-flag"><div class="cean-lock"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.361915mm"
+   height="17.348812mm"
+   viewBox="0 0 14.361915 17.348812"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="lock.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.551292"
+     inkscape:cx="-119.90006"
+     inkscape:cy="-33.198134"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.3422388,-6.5584985)">
+    <path
+       id="circle3527"
+       style="color:#000000;fill:#4d4d4d;stroke-width:0.999997;-inkscape-stroke:none"
+       d="m 15.523713,6.5584985 c -2.767358,-1.8e-5 -5.027101,2.260239 -5.027083,5.0276005 v 1.369942 C 9.2424668,13.371803 8.3422388,14.550409 8.3422388,15.94759 v 4.807458 c 0,1.746404 1.405859,3.152263 3.1522632,3.152263 h 8.057389 c 1.746403,0 3.152262,-1.405859 3.152262,-3.152263 V 15.94759 c 0,-1.397019 -0.899938,-2.575141 -2.153873,-2.991032 v -1.370459 c 2e-5,-2.7673615 -2.259206,-5.0276195 -5.026567,-5.0276005 z m 0,1.521871 c 1.944936,-1.3e-5 3.504192,1.560794 3.504179,3.5057295 v 1.209229 h -7.009908 v -1.209229 c -1.2e-5,-1.9449345 1.560797,-3.5057425 3.505729,-3.5057295 z m -5.17e-4,7.4476075 c 0.904731,0 1.633492,0.656354 1.633492,1.471745 0,0.432939 -0.205768,0.821008 -0.533817,1.089856 2.1e-4,0.008 5.17e-4,0.01629 5.17e-4,0.02429 v 2.440678 c 0,0.542024 -0.48431,0.978235 -1.085722,0.978235 -0.601412,0 -1.085722,-0.436211 -1.085722,-0.978235 v -2.440678 -0.0021 c -0.344426,-0.269453 -0.561723,-0.666871 -0.561723,-1.112077 0,-0.815391 0.728244,-1.471745 1.632975,-1.471745 z" />
+  </g>
+</svg>
+</div></td>
+    <td class="cean-field-name">updated_at</td>
+    <td class="cean-field-type">datetime | None</td>
+    <td class="cean-field-value"><span>2025-03-27 09:34:29+0000</span></td>
+</tr>
+
+<tr class="field">
+    <td class="cean-field-flag"><div class="cean-lock"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.361915mm"
+   height="17.348812mm"
+   viewBox="0 0 14.361915 17.348812"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="lock.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.551292"
+     inkscape:cx="-119.90006"
+     inkscape:cy="-33.198134"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.3422388,-6.5584985)">
+    <path
+       id="circle3527"
+       style="color:#000000;fill:#4d4d4d;stroke-width:0.999997;-inkscape-stroke:none"
+       d="m 15.523713,6.5584985 c -2.767358,-1.8e-5 -5.027101,2.260239 -5.027083,5.0276005 v 1.369942 C 9.2424668,13.371803 8.3422388,14.550409 8.3422388,15.94759 v 4.807458 c 0,1.746404 1.405859,3.152263 3.1522632,3.152263 h 8.057389 c 1.746403,0 3.152262,-1.405859 3.152262,-3.152263 V 15.94759 c 0,-1.397019 -0.899938,-2.575141 -2.153873,-2.991032 v -1.370459 c 2e-5,-2.7673615 -2.259206,-5.0276195 -5.026567,-5.0276005 z m 0,1.521871 c 1.944936,-1.3e-5 3.504192,1.560794 3.504179,3.5057295 v 1.209229 h -7.009908 v -1.209229 c -1.2e-5,-1.9449345 1.560797,-3.5057425 3.505729,-3.5057295 z m -5.17e-4,7.4476075 c 0.904731,0 1.633492,0.656354 1.633492,1.471745 0,0.432939 -0.205768,0.821008 -0.533817,1.089856 2.1e-4,0.008 5.17e-4,0.01629 5.17e-4,0.02429 v 2.440678 c 0,0.542024 -0.48431,0.978235 -1.085722,0.978235 -0.601412,0 -1.085722,-0.436211 -1.085722,-0.978235 v -2.440678 -0.0021 c -0.344426,-0.269453 -0.561723,-0.666871 -0.561723,-1.112077 0,-0.815391 0.728244,-1.471745 1.632975,-1.471745 z" />
+  </g>
+</svg>
+</div></td>
+    <td class="cean-field-name">updated_by</td>
+    <td class="cean-field-type">str | None</td>
+    <td class="cean-field-value"><span>fake</span></td>
+</tr>
+
+                </table>
+            </details>
+        </div>
+        <div class="cean-thumbnail">
+            <img src=data:image/png;base64,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>
+        </div>
+    </div>
+</div></div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="downloading.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Downloading datasets</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="testing.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Testing code with Scitacean</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2023 SciCat Project.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><!-- This will display the version of the docs -->
+Current scitacean version: 25.3.2 (<a href="https://github.com/SciCatProject/scitacean/releases">older versions</a>).</div>
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

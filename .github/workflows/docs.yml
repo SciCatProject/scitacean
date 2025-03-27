@@ -1,0 +1,49 @@
+name: Docs
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        default: false
+        description: Publish docs
+        required: false
+        type: boolean
+  workflow_call:
+    inputs:
+      publish:
+        default: false
+        required: false
+        type: boolean
+
+jobs:
+  docs:
+    name: Build documentation
+    runs-on: ubuntu-20.04
+    steps:
+      - run: sudo apt install --yes pandoc
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+        with:
+          python-version: 3.8
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -r requirements/ci.txt
+      - run: tox -e docs
+      - uses: actions/upload-artifact@v3
+        with:
+          name: github-pages
+          path: html/
+
+  deploy:
+    name: Deploy to GitHub pages
+    needs: docs
+    runs-on: ubuntu-20.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1

@@ -1,0 +1,843 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>scitacean.testing.strategies &#8212; Scitacean</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=7776b8de" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=15bde43d"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/scitacean/testing/strategies';</script>
+    <script src="../../../_static/anaconda-icon.js?v=461bdc62"></script>
+    <link rel="icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="25.3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/logo.svg" class="logo__image only-light" alt="Scitacean - Home"/>
+    <img src="../../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="Scitacean - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user-guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../reference/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../developer/index.html">
+    Developer documentation
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-external" href="https://scicatproject.github.io/">
+    SciCat
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-external" href="https://scicatproject.github.io/documentation/">
+    SciCat backend
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SciCatProject/scitacean" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/scitacean/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://anaconda.org/conda-forge/scitacean" title="Conda" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-custom fa-anaconda fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Conda</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user-guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../reference/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../developer/index.html">
+    Developer documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://scicatproject.github.io/">
+    SciCat
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://scicatproject.github.io/documentation/">
+    SciCat backend
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SciCatProject/scitacean" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/scitacean/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://anaconda.org/conda-forge/scitacean" title="Conda" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-custom fa-anaconda fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Conda</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">scitacean.testing.strategies</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for scitacean.testing.strategies</h1><div class="highlight"><pre>
+<span></span><span class="c1"># SPDX-License-Identifier: BSD-3-Clause</span>
+<span class="c1"># Copyright (c) 2025 SciCat Project (https://github.com/SciCatProject/scitacean)</span>
+<span class="sd">&quot;&quot;&quot;Hypothesis strategies for generating datasets.</span>
+
+<span class="sd">This module defines a number of</span>
+<span class="sd">`Hypothesis &lt;https://hypothesis.readthedocs.io/en/latest/&gt;`_ strategies to</span>
+<span class="sd">generate test inputs.</span>
+
+<span class="sd">Note</span>
+<span class="sd">----</span>
+<span class="sd">The ``datasets`` strategy can require a lot of time and memory due to the number of</span>
+<span class="sd">parameters of ``Dataset``.</span>
+<span class="sd">This can trip up Hypothesis&#39; health checks, so you may need to disable them.</span>
+<span class="sd">This can be done, e.g., by placing the following in ``conftest.py``:</span>
+
+<span class="sd">.. code-block:: python</span>
+
+<span class="sd">    import hypothesis</span>
+
+<span class="sd">    hypothesis.settings.register_profile(</span>
+<span class="sd">        &quot;scitacean&quot;,</span>
+<span class="sd">        suppress_health_check=[</span>
+<span class="sd">            hypothesis.HealthCheck.data_too_large,</span>
+<span class="sd">            hypothesis.HealthCheck.too_slow,</span>
+<span class="sd">        ],</span>
+<span class="sd">    )</span>
+
+<span class="sd">Select the &#39;scitacean&#39; profile during tests using the</span>
+<span class="sd">``--hypothesis-profile=scitacean`` command line option.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">string</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">email_validator</span><span class="w"> </span><span class="kn">import</span> <span class="n">EmailNotValidError</span><span class="p">,</span> <span class="n">ValidatedEmail</span><span class="p">,</span> <span class="n">validate_email</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hypothesis</span><span class="w"> </span><span class="kn">import</span> <span class="n">strategies</span> <span class="k">as</span> <span class="n">st</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..</span><span class="w"> </span><span class="kn">import</span> <span class="n">PID</span><span class="p">,</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">DatasetType</span><span class="p">,</span> <span class="n">RemotePath</span><span class="p">,</span> <span class="n">model</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._internal.orcid</span><span class="w"> </span><span class="kn">import</span> <span class="n">orcid_checksum</span>
+
+
+<span class="c1"># email_validator and by extension pydantic is more picky than hypothesis</span>
+<span class="c1"># so make sure that generated emails actually pass model validation.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_email</span><span class="p">(</span><span class="n">email</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ValidatedEmail</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">validate_email</span><span class="p">(</span><span class="n">email</span><span class="p">,</span> <span class="n">check_deliverability</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">EmailNotValidError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_valid_email</span><span class="p">(</span><span class="n">validated_email</span><span class="p">:</span> <span class="n">ValidatedEmail</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">validated_email</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="emails">
+<a class="viewcode-back" href="../../../generated/modules/scitacean.testing.strategies.emails.html#scitacean.testing.strategies.emails">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">emails</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">st</span><span class="o">.</span><span class="n">SearchStrategy</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A strategy for generating email addresses as strings.</span>
+
+<span class="sd">    This differs from :func:`hypothesis.strategies.emails` in that it</span>
+
+<span class="sd">    - all letters are lowercase,</span>
+<span class="sd">    - uses only normalized email addresses, i.e., with utf-8 characters</span>
+<span class="sd">      for internationalized names and never ASCII-encoding (see Punycode).</span>
+
+<span class="sd">    This is done to match the behavior of ``pydantic.EmailStr`` and to allow for</span>
+<span class="sd">    roundtrip tests through :class:`scitacean.Client`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :</span>
+<span class="sd">        String of email addresses.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    scitacean.testing.strategies.multi_emails</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">emails</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+        <span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_validate_email</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">_is_valid_email</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">m</span><span class="p">:</span> <span class="n">m</span><span class="o">.</span><span class="n">normalized</span><span class="p">)</span>  <span class="c1"># type: ignore[union-attr]</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="multi_emails">
+<a class="viewcode-back" href="../../../generated/modules/scitacean.testing.strategies.multi_emails.html#scitacean.testing.strategies.multi_emails">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">multi_emails</span><span class="p">(</span><span class="n">max_emails</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">st</span><span class="o">.</span><span class="n">SearchStrategy</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A strategy for generating multiple email addresses as strings.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    max_emails:</span>
+<span class="sd">        Maximum number of emails to generate.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :</span>
+<span class="sd">        String of one or more, semicolon-separated email addresses.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    scitacean.testing.strategies.emails</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">st</span><span class="o">.</span><span class="n">lists</span><span class="p">(</span>
+        <span class="n">emails</span><span class="p">(),</span>
+        <span class="n">min_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">max_size</span><span class="o">=</span><span class="n">max_emails</span><span class="p">,</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">email</span><span class="p">:</span> <span class="s2">&quot;;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">email</span><span class="p">))</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_email_field_strategy</span><span class="p">(</span><span class="n">field</span><span class="p">:</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">Field</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">st</span><span class="o">.</span><span class="n">SearchStrategy</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">required</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">multi_emails</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">st</span><span class="o">.</span><span class="n">none</span><span class="p">()</span> <span class="o">|</span> <span class="n">multi_emails</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="orcids">
+<a class="viewcode-back" href="../../../generated/modules/scitacean.testing.strategies.orcids.html#scitacean.testing.strategies.orcids">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">orcids</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">st</span><span class="o">.</span><span class="n">SearchStrategy</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A strategy for generating ORCID ids.</span>
+
+<span class="sd">    The generated ids are structurally valid, but do not necessarily exist.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :</span>
+<span class="sd">        Strings of ORCID ids.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">make_orcid</span><span class="p">(</span><span class="n">digits</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">digits</span> <span class="o">=</span> <span class="n">digits</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">orcid_checksum</span><span class="p">(</span><span class="n">digits</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;https://orcid.org/&quot;</span> <span class="o">+</span> <span class="s2">&quot;-&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">digits</span><span class="p">[</span><span class="n">i</span> <span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">4</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">st</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">alphabet</span><span class="o">=</span><span class="s2">&quot;0123456789&quot;</span><span class="p">,</span> <span class="n">min_size</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">make_orcid</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_orcid_field_strategy</span><span class="p">(</span><span class="n">field</span><span class="p">:</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">Field</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">st</span><span class="o">.</span><span class="n">SearchStrategy</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">required</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">orcids</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">st</span><span class="o">.</span><span class="n">none</span><span class="p">()</span> <span class="o">|</span> <span class="n">orcids</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_scientific_metadata_strategy</span><span class="p">(</span>
+    <span class="n">field</span><span class="p">:</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">Field</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">st</span><span class="o">.</span><span class="n">SearchStrategy</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+    <span class="k">return</span> <span class="n">st</span><span class="o">.</span><span class="n">dictionaries</span><span class="p">(</span>
+        <span class="n">keys</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">text</span><span class="p">(),</span>
+        <span class="n">values</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">text</span><span class="p">()</span> <span class="o">|</span> <span class="n">st</span><span class="o">.</span><span class="n">dictionaries</span><span class="p">(</span><span class="n">keys</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">text</span><span class="p">(),</span> <span class="n">values</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">text</span><span class="p">()),</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_job_parameters_strategy</span><span class="p">(</span>
+    <span class="n">field</span><span class="p">:</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">Field</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">st</span><span class="o">.</span><span class="n">SearchStrategy</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+    <span class="k">return</span> <span class="n">st</span><span class="o">.</span><span class="n">from_type</span><span class="p">(</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_lifecycle_strategy</span><span class="p">(</span>
+    <span class="n">field</span><span class="p">:</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">Field</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">st</span><span class="o">.</span><span class="n">SearchStrategy</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">Lifecycle</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+    <span class="c1"># Lifecycle contains fields that have `Any` types which `st.from_type` can&#39;t handle.</span>
+    <span class="k">return</span> <span class="n">st</span><span class="o">.</span><span class="n">sampled_from</span><span class="p">((</span><span class="kc">None</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">Lifecycle</span><span class="p">()))</span>
+
+
+<span class="n">_SPECIAL_FIELDS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;contact_email&quot;</span><span class="p">:</span> <span class="n">_email_field_strategy</span><span class="p">,</span>
+    <span class="s2">&quot;history&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">field</span><span class="p">:</span> <span class="n">st</span><span class="o">.</span><span class="n">none</span><span class="p">(),</span>
+    <span class="s2">&quot;job_parameters&quot;</span><span class="p">:</span> <span class="n">_job_parameters_strategy</span><span class="p">,</span>
+    <span class="s2">&quot;lifecycle&quot;</span><span class="p">:</span> <span class="n">_lifecycle_strategy</span><span class="p">,</span>
+    <span class="s2">&quot;owner_email&quot;</span><span class="p">:</span> <span class="n">_email_field_strategy</span><span class="p">,</span>
+    <span class="s2">&quot;orcid_of_owner&quot;</span><span class="p">:</span> <span class="n">_orcid_field_strategy</span><span class="p">,</span>
+    <span class="s2">&quot;meta&quot;</span><span class="p">:</span> <span class="n">_scientific_metadata_strategy</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">st</span><span class="o">.</span><span class="n">register_type_strategy</span><span class="p">(</span>
+    <span class="n">RemotePath</span><span class="p">,</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+        <span class="n">alphabet</span><span class="o">=</span><span class="n">string</span><span class="o">.</span><span class="n">ascii_lowercase</span> <span class="o">+</span> <span class="n">string</span><span class="o">.</span><span class="n">ascii_uppercase</span> <span class="o">+</span> <span class="n">string</span><span class="o">.</span><span class="n">digits</span> <span class="o">+</span> <span class="s2">&quot;/.&quot;</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">RemotePath</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">st</span><span class="o">.</span><span class="n">register_type_strategy</span><span class="p">(</span>
+    <span class="n">PID</span><span class="p">,</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">builds</span><span class="p">(</span>
+        <span class="n">PID</span><span class="p">,</span>
+        <span class="n">prefix</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">alphabet</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">characters</span><span class="p">(</span><span class="n">blacklist_characters</span><span class="o">=</span><span class="s2">&quot;/&quot;</span><span class="p">))</span> <span class="o">|</span> <span class="n">st</span><span class="o">.</span><span class="n">none</span><span class="p">(),</span>
+        <span class="n">pid</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">text</span><span class="p">(),</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_field_strategy</span><span class="p">(</span><span class="n">field</span><span class="p">:</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">Field</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">st</span><span class="o">.</span><span class="n">SearchStrategy</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">strategy</span> <span class="o">:=</span> <span class="n">_SPECIAL_FIELDS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">strategy</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+
+    <span class="n">typ</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">type</span> <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">required</span> <span class="k">else</span> <span class="n">field</span><span class="o">.</span><span class="n">type</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">st</span><span class="o">.</span><span class="n">from_type</span><span class="p">(</span><span class="n">typ</span><span class="p">)</span>  <span class="c1"># type:ignore[arg-type]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_make_dataset</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="n">DatasetType</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">read_only</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dataset</span><span class="p">:</span>
+    <span class="n">dset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="nb">type</span><span class="p">,</span> <span class="o">**</span><span class="n">args</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">read_only</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">dset</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dset</span>
+
+
+<div class="viewcode-block" id="datasets">
+<a class="viewcode-back" href="../../../generated/modules/scitacean.testing.strategies.datasets.html#scitacean.testing.strategies.datasets">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">datasets</span><span class="p">(</span>
+    <span class="nb">type</span><span class="p">:</span> <span class="n">DatasetType</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">for_upload</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">:</span> <span class="n">Any</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">st</span><span class="o">.</span><span class="n">SearchStrategy</span><span class="p">[</span><span class="n">Dataset</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A strategy for generating datasets.</span>
+
+<span class="sd">    This strategy can populate all dataset fields.</span>
+<span class="sd">    However, there are some limitations:</span>
+
+<span class="sd">    - Some complex models may be uninitialized, e.g., ``lifecycle``.</span>
+<span class="sd">    - Fields of type ``dict`` only have string values, e.g., ``meta`` will only</span>
+<span class="sd">      be a ``dict[str, str]`` instead of the broader value types allowed by SciCat.</span>
+<span class="sd">    - The dataset has no files.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    type:</span>
+<span class="sd">        The type of dataset to generate.</span>
+<span class="sd">        If ``None``, a random dataset type will be chosen.</span>
+<span class="sd">    for_upload:</span>
+<span class="sd">        If ``True``, the dataset can be uploaded because only writable fields</span>
+<span class="sd">        will be set.</span>
+<span class="sd">        Otherwise, read-only fields may be set as well.</span>
+<span class="sd">    fields:</span>
+<span class="sd">        Concrete values or specific search strategies for dataset fields.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :</span>
+<span class="sd">        Datasets.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    To draw arbitrary datasets, use</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        from hypothesis import given</span>
+<span class="sd">        from scitacean.testing import strategies as sst</span>
+
+<span class="sd">        @given(ds=sst.datasets())</span>
+<span class="sd">        def test_dataset(ds):</span>
+<span class="sd">            # use ds</span>
+
+<span class="sd">    Limit to derived datasets that can be uploaded:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        @given(ds=sst.datasets(type=&quot;derived&quot;, for_upload=True))</span>
+<span class="sd">        def test_derived_upload(ds):</span>
+<span class="sd">            client = ...</span>
+<span class="sd">            client.upload_new_dataset_now(ds)</span>
+
+<span class="sd">    Fields can be fixed to specific values or generated from specific strategies.</span>
+<span class="sd">    All other fields are generated as normal.</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        @given(ds=sst.datasets(</span>
+<span class="sd">            owner=&quot;librarian&quot;,</span>
+<span class="sd">            owner_group=st.sampled_from((&quot;library&quot;, &quot;faculty&quot;))</span>
+<span class="sd">        ))</span>
+<span class="sd">        def test_dataset_owner(ds):</span>
+<span class="sd">            assert ds.owner == &quot;librarian&quot;</span>
+<span class="sd">            assert ds.owner_group in (&quot;library&quot;, &quot;faculty&quot;)</span>
+<span class="sd">            # other tests</span>
+
+<span class="sd">    It is also possible to fix read-only fields:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        @given(ds=sst.datasets(pid=PID.parse(&quot;abcd-12&quot;)))</span>
+<span class="sd">        def test_dataset_fixed_pid(ds):</span>
+<span class="sd">            assert ds.pid.prefix is None</span>
+<span class="sd">            # other tests</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">st</span><span class="o">.</span><span class="n">sampled_from</span><span class="p">(</span><span class="n">DatasetType</span><span class="p">)</span><span class="o">.</span><span class="n">flatmap</span><span class="p">(</span>
+            <span class="n">partial</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">for_upload</span><span class="o">=</span><span class="n">for_upload</span><span class="p">,</span> <span class="o">**</span><span class="n">fields</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">make_fixed_arg</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">st</span><span class="o">.</span><span class="n">SearchStrategy</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">fields</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">val</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">st</span><span class="o">.</span><span class="n">SearchStrategy</span><span class="p">)</span> <span class="k">else</span> <span class="n">st</span><span class="o">.</span><span class="n">just</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">make_arg</span><span class="p">(</span><span class="n">field</span><span class="p">:</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">Field</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">st</span><span class="o">.</span><span class="n">SearchStrategy</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">make_fixed_arg</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_field_strategy</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">make_args</span><span class="p">(</span><span class="n">read_only</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">st</span><span class="o">.</span><span class="n">SearchStrategy</span><span class="p">[</span><span class="n">Any</span><span class="p">]]:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">make_arg</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">fields</span><span class="p">(</span><span class="n">read_only</span><span class="o">=</span><span class="n">read_only</span><span class="p">,</span> <span class="n">dataset_type</span><span class="o">=</span><span class="nb">type</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s2">&quot;type&quot;</span>
+        <span class="p">}</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">fixed_dictionaries</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="o">**</span><span class="n">make_args</span><span class="p">(</span><span class="n">read_only</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="s2">&quot;checksum_algorithm&quot;</span><span class="p">:</span> <span class="n">st</span><span class="o">.</span><span class="n">sampled_from</span><span class="p">((</span><span class="s2">&quot;blake2b&quot;</span><span class="p">,</span> <span class="s2">&quot;sha256&quot;</span><span class="p">)),</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">for_upload</span><span class="p">:</span>
+        <span class="n">read_only</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">fixed_dictionaries</span><span class="p">(</span><span class="n">make_args</span><span class="p">(</span><span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">read_only</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">just</span><span class="p">({})</span>
+    <span class="k">return</span> <span class="n">st</span><span class="o">.</span><span class="n">builds</span><span class="p">(</span>
+        <span class="n">_make_dataset</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">just</span><span class="p">(</span><span class="nb">type</span><span class="p">),</span>
+        <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span>
+        <span class="n">read_only</span><span class="o">=</span><span class="n">read_only</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2023 SciCat Project.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><!-- This will display the version of the docs -->
+Current scitacean version: 25.3.2 (<a href="https://github.com/SciCatProject/scitacean/releases">older versions</a>).</div>
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,1556 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Downloading datasets &#8212; Scitacean</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=7776b8de" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=15bde43d"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user-guide/downloading';</script>
+    <script src="../_static/anaconda-icon.js?v=461bdc62"></script>
+    <link rel="icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Uploading datasets" href="uploading.html" />
+    <link rel="prev" title="Installation" href="installation.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="25.3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/logo.svg" class="logo__image only-light" alt="Scitacean - Home"/>
+    <img src="../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="Scitacean - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../reference/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../developer/index.html">
+    Developer documentation
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-external" href="https://scicatproject.github.io/">
+    SciCat
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-external" href="https://scicatproject.github.io/documentation/">
+    SciCat backend
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SciCatProject/scitacean" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/scitacean/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://anaconda.org/conda-forge/scitacean" title="Conda" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-custom fa-anaconda fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Conda</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../reference/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../developer/index.html">
+    Developer documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://scicatproject.github.io/">
+    SciCat
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://scicatproject.github.io/documentation/">
+    SciCat backend
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SciCatProject/scitacean" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/scitacean/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://anaconda.org/conda-forge/scitacean" title="Conda" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-custom fa-anaconda fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Conda</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Downloading datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="uploading.html">Uploading datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing code with Scitacean</a></li>
+<li class="toctree-l1"><a class="reference internal" href="classes-and-concepts.html">Classes and concepts</a></li>
+</ul>
+</div>
+</nav></div>
+        <div class="sidebar-primary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Metadata">Metadata</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Files">Files</a></li>
+</ul>
+  </nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/user-guide/downloading.ipynb"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Downloading datasets</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="Downloading-datasets">
+<h1>Downloading datasets<a class="headerlink" href="#Downloading-datasets" title="Link to this heading">#</a></h1>
+<p>All communication with SciCat is handled by a client object. Normally, one would construct one using something like</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scitacean</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scitacean.transfer.sftp</span><span class="w"> </span><span class="kn">import</span> <span class="n">SFTPFileTransfer</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="o">.</span><span class="n">from_token</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://scicat.ess.eu/api/v3&quot;</span><span class="p">,</span>
+                           <span class="n">token</span><span class="o">=...</span><span class="p">,</span>
+                           <span class="n">file_transfer</span><span class="o">=</span><span class="n">SFTPFileTransfer</span><span class="p">(</span>
+                               <span class="n">host</span><span class="o">=</span><span class="s2">&quot;login.esss.dk&quot;</span>
+                           <span class="p">))</span>
+</pre></div>
+</div>
+<p>In this example, we use ESS’s SciCat. If you want to use a different one, you need to figure out its URL. Note that this is <em>not</em> the same URL that you open in a browser but typically ends in a suffix like <code class="docutils literal notranslate"><span class="pre">/api/v3</span></code>.</p>
+<p>Here, we authenticate using a token. You can find your token in the web interface by logging in and opening the settings. Alternatively, we could use username and password via <a class="reference internal" href="../generated/classes/scitacean.Client.html#scitacean.Client.from_credentials"><span class="std std-ref">Client.from_credentials</span></a>.</p>
+<div class="admonition warning">
+<p class="admonition-title">WARNING:</p>
+<p>Do <strong>not</strong> hard code secrets like tokens or passwords in notebooks or scripts! There is a high risk of exposing them when code is under version control or uploaded to SciCat.</p>
+<p>Scitacean currently requires secrets to be passed as function arguments. So you will have to find your own solution for now.</p>
+</div>
+<p>While the client itself is responsible for talking to SciCat, a <code class="docutils literal notranslate"><span class="pre">file_transfer</span></code> object is required to download data files. Here, we use <code class="docutils literal notranslate"><span class="pre">SFTPFileTransfer</span></code> which downloads / uploads files via SFTP.</p>
+<p>The file transfer needs to authenticate separately from the SciCat connection. By default, it requires an SSH agent to be running an set up for the selected <code class="docutils literal notranslate"><span class="pre">host</span></code>.</p>
+<p>For the purposes of this guide, we don’t want to connect to a real SciCat server in order to avoid the complications associated with that. So we set up a fake client that only pretends to connect to SciCat and file servers. Everything else in this guide works in the same way with a real client. See <a class="reference internal" href="../developer/testing.html"><span class="doc">Developer Documentation/Testing</span></a> if you are interested in the details.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scitacean.testing.docs</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_fake_client</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">setup_fake_client</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<section id="Metadata">
+<h2>Metadata<a class="headerlink" href="#Metadata" title="Link to this heading">#</a></h2>
+<p>We need the ID (<code class="docutils literal notranslate"><span class="pre">pid</span></code>) of a dataset in order to download it. The fake client provides a dataset with id <code class="docutils literal notranslate"><span class="pre">20.500.12269/72fe3ff6-105b-4c7f-b9d0-073b67c90ec3</span></code>. We can download it using</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dset</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span><span class="s2">&quot;20.500.12269/72fe3ff6-105b-4c7f-b9d0-073b67c90ec3&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Datasets can easily be inspected in Jupyter notebooks:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dset</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+    <style>body[data-jp-theme-light="true"],body[data-jp-theme-light="false"]{--cean-font-color-field-type:var(--jp-content-font-color2);--cean-font-color-field-description:var(--jp-content-font-color1);--cean-font-color-file-info-size:var(--jp-content-font-color1);--cean-font-color-empty:var(--jp-content-font-color2);--cean-lock-fill:var(--jp-content-font-color2);--cean-error-color:var(--jp-error-color0);--cean-layout-color-border:var(--jp-layout-color3);--cean-layout-color-background:var(--jp-layout-color0);}body[data-vscode-theme-kind="vscode-dark"],body[data-vscode-theme-kind="vscode-light"]{--cean-error-color:var(--vscode-editorError-foreground);--cean-layout-color-border:var(--vscode-editorWidget-border);--cean-layout-color-background:var(--vscode-editorWidget-background);}body[data-vscode-theme-kind="vscode-dark"]{--cean-font-color-field-type:rgba(204,204,204,0.54);--cean-font-color-field-description:rgba(204,204,204,0.87);--cean-font-color-file-info-size:rgba(204,204,204,0.87);--cean-font-color-empty:rgba(204,204,204,0.54);--cean-lock-fill:rgba(204,204,204,0.54);}body[data-vscode-theme-kind="vscode-light"]{--cean-font-color-field-type:rgba(59,59,59,0.54);--cean-font-color-field-description:rgba(59,59,59,0.87);--cean-font-color-file-info-size:rgba(59,59,59,0.87);--cean-font-color-empty:rgba(59,59,59,0.54);--cean-lock-fill:rgba(59,59,59,0.54);}</style><style>.cean-attachment{display:table;clear:both}.cean-attachment-info{float:left;width:75%}.cean-thumbnail{float:left;width:20%;margin-left:5%;}tr.cean-header{border-bottom:2px solid var(--cean-layout-color-border);}.jp-RenderedHTMLCommon tbody tr.cean-header:hover{background:var(--cean-layout-color-background);}.cean-info-line{margin-left:1em;}.cean-dataset-type{font-weight:bold;}.cean-dataset th{text-align:left !important;}.cean-dataset td{white-space:nowrap !important;overflow:hidden;text-overflow:ellipsis;}.cean-field-flag{width:2%;}.cean-field-flag div{font-weight:bold;}.cean-field-name{width:20%;text-align:left !important;}.cean-field-type{width:12%;text-align:left !important;}td.cean-field-type{color:var(--cean-font-color-field-type);}.cean-field-value{width:39%;text-align:left !important;}.cean-field-description{width:27%;text-align:left !important;}td.cean-field-description{color:var(--cean-font-color-field-description);}.cean-field-value:hover span,.cean-field-description:hover span{white-space:normal;overflow:visible;}.cean-empty-field{color:var(--cean-font-color-empty);}.cean-missing-value,.cean-error{border-left:var(--cean-error-color) 4px solid !important;border-right:var(--cean-error-color) 4px solid !important;}.cean-missing-value .cean-empty-field,.cean-error .cean-field-value{color:var(--cean-error-color);}table.cean-dataset{margin-left:1em !important;margin-bottom:0;table-layout:fixed;width:100%;}.cean-dataset-details table.cean-dataset{margin-bottom:1em;border-top:2px solid var(--cean-layout-color-border);}details[open].cean-dataset-details summary{height:0;padding:0;}details[open].cean-dataset-details summary span{visibility:hidden;}details summary{cursor:pointer;}.cean-file-info{padding-left:1em;}.cean-archived-file-info{padding-left:4em;}.cean-file-info-size{color:var(--cean-font-color-file-info-size);}table.cean-files,table.cean-metadata{margin-left:1em !important;width:100%;}.cean-file-local-path,.cean-file-remote-path{width:40%;text-align:left !important;}.cean-file-size{width:10%;text-align:left !important;}.cean-metadata-name{width:30%;text-align:left !important;}.cean-metadata-value{width:70%;text-align:left !important;}.cean-lock{width:1.4ch;height:auto;}.cean-lock svg{max-width:100%;height:auto;}.cean-lock path{fill:var(--cean-lock-fill) !important;}</style>
+    <div class="cean-info-line">
+        <span class="cean-dataset-type">RawDataset</span>
+    </div>
+    <table class="cean-dataset">
+        <tr class="cean-header">
+            <th class="cean-field-flag"></th>
+            <th class="cean-field-name">Name</th>
+            <th class="cean-field-type">Type</th>
+            <th class="cean-field-value">Value</th>
+            <th class="cean-field-description">Description</th>
+        </tr>
+        <tr class="cean-field " >
+    <td class="cean-field-flag"><div style="color: var(--jp-error-color0)">*</div></td>
+    <td class="cean-field-name">creation_time</td>
+    <td class="cean-field-type">datetime</td>
+    <td class="cean-field-value"><span>2022-06-29 14:01:05+0000</span></td>
+    <td class="cean-field-description"><span>Time when dataset became fully available on disk, i.e. all containing files have been written,  or the dataset was created in SciCat.&lt;br&gt;It is expected to be in ISO8601 format according to specifications for internet date/time format in RFC 3339, chapter 5.6 (https://www.rfc-editor.org/rfc/rfc3339#section-5).&lt;br&gt;Local times without timezone/offset info are automatically transformed to UTC using the timezone of the API server.</span></td>
+</tr>
+
+<tr class="cean-field cean-missing-value" title="Missing required field">
+    <td class="cean-field-flag"><div style="color: var(--jp-error-color0)">*</div></td>
+    <td class="cean-field-name">input_datasets</td>
+    <td class="cean-field-type">list[PID]</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>Array of input dataset identifiers used in producing the derived dataset. Ideally these are the global identifier to existing datasets inside this or federated data catalogs.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"><div style="color: var(--jp-error-color0)">*</div></td>
+    <td class="cean-field-name">source_folder</td>
+    <td class="cean-field-type">RemotePath</td>
+    <td class="cean-field-value"><span>RemotePath(&#x27;/hex/ps/thaum&#x27;)</span></td>
+    <td class="cean-field-description"><span>Absolute file path on file server containing the files of this dataset, e.g. /some/path/to/sourcefolder. In case of a single file dataset, e.g. HDF5 data, it contains the path up to, but excluding the filename. Trailing slashes are removed.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">description</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span>Measured the thaum flux</span></td>
+    <td class="cean-field-description"><span>Free text explanation of contents of dataset.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">name</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span>Thaum flux</span></td>
+    <td class="cean-field-description"><span>A name for the dataset, given by the creator to carry some semantic meaning. Useful for display purposes e.g. instead of displaying the pid. Will be autofilled if missing using info from sourceFolder.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"><div class="cean-lock"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.361915mm"
+   height="17.348812mm"
+   viewBox="0 0 14.361915 17.348812"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="lock.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.551292"
+     inkscape:cx="-119.90006"
+     inkscape:cy="-33.198134"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.3422388,-6.5584985)">
+    <path
+       id="circle3527"
+       style="color:#000000;fill:#4d4d4d;stroke-width:0.999997;-inkscape-stroke:none"
+       d="m 15.523713,6.5584985 c -2.767358,-1.8e-5 -5.027101,2.260239 -5.027083,5.0276005 v 1.369942 C 9.2424668,13.371803 8.3422388,14.550409 8.3422388,15.94759 v 4.807458 c 0,1.746404 1.405859,3.152263 3.1522632,3.152263 h 8.057389 c 1.746403,0 3.152262,-1.405859 3.152262,-3.152263 V 15.94759 c 0,-1.397019 -0.899938,-2.575141 -2.153873,-2.991032 v -1.370459 c 2e-5,-2.7673615 -2.259206,-5.0276195 -5.026567,-5.0276005 z m 0,1.521871 c 1.944936,-1.3e-5 3.504192,1.560794 3.504179,3.5057295 v 1.209229 h -7.009908 v -1.209229 c -1.2e-5,-1.9449345 1.560797,-3.5057425 3.505729,-3.5057295 z m -5.17e-4,7.4476075 c 0.904731,0 1.633492,0.656354 1.633492,1.471745 0,0.432939 -0.205768,0.821008 -0.533817,1.089856 2.1e-4,0.008 5.17e-4,0.01629 5.17e-4,0.02429 v 2.440678 c 0,0.542024 -0.48431,0.978235 -1.085722,0.978235 -0.601412,0 -1.085722,-0.436211 -1.085722,-0.978235 v -2.440678 -0.0021 c -0.344426,-0.269453 -0.561723,-0.666871 -0.561723,-1.112077 0,-0.815391 0.728244,-1.471745 1.632975,-1.471745 z" />
+  </g>
+</svg>
+</div></td>
+    <td class="cean-field-name">pid</td>
+    <td class="cean-field-type">PID</td>
+    <td class="cean-field-value"><span>20.500.12269/72fe3ff6-105b-4c7f-b9d0-073b67c90ec3</span></td>
+    <td class="cean-field-description"><span>Persistent identifier of the dataset.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">proposal_id</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>The ID of the proposal to which the dataset belongs.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">sample_id</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>ID of the sample used when collecting the data.</span></td>
+</tr>
+
+    </table>
+    <details class="cean-dataset-details">
+        <summary><span>Advanced fields</span></summary>
+        <table class="cean-dataset">
+            <tr class="cean-field " >
+    <td class="cean-field-flag"><div style="color: var(--jp-error-color0)">*</div></td>
+    <td class="cean-field-name">contact_email</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span>p.stibbons@uu.am</span></td>
+    <td class="cean-field-description"><span>Email of the contact person for this dataset. The string may contain a list of emails, which should then be separated by semicolons.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"><div style="color: var(--jp-error-color0)">*</div></td>
+    <td class="cean-field-name">creation_location</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span>UnseenUniversity</span></td>
+    <td class="cean-field-description"><span>Unique location identifier where data was taken, usually in the form /Site-name/facility-name/instrumentOrBeamline-name. This field is required if the dataset is a Raw dataset.</span></td>
+</tr>
+
+<tr class="cean-field cean-missing-value" title="Missing required field">
+    <td class="cean-field-flag"><div style="color: var(--jp-error-color0)">*</div></td>
+    <td class="cean-field-name">investigator</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>First name and last name of the person or people pursuing the data analysis. The string may contain a list of names, which should then be separated by semicolons.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"><div style="color: var(--jp-error-color0)">*</div></td>
+    <td class="cean-field-name">owner</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span>Ponder Stibbons</span></td>
+    <td class="cean-field-description"><span>Owner or custodian of the dataset, usually first name + last name. The string may contain a list of persons, which should then be separated by semicolons.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"><div style="color: var(--jp-error-color0)">*</div></td>
+    <td class="cean-field-name">owner_group</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span>uu</span></td>
+    <td class="cean-field-description"><span>Name of the group owning this item.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"><div style="color: var(--jp-error-color0)">*</div></td>
+    <td class="cean-field-name">principal_investigator</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span>p.stibbons@uu.am</span></td>
+    <td class="cean-field-description"><span>First name and last name of principal investigator(s). If multiple PIs are present, use a semicolon separated list. This field is required if the dataset is a Raw dataset.</span></td>
+</tr>
+
+<tr class="cean-field cean-missing-value" title="Missing required field">
+    <td class="cean-field-flag"><div style="color: var(--jp-error-color0)">*</div></td>
+    <td class="cean-field-name">used_software</td>
+    <td class="cean-field-type">list[str]</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>A list of links to software repositories which uniquely identifies the pieces of software, including versions, used for yielding the derived data.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">access_groups</td>
+    <td class="cean-field-type">list[str]</td>
+    <td class="cean-field-value"><span>[&#x27;faculty&#x27;]</span></td>
+    <td class="cean-field-description"><span>List of groups which have access to this item.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"><div class="cean-lock"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.361915mm"
+   height="17.348812mm"
+   viewBox="0 0 14.361915 17.348812"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="lock.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.551292"
+     inkscape:cx="-119.90006"
+     inkscape:cy="-33.198134"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.3422388,-6.5584985)">
+    <path
+       id="circle3527"
+       style="color:#000000;fill:#4d4d4d;stroke-width:0.999997;-inkscape-stroke:none"
+       d="m 15.523713,6.5584985 c -2.767358,-1.8e-5 -5.027101,2.260239 -5.027083,5.0276005 v 1.369942 C 9.2424668,13.371803 8.3422388,14.550409 8.3422388,15.94759 v 4.807458 c 0,1.746404 1.405859,3.152263 3.1522632,3.152263 h 8.057389 c 1.746403,0 3.152262,-1.405859 3.152262,-3.152263 V 15.94759 c 0,-1.397019 -0.899938,-2.575141 -2.153873,-2.991032 v -1.370459 c 2e-5,-2.7673615 -2.259206,-5.0276195 -5.026567,-5.0276005 z m 0,1.521871 c 1.944936,-1.3e-5 3.504192,1.560794 3.504179,3.5057295 v 1.209229 h -7.009908 v -1.209229 c -1.2e-5,-1.9449345 1.560797,-3.5057425 3.505729,-3.5057295 z m -5.17e-4,7.4476075 c 0.904731,0 1.633492,0.656354 1.633492,1.471745 0,0.432939 -0.205768,0.821008 -0.533817,1.089856 2.1e-4,0.008 5.17e-4,0.01629 5.17e-4,0.02429 v 2.440678 c 0,0.542024 -0.48431,0.978235 -1.085722,0.978235 -0.601412,0 -1.085722,-0.436211 -1.085722,-0.978235 v -2.440678 -0.0021 c -0.344426,-0.269453 -0.561723,-0.666871 -0.561723,-1.112077 0,-0.815391 0.728244,-1.471745 1.632975,-1.471745 z" />
+  </g>
+</svg>
+</div></td>
+    <td class="cean-field-name">api_version</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>Version of the API used in creation of the dataset.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">classification</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>ACIA information about AUthenticity,COnfidentiality,INtegrity and AVailability requirements of dataset. E.g. AV(ailabilty)=medium could trigger the creation of a two tape copies. Format &#x27;AV=medium,CO=low&#x27;</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">comment</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>Comment the user has about a given dataset.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"><div class="cean-lock"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.361915mm"
+   height="17.348812mm"
+   viewBox="0 0 14.361915 17.348812"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="lock.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.551292"
+     inkscape:cx="-119.90006"
+     inkscape:cy="-33.198134"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.3422388,-6.5584985)">
+    <path
+       id="circle3527"
+       style="color:#000000;fill:#4d4d4d;stroke-width:0.999997;-inkscape-stroke:none"
+       d="m 15.523713,6.5584985 c -2.767358,-1.8e-5 -5.027101,2.260239 -5.027083,5.0276005 v 1.369942 C 9.2424668,13.371803 8.3422388,14.550409 8.3422388,15.94759 v 4.807458 c 0,1.746404 1.405859,3.152263 3.1522632,3.152263 h 8.057389 c 1.746403,0 3.152262,-1.405859 3.152262,-3.152263 V 15.94759 c 0,-1.397019 -0.899938,-2.575141 -2.153873,-2.991032 v -1.370459 c 2e-5,-2.7673615 -2.259206,-5.0276195 -5.026567,-5.0276005 z m 0,1.521871 c 1.944936,-1.3e-5 3.504192,1.560794 3.504179,3.5057295 v 1.209229 h -7.009908 v -1.209229 c -1.2e-5,-1.9449345 1.560797,-3.5057425 3.505729,-3.5057295 z m -5.17e-4,7.4476075 c 0.904731,0 1.633492,0.656354 1.633492,1.471745 0,0.432939 -0.205768,0.821008 -0.533817,1.089856 2.1e-4,0.008 5.17e-4,0.01629 5.17e-4,0.02429 v 2.440678 c 0,0.542024 -0.48431,0.978235 -1.085722,0.978235 -0.601412,0 -1.085722,-0.436211 -1.085722,-0.978235 v -2.440678 -0.0021 c -0.344426,-0.269453 -0.561723,-0.666871 -0.561723,-1.112077 0,-0.815391 0.728244,-1.471745 1.632975,-1.471745 z" />
+  </g>
+</svg>
+</div></td>
+    <td class="cean-field-name">created_at</td>
+    <td class="cean-field-type">datetime</td>
+    <td class="cean-field-value"><span>2022-08-17 14:20:23+0000</span></td>
+    <td class="cean-field-description"><span>Date and time when this record was created. This field is managed by mongoose with through the timestamp settings. The field should be a string containing a date in ISO 8601 format (2024-02-27T12:26:57.313Z)</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"><div class="cean-lock"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.361915mm"
+   height="17.348812mm"
+   viewBox="0 0 14.361915 17.348812"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="lock.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.551292"
+     inkscape:cx="-119.90006"
+     inkscape:cy="-33.198134"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.3422388,-6.5584985)">
+    <path
+       id="circle3527"
+       style="color:#000000;fill:#4d4d4d;stroke-width:0.999997;-inkscape-stroke:none"
+       d="m 15.523713,6.5584985 c -2.767358,-1.8e-5 -5.027101,2.260239 -5.027083,5.0276005 v 1.369942 C 9.2424668,13.371803 8.3422388,14.550409 8.3422388,15.94759 v 4.807458 c 0,1.746404 1.405859,3.152263 3.1522632,3.152263 h 8.057389 c 1.746403,0 3.152262,-1.405859 3.152262,-3.152263 V 15.94759 c 0,-1.397019 -0.899938,-2.575141 -2.153873,-2.991032 v -1.370459 c 2e-5,-2.7673615 -2.259206,-5.0276195 -5.026567,-5.0276005 z m 0,1.521871 c 1.944936,-1.3e-5 3.504192,1.560794 3.504179,3.5057295 v 1.209229 h -7.009908 v -1.209229 c -1.2e-5,-1.9449345 1.560797,-3.5057425 3.505729,-3.5057295 z m -5.17e-4,7.4476075 c 0.904731,0 1.633492,0.656354 1.633492,1.471745 0,0.432939 -0.205768,0.821008 -0.533817,1.089856 2.1e-4,0.008 5.17e-4,0.01629 5.17e-4,0.02429 v 2.440678 c 0,0.542024 -0.48431,0.978235 -1.085722,0.978235 -0.601412,0 -1.085722,-0.436211 -1.085722,-0.978235 v -2.440678 -0.0021 c -0.344426,-0.269453 -0.561723,-0.666871 -0.561723,-1.112077 0,-0.815391 0.728244,-1.471745 1.632975,-1.471745 z" />
+  </g>
+</svg>
+</div></td>
+    <td class="cean-field-name">created_by</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span>Ponder Stibbons</span></td>
+    <td class="cean-field-description"><span>Indicate the user who created this record. This property is added and maintained by the system.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">data_format</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>Defines the format of the data files in this dataset, e.g Nexus Version x.y.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">data_quality_metrics</td>
+    <td class="cean-field-type">int</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>Data Quality Metrics is a number given by the user to rate the dataset.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">end_time</td>
+    <td class="cean-field-type">datetime</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>End time of data acquisition for the current dataset.&lt;br&gt;It is expected to be in ISO8601 format according to specifications for internet date/time format in RFC 3339, chapter 5.6 (https://www.rfc-editor.org/rfc/rfc3339#section-5).&lt;br&gt;Local times without timezone/offset info are automatically transformed to UTC using the timezone of the API server.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">instrument_group</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>Group of the instrument which this item was acquired on.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">instrument_id</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>ID of the instrument where the data was created.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">is_published</td>
+    <td class="cean-field-type">bool</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>Flag is true when data are made publicly available.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">job_log_data</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>The output job logfile. Keep the size of this log data well below 15 MB.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">job_parameters</td>
+    <td class="cean-field-type">dict[str, typing.Any]</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>The creation process of the derived data will usually depend on input job parameters. The full structure of these input parameters are stored here.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">keywords</td>
+    <td class="cean-field-type">list[str]</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>Array of tags associated with the meaning or contents of this dataset. Values should ideally come from defined vocabularies, taxonomies, ontologies or knowledge graphs.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">license</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>Name of the license under which the data can be used.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"><div class="cean-lock"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.361915mm"
+   height="17.348812mm"
+   viewBox="0 0 14.361915 17.348812"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="lock.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.551292"
+     inkscape:cx="-119.90006"
+     inkscape:cy="-33.198134"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.3422388,-6.5584985)">
+    <path
+       id="circle3527"
+       style="color:#000000;fill:#4d4d4d;stroke-width:0.999997;-inkscape-stroke:none"
+       d="m 15.523713,6.5584985 c -2.767358,-1.8e-5 -5.027101,2.260239 -5.027083,5.0276005 v 1.369942 C 9.2424668,13.371803 8.3422388,14.550409 8.3422388,15.94759 v 4.807458 c 0,1.746404 1.405859,3.152263 3.1522632,3.152263 h 8.057389 c 1.746403,0 3.152262,-1.405859 3.152262,-3.152263 V 15.94759 c 0,-1.397019 -0.899938,-2.575141 -2.153873,-2.991032 v -1.370459 c 2e-5,-2.7673615 -2.259206,-5.0276195 -5.026567,-5.0276005 z m 0,1.521871 c 1.944936,-1.3e-5 3.504192,1.560794 3.504179,3.5057295 v 1.209229 h -7.009908 v -1.209229 c -1.2e-5,-1.9449345 1.560797,-3.5057425 3.505729,-3.5057295 z m -5.17e-4,7.4476075 c 0.904731,0 1.633492,0.656354 1.633492,1.471745 0,0.432939 -0.205768,0.821008 -0.533817,1.089856 2.1e-4,0.008 5.17e-4,0.01629 5.17e-4,0.02429 v 2.440678 c 0,0.542024 -0.48431,0.978235 -1.085722,0.978235 -0.601412,0 -1.085722,-0.436211 -1.085722,-0.978235 v -2.440678 -0.0021 c -0.344426,-0.269453 -0.561723,-0.666871 -0.561723,-1.112077 0,-0.815391 0.728244,-1.471745 1.632975,-1.471745 z" />
+  </g>
+</svg>
+</div></td>
+    <td class="cean-field-name">lifecycle</td>
+    <td class="cean-field-type">Lifecycle</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>Describes the current status of the dataset during its lifetime with respect to the storage handling systems.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">orcid_of_owner</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>ORCID of the owner or custodian. The string may contain a list of ORCIDs, which should then be separated by semicolons.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">owner_email</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>Email of the owner or custodian of the dataset. The string may contain a list of emails, which should then be separated by semicolons.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">relationships</td>
+    <td class="cean-field-type">list[Relationship]</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>Stores the relationships with other datasets.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">run_number</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>Run number assigned by the system to the data acquisition for the current dataset.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">shared_with</td>
+    <td class="cean-field-type">list[str]</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>List of users that the dataset has been shared with.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">source_folder_host</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>DNS host name of file server hosting sourceFolder, optionally including a protocol e.g. [protocol://]fileserver1.example.com</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">start_time</td>
+    <td class="cean-field-type">datetime</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>Start time of data acquisition for the current dataset.&lt;br&gt;It is expected to be in ISO8601 format according to specifications for internet date/time format in RFC 3339, chapter 5.6 (https://www.rfc-editor.org/rfc/rfc3339#section-5).&lt;br&gt;Local times without timezone/offset info are automatically transformed to UTC using the timezone of the API server.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">techniques</td>
+    <td class="cean-field-type">list[Technique]</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>Stores the metadata information for techniques.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"><div class="cean-lock"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.361915mm"
+   height="17.348812mm"
+   viewBox="0 0 14.361915 17.348812"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="lock.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.551292"
+     inkscape:cx="-119.90006"
+     inkscape:cy="-33.198134"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.3422388,-6.5584985)">
+    <path
+       id="circle3527"
+       style="color:#000000;fill:#4d4d4d;stroke-width:0.999997;-inkscape-stroke:none"
+       d="m 15.523713,6.5584985 c -2.767358,-1.8e-5 -5.027101,2.260239 -5.027083,5.0276005 v 1.369942 C 9.2424668,13.371803 8.3422388,14.550409 8.3422388,15.94759 v 4.807458 c 0,1.746404 1.405859,3.152263 3.1522632,3.152263 h 8.057389 c 1.746403,0 3.152262,-1.405859 3.152262,-3.152263 V 15.94759 c 0,-1.397019 -0.899938,-2.575141 -2.153873,-2.991032 v -1.370459 c 2e-5,-2.7673615 -2.259206,-5.0276195 -5.026567,-5.0276005 z m 0,1.521871 c 1.944936,-1.3e-5 3.504192,1.560794 3.504179,3.5057295 v 1.209229 h -7.009908 v -1.209229 c -1.2e-5,-1.9449345 1.560797,-3.5057425 3.505729,-3.5057295 z m -5.17e-4,7.4476075 c 0.904731,0 1.633492,0.656354 1.633492,1.471745 0,0.432939 -0.205768,0.821008 -0.533817,1.089856 2.1e-4,0.008 5.17e-4,0.01629 5.17e-4,0.02429 v 2.440678 c 0,0.542024 -0.48431,0.978235 -1.085722,0.978235 -0.601412,0 -1.085722,-0.436211 -1.085722,-0.978235 v -2.440678 -0.0021 c -0.344426,-0.269453 -0.561723,-0.666871 -0.561723,-1.112077 0,-0.815391 0.728244,-1.471745 1.632975,-1.471745 z" />
+  </g>
+</svg>
+</div></td>
+    <td class="cean-field-name">updated_at</td>
+    <td class="cean-field-type">datetime</td>
+    <td class="cean-field-value"><span>2022-11-01 13:22:08+0000</span></td>
+    <td class="cean-field-description"><span>Date and time when this record was updated last. This field is managed by mongoose with through the timestamp settings. The field should be a string containing a date in ISO 8601 format (2024-02-27T12:26:57.313Z)</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"><div class="cean-lock"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.361915mm"
+   height="17.348812mm"
+   viewBox="0 0 14.361915 17.348812"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="lock.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.551292"
+     inkscape:cx="-119.90006"
+     inkscape:cy="-33.198134"
+     inkscape:window-width="2560"
+     inkscape:window-height="1406"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-8.3422388,-6.5584985)">
+    <path
+       id="circle3527"
+       style="color:#000000;fill:#4d4d4d;stroke-width:0.999997;-inkscape-stroke:none"
+       d="m 15.523713,6.5584985 c -2.767358,-1.8e-5 -5.027101,2.260239 -5.027083,5.0276005 v 1.369942 C 9.2424668,13.371803 8.3422388,14.550409 8.3422388,15.94759 v 4.807458 c 0,1.746404 1.405859,3.152263 3.1522632,3.152263 h 8.057389 c 1.746403,0 3.152262,-1.405859 3.152262,-3.152263 V 15.94759 c 0,-1.397019 -0.899938,-2.575141 -2.153873,-2.991032 v -1.370459 c 2e-5,-2.7673615 -2.259206,-5.0276195 -5.026567,-5.0276005 z m 0,1.521871 c 1.944936,-1.3e-5 3.504192,1.560794 3.504179,3.5057295 v 1.209229 h -7.009908 v -1.209229 c -1.2e-5,-1.9449345 1.560797,-3.5057425 3.505729,-3.5057295 z m -5.17e-4,7.4476075 c 0.904731,0 1.633492,0.656354 1.633492,1.471745 0,0.432939 -0.205768,0.821008 -0.533817,1.089856 2.1e-4,0.008 5.17e-4,0.01629 5.17e-4,0.02429 v 2.440678 c 0,0.542024 -0.48431,0.978235 -1.085722,0.978235 -0.601412,0 -1.085722,-0.436211 -1.085722,-0.978235 v -2.440678 -0.0021 c -0.344426,-0.269453 -0.561723,-0.666871 -0.561723,-1.112077 0,-0.815391 0.728244,-1.471745 1.632975,-1.471745 z" />
+  </g>
+</svg>
+</div></td>
+    <td class="cean-field-name">updated_by</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span>anonymous</span></td>
+    <td class="cean-field-description"><span>Indicate the user who updated this record last. This property is added and maintained by the system.</span></td>
+</tr>
+
+<tr class="cean-field " >
+    <td class="cean-field-flag"></td>
+    <td class="cean-field-name">validation_status</td>
+    <td class="cean-field-type">str</td>
+    <td class="cean-field-value"><span><span class="cean-empty-field">None</span></span></td>
+    <td class="cean-field-description"><span>Defines a level of trust, e.g. a measure of how much data was verified or used by other persons.</span></td>
+</tr>
+
+        </table>
+    </details>
+    <details class="cean-dataset-files">
+        <summary><span>Files:</span>
+            <span class="cean-file-info"> 2 <span class="cean-file-info-size">(95 B)</span></span>
+            <span class="cean-archived-file-info"></span>
+        </summary>
+        <table class="cean-files">
+            <tr class="cean-header">
+                <th class="cean-file-local-path">Local</th>
+                <th class="cean-file-remote-path">Remote</th>
+                <th class="cean-file-size">Size</th>
+            </tr>
+            <tr class="file">
+    <td class="cean-file-local-path"><span class="cean-empty-field">None</span></td>
+    <td class="cean-file-remote-path">RemotePath(&#x27;flux.dat&#x27;)</td>
+    <td class="cean-file-size">20 B</td>
+</tr>
+
+<tr class="file">
+    <td class="cean-file-local-path"><span class="cean-empty-field">None</span></td>
+    <td class="cean-file-remote-path">RemotePath(&#x27;logs/measurement.log&#x27;)</td>
+    <td class="cean-file-size">75 B</td>
+</tr>
+
+        </table>
+    </details>
+    <details class="cean-dataset-metadata">
+        <summary><span>Scientific Metadata</span></summary>
+        <table class="cean-metadata">
+            <tr class="cean-header">
+                <th class="cean-metadata-name">Name</th>
+                <th class="cean-metadata-value">Value</th>
+            </tr>
+            <tr class="metadata">
+    <td class="cean-metadata-name">data_type</td>
+    <td class="cean-metadata-value">histogram</td>
+</tr>
+
+<tr class="metadata">
+    <td class="cean-metadata-name">temperature</td>
+    <td class="cean-metadata-value">123 [K]</td>
+</tr>
+
+        </table>
+    </details>
+</div></div>
+</div>
+<p>All attributes listed above can be accessed directly:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dset</span><span class="o">.</span><span class="n">type</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;DatasetType.RAW: &#39;raw&#39;&gt;
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dset</span><span class="o">.</span><span class="n">name</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&#39;Thaum flux&#39;
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dset</span><span class="o">.</span><span class="n">owner</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&#39;Ponder Stibbons&#39;
+</pre></div></div>
+</div>
+<p>See <a class="reference internal" href="../generated/classes/scitacean.Dataset.html"><span class="doc">Dataset</span></a> for a list of available fields.</p>
+<p>In addition, datasets can have free form scientific metadata which we can be accessed using</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dset</span><span class="o">.</span><span class="n">meta</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;data_type&#39;: &#39;histogram&#39;, &#39;temperature&#39;: {&#39;value&#39;: &#39;123&#39;, &#39;unit&#39;: &#39;K&#39;}}
+</pre></div></div>
+</div>
+</section>
+<section id="Files">
+<h2>Files<a class="headerlink" href="#Files" title="Link to this heading">#</a></h2>
+<p>The data files associated with this dataset can be accessed using</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">dset</span><span class="o">.</span><span class="n">files</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="n">remote_access_path</span><span class="p">(</span><span class="n">dset</span><span class="o">.</span><span class="n">source_folder</span><span class="p">)</span><span class="w"> </span><span class="si">= }</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="n">local_path</span><span class="w"> </span><span class="si">= }</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="n">size</span><span class="w"> </span><span class="si">= }</span><span class="s2"> bytes&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;----&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+f.remote_access_path(dset.source_folder) = RemotePath(&#39;/hex/ps/thaum/flux.dat&#39;)
+f.local_path = None
+f.size = 20 bytes
+----
+f.remote_access_path(dset.source_folder) = RemotePath(&#39;/hex/ps/thaum/logs/measurement.log&#39;)
+f.local_path = None
+f.size = 75 bytes
+----
+</pre></div></div>
+</div>
+<p>Note that the <code class="docutils literal notranslate"><span class="pre">local_path</span></code> for both files is <code class="docutils literal notranslate"><span class="pre">None</span></code>. This indicates that the files have not been downloaded. Indeed, <code class="docutils literal notranslate"><span class="pre">client.get_dataset</span></code> downloads only the metadata from SciCat, not the files.</p>
+<p>We can download the first file using</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dset_with_local_file</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">download_files</span><span class="p">(</span><span class="n">dset</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;download&quot;</span><span class="p">,</span> <span class="n">select</span><span class="o">=</span><span class="s2">&quot;flux.dat&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">dset_with_local_file</span><span class="o">.</span><span class="n">files</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="n">remote_access_path</span><span class="p">(</span><span class="n">dset</span><span class="o">.</span><span class="n">source_folder</span><span class="p">)</span><span class="w"> </span><span class="si">= }</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="n">local_path</span><span class="w"> </span><span class="si">= }</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="n">size</span><span class="w"> </span><span class="si">= }</span><span class="s2"> bytes&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;----&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+f.remote_access_path(dset.source_folder) = RemotePath(&#39;/hex/ps/thaum/flux.dat&#39;)
+f.local_path = PosixPath(&#39;download/flux.dat&#39;)
+f.size = 20 bytes
+----
+f.remote_access_path(dset.source_folder) = RemotePath(&#39;/hex/ps/thaum/logs/measurement.log&#39;)
+f.local_path = None
+f.size = 75 bytes
+----
+</pre></div></div>
+</div>
+<p>Which populates the <code class="docutils literal notranslate"><span class="pre">local_path</span></code>:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">file</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dset_with_local_file</span><span class="o">.</span><span class="n">files</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">file</span><span class="o">.</span><span class="n">local_path</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PosixPath(&#39;download/flux.dat&#39;)
+</pre></div></div>
+</div>
+<p>We can use it to read the file:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">file</span><span class="o">.</span><span class="n">local_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+5 4 9 11 15 12 7 6 1
+</pre></div></div>
+</div>
+<p>If we wanted to download all files, we could pass <code class="docutils literal notranslate"><span class="pre">select=True</span></code> (or nothing, <code class="docutils literal notranslate"><span class="pre">True</span></code> is the default) to <code class="docutils literal notranslate"><span class="pre">client.download_files</span></code>. See <a class="reference internal" href="../generated/classes/scitacean.Client.html#scitacean.Client.download_files"><span class="std std-ref">Client.download_files</span></a> for more options to select files.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="installation.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Installation</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="uploading.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Uploading datasets</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2023 SciCat Project.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><!-- This will display the version of the docs -->
+Current scitacean version: 25.3.2 (<a href="https://github.com/SciCatProject/scitacean/releases">older versions</a>).</div>
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,1085 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>scitacean.File &#8212; Scitacean</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=7776b8de" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=15bde43d"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/classes/scitacean.File';</script>
+    <script src="../../_static/anaconda-icon.js?v=461bdc62"></script>
+    <link rel="icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="scitacean.transfer.copy.CopyFileTransfer" href="scitacean.transfer.copy.CopyFileTransfer.html" />
+    <link rel="prev" title="scitacean.Dataset" href="scitacean.Dataset.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="25.3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo.svg" class="logo__image only-light" alt="Scitacean - Home"/>
+    <img src="../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="Scitacean - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user-guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../reference/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../developer/index.html">
+    Developer documentation
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-external" href="https://scicatproject.github.io/">
+    SciCat
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-external" href="https://scicatproject.github.io/documentation/">
+    SciCat backend
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SciCatProject/scitacean" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/scitacean/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://anaconda.org/conda-forge/scitacean" title="Conda" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-custom fa-anaconda fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Conda</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user-guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../reference/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../developer/index.html">
+    Developer documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://scicatproject.github.io/">
+    SciCat
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://scicatproject.github.io/documentation/">
+    SciCat backend
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SciCatProject/scitacean" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/scitacean/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://anaconda.org/conda-forge/scitacean" title="Conda" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-custom fa-anaconda fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Conda</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="scitacean.Client.html">scitacean.Client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scitacean.Dataset.html">scitacean.Dataset</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">scitacean.File</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="scitacean.transfer.copy.CopyFileTransfer.html">scitacean.transfer.copy.CopyFileTransfer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scitacean.transfer.link.LinkFileTransfer.html">scitacean.transfer.link.LinkFileTransfer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scitacean.transfer.select.SelectFileTransfer.html">scitacean.transfer.select.SelectFileTransfer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scitacean.transfer.sftp.SFTPFileTransfer.html">scitacean.transfer.sftp.SFTPFileTransfer</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="scitacean.client.ScicatClient.html">scitacean.client.ScicatClient</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scitacean.datablock.OrigDatablock.html">scitacean.datablock.OrigDatablock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scitacean.dataset.DatablockUploadModels.html">scitacean.dataset.DatablockUploadModels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scitacean.PID.html">scitacean.PID</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scitacean.Profile.html">scitacean.Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scitacean.RemotePath.html">scitacean.RemotePath</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scitacean.Thumbnail.html">scitacean.Thumbnail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scitacean.DatasetType.html">scitacean.DatasetType</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="scitacean.FileUploadError.html">scitacean.FileUploadError</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scitacean.IntegrityError.html">scitacean.IntegrityError</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scitacean.ScicatCommError.html">scitacean.ScicatCommError</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scitacean.ScicatLoginError.html">scitacean.ScicatLoginError</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../modules/scitacean.model.html">scitacean.model</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="scitacean.model.Attachment.html">scitacean.model.Attachment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitacean.model.DatasetType.html">scitacean.model.DatasetType</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitacean.model.History.html">scitacean.model.History</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitacean.model.Instrument.html">scitacean.model.Instrument</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitacean.model.Lifecycle.html">scitacean.model.Lifecycle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitacean.model.Relationship.html">scitacean.model.Relationship</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitacean.model.Sample.html">scitacean.model.Sample</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitacean.model.Technique.html">scitacean.model.Technique</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitacean.model.DownloadAttachment.html">scitacean.model.DownloadAttachment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitacean.model.DownloadDatablock.html">scitacean.model.DownloadDatablock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitacean.model.DownloadDataFile.html">scitacean.model.DownloadDataFile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitacean.model.DownloadDataset.html">scitacean.model.DownloadDataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitacean.model.DownloadHistory.html">scitacean.model.DownloadHistory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitacean.model.DownloadInstrument.html">scitacean.model.DownloadInstrument</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitacean.model.DownloadLifecycle.html">scitacean.model.DownloadLifecycle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitacean.model.DownloadOrigDatablock.html">scitacean.model.DownloadOrigDatablock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitacean.model.DownloadRelationship.html">scitacean.model.DownloadRelationship</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitacean.model.DownloadSample.html">scitacean.model.DownloadSample</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitacean.model.DownloadTechnique.html">scitacean.model.DownloadTechnique</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitacean.model.UploadAttachment.html">scitacean.model.UploadAttachment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitacean.model.UploadDatablock.html">scitacean.model.UploadDatablock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitacean.model.UploadDataFile.html">scitacean.model.UploadDataFile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitacean.model.UploadDerivedDataset.html">scitacean.model.UploadDerivedDataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitacean.model.UploadOrigDatablock.html">scitacean.model.UploadOrigDatablock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitacean.model.UploadRawDataset.html">scitacean.model.UploadRawDataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitacean.model.UploadRelationship.html">scitacean.model.UploadRelationship</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitacean.model.UploadSample.html">scitacean.model.UploadSample</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scitacean.model.UploadTechnique.html">scitacean.model.UploadTechnique</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../functions/scitacean.model.construct.html">scitacean.model.construct</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../modules/scitacean.testing.html">scitacean.testing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/scitacean.testing.backend.html">scitacean.testing.backend</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../functions/scitacean.testing.backend.add_pytest_options.html">scitacean.testing.backend.add_pytest_options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../functions/scitacean.testing.backend.backend_enabled.html">scitacean.testing.backend.backend_enabled</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../functions/scitacean.testing.backend.configure.html">scitacean.testing.backend.configure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../functions/scitacean.testing.backend.skip_if_not_backend.html">scitacean.testing.backend.skip_if_not_backend</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../functions/scitacean.testing.backend.start_backend.html">scitacean.testing.backend.start_backend</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../functions/scitacean.testing.backend.stop_backend.html">scitacean.testing.backend.stop_backend</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../functions/scitacean.testing.backend.wait_until_backend_is_live.html">scitacean.testing.backend.wait_until_backend_is_live</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../modules/scitacean.testing.backend.config.html">scitacean.testing.backend.config</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../modules/scitacean.testing.backend.config.USERS.html">scitacean.testing.backend.config.USERS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../modules/scitacean.testing.backend.config.SCICAT_PORT.html">scitacean.testing.backend.config.SCICAT_PORT</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../modules/scitacean.testing.backend.config.PID_PREFIX.html">scitacean.testing.backend.config.PID_PREFIX</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../modules/scitacean.testing.backend.config.SITE.html">scitacean.testing.backend.config.SITE</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../modules/scitacean.testing.backend.config.dump_account_config.html">scitacean.testing.backend.config.dump_account_config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../modules/scitacean.testing.backend.config.local_access.html">scitacean.testing.backend.config.local_access</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../modules/scitacean.testing.backend.config.SciCatAccess.html">scitacean.testing.backend.config.SciCatAccess</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../modules/scitacean.testing.backend.config.ScicatCredentials.html">scitacean.testing.backend.config.ScicatCredentials</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../modules/scitacean.testing.backend.config.ScicatUser.html">scitacean.testing.backend.config.ScicatUser</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../modules/scitacean.testing.backend.fixtures.html">scitacean.testing.backend.fixtures</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../modules/scitacean.testing.backend.fixtures.client.html">scitacean.testing.backend.fixtures.client</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../modules/scitacean.testing.backend.fixtures.fake_client.html">scitacean.testing.backend.fixtures.fake_client</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../modules/scitacean.testing.backend.fixtures.real_client.html">scitacean.testing.backend.fixtures.real_client</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../modules/scitacean.testing.backend.fixtures.require_scicat_backend.html">scitacean.testing.backend.fixtures.require_scicat_backend</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../modules/scitacean.testing.backend.fixtures.scicat_access.html">scitacean.testing.backend.fixtures.scicat_access</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../modules/scitacean.testing.backend.fixtures.scicat_backend.html">scitacean.testing.backend.fixtures.scicat_backend</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../modules/scitacean.testing.backend.seed.html">scitacean.testing.backend.seed</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../modules/scitacean.testing.backend.seed.INITIAL_DATASETS.html">scitacean.testing.backend.seed.INITIAL_DATASETS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../modules/scitacean.testing.backend.seed.INITIAL_ORIG_DATABLOCKS.html">scitacean.testing.backend.seed.INITIAL_ORIG_DATABLOCKS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../modules/scitacean.testing.backend.seed.INITIAL_ATTACHMENTS.html">scitacean.testing.backend.seed.INITIAL_ATTACHMENTS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../modules/scitacean.testing.backend.seed.save_seed.html">scitacean.testing.backend.seed.save_seed</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../modules/scitacean.testing.backend.seed.seed_database.html">scitacean.testing.backend.seed.seed_database</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../modules/scitacean.testing.backend.seed.seed_worker.html">scitacean.testing.backend.seed.seed_worker</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/scitacean.testing.client.html">scitacean.testing.client</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../modules/scitacean.testing.client.process_uploaded_dataset.html">scitacean.testing.client.process_uploaded_dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../modules/scitacean.testing.client.FakeClient.html">scitacean.testing.client.FakeClient</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../modules/scitacean.testing.client.FakeScicatClient.html">scitacean.testing.client.FakeScicatClient</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/scitacean.testing.docs.html">scitacean.testing.docs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../modules/scitacean.testing.docs.setup_fake_client.html">scitacean.testing.docs.setup_fake_client</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/scitacean.testing.sftp.html">scitacean.testing.sftp</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../modules/scitacean.testing.sftp.fixtures.html">scitacean.testing.sftp.fixtures</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../modules/scitacean.testing.sftp.fixtures.require_sftp_fileserver.html">scitacean.testing.sftp.fixtures.require_sftp_fileserver</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../modules/scitacean.testing.sftp.fixtures.sftp_access.html">scitacean.testing.sftp.fixtures.sftp_access</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../modules/scitacean.testing.sftp.fixtures.sftp_base_dir.html">scitacean.testing.sftp.fixtures.sftp_base_dir</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../modules/scitacean.testing.sftp.fixtures.sftp_connect_with_username_password.html">scitacean.testing.sftp.fixtures.sftp_connect_with_username_password</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../modules/scitacean.testing.sftp.fixtures.sftp_data_dir.html">scitacean.testing.sftp.fixtures.sftp_data_dir</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../modules/scitacean.testing.sftp.fixtures.sftp_fileserver.html">scitacean.testing.sftp.fixtures.sftp_fileserver</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/scitacean.testing.strategies.html">scitacean.testing.strategies</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../modules/scitacean.testing.strategies.datasets.html">scitacean.testing.strategies.datasets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../modules/scitacean.testing.strategies.emails.html">scitacean.testing.strategies.emails</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../modules/scitacean.testing.strategies.multi_emails.html">scitacean.testing.strategies.multi_emails</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../modules/scitacean.testing.strategies.orcids.html">scitacean.testing.strategies.orcids</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/scitacean.testing.transfer.html">scitacean.testing.transfer</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../modules/scitacean.testing.transfer.FakeDownloadConnection.html">scitacean.testing.transfer.FakeDownloadConnection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../modules/scitacean.testing.transfer.FakeFileTransfer.html">scitacean.testing.transfer.FakeFileTransfer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../modules/scitacean.testing.transfer.FakeUploadConnection.html">scitacean.testing.transfer.FakeUploadConnection</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../modules/scitacean.typing.html">scitacean.typing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../modules/scitacean.typing.DownloadConnection.html">scitacean.typing.DownloadConnection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../modules/scitacean.typing.Downloader.html">scitacean.typing.Downloader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../modules/scitacean.typing.FileTransfer.html">scitacean.typing.FileTransfer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../modules/scitacean.typing.UploadConnection.html">scitacean.typing.UploadConnection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../modules/scitacean.typing.Uploader.html">scitacean.typing.Uploader</a></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../functions/scitacean.filesystem.checksum_of_file.html">scitacean.filesystem.checksum_of_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../functions/scitacean.filesystem.escape_path.html">scitacean.filesystem.escape_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../functions/scitacean.filesystem.file_size.html">scitacean.filesystem.file_size</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../functions/scitacean.filesystem.file_modification_time.html">scitacean.filesystem.file_modification_time</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../functions/scitacean.logging.logger_name.html">scitacean.logging.logger_name</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../functions/scitacean.logging.get_logger.html">scitacean.logging.get_logger</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../functions/scitacean.util.formatter.DatasetPathFormatter.html">scitacean.util.formatter.DatasetPathFormatter</a></li>
+</ul>
+</div>
+</nav></div>
+        <div class="sidebar-primary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#scitacean.File"><code class="docutils literal notranslate"><span class="pre">File</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scitacean.File.checksum"><code class="docutils literal notranslate"><span class="pre">File.checksum()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scitacean.File.checksum_algorithm"><code class="docutils literal notranslate"><span class="pre">File.checksum_algorithm</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scitacean.File.creation_time"><code class="docutils literal notranslate"><span class="pre">File.creation_time</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scitacean.File.downloaded"><code class="docutils literal notranslate"><span class="pre">File.downloaded()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scitacean.File.from_download_model"><code class="docutils literal notranslate"><span class="pre">File.from_download_model()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scitacean.File.from_local"><code class="docutils literal notranslate"><span class="pre">File.from_local()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scitacean.File.from_remote"><code class="docutils literal notranslate"><span class="pre">File.from_remote()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scitacean.File.is_on_local"><code class="docutils literal notranslate"><span class="pre">File.is_on_local</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scitacean.File.is_on_remote"><code class="docutils literal notranslate"><span class="pre">File.is_on_remote</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scitacean.File.local_is_up_to_date"><code class="docutils literal notranslate"><span class="pre">File.local_is_up_to_date()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scitacean.File.local_path"><code class="docutils literal notranslate"><span class="pre">File.local_path</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scitacean.File.make_model"><code class="docutils literal notranslate"><span class="pre">File.make_model()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scitacean.File.remote_access_path"><code class="docutils literal notranslate"><span class="pre">File.remote_access_path()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scitacean.File.remote_gid"><code class="docutils literal notranslate"><span class="pre">File.remote_gid</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scitacean.File.remote_path"><code class="docutils literal notranslate"><span class="pre">File.remote_path</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scitacean.File.remote_perm"><code class="docutils literal notranslate"><span class="pre">File.remote_perm</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scitacean.File.remote_uid"><code class="docutils literal notranslate"><span class="pre">File.remote_uid</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scitacean.File.size"><code class="docutils literal notranslate"><span class="pre">File.size</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scitacean.File.uploaded"><code class="docutils literal notranslate"><span class="pre">File.uploaded()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scitacean.File.validate_after_download"><code class="docutils literal notranslate"><span class="pre">File.validate_after_download()</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/generated/classes/scitacean.File.rst"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../reference/index.html" class="nav-link">API reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">scitacean.File</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="scitacean-file">
+<h1>scitacean.File<a class="headerlink" href="#scitacean-file" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="scitacean.File">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">scitacean.</span></span><span class="sig-name descname"><span class="pre">File</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">local_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_gid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_perm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_uid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checksum_algorithm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_remote_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_remote_creation_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_remote_checksum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_checksum_cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/scitacean/file.html#File"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitacean.File" title="Link to this definition">#</a></dt>
+<dd><p>Store local and remote paths and metadata for a file.</p>
+<p>There are two central properties:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">remote_path</span></code>: Path to the remote file relative to the dataset’s
+<code class="docutils literal notranslate"><span class="pre">source_folder</span></code>. This is always set, even if the file does not exist
+on the remote filesystem.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">local_path</span></code>: Path to the file on the local filesystem.
+Is <code class="docutils literal notranslate"><span class="pre">None</span></code> if the file does not exist locally.</p></li>
+</ul>
+<p>Files can be in one of three states and the state can be changed as shown below.
+The state can be queried using <a class="reference internal" href="#scitacean.File.is_on_local" title="scitacean.File.is_on_local"><code class="xref py py-meth docutils literal notranslate"><span class="pre">File.is_on_local()</span></code></a>
+and <a class="reference internal" href="#scitacean.File.is_on_remote" title="scitacean.File.is_on_remote"><code class="xref py py-meth docutils literal notranslate"><span class="pre">File.is_on_remote()</span></code></a>.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>local                                  remote
+  │                                      │
+  │ uploaded                  downloaded │
+  │                                      │
+  └───────────&gt; local+remote &lt;───────────┘
+</pre></div>
+</div>
+<p class="rubric">Constructors</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#scitacean.File.from_local" title="scitacean.File.from_local"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_local</span></code></a>(path, *[, remote_path, ...])</p></td>
+<td><p>Construct a File object for a file on the local filesystem.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#scitacean.File.from_remote" title="scitacean.File.from_remote"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_remote</span></code></a>(remote_path, size, creation_time)</p></td>
+<td><p>Construct a new file object for a remote file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#scitacean.File.from_download_model" title="scitacean.File.from_download_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_download_model</span></code></a>(model, *[, ...])</p></td>
+<td><p>Construct a new file object from a SciCat download model.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="rubric">Methods</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#scitacean.File.checksum" title="scitacean.File.checksum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">checksum</span></code></a>()</p></td>
+<td><p>Return the checksum of the file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#scitacean.File.downloaded" title="scitacean.File.downloaded"><code class="xref py py-obj docutils literal notranslate"><span class="pre">downloaded</span></code></a>(*, local_path)</p></td>
+<td><p>Return new file metadata after a download.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#scitacean.File.local_is_up_to_date" title="scitacean.File.local_is_up_to_date"><code class="xref py py-obj docutils literal notranslate"><span class="pre">local_is_up_to_date</span></code></a>()</p></td>
+<td><p>Check if the file on local is up-to-date.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#scitacean.File.make_model" title="scitacean.File.make_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_model</span></code></a>(*[, for_archive])</p></td>
+<td><p>Build a pydantic model for this file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#scitacean.File.remote_access_path" title="scitacean.File.remote_access_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remote_access_path</span></code></a>(source_folder)</p></td>
+<td><p>Full path to the file on the remote if it exists.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#scitacean.File.uploaded" title="scitacean.File.uploaded"><code class="xref py py-obj docutils literal notranslate"><span class="pre">uploaded</span></code></a>(*[, remote_path, remote_uid, ...])</p></td>
+<td><p>Return new file metadata after an upload.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#scitacean.File.validate_after_download" title="scitacean.File.validate_after_download"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_after_download</span></code></a>()</p></td>
+<td><p>Check that the file on disk matches the metadata.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="rubric">Attributes</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#scitacean.File.checksum_algorithm" title="scitacean.File.checksum_algorithm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">checksum_algorithm</span></code></a></p></td>
+<td><p>Algorithm to use for checksums.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#scitacean.File.creation_time" title="scitacean.File.creation_time"><code class="xref py py-obj docutils literal notranslate"><span class="pre">creation_time</span></code></a></p></td>
+<td><p>The logical creation time of the SciCat file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#scitacean.File.is_on_local" title="scitacean.File.is_on_local"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_on_local</span></code></a></p></td>
+<td><p>True if the file is on local.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#scitacean.File.is_on_remote" title="scitacean.File.is_on_remote"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_on_remote</span></code></a></p></td>
+<td><p>True if the file is on remote.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#scitacean.File.size" title="scitacean.File.size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">size</span></code></a></p></td>
+<td><p>The size in bytes of the file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#scitacean.File.local_path" title="scitacean.File.local_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">local_path</span></code></a></p></td>
+<td><p>Path to the file on the local filesystem.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#scitacean.File.remote_path" title="scitacean.File.remote_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remote_path</span></code></a></p></td>
+<td><p>Path to the file on the remote filesystem.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#scitacean.File.remote_gid" title="scitacean.File.remote_gid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remote_gid</span></code></a></p></td>
+<td><p>Unix group ID on remote.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#scitacean.File.remote_perm" title="scitacean.File.remote_perm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remote_perm</span></code></a></p></td>
+<td><p>Unix file mode on remote.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#scitacean.File.remote_uid" title="scitacean.File.remote_uid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remote_uid</span></code></a></p></td>
+<td><p>Unix user ID on remote.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="scitacean.File.checksum">
+<span class="sig-name descname"><span class="pre">checksum</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/scitacean/file.html#File.checksum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitacean.File.checksum" title="Link to this definition">#</a></dt>
+<dd><p>Return the checksum of the file.</p>
+<p>This can take a long time to compute for large files.</p>
+<p>If the file exists on local, return the current checksum of the local file.
+Otherwise, return the stored checksum in the catalogue.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span> – The checksum of the file.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scitacean.File.checksum_algorithm">
+<span class="sig-name descname"><span class="pre">checksum_algorithm</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> <span class="pre">|</span> <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#scitacean.File.checksum_algorithm" title="Link to this definition">#</a></dt>
+<dd><p>Algorithm to use for checksums.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="scitacean.File.creation_time">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">creation_time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.13)"><span class="pre">datetime</span></a></em><a class="headerlink" href="#scitacean.File.creation_time" title="Link to this definition">#</a></dt>
+<dd><p>The logical creation time of the SciCat file.</p>
+<p>If the file exists on local, return the time the local file was last modified.
+Otherwise, return the stored time in the catalogue.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="scitacean.File.downloaded">
+<span class="sig-name descname"><span class="pre">downloaded</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/scitacean/file.html#File.downloaded"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitacean.File.downloaded" title="Link to this definition">#</a></dt>
+<dd><p>Return new file metadata after a download.</p>
+<p>Assumes that the input file exists on remote.
+The returned object is on both local and remote.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>local_path</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">PathLike</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</span>) – New local path.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#scitacean.File" title="scitacean.file.File"><code class="xref py py-class docutils literal notranslate"><span class="pre">File</span></code></a></span> – A new file object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="scitacean.File.from_download_model">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_download_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checksum_algorithm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/scitacean/file.html#File.from_download_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitacean.File.from_download_model" title="Link to this definition">#</a></dt>
+<dd><p>Construct a new file object from a SciCat download model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="scitacean.model.DownloadDataFile.html#scitacean.model.DownloadDataFile" title="scitacean.model.DownloadDataFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">DownloadDataFile</span></code></a></span>) – Pydantic model for the file.</p></li>
+<li><p><strong>checksum_algorithm</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>, default: <code class="docutils literal notranslate"><span class="pre">None</span></code>) – Algorithm to use to compute the checksum of the file.</p></li>
+<li><p><strong>local_path</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">PathLike</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>] | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>, default: <code class="docutils literal notranslate"><span class="pre">None</span></code>) – Value for the local path.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#scitacean.File" title="scitacean.file.File"><code class="xref py py-class docutils literal notranslate"><span class="pre">File</span></code></a></span> – A new file object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="scitacean.File.from_local">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_local</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_uid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_gid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_perm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/scitacean/file.html#File.from_local"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitacean.File.from_local" title="Link to this definition">#</a></dt>
+<dd><p>Construct a File object for a file on the local filesystem.</p>
+<p>The returned object references a file that exists locally but not on the remote.
+However, it does contain a <code class="docutils literal notranslate"><span class="pre">remote_path</span></code> which is constructed from the
+provided local path or from the provided <code class="docutils literal notranslate"><span class="pre">remote_path</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">PathLike</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</span>) – Full path of the local file.</p></li>
+<li><p><strong>remote_path</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference internal" href="scitacean.RemotePath.html#scitacean.RemotePath" title="scitacean.filesystem.RemotePath"><code class="xref py py-class docutils literal notranslate"><span class="pre">RemotePath</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>, default: <code class="docutils literal notranslate"><span class="pre">None</span></code>) – Path on the remote, relative to the <code class="docutils literal notranslate"><span class="pre">source_folder</span></code> of a dataset.
+By default, it is constructed as <code class="docutils literal notranslate"><span class="pre">path.name</span></code>.</p></li>
+<li><p><strong>remote_uid</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>, default: <code class="docutils literal notranslate"><span class="pre">None</span></code>) – User ID on the remote. Will be determined automatically on upload.</p></li>
+<li><p><strong>remote_gid</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>, default: <code class="docutils literal notranslate"><span class="pre">None</span></code>) – Group ID on the remote. Will be determined automatically on upload.</p></li>
+<li><p><strong>remote_perm</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>, default: <code class="docutils literal notranslate"><span class="pre">None</span></code>) – File permissions on the remote. Will be determined automatically on upload.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#scitacean.File" title="scitacean.file.File"><code class="xref py py-class docutils literal notranslate"><span class="pre">File</span></code></a></span> – A new file object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="scitacean.File.from_remote">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_remote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">remote_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">creation_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checksum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checksum_algorithm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_uid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_gid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_perm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/scitacean/file.html#File.from_remote"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitacean.File.from_remote" title="Link to this definition">#</a></dt>
+<dd><p>Construct a new file object for a remote file.</p>
+<p>The local path of the returned <code class="docutils literal notranslate"><span class="pre">File</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>remote_path</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference internal" href="scitacean.RemotePath.html#scitacean.RemotePath" title="scitacean.filesystem.RemotePath"><code class="xref py py-class docutils literal notranslate"><span class="pre">RemotePath</span></code></a></span>) – Path the remote file relative to the dataset’s source folder.</p></li>
+<li><p><strong>size</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span>) – Size in bytes on the remote filesystem.</p></li>
+<li><p><strong>creation_time</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Date and time the file was created on the remote filesystem.
+If a <code class="docutils literal notranslate"><span class="pre">str</span></code>, it is parsed using <code class="docutils literal notranslate"><span class="pre">dateutil.parser.parse</span></code>.</p></li>
+<li><p><strong>checksum</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>, default: <code class="docutils literal notranslate"><span class="pre">None</span></code>) – Checksum of the file.</p></li>
+<li><p><strong>checksum_algorithm</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>, default: <code class="docutils literal notranslate"><span class="pre">None</span></code>) – Algorithm used to compute the given checksum.
+Must be passed when <code class="docutils literal notranslate"><span class="pre">checksum</span> <span class="pre">is</span> <span class="pre">not</span> <span class="pre">None</span></code>.</p></li>
+<li><p><strong>remote_uid</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>, default: <code class="docutils literal notranslate"><span class="pre">None</span></code>) – User ID on the remote.</p></li>
+<li><p><strong>remote_gid</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>, default: <code class="docutils literal notranslate"><span class="pre">None</span></code>) – Group ID on the remote.</p></li>
+<li><p><strong>remote_perm</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>, default: <code class="docutils literal notranslate"><span class="pre">None</span></code>) – File permissions on the remote.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#scitacean.File" title="scitacean.file.File"><code class="xref py py-class docutils literal notranslate"><span class="pre">File</span></code></a></span> – A new file object.</p>
+</dd>
+</dl>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 23.10.0.</span></p>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="scitacean.File.is_on_local">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_on_local</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></em><a class="headerlink" href="#scitacean.File.is_on_local" title="Link to this definition">#</a></dt>
+<dd><p>True if the file is on local.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="scitacean.File.is_on_remote">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_on_remote</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></em><a class="headerlink" href="#scitacean.File.is_on_remote" title="Link to this definition">#</a></dt>
+<dd><p>True if the file is on remote.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="scitacean.File.local_is_up_to_date">
+<span class="sig-name descname"><span class="pre">local_is_up_to_date</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/scitacean/file.html#File.local_is_up_to_date"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitacean.File.local_is_up_to_date" title="Link to this definition">#</a></dt>
+<dd><p>Check if the file on local is up-to-date.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span> – True if the file exists on local and its checksum
+matches the stored checksum for the remote file.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scitacean.File.local_path">
+<span class="sig-name descname"><span class="pre">local_path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a> <span class="pre">|</span> <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></em><a class="headerlink" href="#scitacean.File.local_path" title="Link to this definition">#</a></dt>
+<dd><p>Path to the file on the local filesystem.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="scitacean.File.make_model">
+<span class="sig-name descname"><span class="pre">make_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">for_archive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/scitacean/file.html#File.make_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitacean.File.make_model" title="Link to this definition">#</a></dt>
+<dd><p>Build a pydantic model for this file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>for_archive</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>, default: <code class="docutils literal notranslate"><span class="pre">False</span></code>) – Select whether the file is stored in an archive or on regular disk,
+that is whether it belongs to a Datablock or an OrigDatablock.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="scitacean.model.UploadDataFile.html#scitacean.model.UploadDataFile" title="scitacean.model.UploadDataFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">UploadDataFile</span></code></a></span> – A new pydantic model.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="scitacean.File.remote_access_path">
+<span class="sig-name descname"><span class="pre">remote_access_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_folder</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/scitacean/file.html#File.remote_access_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitacean.File.remote_access_path" title="Link to this definition">#</a></dt>
+<dd><p>Full path to the file on the remote if it exists.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="scitacean.RemotePath.html#scitacean.RemotePath" title="scitacean.filesystem.RemotePath"><code class="xref py py-class docutils literal notranslate"><span class="pre">RemotePath</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scitacean.File.remote_gid">
+<span class="sig-name descname"><span class="pre">remote_gid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> <span class="pre">|</span> <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></em><a class="headerlink" href="#scitacean.File.remote_gid" title="Link to this definition">#</a></dt>
+<dd><p>Unix group ID on remote.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scitacean.File.remote_path">
+<span class="sig-name descname"><span class="pre">remote_path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="scitacean.RemotePath.html#scitacean.RemotePath" title="scitacean.filesystem.RemotePath"><code class="xref py py-class docutils literal notranslate"><span class="pre">RemotePath</span></code></a></em><a class="headerlink" href="#scitacean.File.remote_path" title="Link to this definition">#</a></dt>
+<dd><p>Path to the file on the remote filesystem.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scitacean.File.remote_perm">
+<span class="sig-name descname"><span class="pre">remote_perm</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> <span class="pre">|</span> <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></em><a class="headerlink" href="#scitacean.File.remote_perm" title="Link to this definition">#</a></dt>
+<dd><p>Unix file mode on remote.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scitacean.File.remote_uid">
+<span class="sig-name descname"><span class="pre">remote_uid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> <span class="pre">|</span> <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></em><a class="headerlink" href="#scitacean.File.remote_uid" title="Link to this definition">#</a></dt>
+<dd><p>Unix user ID on remote.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="scitacean.File.size">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></em><a class="headerlink" href="#scitacean.File.size" title="Link to this definition">#</a></dt>
+<dd><p>The size in bytes of the file.</p>
+<p>If the file exists on local, return the current size of the local file.
+Otherwise, return the stored size in the catalogue.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="scitacean.File.uploaded">
+<span class="sig-name descname"><span class="pre">uploaded</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_uid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_gid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_perm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_creation_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/scitacean/file.html#File.uploaded"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitacean.File.uploaded" title="Link to this definition">#</a></dt>
+<dd><p>Return new file metadata after an upload.</p>
+<p>Assumes that the input file exists on local.
+The returned object is on both local and remote.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>remote_path</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference internal" href="scitacean.RemotePath.html#scitacean.RemotePath" title="scitacean.filesystem.RemotePath"><code class="xref py py-class docutils literal notranslate"><span class="pre">RemotePath</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>, default: <code class="docutils literal notranslate"><span class="pre">None</span></code>) – New remote path.</p></li>
+<li><p><strong>remote_uid</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>, default: <code class="docutils literal notranslate"><span class="pre">None</span></code>) – New user ID on remote, overwrites any current value.</p></li>
+<li><p><strong>remote_gid</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>, default: <code class="docutils literal notranslate"><span class="pre">None</span></code>) – New group ID on remote, overwrites any current value.</p></li>
+<li><p><strong>remote_perm</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>, default: <code class="docutils literal notranslate"><span class="pre">None</span></code>) – New unix permissions on remote, overwrites any current value.</p></li>
+<li><p><strong>remote_creation_time</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>, default: <code class="docutils literal notranslate"><span class="pre">None</span></code>) – Time the file became available on remote.
+Defaults to the current time in UTC.</p></li>
+<li><p><strong>remote_size</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>, default: <code class="docutils literal notranslate"><span class="pre">None</span></code>) – File size on remote.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#scitacean.File" title="scitacean.file.File"><code class="xref py py-class docutils literal notranslate"><span class="pre">File</span></code></a></span> – A new file object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="scitacean.File.validate_after_download">
+<span class="sig-name descname"><span class="pre">validate_after_download</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/scitacean/file.html#File.validate_after_download"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitacean.File.validate_after_download" title="Link to this definition">#</a></dt>
+<dd><p>Check that the file on disk matches the metadata.</p>
+<p>Compares file size and, if possible, its checksum.
+Raises on failure.
+If the function returns without exception, the file is valid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="scitacean.IntegrityError.html#scitacean.IntegrityError" title="scitacean.IntegrityError"><strong>IntegrityError</strong></a> – If a check fails.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="scitacean.Dataset.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">scitacean.Dataset</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="scitacean.transfer.copy.CopyFileTransfer.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">scitacean.transfer.copy.CopyFileTransfer</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2023 SciCat Project.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><!-- This will display the version of the docs -->
+Current scitacean version: 25.3.2 (<a href="https://github.com/SciCatProject/scitacean/releases">older versions</a>).</div>
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

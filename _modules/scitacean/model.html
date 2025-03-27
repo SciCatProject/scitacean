@@ -1,0 +1,1688 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>scitacean.model &#8212; Scitacean</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=7776b8de" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=15bde43d"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/scitacean/model';</script>
+    <script src="../../_static/anaconda-icon.js?v=461bdc62"></script>
+    <link rel="icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="25.3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo.svg" class="logo__image only-light" alt="Scitacean - Home"/>
+    <img src="../../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="Scitacean - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user-guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../reference/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../developer/index.html">
+    Developer documentation
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-external" href="https://scicatproject.github.io/">
+    SciCat
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-external" href="https://scicatproject.github.io/documentation/">
+    SciCat backend
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SciCatProject/scitacean" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/scitacean/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://anaconda.org/conda-forge/scitacean" title="Conda" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-custom fa-anaconda fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Conda</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user-guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../reference/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../developer/index.html">
+    Developer documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://scicatproject.github.io/">
+    SciCat
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://scicatproject.github.io/documentation/">
+    SciCat backend
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SciCatProject/scitacean" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/scitacean/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://anaconda.org/conda-forge/scitacean" title="Conda" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-custom fa-anaconda fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Conda</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">scitacean.model</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for scitacean.model</h1><div class="highlight"><pre>
+<span></span><span class="c1">##########################################</span>
+<span class="c1"># This file was automatically generated. #</span>
+<span class="c1"># Do not modify it directly!             #</span>
+<span class="c1">##########################################</span>
+
+<span class="c1"># SPDX-License-Identifier: BSD-3-Clause</span>
+<span class="c1"># Copyright (c) 2025 SciCat Project (https://github.com/SciCatProject/scitacean)</span>
+<span class="sd">&quot;&quot;&quot;Models for communication with SciCat and user facing dataclasses.</span>
+
+<span class="sd">The high-level :class:`scitacean.Client` and :class:`scitacean.Dataset` return objects</span>
+<span class="sd">from the SciCat database in the form of &#39;user models&#39;.</span>
+<span class="sd">Those are usually all that is required for working with Scitacean.</span>
+
+<span class="sd">At a lower level, those models are converted to or from upload or download models,</span>
+<span class="sd">respectively, by the corresponding methods of the user models.</span>
+<span class="sd">These upload and download models represent SciCat&#39;s schemas more closely and are used</span>
+<span class="sd">by the lower-level :class:`scitacean.client.ScicatClient`</span>
+<span class="sd">and :class:`scitacean.testing.client.FakeClient`.</span>
+
+<span class="sd">.. rubric:: User models</span>
+
+<span class="sd">Dataclasses exposed to users, primarily through :class:`Dataset`.</span>
+
+<span class="sd">.. autosummary::</span>
+<span class="sd">  :toctree: ../classes</span>
+<span class="sd">  :template: scitacean-class-template.rst</span>
+
+<span class="sd">  Attachment</span>
+<span class="sd">  DatasetType</span>
+<span class="sd">  History</span>
+<span class="sd">  Instrument</span>
+<span class="sd">  Lifecycle</span>
+<span class="sd">  Relationship</span>
+<span class="sd">  Sample</span>
+<span class="sd">  Technique</span>
+
+<span class="sd">.. rubric:: Download models</span>
+
+<span class="sd">Pydantic models for the data received from SciCat in downloads.</span>
+
+<span class="sd">.. autosummary::</span>
+<span class="sd">  :toctree: ../classes</span>
+
+<span class="sd">  DownloadAttachment</span>
+<span class="sd">  DownloadDatablock</span>
+<span class="sd">  DownloadDataFile</span>
+<span class="sd">  DownloadDataset</span>
+<span class="sd">  DownloadHistory</span>
+<span class="sd">  DownloadInstrument</span>
+<span class="sd">  DownloadLifecycle</span>
+<span class="sd">  DownloadOrigDatablock</span>
+<span class="sd">  DownloadRelationship</span>
+<span class="sd">  DownloadSample</span>
+<span class="sd">  DownloadTechnique</span>
+
+<span class="sd">.. rubric:: Upload models</span>
+
+<span class="sd">Pydantic models sent to SciCat in uploads.</span>
+
+<span class="sd">.. autosummary::</span>
+<span class="sd">  :toctree: ../classes</span>
+
+<span class="sd">  UploadAttachment</span>
+<span class="sd">  UploadDatablock</span>
+<span class="sd">  UploadDataFile</span>
+<span class="sd">  UploadDerivedDataset</span>
+<span class="sd">  UploadOrigDatablock</span>
+<span class="sd">  UploadRawDataset</span>
+<span class="sd">  UploadRelationship</span>
+<span class="sd">  UploadSample</span>
+<span class="sd">  UploadTechnique</span>
+
+<span class="sd">.. rubric:: Functions</span>
+
+<span class="sd">.. autosummary::</span>
+<span class="sd">   :toctree: ../functions</span>
+
+<span class="sd">   construct</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pydantic</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">NonNegativeInt</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">._base_model</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BaseModel</span><span class="p">,</span>
+    <span class="n">BaseUserModel</span><span class="p">,</span>
+    <span class="n">DatasetType</span><span class="p">,</span>
+    <span class="n">construct</span><span class="p">,</span>
+    <span class="n">validate_datetime</span><span class="p">,</span>
+    <span class="n">validate_emails</span><span class="p">,</span>
+    <span class="n">validate_orcids</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.filesystem</span><span class="w"> </span><span class="kn">import</span> <span class="n">RemotePath</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.pid</span><span class="w"> </span><span class="kn">import</span> <span class="n">PID</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.thumbnail</span><span class="w"> </span><span class="kn">import</span> <span class="n">Thumbnail</span>
+
+
+<div class="viewcode-block" id="DownloadDataset">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.DownloadDataset.html#scitacean.model.DownloadDataset">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DownloadDataset</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">contactEmail</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">creationLocation</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">creationTime</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">inputDatasets</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">PID</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">investigator</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">numberOfFilesArchived</span><span class="p">:</span> <span class="n">NonNegativeInt</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">owner</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">ownerGroup</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">principalInvestigator</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">sourceFolder</span><span class="p">:</span> <span class="n">RemotePath</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="nb">type</span><span class="p">:</span> <span class="n">DatasetType</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">usedSoftware</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">accessGroups</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">classification</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">comment</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">createdAt</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">createdBy</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">dataFormat</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">dataQualityMetrics</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">endTime</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">instrumentGroup</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">instrumentId</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">isPublished</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">jobLogData</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">jobParameters</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">keywords</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">license</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">datasetlifecycle</span><span class="p">:</span> <span class="n">DownloadLifecycle</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">scientificMetadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">datasetName</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">numberOfFiles</span><span class="p">:</span> <span class="n">NonNegativeInt</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">orcidOfOwner</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">ownerEmail</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">packedSize</span><span class="p">:</span> <span class="n">NonNegativeInt</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">pid</span><span class="p">:</span> <span class="n">PID</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">proposalId</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">relationships</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">DownloadRelationship</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">runNumber</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">sampleId</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">sharedWith</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">size</span><span class="p">:</span> <span class="n">NonNegativeInt</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">sourceFolderHost</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">startTime</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">techniques</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">DownloadTechnique</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">updatedAt</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">updatedBy</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">validationStatus</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@pydantic</span><span class="o">.</span><span class="n">field_validator</span><span class="p">(</span>
+        <span class="s2">&quot;creationTime&quot;</span><span class="p">,</span> <span class="s2">&quot;createdAt&quot;</span><span class="p">,</span> <span class="s2">&quot;endTime&quot;</span><span class="p">,</span> <span class="s2">&quot;updatedAt&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_datetime</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">validate_datetime</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@pydantic</span><span class="o">.</span><span class="n">field_validator</span><span class="p">(</span><span class="s2">&quot;contactEmail&quot;</span><span class="p">,</span> <span class="s2">&quot;ownerEmail&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_emails</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">validate_emails</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@pydantic</span><span class="o">.</span><span class="n">field_validator</span><span class="p">(</span><span class="s2">&quot;orcidOfOwner&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_orcids</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">validate_orcids</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="UploadDerivedDataset">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.UploadDerivedDataset.html#scitacean.model.UploadDerivedDataset">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">UploadDerivedDataset</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">contactEmail</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">creationTime</span><span class="p">:</span> <span class="n">datetime</span>
+    <span class="n">inputDatasets</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">PID</span><span class="p">]</span>
+    <span class="n">investigator</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">numberOfFilesArchived</span><span class="p">:</span> <span class="n">NonNegativeInt</span>
+    <span class="n">owner</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">ownerGroup</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">sourceFolder</span><span class="p">:</span> <span class="n">RemotePath</span>
+    <span class="nb">type</span><span class="p">:</span> <span class="n">DatasetType</span>
+    <span class="n">usedSoftware</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">accessGroups</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">classification</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">comment</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">dataQualityMetrics</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">instrumentGroup</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">isPublished</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">jobLogData</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">jobParameters</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">keywords</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">license</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">scientificMetadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">datasetName</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">numberOfFiles</span><span class="p">:</span> <span class="n">NonNegativeInt</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">orcidOfOwner</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">ownerEmail</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">packedSize</span><span class="p">:</span> <span class="n">NonNegativeInt</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">proposalId</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">relationships</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">UploadRelationship</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">runNumber</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">sharedWith</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">size</span><span class="p">:</span> <span class="n">NonNegativeInt</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">sourceFolderHost</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">techniques</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">UploadTechnique</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">validationStatus</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@pydantic</span><span class="o">.</span><span class="n">field_validator</span><span class="p">(</span><span class="s2">&quot;creationTime&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_datetime</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">validate_datetime</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@pydantic</span><span class="o">.</span><span class="n">field_validator</span><span class="p">(</span><span class="s2">&quot;contactEmail&quot;</span><span class="p">,</span> <span class="s2">&quot;ownerEmail&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_emails</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">validate_emails</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@pydantic</span><span class="o">.</span><span class="n">field_validator</span><span class="p">(</span><span class="s2">&quot;orcidOfOwner&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_orcids</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">validate_orcids</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="UploadRawDataset">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.UploadRawDataset.html#scitacean.model.UploadRawDataset">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">UploadRawDataset</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">contactEmail</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">creationLocation</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">creationTime</span><span class="p">:</span> <span class="n">datetime</span>
+    <span class="n">inputDatasets</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">PID</span><span class="p">]</span>
+    <span class="n">investigator</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">numberOfFilesArchived</span><span class="p">:</span> <span class="n">NonNegativeInt</span>
+    <span class="n">owner</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">ownerGroup</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">principalInvestigator</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">sourceFolder</span><span class="p">:</span> <span class="n">RemotePath</span>
+    <span class="nb">type</span><span class="p">:</span> <span class="n">DatasetType</span>
+    <span class="n">usedSoftware</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">accessGroups</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">classification</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">comment</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">dataFormat</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">dataQualityMetrics</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">endTime</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">instrumentGroup</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">instrumentId</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">isPublished</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">jobLogData</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">jobParameters</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">keywords</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">license</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">scientificMetadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">datasetName</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">numberOfFiles</span><span class="p">:</span> <span class="n">NonNegativeInt</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">orcidOfOwner</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">ownerEmail</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">packedSize</span><span class="p">:</span> <span class="n">NonNegativeInt</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">proposalId</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">relationships</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">UploadRelationship</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">runNumber</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">sampleId</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">sharedWith</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">size</span><span class="p">:</span> <span class="n">NonNegativeInt</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">sourceFolderHost</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">startTime</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">techniques</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">UploadTechnique</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">validationStatus</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@pydantic</span><span class="o">.</span><span class="n">model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_investigator</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="c1"># The model currently has both `investigator` and `principalInvestigator`</span>
+        <span class="c1"># and both are mandatory. Eventually, `investigator` will be removed.</span>
+        <span class="c1"># So make sure we can construct the model if only one is given.</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">inv</span> <span class="o">:=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;investigator&quot;</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;principalInvestigator&quot;</span><span class="p">,</span> <span class="n">inv</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="p">(</span><span class="n">pi</span> <span class="o">:=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;principalInvestigator&quot;</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">data</span><span class="p">[</span><span class="s2">&quot;investigator&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pi</span>
+        <span class="k">return</span> <span class="n">data</span>
+
+    <span class="nd">@pydantic</span><span class="o">.</span><span class="n">field_validator</span><span class="p">(</span><span class="s2">&quot;creationTime&quot;</span><span class="p">,</span> <span class="s2">&quot;endTime&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_datetime</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">validate_datetime</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@pydantic</span><span class="o">.</span><span class="n">field_validator</span><span class="p">(</span><span class="s2">&quot;contactEmail&quot;</span><span class="p">,</span> <span class="s2">&quot;ownerEmail&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_emails</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">validate_emails</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@pydantic</span><span class="o">.</span><span class="n">field_validator</span><span class="p">(</span><span class="s2">&quot;orcidOfOwner&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_orcids</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">validate_orcids</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="DownloadAttachment">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.DownloadAttachment.html#scitacean.model.DownloadAttachment">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DownloadAttachment</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">caption</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">ownerGroup</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">accessGroups</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">createdAt</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">createdBy</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">datasetId</span><span class="p">:</span> <span class="n">PID</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">instrumentGroup</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">isPublished</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">proposalId</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">sampleId</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">thumbnail</span><span class="p">:</span> <span class="n">Thumbnail</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">updatedAt</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">updatedBy</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@pydantic</span><span class="o">.</span><span class="n">field_validator</span><span class="p">(</span><span class="s2">&quot;createdAt&quot;</span><span class="p">,</span> <span class="s2">&quot;updatedAt&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_datetime</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">validate_datetime</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DownloadAttachment.user_model_type">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.DownloadAttachment.html#scitacean.model.DownloadAttachment.user_model_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">user_model_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">Attachment</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">Attachment</span></div>
+
+
+<div class="viewcode-block" id="DownloadAttachment.upload_model_type">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.DownloadAttachment.html#scitacean.model.DownloadAttachment.upload_model_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">upload_model_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">UploadAttachment</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">UploadAttachment</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="UploadAttachment">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.UploadAttachment.html#scitacean.model.UploadAttachment">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">UploadAttachment</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">caption</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">ownerGroup</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">accessGroups</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">datasetId</span><span class="p">:</span> <span class="n">PID</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">instrumentGroup</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">proposalId</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">sampleId</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">thumbnail</span><span class="p">:</span> <span class="n">Thumbnail</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="UploadAttachment.user_model_type">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.UploadAttachment.html#scitacean.model.UploadAttachment.user_model_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">user_model_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">Attachment</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">Attachment</span></div>
+
+
+<div class="viewcode-block" id="UploadAttachment.download_model_type">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.UploadAttachment.html#scitacean.model.UploadAttachment.download_model_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">download_model_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">DownloadAttachment</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">DownloadAttachment</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="DownloadOrigDatablock">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.DownloadOrigDatablock.html#scitacean.model.DownloadOrigDatablock">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DownloadOrigDatablock</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">dataFileList</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">DownloadDataFile</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">size</span><span class="p">:</span> <span class="n">NonNegativeInt</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">pydantic</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;_id&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">accessGroups</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">chkAlg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">createdAt</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">createdBy</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">datasetId</span><span class="p">:</span> <span class="n">PID</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">instrumentGroup</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">isPublished</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">ownerGroup</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">updatedAt</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">updatedBy</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@pydantic</span><span class="o">.</span><span class="n">field_validator</span><span class="p">(</span><span class="s2">&quot;createdAt&quot;</span><span class="p">,</span> <span class="s2">&quot;updatedAt&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_datetime</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">validate_datetime</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DownloadOrigDatablock.upload_model_type">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.DownloadOrigDatablock.html#scitacean.model.DownloadOrigDatablock.upload_model_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">upload_model_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">UploadOrigDatablock</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">UploadOrigDatablock</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="UploadOrigDatablock">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.UploadOrigDatablock.html#scitacean.model.UploadOrigDatablock">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">UploadOrigDatablock</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">dataFileList</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">UploadDataFile</span><span class="p">]</span>
+    <span class="n">size</span><span class="p">:</span> <span class="n">NonNegativeInt</span>
+    <span class="n">chkAlg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="UploadOrigDatablock.download_model_type">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.UploadOrigDatablock.html#scitacean.model.UploadOrigDatablock.download_model_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">download_model_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">DownloadOrigDatablock</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">DownloadOrigDatablock</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="DownloadDatablock">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.DownloadDatablock.html#scitacean.model.DownloadDatablock">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DownloadDatablock</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">archiveId</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">dataFileList</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">DownloadDataFile</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">packedSize</span><span class="p">:</span> <span class="n">NonNegativeInt</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">size</span><span class="p">:</span> <span class="n">NonNegativeInt</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">pydantic</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;_id&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">accessGroups</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">chkAlg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">createdAt</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">createdBy</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">datasetId</span><span class="p">:</span> <span class="n">PID</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">instrumentGroup</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">isPublished</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">ownerGroup</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">updatedAt</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">updatedBy</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@pydantic</span><span class="o">.</span><span class="n">field_validator</span><span class="p">(</span><span class="s2">&quot;createdAt&quot;</span><span class="p">,</span> <span class="s2">&quot;updatedAt&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_datetime</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">validate_datetime</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DownloadDatablock.upload_model_type">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.DownloadDatablock.html#scitacean.model.DownloadDatablock.upload_model_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">upload_model_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">UploadDatablock</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">UploadDatablock</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="UploadDatablock">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.UploadDatablock.html#scitacean.model.UploadDatablock">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">UploadDatablock</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">archiveId</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">dataFileList</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">UploadDataFile</span><span class="p">]</span>
+    <span class="n">packedSize</span><span class="p">:</span> <span class="n">NonNegativeInt</span>
+    <span class="n">size</span><span class="p">:</span> <span class="n">NonNegativeInt</span>
+    <span class="n">version</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">chkAlg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="UploadDatablock.download_model_type">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.UploadDatablock.html#scitacean.model.UploadDatablock.download_model_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">download_model_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">DownloadDatablock</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">DownloadDatablock</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="DownloadLifecycle">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.DownloadLifecycle.html#scitacean.model.DownloadLifecycle">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DownloadLifecycle</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">archivable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">archiveRetentionTime</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">archiveReturnMessage</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">archiveStatusMessage</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">dateOfDiskPurging</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">dateOfPublishing</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">exportedTo</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">isOnCentralDisk</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">publishable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">publishedOn</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">retrievable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">retrieveIntegrityCheck</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">retrieveReturnMessage</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">retrieveStatusMessage</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@pydantic</span><span class="o">.</span><span class="n">field_validator</span><span class="p">(</span>
+        <span class="s2">&quot;archiveRetentionTime&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dateOfDiskPurging&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dateOfPublishing&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;publishedOn&quot;</span><span class="p">,</span>
+        <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_datetime</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">validate_datetime</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DownloadLifecycle.user_model_type">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.DownloadLifecycle.html#scitacean.model.DownloadLifecycle.user_model_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">user_model_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">Lifecycle</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">Lifecycle</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="DownloadTechnique">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.DownloadTechnique.html#scitacean.model.DownloadTechnique">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DownloadTechnique</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">pid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="DownloadTechnique.user_model_type">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.DownloadTechnique.html#scitacean.model.DownloadTechnique.user_model_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">user_model_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">Technique</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">Technique</span></div>
+
+
+<div class="viewcode-block" id="DownloadTechnique.upload_model_type">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.DownloadTechnique.html#scitacean.model.DownloadTechnique.upload_model_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">upload_model_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">UploadTechnique</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">UploadTechnique</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="UploadTechnique">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.UploadTechnique.html#scitacean.model.UploadTechnique">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">UploadTechnique</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">pid</span><span class="p">:</span> <span class="nb">str</span>
+
+<div class="viewcode-block" id="UploadTechnique.user_model_type">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.UploadTechnique.html#scitacean.model.UploadTechnique.user_model_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">user_model_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">Technique</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">Technique</span></div>
+
+
+<div class="viewcode-block" id="UploadTechnique.download_model_type">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.UploadTechnique.html#scitacean.model.UploadTechnique.download_model_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">download_model_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">DownloadTechnique</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">DownloadTechnique</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="DownloadRelationship">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.DownloadRelationship.html#scitacean.model.DownloadRelationship">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DownloadRelationship</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">pid</span><span class="p">:</span> <span class="n">PID</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">relationship</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="DownloadRelationship.user_model_type">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.DownloadRelationship.html#scitacean.model.DownloadRelationship.user_model_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">user_model_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">Relationship</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">Relationship</span></div>
+
+
+<div class="viewcode-block" id="DownloadRelationship.upload_model_type">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.DownloadRelationship.html#scitacean.model.DownloadRelationship.upload_model_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">upload_model_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">UploadRelationship</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">UploadRelationship</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="UploadRelationship">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.UploadRelationship.html#scitacean.model.UploadRelationship">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">UploadRelationship</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">pid</span><span class="p">:</span> <span class="n">PID</span>
+    <span class="n">relationship</span><span class="p">:</span> <span class="nb">str</span>
+
+<div class="viewcode-block" id="UploadRelationship.user_model_type">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.UploadRelationship.html#scitacean.model.UploadRelationship.user_model_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">user_model_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">Relationship</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">Relationship</span></div>
+
+
+<div class="viewcode-block" id="UploadRelationship.download_model_type">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.UploadRelationship.html#scitacean.model.UploadRelationship.download_model_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">download_model_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">DownloadRelationship</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">DownloadRelationship</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="DownloadHistory">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.DownloadHistory.html#scitacean.model.DownloadHistory">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DownloadHistory</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">updatedAt</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">updatedBy</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@pydantic</span><span class="o">.</span><span class="n">field_validator</span><span class="p">(</span><span class="s2">&quot;updatedAt&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_datetime</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">validate_datetime</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DownloadHistory.user_model_type">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.DownloadHistory.html#scitacean.model.DownloadHistory.user_model_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">user_model_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">History</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">History</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="DownloadDataFile">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.DownloadDataFile.html#scitacean.model.DownloadDataFile">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DownloadDataFile</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">size</span><span class="p">:</span> <span class="n">NonNegativeInt</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">time</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">chk</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">gid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">perm</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">uid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@pydantic</span><span class="o">.</span><span class="n">field_validator</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_datetime</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">validate_datetime</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DownloadDataFile.upload_model_type">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.DownloadDataFile.html#scitacean.model.DownloadDataFile.upload_model_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">upload_model_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">UploadDataFile</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">UploadDataFile</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="UploadDataFile">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.UploadDataFile.html#scitacean.model.UploadDataFile">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">UploadDataFile</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">path</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">size</span><span class="p">:</span> <span class="n">NonNegativeInt</span>
+    <span class="n">time</span><span class="p">:</span> <span class="n">datetime</span>
+    <span class="n">chk</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">gid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">perm</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">uid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@pydantic</span><span class="o">.</span><span class="n">field_validator</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_datetime</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">validate_datetime</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+<div class="viewcode-block" id="UploadDataFile.download_model_type">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.UploadDataFile.html#scitacean.model.UploadDataFile.download_model_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">download_model_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">DownloadDataFile</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">DownloadDataFile</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="DownloadInstrument">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.DownloadInstrument.html#scitacean.model.DownloadInstrument">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DownloadInstrument</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">customMetadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">pid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">uniqueName</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="DownloadInstrument.user_model_type">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.DownloadInstrument.html#scitacean.model.DownloadInstrument.user_model_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">user_model_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">Instrument</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">Instrument</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="DownloadSample">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.DownloadSample.html#scitacean.model.DownloadSample">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DownloadSample</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">ownerGroup</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">accessGroups</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">createdAt</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">createdBy</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">instrumentGroup</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">isPublished</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">owner</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">sampleCharacteristics</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">sampleId</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">updatedAt</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">updatedBy</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@pydantic</span><span class="o">.</span><span class="n">field_validator</span><span class="p">(</span><span class="s2">&quot;createdAt&quot;</span><span class="p">,</span> <span class="s2">&quot;updatedAt&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_datetime</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">validate_datetime</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DownloadSample.user_model_type">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.DownloadSample.html#scitacean.model.DownloadSample.user_model_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">user_model_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">Sample</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">Sample</span></div>
+
+
+<div class="viewcode-block" id="DownloadSample.upload_model_type">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.DownloadSample.html#scitacean.model.DownloadSample.upload_model_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">upload_model_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">UploadSample</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">UploadSample</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="UploadSample">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.UploadSample.html#scitacean.model.UploadSample">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">UploadSample</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">ownerGroup</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">accessGroups</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">instrumentGroup</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">isPublished</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">owner</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">sampleCharacteristics</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">sampleId</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="UploadSample.user_model_type">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.UploadSample.html#scitacean.model.UploadSample.user_model_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">user_model_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">Sample</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">Sample</span></div>
+
+
+<div class="viewcode-block" id="UploadSample.download_model_type">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.UploadSample.html#scitacean.model.UploadSample.download_model_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">download_model_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">DownloadSample</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">DownloadSample</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Attachment">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.Attachment.html#scitacean.model.Attachment">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Attachment</span><span class="p">(</span><span class="n">BaseUserModel</span><span class="p">):</span>
+    <span class="n">caption</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">owner_group</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">access_groups</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">dataset_id</span><span class="p">:</span> <span class="n">PID</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">instrument_group</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">proposal_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">sample_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">thumbnail</span><span class="p">:</span> <span class="n">Thumbnail</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_created_at</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_created_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_is_published</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_updated_at</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_updated_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">created_at</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_created_at</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">created_by</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_created_by</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_published</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_published</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">updated_at</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_updated_at</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">updated_by</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_updated_by</span>
+
+<div class="viewcode-block" id="Attachment.from_download_model">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.Attachment.html#scitacean.model.Attachment.from_download_model">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_download_model</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">download_model</span><span class="p">:</span> <span class="n">DownloadAttachment</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Attachment</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct an instance from an associated SciCat download model.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="bp">cls</span><span class="o">.</span><span class="n">_download_model_dict</span><span class="p">(</span><span class="n">download_model</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Attachment.make_upload_model">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.Attachment.html#scitacean.model.Attachment.make_upload_model">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">make_upload_model</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UploadAttachment</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct a SciCat upload model from self.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">UploadAttachment</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_upload_model_dict</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="Attachment.upload_model_type">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.Attachment.html#scitacean.model.Attachment.upload_model_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">upload_model_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">UploadAttachment</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">UploadAttachment</span></div>
+
+
+<div class="viewcode-block" id="Attachment.download_model_type">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.Attachment.html#scitacean.model.Attachment.download_model_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">download_model_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">DownloadAttachment</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">DownloadAttachment</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Lifecycle">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.Lifecycle.html#scitacean.model.Lifecycle">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Lifecycle</span><span class="p">(</span><span class="n">BaseUserModel</span><span class="p">):</span>
+    <span class="n">_archivable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_archive_retention_time</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_archive_return_message</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_archive_status_message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_date_of_disk_purging</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_date_of_publishing</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_exported_to</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_is_on_central_disk</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_publishable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_published_on</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_retrievable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_retrieve_integrity_check</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_retrieve_return_message</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_retrieve_status_message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">archivable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_archivable</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">archive_retention_time</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_archive_retention_time</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">archive_return_message</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_archive_return_message</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">archive_status_message</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_archive_status_message</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">date_of_disk_purging</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_date_of_disk_purging</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">date_of_publishing</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_date_of_publishing</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">exported_to</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exported_to</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_on_central_disk</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_on_central_disk</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">publishable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_publishable</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">published_on</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_published_on</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">retrievable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_retrievable</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">retrieve_integrity_check</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_retrieve_integrity_check</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">retrieve_return_message</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_retrieve_return_message</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">retrieve_status_message</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_retrieve_status_message</span>
+
+<div class="viewcode-block" id="Lifecycle.from_download_model">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.Lifecycle.html#scitacean.model.Lifecycle.from_download_model">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_download_model</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">download_model</span><span class="p">:</span> <span class="n">DownloadLifecycle</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Lifecycle</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct an instance from an associated SciCat download model.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="bp">cls</span><span class="o">.</span><span class="n">_download_model_dict</span><span class="p">(</span><span class="n">download_model</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Lifecycle.download_model_type">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.Lifecycle.html#scitacean.model.Lifecycle.download_model_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">download_model_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">DownloadLifecycle</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">DownloadLifecycle</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Technique">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.Technique.html#scitacean.model.Technique">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Technique</span><span class="p">(</span><span class="n">BaseUserModel</span><span class="p">):</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">pid</span><span class="p">:</span> <span class="nb">str</span>
+
+<div class="viewcode-block" id="Technique.from_download_model">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.Technique.html#scitacean.model.Technique.from_download_model">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_download_model</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">download_model</span><span class="p">:</span> <span class="n">DownloadTechnique</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Technique</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct an instance from an associated SciCat download model.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="bp">cls</span><span class="o">.</span><span class="n">_download_model_dict</span><span class="p">(</span><span class="n">download_model</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Technique.make_upload_model">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.Technique.html#scitacean.model.Technique.make_upload_model">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">make_upload_model</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UploadTechnique</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct a SciCat upload model from self.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">UploadTechnique</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_upload_model_dict</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="Technique.upload_model_type">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.Technique.html#scitacean.model.Technique.upload_model_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">upload_model_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">UploadTechnique</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">UploadTechnique</span></div>
+
+
+<div class="viewcode-block" id="Technique.download_model_type">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.Technique.html#scitacean.model.Technique.download_model_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">download_model_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">DownloadTechnique</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">DownloadTechnique</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Relationship">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.Relationship.html#scitacean.model.Relationship">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Relationship</span><span class="p">(</span><span class="n">BaseUserModel</span><span class="p">):</span>
+    <span class="n">pid</span><span class="p">:</span> <span class="n">PID</span>
+    <span class="n">relationship</span><span class="p">:</span> <span class="nb">str</span>
+
+<div class="viewcode-block" id="Relationship.from_download_model">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.Relationship.html#scitacean.model.Relationship.from_download_model">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_download_model</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">download_model</span><span class="p">:</span> <span class="n">DownloadRelationship</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Relationship</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct an instance from an associated SciCat download model.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="bp">cls</span><span class="o">.</span><span class="n">_download_model_dict</span><span class="p">(</span><span class="n">download_model</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Relationship.make_upload_model">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.Relationship.html#scitacean.model.Relationship.make_upload_model">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">make_upload_model</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UploadRelationship</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct a SciCat upload model from self.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">UploadRelationship</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_upload_model_dict</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="Relationship.upload_model_type">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.Relationship.html#scitacean.model.Relationship.upload_model_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">upload_model_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">UploadRelationship</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">UploadRelationship</span></div>
+
+
+<div class="viewcode-block" id="Relationship.download_model_type">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.Relationship.html#scitacean.model.Relationship.download_model_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">download_model_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">DownloadRelationship</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">DownloadRelationship</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="History">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.History.html#scitacean.model.History">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">History</span><span class="p">(</span><span class="n">BaseUserModel</span><span class="p">):</span>
+    <span class="n">_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_updated_at</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_updated_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_id</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">updated_at</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_updated_at</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">updated_by</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_updated_by</span>
+
+<div class="viewcode-block" id="History.from_download_model">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.History.html#scitacean.model.History.from_download_model">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_download_model</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">download_model</span><span class="p">:</span> <span class="n">DownloadHistory</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">History</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct an instance from an associated SciCat download model.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="bp">cls</span><span class="o">.</span><span class="n">_download_model_dict</span><span class="p">(</span><span class="n">download_model</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="History.download_model_type">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.History.html#scitacean.model.History.download_model_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">download_model_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">DownloadHistory</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">DownloadHistory</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Instrument">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.Instrument.html#scitacean.model.Instrument">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Instrument</span><span class="p">(</span><span class="n">BaseUserModel</span><span class="p">):</span>
+    <span class="n">_custom_metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_pid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_unique_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">custom_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_custom_metadata</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pid</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pid</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">unique_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unique_name</span>
+
+<div class="viewcode-block" id="Instrument.from_download_model">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.Instrument.html#scitacean.model.Instrument.from_download_model">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_download_model</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">download_model</span><span class="p">:</span> <span class="n">DownloadInstrument</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Instrument</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct an instance from an associated SciCat download model.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="bp">cls</span><span class="o">.</span><span class="n">_download_model_dict</span><span class="p">(</span><span class="n">download_model</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Instrument.download_model_type">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.Instrument.html#scitacean.model.Instrument.download_model_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">download_model_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">DownloadInstrument</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">DownloadInstrument</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Sample">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.Sample.html#scitacean.model.Sample">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Sample</span><span class="p">(</span><span class="n">BaseUserModel</span><span class="p">):</span>
+    <span class="n">owner_group</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">access_groups</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">instrument_group</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">is_published</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">owner</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">sample_characteristics</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">sample_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_created_at</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_created_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_updated_at</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_updated_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">created_at</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_created_at</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">created_by</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_created_by</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">updated_at</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_updated_at</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">updated_by</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_updated_by</span>
+
+<div class="viewcode-block" id="Sample.from_download_model">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.Sample.html#scitacean.model.Sample.from_download_model">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_download_model</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">download_model</span><span class="p">:</span> <span class="n">DownloadSample</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sample</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct an instance from an associated SciCat download model.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="bp">cls</span><span class="o">.</span><span class="n">_download_model_dict</span><span class="p">(</span><span class="n">download_model</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Sample.make_upload_model">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.Sample.html#scitacean.model.Sample.make_upload_model">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">make_upload_model</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UploadSample</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct a SciCat upload model from self.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">UploadSample</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_upload_model_dict</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="Sample.upload_model_type">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.Sample.html#scitacean.model.Sample.upload_model_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">upload_model_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">UploadSample</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">UploadSample</span></div>
+
+
+<div class="viewcode-block" id="Sample.download_model_type">
+<a class="viewcode-back" href="../../generated/classes/scitacean.model.Sample.html#scitacean.model.Sample.download_model_type">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">download_model_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">DownloadSample</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">DownloadSample</span></div>
+</div>
+
+
+
+<span class="c1"># Some models contain fields that are other models which are defined</span>
+<span class="c1"># further down in the file.</span>
+<span class="c1"># Instead of ordering models according to their dependencies, resolve</span>
+<span class="c1"># references once all classes have been defined.</span>
+<span class="n">DownloadAttachment</span><span class="o">.</span><span class="n">model_rebuild</span><span class="p">()</span>
+<span class="n">UploadAttachment</span><span class="o">.</span><span class="n">model_rebuild</span><span class="p">()</span>
+<span class="n">DownloadOrigDatablock</span><span class="o">.</span><span class="n">model_rebuild</span><span class="p">()</span>
+<span class="n">UploadOrigDatablock</span><span class="o">.</span><span class="n">model_rebuild</span><span class="p">()</span>
+<span class="n">DownloadDatablock</span><span class="o">.</span><span class="n">model_rebuild</span><span class="p">()</span>
+<span class="n">UploadDatablock</span><span class="o">.</span><span class="n">model_rebuild</span><span class="p">()</span>
+<span class="n">DownloadLifecycle</span><span class="o">.</span><span class="n">model_rebuild</span><span class="p">()</span>
+<span class="n">DownloadTechnique</span><span class="o">.</span><span class="n">model_rebuild</span><span class="p">()</span>
+<span class="n">UploadTechnique</span><span class="o">.</span><span class="n">model_rebuild</span><span class="p">()</span>
+<span class="n">DownloadRelationship</span><span class="o">.</span><span class="n">model_rebuild</span><span class="p">()</span>
+<span class="n">UploadRelationship</span><span class="o">.</span><span class="n">model_rebuild</span><span class="p">()</span>
+<span class="n">DownloadHistory</span><span class="o">.</span><span class="n">model_rebuild</span><span class="p">()</span>
+<span class="n">DownloadDataFile</span><span class="o">.</span><span class="n">model_rebuild</span><span class="p">()</span>
+<span class="n">UploadDataFile</span><span class="o">.</span><span class="n">model_rebuild</span><span class="p">()</span>
+<span class="n">DownloadInstrument</span><span class="o">.</span><span class="n">model_rebuild</span><span class="p">()</span>
+<span class="n">DownloadSample</span><span class="o">.</span><span class="n">model_rebuild</span><span class="p">()</span>
+<span class="n">UploadSample</span><span class="o">.</span><span class="n">model_rebuild</span><span class="p">()</span>
+<span class="n">DownloadDataset</span><span class="o">.</span><span class="n">model_rebuild</span><span class="p">()</span>
+<span class="n">UploadDerivedDataset</span><span class="o">.</span><span class="n">model_rebuild</span><span class="p">()</span>
+<span class="n">UploadRawDataset</span><span class="o">.</span><span class="n">model_rebuild</span><span class="p">()</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;Attachment&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;BaseModel&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;BaseUserModel&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DatasetType&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DownloadAttachment&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DownloadDataFile&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DownloadDatablock&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DownloadDataset&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DownloadHistory&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DownloadInstrument&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DownloadLifecycle&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DownloadOrigDatablock&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DownloadRelationship&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DownloadSample&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DownloadTechnique&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;History&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Instrument&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Lifecycle&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Relationship&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Sample&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Technique&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;UploadAttachment&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;UploadDataFile&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;UploadDatablock&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;UploadDerivedDataset&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;UploadOrigDatablock&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;UploadRawDataset&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;UploadRelationship&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;UploadSample&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;UploadTechnique&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;construct&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2023 SciCat Project.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><!-- This will display the version of the docs -->
+Current scitacean version: 25.3.2 (<a href="https://github.com/SciCatProject/scitacean/releases">older versions</a>).</div>
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

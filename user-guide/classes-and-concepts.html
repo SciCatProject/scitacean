@@ -1,0 +1,676 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Classes and concepts &#8212; Scitacean</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=7776b8de" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=15bde43d"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user-guide/classes-and-concepts';</script>
+    <script src="../_static/anaconda-icon.js?v=461bdc62"></script>
+    <link rel="icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="API reference" href="../reference/index.html" />
+    <link rel="prev" title="Testing code with Scitacean" href="testing.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="25.3.2" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/logo.svg" class="logo__image only-light" alt="Scitacean - Home"/>
+    <img src="../_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt="Scitacean - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../reference/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../developer/index.html">
+    Developer documentation
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-external" href="https://scicatproject.github.io/">
+    SciCat
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-external" href="https://scicatproject.github.io/documentation/">
+    SciCat backend
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SciCatProject/scitacean" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/scitacean/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://anaconda.org/conda-forge/scitacean" title="Conda" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-custom fa-anaconda fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Conda</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../reference/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../developer/index.html">
+    Developer documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://scicatproject.github.io/">
+    SciCat
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://scicatproject.github.io/documentation/">
+    SciCat backend
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/SciCatProject/scitacean" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/scitacean/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://anaconda.org/conda-forge/scitacean" title="Conda" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-custom fa-anaconda fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Conda</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="downloading.html">Downloading datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="uploading.html">Uploading datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing code with Scitacean</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Classes and concepts</a></li>
+</ul>
+</div>
+</nav></div>
+        <div class="sidebar-primary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#encoding-metadata">Encoding metadata</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dataset">Dataset</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datablocks">Datablocks</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#files">Files</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#models">Models</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#user-models">User models</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#download-models">Download models</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#upload-models">Upload models</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#downloading-uploading-meta-data">Downloading &amp; uploading (meta) data</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#client">Client</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#file-transfers">File transfers</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scicatclient">ScicatClient</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/user-guide/classes-and-concepts.rst"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Classes and concepts</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="classes-and-concepts">
+<h1>Classes and concepts<a class="headerlink" href="#classes-and-concepts" title="Link to this heading">#</a></h1>
+<p>Scitacean uses a number of different classes to store metadata and interact with the data catalogue.
+This page gives an overview of the most important ones.
+See the <a class="reference internal" href="../reference/index.html"><span class="doc">API reference</span></a> for a complete list.</p>
+<section id="encoding-metadata">
+<h2>Encoding metadata<a class="headerlink" href="#encoding-metadata" title="Link to this heading">#</a></h2>
+<section id="dataset">
+<h3>Dataset<a class="headerlink" href="#dataset" title="Link to this heading">#</a></h3>
+<p><a class="reference internal" href="../generated/classes/scitacean.Dataset.html#scitacean.Dataset" title="scitacean.Dataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">scitacean.Dataset</span></code></a> is the main class for encoding metadata.
+Each instance represents a single SciCat dataset.
+But unlike in SciCat itself, it also contains links to files and their metadata via <a class="reference internal" href="#files"><span class="std std-ref">Files</span></a> objects.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Dataset</span></code> contains all fields of both raw and derived datasets.
+Some fields are managed automatically (e.g. <code class="docutils literal notranslate"><span class="pre">size</span></code>) and some are read-only as they are not allowed to be set during uploads (e.g. <code class="docutils literal notranslate"><span class="pre">created_by</span></code>).
+Some fields hold sub models like <a class="reference internal" href="../generated/classes/scitacean.model.Relationship.html#scitacean.model.Relationship" title="scitacean.model.Relationship"><code class="xref py py-class docutils literal notranslate"><span class="pre">scitacean.model.Relationship</span></code></a>; those models are always <a class="reference internal" href="#user-models"><span class="std std-ref">User models</span></a>.
+Field names use Scitacean’s and thereby Python’s naming convention, that is snake_case as opposed to camelCase as used by SciCat.</p>
+</section>
+<section id="datablocks">
+<h3>Datablocks<a class="headerlink" href="#datablocks" title="Link to this heading">#</a></h3>
+<p>SciCat separates general metadata and file-specific metadata into ‘datasets’ and ‘datablocks’, respectively.
+In Scitacean, those are large unified into <a class="reference internal" href="../generated/classes/scitacean.Dataset.html#scitacean.Dataset" title="scitacean.Dataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">scitacean.Dataset</span></code></a> and for a user, it is usually possible to ignore datablocks entirely.
+Datablocks (for archived files) and Original Datablocks (for directly accessible files) are managed automatically by the high-level interface.
+But <a class="reference internal" href="../generated/classes/scitacean.Dataset.html#scitacean.Dataset" title="scitacean.Dataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">scitacean.Dataset</span></code></a> and <a class="reference internal" href="#scicat-client"><span class="std std-ref">ScicatClient</span></a> support handling them manually if need be.</p>
+</section>
+<section id="files">
+<span id="id1"></span><h3>Files<a class="headerlink" href="#files" title="Link to this heading">#</a></h3>
+<p><a class="reference internal" href="../generated/classes/scitacean.File.html#scitacean.File" title="scitacean.File"><code class="xref py py-class docutils literal notranslate"><span class="pre">scitacean.File</span></code></a> links to a single file that may be located on the remote fileserver or the local filesystem or both.
+It also encodes a number of metadata fields as specified by <a class="reference internal" href="../generated/classes/scitacean.model.DownloadDataFile.html#scitacean.model.DownloadDataFile" title="scitacean.model.DownloadDataFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">scitacean.model.DownloadDataFile</span></code></a> and <a class="reference internal" href="../generated/classes/scitacean.model.UploadDataFile.html#scitacean.model.UploadDataFile" title="scitacean.model.UploadDataFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">scitacean.model.UploadDataFile</span></code></a>.
+See the class documentation for details on how local vs. remote files are handled.</p>
+</section>
+<section id="models">
+<h3>Models<a class="headerlink" href="#models" title="Link to this heading">#</a></h3>
+<p>Models are Python representations of the various objects in a SciCat database.
+See <a class="reference internal" href="../generated/modules/scitacean.model.html#module-scitacean.model" title="scitacean.model"><code class="xref py py-mod docutils literal notranslate"><span class="pre">scitacean.model</span></code></a> for a list.</p>
+<section id="user-models">
+<span id="id2"></span><h4>User models<a class="headerlink" href="#user-models" title="Link to this heading">#</a></h4>
+<p>User models are dataclasses that are exposed as part of the high-level interface of Scitacean.
+They have writable fields that can be set in both uploads and downloads as well as read-only fields that may only be set in downloads.
+Field names use Scitacean’s and thereby Python’s convention, that is snake_case as opposed to camelCase as used by SciCat.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Dataset</span></code>, <code class="docutils literal notranslate"><span class="pre">(Orig)Datablock</span></code>, and <code class="docutils literal notranslate"><span class="pre">File</span></code> don’t have separate user models.
+Instead they are represented by the specialized classes described above.</p>
+</section>
+<section id="download-models">
+<span id="id3"></span><h4>Download models<a class="headerlink" href="#download-models" title="Link to this heading">#</a></h4>
+<p>Download models are <a class="reference external" href="https://docs.pydantic.dev/latest/">Pydantic</a> models that encode the data received from SciCat in downloads.
+They may contain fields that correspond to read-only fields in user models and cannot be set in uploads.
+Field names use SciCat’s convention, that is camelCase.</p>
+<p>Download models can be converted to user models by using the appropriate user model’s <code class="docutils literal notranslate"><span class="pre">from_download_model</span></code> class method.
+In the case of Dataset, <a class="reference internal" href="../generated/classes/scitacean.Dataset.html#scitacean.Dataset.from_download_models" title="scitacean.Dataset.from_download_models"><code class="xref py py-meth docutils literal notranslate"><span class="pre">scitacean.Dataset.from_download_models()</span></code></a> requires models for a dataset and (orig) datablocks.</p>
+</section>
+<section id="upload-models">
+<span id="id4"></span><h4>Upload models<a class="headerlink" href="#upload-models" title="Link to this heading">#</a></h4>
+<p>Upload models are <a class="reference external" href="https://docs.pydantic.dev/latest/">Pydantic</a> models that encode the data sent to SciCat in uploads.
+Field names use SciCat’s convention, that is camelCase.</p>
+<p>Upload models can be constructed by the corresponding user models using their <code class="docutils literal notranslate"><span class="pre">to_upload_model</span></code> method.</p>
+<p>For <a class="reference internal" href="../generated/classes/scitacean.Dataset.html#scitacean.Dataset" title="scitacean.Dataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">scitacean.Dataset</span></code></a>, there are two distinct upload models, namely <a class="reference internal" href="../generated/classes/scitacean.model.UploadRawDataset.html#scitacean.model.UploadRawDataset" title="scitacean.model.UploadRawDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">scitacean.model.UploadRawDataset</span></code></a> and <a class="reference internal" href="../generated/classes/scitacean.model.UploadDerivedDataset.html#scitacean.model.UploadDerivedDataset" title="scitacean.model.UploadDerivedDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">scitacean.model.UploadDerivedDataset</span></code></a>.
+In addition, <a class="reference internal" href="../generated/classes/scitacean.model.UploadOrigDatablock.html#scitacean.model.UploadOrigDatablock" title="scitacean.model.UploadOrigDatablock"><code class="xref py py-class docutils literal notranslate"><span class="pre">scitacean.model.UploadOrigDatablock</span></code></a> and <a class="reference internal" href="../generated/classes/scitacean.model.UploadDataFile.html#scitacean.model.UploadDataFile" title="scitacean.model.UploadDataFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">scitacean.model.UploadDataFile</span></code></a> are needed to fully represent Scitacean’s <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> objects.</p>
+</section>
+</section>
+</section>
+<section id="downloading-uploading-meta-data">
+<h2>Downloading &amp; uploading (meta) data<a class="headerlink" href="#downloading-uploading-meta-data" title="Link to this heading">#</a></h2>
+<section id="client">
+<span id="id6"></span><h3>Client<a class="headerlink" href="#client" title="Link to this heading">#</a></h3>
+<p><a class="reference internal" href="../generated/classes/scitacean.Client.html#scitacean.Client" title="scitacean.Client"><code class="xref py py-class docutils literal notranslate"><span class="pre">scitacean.Client</span></code></a> is the high-level interface for downloading and uploading datasets from and to SciCat.
+It deals directly with <a class="reference internal" href="../generated/classes/scitacean.Dataset.html#scitacean.Dataset" title="scitacean.Dataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">scitacean.Dataset</span></code></a> and <a class="reference internal" href="#user-models"><span class="std std-ref">User models</span></a>.
+It also controls the download and upload of files as implemented by <a class="reference internal" href="#file-transfers"><span class="std std-ref">File transfers</span></a>.</p>
+</section>
+<section id="file-transfers">
+<span id="id7"></span><h3>File transfers<a class="headerlink" href="#file-transfers" title="Link to this heading">#</a></h3>
+<p>SciCat itself only deals with metadata and files are stored separately.
+However, for ease of use, <a class="reference internal" href="../generated/classes/scitacean.Dataset.html#scitacean.Dataset" title="scitacean.Dataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">scitacean.Dataset</span></code></a> and <a class="reference internal" href="../generated/classes/scitacean.Client.html#scitacean.Client" title="scitacean.Client"><code class="xref py py-class docutils literal notranslate"><span class="pre">scitacean.Client</span></code></a> unify handling of metadata and files.
+The latter requires <a class="reference internal" href="../reference/index.html#file-transfer"><span class="std std-ref">file transfers</span></a> to implement concrete download and upload methods.
+File transfers should not be used directly but passed as arguments when constructing a <code class="docutils literal notranslate"><span class="pre">Client</span></code>.</p>
+<p>SciCat is deployed in diverse environments and each facility has its own ways of accessing files.
+So it is necessary to pick an appropriate one for the concrete SciCat instance in use.
+Scitacean cannot guarantee that it can download or upload files for every instance of SciCat.
+But it is possible to implement custom file transfers if the bundled ones are not enough.
+Each transfer must satisfy the <a class="reference internal" href="../generated/modules/scitacean.typing.FileTransfer.html#scitacean.typing.FileTransfer" title="scitacean.typing.FileTransfer"><code class="xref py py-class docutils literal notranslate"><span class="pre">scitacean.typing.FileTransfer</span></code></a> protocol.</p>
+</section>
+<section id="scicatclient">
+<span id="scicat-client"></span><h3>ScicatClient<a class="headerlink" href="#scicatclient" title="Link to this heading">#</a></h3>
+<p><a class="reference internal" href="../generated/classes/scitacean.client.ScicatClient.html#scitacean.client.ScicatClient" title="scitacean.client.ScicatClient"><code class="xref py py-class docutils literal notranslate"><span class="pre">scitacean.client.ScicatClient</span></code></a> is the low-level interface for downloading and uploading metadata from and to SciCat.
+In contrast to <a class="reference internal" href="#client"><span class="std std-ref">Client</span></a>, it deals with <a class="reference internal" href="#download-models"><span class="std std-ref">Download models</span></a> and <a class="reference internal" href="#upload-models"><span class="std std-ref">Upload models</span></a>.
+It does not handle files.</p>
+<p>It should almost never be necessary to use <code class="docutils literal notranslate"><span class="pre">ScicatClient</span></code> directly.
+If you find yourself reaching for it because <code class="docutils literal notranslate"><span class="pre">Client</span></code> is insufficient, please consider starting a <a class="reference external" href="https://github.com/SciCatProject/scitacean/discussions">discussion</a> or opening an <a class="reference external" href="https://github.com/SciCatProject/scitacean/issues/new">issue</a> on GitHub as this likely indicates a missing feature in the high-level client.</p>
+<p>There are two notable exceptions to this.
+The first is testing with a fake client as described in the <a class="reference internal" href="testing.html#FakeClient"><span class="std std-ref">Testing user guide</span></a>.
+The second is needing direct control over data blocks and Scitacean’s automated handling doesn’t work for you.
+The latter is considered an advanced use case and out of scope for Scitacean’s high-level interface.</p>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="testing.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Testing code with Scitacean</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../reference/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">API reference</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2023 SciCat Project.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><!-- This will display the version of the docs -->
+Current scitacean version: 25.3.2 (<a href="https://github.com/SciCatProject/scitacean/releases">older versions</a>).</div>
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
