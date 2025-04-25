@@ -308,7 +308,7 @@ class FakeScicatClient(ScicatClient):
 def _model_dict(mod: model.BaseModel) -> dict[str, Any]:
     return {
         key: deepcopy(val)
-        for key in mod.model_fields.keys()
+        for key in mod.__class__.model_fields.keys()
         if (val := getattr(mod, key)) is not None
     }
 
