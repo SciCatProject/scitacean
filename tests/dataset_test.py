@@ -342,6 +342,77 @@ def test_can_set_default_checksum_algorithm(
     assert f.checksum_algorithm == algorithm
 
 
+@pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
+@pytest.mark.parametrize("ds_algorithm", ["sha256", None])
+def test_file_checksum_algorithm_takes_precedence_over_dataset(
+    typ: DatasetType, ds_algorithm: str | None
+) -> None:
+    dset = Dataset(type=typ, checksum_algorithm=ds_algorithm)
+    dset.add_files(
+        File.from_remote(
+            remote_path="remote/data.dat",
+            size=82,
+            creation_time="2025-05-02T15:04:04Z",
+            checksum_algorithm="md5",
+            checksum="75c21d0cf6cd4cfa94958085b7880eac",
+        )
+    )
+
+    [f] = dset.files
+    assert f.checksum_algorithm == "md5"
+
+
+@pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
+@pytest.mark.parametrize("ds_algorithm", ["sha256", None])
+def test_add_files_given_algorithm_overrides_default(
+    typ: DatasetType, ds_algorithm: str | None
+) -> None:
+    dset = Dataset(type=typ, checksum_algorithm=ds_algorithm)
+    file1 = File.from_remote(
+        remote_path="file1",
+        size=1,
+        creation_time="2025-05-02T15:04:04Z",
+        checksum_algorithm="md5",
+        checksum="75c21d0cf6cd4cfa94958085b7880eac",
+    )
+    file2 = File.from_remote(
+        remote_path="file2",
+        size=2,
+        creation_time="2025-05-02T15:04:04Z",
+        # no checksum algorithm here
+    )
+    dset.add_files(file1, file2)
+
+    [f1, f2] = dset.files
+    assert f1.checksum_algorithm == "md5"
+    assert f2.checksum_algorithm == "md5"
+
+
+@pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
+@pytest.mark.parametrize("ds_algorithm", ["sha256", None])
+def test_add_files_rejects_files_with_different_checksum_algorithms(
+    typ: DatasetType, ds_algorithm: str | None
+) -> None:
+    dset = Dataset(type=typ, checksum_algorithm=ds_algorithm)
+    file1 = File.from_remote(
+        remote_path="file1",
+        size=1,
+        creation_time="2025-05-02T15:04:04Z",
+        checksum_algorithm="md5",
+        checksum="75c21d0cf6cd4cfa94958085b7880eac",
+    )
+    file2 = File.from_remote(
+        remote_path="file2",
+        size=2,
+        creation_time="2025-05-02T15:04:04Z",
+        checksum_algorithm="blake2b",
+        checksum="72418c5cde53daa31a84f8016647b652",
+    )
+
+    with pytest.raises(ValueError, match="different checksum algorithms"):
+        dset.add_files(file1, file2)
+
+
 @given(sst.datasets(for_upload=True))
 @settings(max_examples=100)
 def test_dataset_models_roundtrip(initial: Dataset) -> None:
