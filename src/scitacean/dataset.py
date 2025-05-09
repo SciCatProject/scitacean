@@ -269,15 +269,34 @@ class Dataset(DatasetBase):
             )
         )
 
-    def add_files(self, *files: File, datablock: int | str | PID = -1) -> None:
-        """Add files to the dataset."""
+    def add_files(self, *files: File, datablock: int | str | PID | None = None) -> None:
+        """Add files to the dataset.
+
+        Parameters
+        ----------
+        files:
+            File object to add.
+        datablock:
+            Advanced feature, do not set unless you know what this is!
+
+            Select the orig datablock to store the file in.
+
+            - ``None``: Use the last datablock in the list if possible
+              or add a new one if needed.
+            - If an ``int``, use the datablock with that index.
+            - If a ``str`` or ``PID``, use the datablock with that id;
+              if there is none with matching id, raise ``KeyError``.
+        """
         _deny_conflicting_files(files, self._orig_datablocks)
-        self._get_or_add_orig_datablock(datablock).add_files(*files)
+        db = self._get_or_add_orig_datablock(
+            datablock, (file.checksum_algorithm for file in files)
+        )
+        db.add_files(*files)
 
     def add_local_files(
         self,
         *paths: str | os.PathLike[str],
-        datablock: int | str = -1,
+        datablock: int | str | PID | None = None,
     ) -> None:
         """Add files on the local file system to the dataset.
 
@@ -303,11 +322,13 @@ class Dataset(DatasetBase):
             Advanced feature, do not set unless you know what this is!
 
             Select the orig datablock to store the file in.
-            If an ``int``, use the datablock with that index.
-            If a ``str`` or ``PID``, use the datablock with that id;
-            if there is none with matching id, raise ``KeyError``.
+
+            - ``None``: Use the last datablock in the list if possible
+              or add a new one if needed.
+            - If an ``int``, use the datablock with that index.
+            - If a ``str`` or ``PID``, use the datablock with that id;
+              if there is none with matching id, raise ``KeyError``.
         """
-        # TODO check for conflicts
         self.add_files(
             *(File.from_local(path) for path in paths),
             datablock=datablock,
@@ -489,23 +510,47 @@ class Dataset(DatasetBase):
         self._orig_datablocks.append(dblock)
         return dblock
 
-    def _lookup_orig_datablock(self, id_: str) -> OrigDatablock:
-        try:
-            return next(db for db in self._orig_datablocks if db.datablock_id == id_)
-        except StopIteration:
-            raise KeyError(f"No OrigDatablock with id {id_}") from None
-
-    def _get_or_add_orig_datablock(self, key: int | str | PID) -> OrigDatablock:
-        if isinstance(key, PID):
-            key = str(PID)
-        if isinstance(key, str):
-            return self._lookup_orig_datablock(key)
-        # The 0th datablock is implicitly always there and created on demand.
-        if key in (0, -1) and not self._orig_datablocks:
-            return self.add_orig_datablock(
-                checksum_algorithm=self._default_checksum_algorithm
-            )
+    def _get_existing_orig_datablock(self, key: int | str | PID) -> OrigDatablock:
+        if isinstance(key, str | PID):
+            try:
+                return next(
+                    db for db in self._orig_datablocks if db.datablock_id == key
+                )
+            except StopIteration:
+                raise KeyError(f"No OrigDatablock with id {key}") from None
         return self._orig_datablocks[key]
+
+    def _get_or_add_orig_datablock(
+        self, key: int | str | PID | None, checksum_algorithms: Iterable[str | None]
+    ) -> OrigDatablock:
+        if algorithms := set(checksum_algorithms) - {None}:
+            checksum_algorithm = algorithms.pop()
+        else:
+            checksum_algorithm = None
+
+        if key is None:
+            if self._orig_datablocks:
+                last = self._orig_datablocks[-1]
+                if (
+                    checksum_algorithm is None
+                    or checksum_algorithm == last.checksum_algorithm
+                ):
+                    return last
+            return self.add_orig_datablock(
+                checksum_algorithm=checksum_algorithm
+                or self._default_checksum_algorithm
+            )
+
+        existing = self._get_existing_orig_datablock(key)
+        if (
+            checksum_algorithm is not None
+            and existing.checksum_algorithm != checksum_algorithm
+        ):
+            raise ValueError(
+                "Cannot add files, the checksum algorithm does not match the given "
+                "data block. Either choose a different algorithm or a different block."
+            )
+        return existing
 
     def make_upload_model(self) -> UploadDerivedDataset | UploadRawDataset:
         """Construct a SciCat upload model from self."""
@@ -716,6 +761,13 @@ class DatablockUploadModels:
 def _deny_conflicting_files(
     files: tuple[File, ...], orig_datablocks: list[OrigDatablock]
 ) -> None:
+    _deny_conflicting_file_names(files, orig_datablocks)
+    _deny_conflicting_file_checksum_algorithms(files, orig_datablocks)
+
+
+def _deny_conflicting_file_names(
+    files: tuple[File, ...], orig_datablocks: list[OrigDatablock]
+) -> None:
     names = Counter(f.remote_path.posix for f in files)
     duplicates = [name for name, count in names.items() if count > 1]
     if duplicates:
@@ -728,6 +780,19 @@ def _deny_conflicting_files(
         raise ValueError(
             f"Cannot add files with names {duplicates!r} because "
             "they already exist in the dataset."
+        )
+
+
+def _deny_conflicting_file_checksum_algorithms(
+    files: tuple[File, ...], orig_datablocks: list[OrigDatablock]
+) -> None:
+    algorithms = {file.checksum_algorithm for file in files} - {None}
+    if len(algorithms) > 1:
+        raise ValueError(
+            "Cannot add files with different checksum algorithms."
+            "Either use the same algorithm for all or add the files to separate "
+            "data blocks by calling `dataset.add_files` separately for each data block."
+            f" Got algorithms {algorithms!r}."
         )
 
 
