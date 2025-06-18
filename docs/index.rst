@@ -1,12 +1,14 @@
 .. image:: _static/logo.svg
    :class: only-light
    :alt: Scitacean
-   :width: 25%
+   :width: 45%
+   :align: center
 
 .. image:: _static/logo-dark.svg
    :class: only-dark
    :alt: Scitacean
-   :width: 25%
+   :width: 45%
+   :align: center
 
 .. raw:: html
 
