@@ -1,18 +1,29 @@
 Installation
-============
+------------
 
 .. tab-set::
 
-    .. tab-item:: pip
+    .. tab-item:: Pip
+
+        Scitacean is available on `pypi.org <https://pypi.org/project/scitacean/>`_:
 
         .. code-block:: sh
 
-            pip install scitacean[sftp]
+            python -m pip install scitacean
 
-        If :class:`scitacean.transfer.sftp.SFTPFileTransfer` is not required, the ``sftp`` extra can be omitted.
+        If you need to transfer files via SFTP, i.e., with :class:`scitacean.transfer.sftp.SFTPFileTransfer`, specify the ``sftp`` extra when installing:
 
-    .. tab-item:: conda
+        .. code-block:: sh
+
+            python -m pip install "scitacean[sftp]"
+
+    .. tab-item:: Conda
+
+        Scitacean in available on `conda-forge <https://anaconda.org/conda-forge/scitacean>`_:
 
         .. code-block:: sh
 
             conda install -c conda-forge scitacean
+
+        In contrast to installing with Pip, this always installs the dependencies for SFTP.
+        So no additional steps are needed to use :class:`scitacean.transfer.sftp.SFTPFileTransfer`.

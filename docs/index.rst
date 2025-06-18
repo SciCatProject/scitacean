@@ -22,7 +22,7 @@
 :transparent:`Scitacean`
 ========================
 
-Scitacean is a high level Python package for downloading and uploading datasets from and to `SciCat <https://scicatproject.github.io/>`_.
+Scitacean is a high-level Python package for downloading and uploading datasets from and to `SciCat <https://scicatproject.github.io/>`_.
 
 To get started, read the `User Guide <./user-guide/index.rst>`_.
 
@@ -42,6 +42,8 @@ Compared to Pyscicat, Scitacean offers:
 
 While Scitacean provides access to a lower level interface similar to Pyscicat, it only supports a small subset of the SciCat API.
 Consider using Pyscicat if you need to access, e.g. sample metadata, proposals, job information, etc.
+
+.. include:: user-guide/installation.rst
 
 .. toctree::
    :hidden:
