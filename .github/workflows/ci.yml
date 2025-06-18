@@ -55,4 +55,7 @@ jobs:
 
   docs:
     needs: tests
+    permissions:
+      pages: write
+      id-token: write
     uses: ./.github/workflows/docs.yml
