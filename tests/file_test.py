@@ -395,7 +395,7 @@ def test_local_is_up_to_date_default_checksum_alg(fs: FakeFilesystem) -> None:
             time=parse_date("2022-06-22T15:42:53.123Z"),
         )
     ).downloaded(local_path="data.csv")
-    with pytest.warns(UserWarning):
+    with pytest.warns(UserWarning, match="using the default"):
         assert file.local_is_up_to_date()
 
 

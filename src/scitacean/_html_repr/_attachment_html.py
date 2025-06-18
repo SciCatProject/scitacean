@@ -52,7 +52,7 @@ _EXCLUDED_FIELDS = {
 def _get_fields(attachment: Attachment) -> list[Field]:
     fields = [
         Field(
-            name=_strip_leading_underscore(field.name),
+            name=field.name.removeprefix("_"),
             value=getattr(attachment, field.name),
             type=field.type,  # type: ignore[arg-type]
             description="",
@@ -65,10 +65,6 @@ def _get_fields(attachment: Attachment) -> list[Field]:
         if field.name not in _EXCLUDED_FIELDS
     ]
     return sorted(fields, key=lambda field: field.name)
-
-
-def _strip_leading_underscore(s: str) -> str:
-    return s[1:] if s.startswith("_") else s
 
 
 def _is_read_only(field_name: str) -> bool:

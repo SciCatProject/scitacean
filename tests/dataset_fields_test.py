@@ -45,7 +45,7 @@ def test_init_dataset_accepted_types(typ: str | DatasetType) -> None:
 
 def test_init_dataset_raises_for_bad_type() -> None:
     with pytest.raises(ValueError, match="DatasetType"):
-        Dataset(type="bad-type")  # type: ignore[arg-type]
+        Dataset(type="bad-type")
 
 
 def test_init_dataset_needs_type() -> None:

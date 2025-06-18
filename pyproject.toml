@@ -97,7 +97,7 @@ extend-include = ["*.ipynb"]
 extend-exclude = [".*", "__pycache__", "build", "dist", "venv"]
 
 [tool.ruff.lint]
-select = ["B", "C4", "D", "DTZ", "E", "F", "G", "I", "FBT003", "PERF", "PGH", "PT", "PYI", "RUF", "S", "T20", "UP", "W"]
+select = ["B", "C4", "D", "DTZ", "E", "F", "G", "I", "FBT003", "FURB", "PERF", "PGH", "PT", "PYI", "RUF", "S", "T20", "UP", "W"]
 ignore = [
     "D105",  # most magic methods don't need docstrings as their purpose is always the same
     "E741", "E742", "E743",  # do not use names ‘l’, ‘O’, or ‘I’; they are not a problem with a proper font
