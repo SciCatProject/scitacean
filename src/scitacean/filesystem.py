@@ -74,8 +74,8 @@ class RemotePath:
         if _posix(other).startswith("/"):
             return RemotePath(other)  # other is absolute, do not concatenate
 
-        this = _strip_trailing_slash(self.posix)
-        other = _strip_leading_slash(_strip_trailing_slash(_posix(other)))
+        this = self.posix.removesuffix("/")
+        other = _posix(other).removesuffix("/").removeprefix("/")
         return RemotePath(f"{this}/{other}")
 
     def __rtruediv__(self, other: str) -> RemotePath:
@@ -209,14 +209,6 @@ class RemotePath:
 
 def _posix(path: str | RemotePath) -> str:
     return path.posix if isinstance(path, RemotePath) else path
-
-
-def _strip_trailing_slash(s: str) -> str:
-    return s[:-1] if s.endswith("/") else s
-
-
-def _strip_leading_slash(s: str) -> str:
-    return s[1:] if s.startswith("/") else s
 
 
 def file_size(path: Path) -> int:

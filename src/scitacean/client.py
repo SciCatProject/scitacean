@@ -605,8 +605,7 @@ class ScicatClient:
         token: str | StrStorage | None,
         timeout: datetime.timedelta | None,
     ):
-        # Need to add a final /
-        self._base_url = url[:-1] if url.endswith("/") else url
+        self._base_url = url.removeprefix("/")
         self._timeout = datetime.timedelta(seconds=10) if timeout is None else timeout
         self._token: StrStorage | None = (
             ExpiringToken.from_jwt(SecretStr(token))
