@@ -41,7 +41,7 @@ class LinkDownloadConnection:
                 "access to the file server. Consider using a different file transfer.",
                 remote_path=remote,
             )
-        local.symlink_to(remote_path)
+        local.symlink_to(remote_path.absolute())
 
 
 class LinkUploadConnection:
