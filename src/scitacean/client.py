@@ -1171,14 +1171,15 @@ class ScicatClient:
 
         if data is not None:
             headers["Content-Type"] = "application/json"
+            serialized_data = data.model_dump_json(exclude_none=True)
+        else:
+            serialized_data = None
 
         try:
             return httpx.request(
                 method=cmd,
                 url=url,
-                content=data.model_dump_json(exclude_none=True)
-                if data is not None
-                else None,
+                content=serialized_data,
                 params=params,
                 headers=headers,
                 timeout=self._timeout.seconds,
