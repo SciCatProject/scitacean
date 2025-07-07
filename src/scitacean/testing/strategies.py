@@ -106,10 +106,8 @@ def multi_emails(max_emails: int = 2) -> st.SearchStrategy[str]:
     ).map(lambda email: ";".join(email))
 
 
-def _email_field_strategy(field: Dataset.Field) -> st.SearchStrategy[str | None]:
-    if field.required:
-        return multi_emails()
-    return st.none() | multi_emails()
+def _email_field_strategy() -> st.SearchStrategy[str]:
+    return multi_emails()
 
 
 def orcids() -> st.SearchStrategy[str]:
@@ -132,37 +130,27 @@ def orcids() -> st.SearchStrategy[str]:
     return st.text(alphabet="0123456789", min_size=16, max_size=16).map(make_orcid)
 
 
-def _orcid_field_strategy(field: Dataset.Field) -> st.SearchStrategy[str | None]:
-    if field.required:
-        return orcids()
-    return st.none() | orcids()
+def _orcid_field_strategy() -> st.SearchStrategy[str]:
+    return orcids()
 
 
-def _scientific_metadata_strategy(
-    field: Dataset.Field,
-) -> st.SearchStrategy[dict[str, Any]]:
+def _scientific_metadata_strategy() -> st.SearchStrategy[dict[str, Any]]:
     return st.dictionaries(
         keys=st.text(),
         values=st.text() | st.dictionaries(keys=st.text(), values=st.text()),
     )
 
 
-def _job_parameters_strategy(
-    field: Dataset.Field,
-) -> st.SearchStrategy[dict[str, str] | None]:
-    return st.from_type(dict[str, str] | None)  # type: ignore[arg-type]
+def _job_parameters_strategy() -> st.SearchStrategy[dict[str, str]]:
+    return st.from_type(dict[str, str])
 
 
-def _lifecycle_strategy(
-    field: Dataset.Field,
-) -> st.SearchStrategy[model.Lifecycle | None]:
+def _lifecycle_strategy() -> st.SearchStrategy[model.Lifecycle]:
     # Lifecycle contains fields that have `Any` types which `st.from_type` can't handle.
-    return st.sampled_from((None, model.Lifecycle()))
+    return st.just(model.Lifecycle())
 
 
-def _source_folder_strategy(
-    field: Dataset.Field,
-) -> st.SearchStrategy[RemotePath]:
+def _source_folder_strategy() -> st.SearchStrategy[RemotePath]:
     return st.from_type(RemotePath).map(
         lambda p: (p if p.is_absolute() else RemotePath(f"/{p.posix}"))
     )
@@ -182,7 +170,7 @@ _SPECIAL_FIELDS = {
 
 def _field_strategy(field: Dataset.Field) -> st.SearchStrategy[Any]:
     if (strategy := _SPECIAL_FIELDS.get(field.name)) is not None:
-        return strategy(field)
+        return strategy() if field.required else st.none() | strategy()  # type: ignore[no-any-return, operator]
 
     typ = field.type if field.required else field.type | None
     return st.from_type(typ)  # type:ignore[arg-type]
