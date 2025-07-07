@@ -1,4 +1,3 @@
-version: "2.1"
 services:
   scitacean-test-sftp-server:
     build:
