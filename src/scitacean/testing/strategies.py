@@ -29,14 +29,13 @@ Select the 'scitacean' profile during tests using the
 ``--hypothesis-profile=scitacean`` command line option.
 """
 
-import string
 from functools import partial
 from typing import Any
 
 from email_validator import EmailNotValidError, ValidatedEmail, validate_email
 from hypothesis import strategies as st
 
-from .. import PID, Dataset, DatasetType, RemotePath, model
+from .. import Dataset, DatasetType, model
 from .._internal.orcid import orcid_checksum
 
 
@@ -170,22 +169,6 @@ _SPECIAL_FIELDS = {
     "orcid_of_owner": _orcid_field_strategy,
     "meta": _scientific_metadata_strategy,
 }
-
-st.register_type_strategy(
-    RemotePath,
-    st.text(
-        alphabet=string.ascii_lowercase + string.ascii_uppercase + string.digits + "/."
-    ).map(RemotePath),
-)
-
-st.register_type_strategy(
-    PID,
-    st.builds(
-        PID,
-        prefix=st.text(alphabet=st.characters(blacklist_characters="/")) | st.none(),
-        pid=st.text(),
-    ),
-)
 
 
 def _field_strategy(field: Dataset.Field) -> st.SearchStrategy[Any]:

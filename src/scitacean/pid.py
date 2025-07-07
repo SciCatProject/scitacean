@@ -143,3 +143,19 @@ class PID:
                 cls.__str__, info_arg=False, return_schema=core_schema.str_schema()
             ),
         )
+
+
+try:
+    import hypothesis.strategies as st
+
+    st.register_type_strategy(
+        PID,
+        st.builds(
+            PID,
+            prefix=st.text(alphabet=st.characters(blacklist_characters="/"))
+            | st.none(),
+            pid=st.text(),
+        ),
+    )
+except ModuleNotFoundError:
+    pass

@@ -281,3 +281,21 @@ def escape_path(path: P) -> P:
     )
     no_utf = s.encode("ascii", "backslashreplace").decode("ascii")
     return type(path)(re.sub(r"[^\w .\-]", "_", no_utf))  # type: ignore[return-value]
+
+
+try:
+    import string
+
+    import hypothesis.strategies as st
+
+    st.register_type_strategy(
+        RemotePath,
+        st.text(
+            alphabet=string.ascii_lowercase
+            + string.ascii_uppercase
+            + string.digits
+            + "/."
+        ).map(RemotePath),
+    )
+except ModuleNotFoundError:
+    pass
