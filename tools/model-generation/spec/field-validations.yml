@@ -24,6 +24,8 @@ Dataset:
 
   orcidOfOwner: orcids
 
+  sourceFolder: absolute_remote_path
+
   # The schema for history is wrong, see
   # https://github.com/SciCatProject/scicat-backend-next/issues/584
   history: drop

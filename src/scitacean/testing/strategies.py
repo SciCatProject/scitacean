@@ -35,7 +35,7 @@ from typing import Any
 from email_validator import EmailNotValidError, ValidatedEmail, validate_email
 from hypothesis import strategies as st
 
-from .. import Dataset, DatasetType, model
+from .. import Dataset, DatasetType, RemotePath, model
 from .._internal.orcid import orcid_checksum
 
 
@@ -160,14 +160,23 @@ def _lifecycle_strategy(
     return st.sampled_from((None, model.Lifecycle()))
 
 
+def _source_folder_strategy(
+    field: Dataset.Field,
+) -> st.SearchStrategy[RemotePath]:
+    return st.from_type(RemotePath).map(
+        lambda p: (p if p.is_absolute() else RemotePath(f"/{p.posix}"))
+    )
+
+
 _SPECIAL_FIELDS = {
     "contact_email": _email_field_strategy,
     "history": lambda field: st.none(),
     "job_parameters": _job_parameters_strategy,
     "lifecycle": _lifecycle_strategy,
+    "meta": _scientific_metadata_strategy,
     "owner_email": _email_field_strategy,
     "orcid_of_owner": _orcid_field_strategy,
-    "meta": _scientific_metadata_strategy,
+    "source_folder": _source_folder_strategy,
 }
 
 

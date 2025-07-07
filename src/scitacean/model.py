@@ -92,6 +92,7 @@ from ._base_model import (
     BaseUserModel,
     DatasetType,
     construct,
+    validate_absolute_remote_path,
     validate_datetime,
     validate_emails,
     validate_orcids,
@@ -152,6 +153,10 @@ class DownloadDataset(BaseModel):
     updatedBy: str | None = None
     validationStatus: str | None = None
 
+    @pydantic.field_validator("sourceFolder", mode="before")
+    def _validate_absolute_remote_path(cls, value: Any) -> Any:
+        return validate_absolute_remote_path(value)
+
     @pydantic.field_validator(
         "creationTime", "createdAt", "endTime", "updatedAt", mode="before"
     )
@@ -203,6 +208,10 @@ class UploadDerivedDataset(BaseModel):
     sourceFolderHost: str | None = None
     techniques: list[UploadTechnique] | None = None
     validationStatus: str | None = None
+
+    @pydantic.field_validator("sourceFolder", mode="before")
+    def _validate_absolute_remote_path(cls, value: Any) -> Any:
+        return validate_absolute_remote_path(value)
 
     @pydantic.field_validator("creationTime", mode="before")
     def _validate_datetime(cls, value: Any) -> Any:
@@ -273,6 +282,10 @@ class UploadRawDataset(BaseModel):
             elif (pi := data.get("principalInvestigator")) is not None:
                 data["investigator"] = pi
         return data
+
+    @pydantic.field_validator("sourceFolder", mode="before")
+    def _validate_absolute_remote_path(cls, value: Any) -> Any:
+        return validate_absolute_remote_path(value)
 
     @pydantic.field_validator("creationTime", "endTime", mode="before")
     def _validate_datetime(cls, value: Any) -> Any:

@@ -18,6 +18,7 @@ import pydantic
 from dateutil.parser import parse as parse_datetime
 
 from ._internal.orcid import is_valid_orcid
+from .filesystem import RemotePath
 from .logging import get_logger
 
 try:
@@ -209,6 +210,21 @@ def validate_orcids(value: str | None) -> str | None:
         "value is not a valid ORCID, "
         "note that ORCIDs must be prefixed with 'https://orcid.org'."
     )
+
+
+def validate_absolute_remote_path(value: str | None) -> RemotePath | None:
+    if value is None:
+        return value
+    parsed = RemotePath(value)
+    if not parsed.is_absolute():
+        raise ValueError(
+            f"source_folder must be absolute, got '{value}'. "
+            "If the source folder is a relative path, the location of uploaded files "
+            "depends on the current working directory. This would mean that the files "
+            "can only be downloaded from the same working directory. "
+            "Please use an absolute path as `source_folder`."
+        )
+    return parsed
 
 
 @overload
