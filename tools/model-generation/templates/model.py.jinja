@@ -1,6 +1,9 @@
-{%- macro validations(fields) %}
+{%- macro validations(fields, kind) %}
 {%- for validation in ("absolute_remote_path", "datetime", "emails", "orcids") %}
 {%- set fields = fields|selectattr("validation", "eq", validation)|list -%}
+{%- if kind == "download" -%}
+    {%- set fields = fields|selectattr("validate_download")|list -%}
+{%- endif -%}
 {% if fields %}
 
     @pydantic.field_validator({{ fields|map("attr", "scicat_name")|map("quote")|join(", ") }}, mode="before")
@@ -112,7 +115,7 @@ class DownloadDataset(BaseModel):
 {%- for field in fields -%}
 {{ model_field(field, "download") }}
 {%- endfor %}
-{{- validations(fields) }}
+{{- validations(fields, "download") }}
 
 {% for dset_type in ("derived", "raw") %}
 {%- set fields = dset_spec.dset_fields_for("upload", dset_type) -%}
@@ -120,7 +123,7 @@ class Upload{{ dset_type|capitalize }}Dataset(BaseModel):
 {%- for field in fields -%}
 {{ model_field(field, "upload") }}
 {%- endfor %}
-{{- validations(fields) }}
+{{- validations(fields, "upload") }}
 
 {% endfor -%}
 
@@ -132,7 +135,7 @@ class {{ name }}(BaseModel):
 {% for field in fields -%}
 {{ model_field(field, kind) }}
 {%- endfor %}
-{{- validations(fields) }}
+{{- validations(fields, kind) }}
 
 {%- if spec.name not in ["DataFile", "Datablock", "OrigDatablock"] %}
     @classmethod

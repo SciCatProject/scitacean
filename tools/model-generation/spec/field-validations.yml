@@ -14,17 +14,17 @@ Dataset:
   endTime: datetime
   updatedAt: datetime
 
-  contactEmail: emails
-  ownerEmail: emails
+  contactEmail: { validation: emails, download: false }
+  ownerEmail: { validation: emails, download: false }
 
   numberOfFiles: size
   numberOfFilesArchived: size
   packedSize: size
   size: size
 
-  orcidOfOwner: orcids
+  orcidOfOwner:  { validation: orcids, download: false }
 
-  sourceFolder: absolute_remote_path
+  sourceFolder:  { validation: absolute_remote_path, download: false }
 
   # The schema for history is wrong, see
   # https://github.com/SciCatProject/scicat-backend-next/issues/584
