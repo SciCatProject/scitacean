@@ -1191,7 +1191,7 @@ class ScicatClient:
             # This turns the exception args into strings.
             # But we have little use of more structured errors, so that should be fine.
             raise type(exc)(
-                tuple(_strip_token(arg, token) for arg in exc.args)
+                *tuple(_strip_token(arg, token) for arg in exc.args)
             ) from None
 
     def _call_endpoint(
