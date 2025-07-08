@@ -7,7 +7,7 @@ from __future__ import annotations
 import uuid
 from typing import Any
 
-from pydantic import GetCoreSchemaHandler, ValidationError
+from pydantic import GetCoreSchemaHandler
 from pydantic_core import core_schema
 
 
@@ -124,11 +124,7 @@ class PID:
     @classmethod
     def validate(cls, value: str | PID) -> PID:
         """Pydantic validator for PID fields."""
-        if isinstance(value, str):
-            return PID.parse(value)
-        if isinstance(value, PID):
-            return value
-        raise ValidationError("expected a PID or str")
+        return PID.parse(value)
 
     @classmethod
     def __get_pydantic_core_schema__(
@@ -143,3 +139,19 @@ class PID:
                 cls.__str__, info_arg=False, return_schema=core_schema.str_schema()
             ),
         )
+
+
+try:
+    import hypothesis.strategies as st
+
+    st.register_type_strategy(
+        PID,
+        st.builds(
+            PID,
+            prefix=st.text(alphabet=st.characters(blacklist_characters="/"))
+            | st.none(),
+            pid=st.text(),
+        ),
+    )
+except ModuleNotFoundError:
+    pass

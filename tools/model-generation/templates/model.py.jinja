@@ -1,5 +1,5 @@
 {%- macro validations(fields) %}
-{%- for validation in ("datetime", "emails", "orcids") %}
+{%- for validation in ("absolute_remote_path", "datetime", "emails", "orcids") %}
 {%- set fields = fields|selectattr("validation", "eq", validation)|list -%}
 {% if fields %}
 
@@ -98,6 +98,7 @@ from ._base_model import (
     BaseUserModel,
     DatasetType,
     construct,
+    validate_absolute_remote_path,
     validate_datetime,
     validate_emails,
     validate_orcids,
