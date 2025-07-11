@@ -39,6 +39,7 @@ class SpecField:
     upload: bool = False
     download: bool = False
     validation: str | None = None
+    validate_download: bool = True
 
     def full_type_for(self, kind: Literal["download", "upload", "user"]) -> str:
         return (
@@ -327,7 +328,7 @@ def _postprocess_field_types(spec: Spec) -> Spec:
 
 
 @lru_cache
-def _field_validations() -> dict[str, dict[str, str]]:
+def _field_validations() -> dict[str, dict[str, str | dict[str, Any]]]:
     with open(Path(__file__).resolve().parent / "field-validations.yml") as f:
         return yaml.safe_load(f)
 
@@ -340,11 +341,21 @@ def _assign_validations(spec: Spec) -> Spec:
     spec = deepcopy(spec)
     for field_name, validation in validations[spec.name].items():
         if field_name in spec.fields:
-            if validation == "size":
-                spec.fields[field_name].type = "NonNegativeInt"
+            if isinstance(validation, str):
+                _assign_validation(spec.fields[field_name], validation, download=True)
             else:
-                spec.fields[field_name].validation = validation
+                _assign_validation(spec.fields[field_name], **validation)
     return spec
+
+
+def _assign_validation(
+    field: SpecField, validation: str, download: bool = True
+) -> None:
+    field.validate_download = download
+    if validation == "size":
+        field.type = "NonNegativeInt"
+    else:
+        field.validation = validation
 
 
 @lru_cache

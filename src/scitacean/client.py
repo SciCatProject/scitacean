@@ -1171,14 +1171,15 @@ class ScicatClient:
 
         if data is not None:
             headers["Content-Type"] = "application/json"
+            serialized_data = data.model_dump_json(exclude_none=True)
+        else:
+            serialized_data = None
 
         try:
             return httpx.request(
                 method=cmd,
                 url=url,
-                content=data.model_dump_json(exclude_none=True)
-                if data is not None
-                else None,
+                content=serialized_data,
                 params=params,
                 headers=headers,
                 timeout=self._timeout.seconds,
@@ -1190,7 +1191,7 @@ class ScicatClient:
             # This turns the exception args into strings.
             # But we have little use of more structured errors, so that should be fine.
             raise type(exc)(
-                tuple(_strip_token(arg, token) for arg in exc.args)
+                *tuple(_strip_token(arg, token) for arg in exc.args)
             ) from None
 
     def _call_endpoint(

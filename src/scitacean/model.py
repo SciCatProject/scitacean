@@ -153,23 +153,11 @@ class DownloadDataset(BaseModel):
     updatedBy: str | None = None
     validationStatus: str | None = None
 
-    @pydantic.field_validator("sourceFolder", mode="before")
-    def _validate_absolute_remote_path(cls, value: Any) -> Any:
-        return validate_absolute_remote_path(value)
-
     @pydantic.field_validator(
         "creationTime", "createdAt", "endTime", "updatedAt", mode="before"
     )
     def _validate_datetime(cls, value: Any) -> Any:
         return validate_datetime(value)
-
-    @pydantic.field_validator("contactEmail", "ownerEmail", mode="before")
-    def _validate_emails(cls, value: Any) -> Any:
-        return validate_emails(value)
-
-    @pydantic.field_validator("orcidOfOwner", mode="before")
-    def _validate_orcids(cls, value: Any) -> Any:
-        return validate_orcids(value)
 
 
 class UploadDerivedDataset(BaseModel):
