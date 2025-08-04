@@ -159,6 +159,28 @@ def test_upload_with_hard_link(tmp_path: Path, dataset: Dataset) -> None:
     assert local_dir.joinpath("text.txt").read_text() == "New content"
 
 
+def test_upload_does_not_overwrite_remote_file(
+    tmp_path: Path, dataset: Dataset
+) -> None:
+    remote_dir = tmp_path / "server"
+    remote_dir.mkdir()
+    remote_dir.joinpath("text.txt").write_text("Original remote")
+
+    local_dir = tmp_path / "user"
+    local_dir.mkdir()
+    local_dir.joinpath("text.txt").write_text("Local file")
+
+    dataset.source_folder = RemotePath.from_local(remote_dir)
+    copier = CopyFileTransfer()
+    with copier.connect_for_upload(dataset, RemotePath.from_local(tmp_path)) as con:
+        assert con.source_folder == dataset.source_folder
+        with pytest.raises(FileExistsError):
+            con.upload_files(
+                File.from_local(path=local_dir / "text.txt", remote_path="text.txt")
+            )
+    assert remote_dir.joinpath("text.txt").read_text() == "Original remote"
+
+
 def test_revert_one_uploaded_file(
     tmp_path: Path,
     dataset: Dataset,
