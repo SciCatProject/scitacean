@@ -8,6 +8,7 @@ from __future__ import annotations
 import dataclasses
 from collections.abc import Iterable
 from datetime import datetime
+from enum import StrEnum
 from typing import (
     Any,
     TypeVar,
@@ -20,28 +21,12 @@ from ._internal.orcid import is_valid_orcid
 from .filesystem import RemotePath
 from .logging import get_logger
 
-try:
-    # Python 3.11+
-    from enum import StrEnum
 
-    class DatasetType(StrEnum):
-        """Type of Dataset."""
+class DatasetType(StrEnum):
+    """Type of Dataset."""
 
-        RAW = "raw"
-        DERIVED = "derived"
-
-    del StrEnum
-
-except ImportError:
-    from enum import Enum
-
-    class DatasetType(str, Enum):  # type: ignore[no-redef]
-        """Enum representing the type of datasets."""
-
-        RAW = "raw"
-        DERIVED = "derived"
-
-    del Enum
+    RAW = "raw"
+    DERIVED = "derived"
 
 
 class BaseModel(pydantic.BaseModel):
