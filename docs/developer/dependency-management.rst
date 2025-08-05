@@ -2,15 +2,16 @@ Dependency management
 =====================
 
 Scitacean is a library, so the package dependencies are never pinned.
-But lower bounds are fine and individual versions can be excluded.
+But (correct) lower bounds are encouraged and individual versions can be excluded.
 See, e.g., `Should You Use Upper Bound Version Constraints <https://iscinumpy.dev/post/bound-version-constraints/>`_ for an explanation.
 
 Development dependencies [#0]_ are pinned to an exact version in order to ensure reproducibility.
-This is done by specifying packages and version constraints in ``requirements/*.in`` files and locking those dependencies using `pip-compile-multi <https://pip-compile-multi.readthedocs.io/en/latest/index.html>`_ to produce ``requirements/*.txt`` files.
-Those files are then used by `tox <https://tox.wiki/en/latest/>`_ to create isolated environments and run tests, build docs, etc.
+This is done automatically by `uv <https://docs.astral.sh/uv/>`_ whenever ``pyproject.toml`` is updated.
+Pins can be updated explicitly using
 
-tox can be cumbersome to use for local development.
-So ``requirements/dev.txt`` can be used to create a virtual environment with all dependencies.
+.. code-block:: bash
+
+    just lock
 
 .. rubric:: Footnotes
 
