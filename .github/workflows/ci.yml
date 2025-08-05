@@ -48,9 +48,8 @@ jobs:
           - {python: '3.13', os: ubuntu-24.04, command: test-all}
           - {python: '3.12', os: ubuntu-24.04, command: test-all}
           - {python: '3.11', os: ubuntu-24.04, command: test-all}
-          - {python: '3.10', os: ubuntu-24.04, command: test-all}
-          - {python: '3.10', os: macos-14, command: test}
-          - {python: '3.10', os: windows-2022, command: test}
+          - {python: '3.11', os: macos-14, command: test}
+          - {python: '3.11', os: windows-2022, command: test}
     uses: ./.github/workflows/test.yml
     with:
       os-variant: ${{ matrix.os }}
