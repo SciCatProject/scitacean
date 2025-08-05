@@ -21,20 +21,18 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering",
     "Typing :: Typed",
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
     "email-validator >= 2",
     "httpx >= 0.24",
     "pydantic >= 2",
     "python-dateutil >= 2.8",
-    "tomli >= 2.2.0",  # TODO remove when we drop py3.10
 ]
 
 [project.optional-dependencies]
