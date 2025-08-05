@@ -11,6 +11,7 @@ description = "High-level interface for SciCat"
 license = "BSD-3-Clause"
 license-files = ["LICENSE"]
 authors = [{ name = "Scitacean contributors" }]
+dynamic = ["version"]
 readme = "README.md"
 keywords = ["scicat"]
 classifiers = [
@@ -35,12 +36,6 @@ dependencies = [
     "python-dateutil >= 2.8",
     "tomli >= 2.2.0",  # TODO remove when we drop py3.10
 ]
-dynamic = ["version"]
-
-[project.urls]
-"Documentation" = "https://scicatproject.github.io/scitacean"
-"Bug Tracker" = "https://github.com/SciCatProject/scitacean/issues"
-"Source" = "https://github.com/SciCatProject/scitacean"
 
 [project.optional-dependencies]
 sftp = ["paramiko >= 3"]
@@ -49,6 +44,63 @@ test = [
     "hypothesis >= 6.48",
     "pyyaml >= 5"
 ]
+
+[dependency-groups]
+dev = [
+    {include-group = "format"},
+    {include-group = "lint"},
+    {include-group = "sftp"},
+    {include-group = "test"},
+    "jinja2",
+    "jupyterlab>=4.4.5",
+    "mypy",
+    "pytest-sugar",
+    "types-docutils",
+    "types-paramiko",
+    "types-python-dateutil",
+    "types-PyYAML",
+    "types-requests",
+]
+build = [
+    "build",
+]
+docs = [
+    "autodoc_pydantic",
+    "ipykernel",
+    "ipython!=8.7.0",  # Breaks syntax highlighting in Jupyter code cells.
+    "myst-parser",
+    "nbsphinx",
+    "pydata-sphinx-theme~=0.15",
+    "sphinx",
+    "sphinx-autodoc-typehints",
+    "sphinx-copybutton",
+    "sphinx-design",
+]
+format = [
+    "ruff",
+    "mdformat",
+    "nbstripout",
+]
+lint = [
+    "codespell",
+    "ruff",
+]
+sftp = ["paramiko >= 3"]
+test = [
+    "filelock[typing] >= 3",
+    "hypothesis >= 6.48",
+    "pyfakefs >= 5",
+    "pytest >= 7",
+    "pytest-randomly >= 3",
+    "pytest-socket >= 0.7",
+    "pytest-xdist >= 3",
+    "pyyaml >= 5",
+]
+
+[project.urls]
+"Documentation" = "https://scicatproject.github.io/scitacean"
+"Bug Tracker" = "https://github.com/SciCatProject/scitacean/issues"
+"Source" = "https://github.com/SciCatProject/scitacean"
 
 [tool.setuptools_scm]
 
@@ -130,3 +182,4 @@ ignore-words-list = [
     "specfield",
     "socio-economic",
 ]
+skip = "build,docs/generated"

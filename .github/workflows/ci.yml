@@ -13,10 +13,16 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-      - run: python -m pip install --upgrade pip
-      - run: python -m pip install -r requirements/ci.txt
-      - run: tox -e static
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+      - name: Install Just
+        uses: extractions/setup-just@v3
+      - name: Install pre-commit
+        run: uv tool install pre-commit --with pre-commit-uv
+      # The first run of pre-commit may reformat files. If this happens, it returns 1 but this
+      # should not fail the job. So just run again if it fails. A second failure means that
+      # either the different formatters can't agree on a format or that static analysis failed.
+      - run: pre-commit run -a || pre-commit run -a
       - uses: stefanzweifel/git-auto-commit-action@v6
         with:
           commit_message: Apply automatic formatting
@@ -27,12 +33,15 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
         with:
-          python-version: 3.11
-      - run: python -m pip install --upgrade pip
-      - run: python -m pip install -r requirements/ci.txt
-      - run: tox -e mypy
+          entrypoint: "3.11" # TODO remove once we drop Python 3.10
+      # TODO remove once we drop Python 3.10
+      - run: uv python pin 3.11
+      - name: Install Just
+        uses: extractions/setup-just@v3
+      - run: just mypy
 
   tests:
     name: Tests
@@ -40,17 +49,17 @@ jobs:
     strategy:
       matrix:
         include:
-          - {python: '3.13', os: ubuntu-24.04, tox: py313-full}
-          - {python: '3.12', os: ubuntu-24.04, tox: py312-full}
-          - {python: '3.11', os: ubuntu-24.04, tox: py311-full}
-          - {python: '3.10', os: ubuntu-24.04, tox: py310-full}
-          - {python: '3.10', os: macos-14, tox: py310}
-          - {python: '3.10', os: windows-2022, tox: py310}
+          - {python: '3.13', os: ubuntu-24.04, command: test-all}
+          - {python: '3.12', os: ubuntu-24.04, command: test-all}
+          - {python: '3.11', os: ubuntu-24.04, command: test-all}
+          - {python: '3.10', os: ubuntu-24.04, command: test-all}
+          - {python: '3.10', os: macos-14, command: test}
+          - {python: '3.10', os: windows-2022, command: test}
     uses: ./.github/workflows/test.yml
     with:
       os-variant: ${{ matrix.os }}
       python-version: ${{ matrix.python }}
-      tox-env: ${{ matrix.tox }}
+      command: ${{ matrix.command }}
     secrets: inherit
 
   docs:

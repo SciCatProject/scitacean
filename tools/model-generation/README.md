@@ -19,6 +19,7 @@ So you need to launch SciCat locally.
 The generator can launch a SciCat backend itself using docker.
 This requires that Scitacean is importable.
 If so, run it with
+
 ```shell
 python generate_models.py --launch-scicat
 ```
@@ -36,16 +37,19 @@ For this, clone the backend repo or download the source code for a release from 
 In this repository, launch a docker container and build SciCat as described in their README or by following these steps:
 
 Launch container:
+
 ```shell
 docker compose -f ./docker-compose.dev.yaml up
 ```
 
 Find container hash:
+
 ```shell
 docker container ls
 ```
 
 Build and start SciCat:
+
 ```shell
 docker exec <container-hash> npm run start:dev
 ```
@@ -54,6 +58,7 @@ Now, the schemas should be accessible under http://localhost:3000/explorer-json
 The port may vary if the configuration in docker-compose.dev.yaml changes.
 
 Finally, run the generator with
+
 ```shell
 python generate_models.py
 ```
