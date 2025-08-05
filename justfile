@@ -1,9 +1,19 @@
 _default:
     @just --list
 
+# --- Testing ---
+
+alias t := test-all
+
+test-all *args:
+    @uv run --group=test --group=sftp pytest --backend-tests --sftp-tests {{args}}
+
+test *args:
+    @uv run --group=test pytest {{args}}
+
 # --- Formatting ---
 
-alias f:= format
+alias f := format
 
 # Format files
 format *files: (format-python files)

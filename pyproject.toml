@@ -49,9 +49,20 @@ test = [
 dev = [
     {include-group = "format"},
     {include-group = "lint"},
+    {include-group = "sftp"},
     {include-group = "test"},
+    "jinja2",
     "jupyterlab>=4.4.5",
     "mypy",
+    "pytest-sugar",
+    "types-docutils",
+    "types-paramiko",
+    "types-python-dateutil",
+    "types-PyYAML",
+    "types-requests",
+]
+build = [
+    "build",
 ]
 format = [
     "ruff",
@@ -62,8 +73,16 @@ lint = [
     "codespell",
     "ruff",
 ]
+sftp = ["paramiko >= 3"]
 test = [
-
+    "filelock[typing] >= 3",
+    "hypothesis >= 6.48",
+    "pyfakefs >= 5",
+    "pytest >= 7",
+    "pytest-randomly >= 3",
+    "pytest-socket >= 0.7",
+    "pytest-xdist >= 3",
+    "pyyaml >= 5",
 ]
 
 [project.urls]
