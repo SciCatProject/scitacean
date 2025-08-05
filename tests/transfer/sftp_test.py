@@ -211,6 +211,41 @@ def test_upload_one_file_existing_source_folder(
     )
 
 
+def test_upload_does_not_overwrite_remote_file(
+    sftp_access,
+    sftp_connect_with_username_password,
+    tmp_path,
+    sftp_data_dir,
+    dataset: Dataset,
+) -> None:
+    sftp = SFTPFileTransfer(
+        host=sftp_access.host,
+        port=sftp_access.port,
+        connect=sftp_connect_with_username_password,
+    )
+    ds = Dataset(type="raw", source_folder=RemotePath("/data/upload_overwrite"))
+
+    # Create the initial remote file
+    tmp_path.joinpath("file0.txt").write_text("Initial file")
+    with sftp.connect_for_upload(ds, RemotePath("/data/upload_overwrite")) as con:
+        con.upload_files(
+            File.from_local(path=tmp_path / "file0.txt", remote_path="file0.txt")
+        )
+
+    # Attempt to overwrite
+    tmp_path.joinpath("file0.txt").write_text("Replacement")
+    with sftp.connect_for_upload(ds, RemotePath("/data/upload_overwrite")) as con:
+        with pytest.raises(FileExistsError):
+            con.upload_files(
+                File.from_local(path=tmp_path / "file0.txt", remote_path="file0.txt")
+            )
+
+    assert (
+        sftp_data_dir.joinpath("upload_overwrite", "file0.txt").read_text()
+        == "Initial file"
+    )
+
+
 def test_revert_all_uploaded_files_single(
     sftp_access, sftp_connect_with_username_password, tmp_path, sftp_data_dir
 ):

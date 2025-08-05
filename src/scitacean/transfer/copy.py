@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2025 SciCat Project (https://github.com/SciCatProject/scitacean)
-"""File transfer that copies file between locations on the same filesystem."""
+"""File transfer that copies files between locations on the same filesystem."""
 
 import os
 import shutil
@@ -98,6 +98,12 @@ class CopyUploadConnection:
                 f"Cannot upload file to {file.remote_path}, the file has no local path"
             )
         remote_path = self.remote_path(file.remote_path)
+        if Path(remote_path.posix).exists():
+            raise FileExistsError(
+                f"Refusing to upload file{file.local_path}: "
+                f"File already exists at {remote_path}."
+            )
+
         get_logger().info(
             "Copying file %s to %s",
             file.local_path,

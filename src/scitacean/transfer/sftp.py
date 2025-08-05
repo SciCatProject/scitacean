@@ -99,6 +99,11 @@ class SFTPUploadConnection:
                 f"Cannot upload file to {file.remote_path}, the file has no local path"
             )
         remote_path = self.remote_path(file.remote_path)
+        if _remote_file_exists(self._sftp_client, remote_path):
+            raise FileExistsError(
+                f"Refusing to upload file{file.local_path}: "
+                f"File already exists at {remote_path}."
+            )
         get_logger().info(
             "Uploading file %s to %s on host %s",
             file.local_path,
@@ -449,6 +454,10 @@ def _is_remote_dir(st_stat: SFTPAttributes) -> bool:
     if st_stat.st_mode is None:
         return True  # Assume it is a dir and let downstream code fail if it isn't.
     return st_stat.st_mode & 0o040000 == 0o040000
+
+
+def _remote_file_exists(sftp: SFTPClient, path: RemotePath) -> bool:
+    return _try_remote_stat(sftp, path) is not None
 
 
 __all__ = ["SFTPDownloadConnection", "SFTPFileTransfer", "SFTPUploadConnection"]
