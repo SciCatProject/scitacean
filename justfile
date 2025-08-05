@@ -5,9 +5,11 @@ _default:
 
 alias t := test-all
 
+# Run all tests
 test-all *args:
     @uv run --group=test --group=sftp pytest --backend-tests --sftp-tests {{args}}
 
+# Run basic tests
 test *args:
     @uv run --group=test pytest {{args}}
 
@@ -44,6 +46,25 @@ spell *files:
 # Type-check with Mypy
 mypy *args='.':
     @uv run --group=dev mypy {{args}}
+
+# --- Docs ---
+
+# Build and test the documentation
+docs: docs-build
+    @uv run --group=docs python -m sphinx -v -j2 -b doctest -d build/.doctrees docs html
+    @uv run --group=docs python -m sphinx -v -j2 -b linkcheck -d build/.doctrees docs html
+    @find html -type f -name "*.ipynb" -not -path "html/_sources/*" -delete
+
+# Build the documentation
+docs-build:
+    @uv run --group=docs python -m sphinx -v -j2 -b html -d build/.doctrees docs html
+    @find html -type f -name "*.ipynb" -not -path "html/_sources/*" -delete
+
+# Remove all documentation artifacts (intermediate and final)
+clean-docs:
+    rm -rf docs/generated
+    rm -rf build/.doctrees
+    rm -rf html
 
 # --- Other ---
 
