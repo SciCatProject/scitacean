@@ -37,6 +37,8 @@ jobs:
         uses: astral-sh/setup-uv@v6
         with:
           entrypoint: "3.11" # TODO remove once we drop Python 3.10
+      # TODO remove once we drop Python 3.10
+      - run: uv python pin 3.11
       - name: Install Just
         uses: extractions/setup-just@v3
       - run: just mypy
