@@ -74,3 +74,7 @@ strip-output *notebooks:
       --drop-empty-cells \
       --extra-keys 'metadata.language_info.version cell.metadata.jp-MarkdownHeadingCollapsed cell.metadata.pycharm' \
       {{notebooks}}
+
+# Lock dependencies
+lock:
+    @uv lock

@@ -3,7 +3,7 @@ repos:
     hooks:
       - id: uv-lock
         name: lock dependencies
-        entry: uv lock
+        entry: just lock
         language: system
         files: ^(uv\.lock|pyproject\.toml|uv\.toml)$
         pass_filenames: false
