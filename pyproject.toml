@@ -180,4 +180,4 @@ ignore-words-list = [
     "specfield",
     "socio-economic",
 ]
-skip = "build,docs/generated"
+skip = "build,docs/generated,html"
