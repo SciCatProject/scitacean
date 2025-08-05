@@ -52,6 +52,8 @@ jobs:
         uses: astral-sh/setup-uv@v6
         with:
           entrypoint: "${{ inputs.python-version }}"
+      - name: Pin Python version
+        run: uv python pin ${{ inputs.python-version }}
       - name: Install Just
         uses: extractions/setup-just@v3
       - run: just ${{ inputs.command }}
