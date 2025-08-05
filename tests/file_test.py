@@ -2,7 +2,7 @@
 # Copyright (c) 2025 SciCat Project (https://github.com/SciCatProject/scitacean)
 import hashlib
 from dataclasses import replace
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -280,7 +280,7 @@ def test_creation_time_is_up_to_date(
         f.write(b"some new content to update time stamp")
     new_creation_time = datetime.fromtimestamp(
         fake_file["path"].stat().st_mtime
-    ).astimezone(timezone.utc)
+    ).astimezone(UTC)
     assert file.creation_time == new_creation_time
 
 

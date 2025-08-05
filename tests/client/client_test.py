@@ -5,7 +5,7 @@ import base64
 import json
 import pickle
 import time
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import pytest
@@ -96,7 +96,7 @@ def encode_jwt_part(part: dict[str, Any]) -> str:
 
 
 def make_token(exp_in: timedelta) -> str:
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     exp = now + exp_in
 
     # This is what a SciCat token looks like as of 2024-04-19

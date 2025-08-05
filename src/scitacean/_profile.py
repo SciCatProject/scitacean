@@ -2,10 +2,9 @@
 # Copyright (c) 2025 SciCat Project (https://github.com/SciCatProject/scitacean)
 """Profiles for connecting to SciCat."""
 
+import tomllib
 from dataclasses import dataclass
 from pathlib import Path
-
-import tomli
 
 from .transfer.copy import CopyFileTransfer
 from .transfer.link import LinkFileTransfer
@@ -111,7 +110,7 @@ def _ess_file_transfer() -> FileTransfer:
 
 def _load_profile_from_file(name: str | Path) -> Profile:
     with open(name, "rb") as file:
-        contents = tomli.load(file)
+        contents = tomllib.load(file)
         return Profile(url=contents["url"], file_transfer=None)
 
 

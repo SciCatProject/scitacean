@@ -6,7 +6,7 @@ import os
 import shutil
 from collections.abc import Iterator
 from contextlib import contextmanager
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from ..dataset import Dataset
@@ -117,7 +117,7 @@ class CopyUploadConnection:
         return file.uploaded(
             remote_gid=str(st.st_gid),
             remote_uid=str(st.st_uid),
-            remote_creation_time=datetime.now().astimezone(timezone.utc),
+            remote_creation_time=datetime.now().astimezone(UTC),
             remote_perm=str(st.st_mode),
             remote_size=st.st_size,
         )

@@ -5,7 +5,7 @@
 # These tests use Dataset instead of DatasetFields in order to test the
 # public interface and make sure that Dataset does not break any behavior.
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import dateutil.parser
 import pydantic
@@ -54,7 +54,7 @@ def test_init_dataset_needs_type() -> None:
 
 
 def test_init_dataset_sets_creation_time() -> None:
-    expected = datetime.now(tz=timezone.utc)
+    expected = datetime.now(tz=UTC)
     dset = Dataset(type="raw")
     assert dset.creation_time is not None
     assert abs(dset.creation_time - expected) < timedelta(seconds=30)
@@ -77,9 +77,7 @@ def test_init_dataset_can_set_creation_time() -> None:
 
     dset = Dataset(type="derived", creation_time="now")
     assert dset.creation_time is not None
-    assert abs(dset.creation_time - datetime.now(tz=timezone.utc)) < timedelta(
-        seconds=30
-    )
+    assert abs(dset.creation_time - datetime.now(tz=UTC)) < timedelta(seconds=30)
 
 
 @pytest.mark.parametrize("field", Dataset.fields(read_only=True), ids=lambda f: f.name)

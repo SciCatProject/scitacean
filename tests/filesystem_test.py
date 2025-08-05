@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2025 SciCat Project (https://github.com/SciCatProject/scitacean)
 import hashlib
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path, PurePath, PurePosixPath, PureWindowsPath
 from typing import Any
 
@@ -189,7 +189,7 @@ def test_file_size(fs: FakeFilesystem, size: int) -> None:
 
 def test_file_modification_time(fs: FakeFilesystem) -> None:
     fs.create_file("data.dat")
-    expected = datetime.now(tz=timezone.utc)
+    expected = datetime.now(tz=UTC)
     assert abs(file_modification_time(Path("data.dat")) - expected) < timedelta(
         seconds=5
     )

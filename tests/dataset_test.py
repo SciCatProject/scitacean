@@ -2,7 +2,7 @@
 # Copyright (c) 2025 SciCat Project (https://github.com/SciCatProject/scitacean)
 # mypy: disable-error-code="arg-type, union-attr"
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -456,7 +456,7 @@ def test_make_scicat_models_datablock_with_one_file(dataset: Dataset) -> None:
         size=6163,
         chk="8450ac0",
         gid="group",
-        time=datetime.now(tz=timezone.utc),
+        time=datetime.now(tz=UTC),
     )
     dataset.add_files(File.from_download_model(local_path=None, model=file_model))
 
@@ -621,7 +621,7 @@ def test_eq_self(dset: Dataset) -> None:
         File.from_download_model(
             local_path=None,
             model=model.DownloadDataFile(
-                path="path", size=94571, time=datetime.now(tz=timezone.utc)
+                path="path", size=94571, time=datetime.now(tz=UTC)
             ),
         )
     )
@@ -667,7 +667,7 @@ def test_neq_single_mismatched_file(initial: Dataset) -> None:
         File.from_download_model(
             local_path=None,
             model=model.DownloadDataFile(
-                path="path", size=51553312, time=datetime.now(tz=timezone.utc)
+                path="path", size=51553312, time=datetime.now(tz=UTC)
             ),
         )
     )
@@ -675,7 +675,7 @@ def test_neq_single_mismatched_file(initial: Dataset) -> None:
         File.from_download_model(
             local_path=None,
             model=model.DownloadDataFile(
-                path="path", size=94571, time=datetime.now(tz=timezone.utc)
+                path="path", size=94571, time=datetime.now(tz=UTC)
             ),
         )
     )
@@ -691,7 +691,7 @@ def test_neq_extra_file(initial: Dataset) -> None:
         File.from_download_model(
             local_path="/local",
             model=model.DownloadDataFile(
-                path="path", size=51553312, time=datetime.now(tz=timezone.utc)
+                path="path", size=51553312, time=datetime.now(tz=UTC)
             ),
         )
     )
@@ -828,9 +828,7 @@ def test_replace_does_not_change_files_no_input_files(initial: Dataset) -> None:
 def test_replace_does_not_change_files_with_input_files(initial: Dataset) -> None:
     file = File.from_download_model(
         local_path=None,
-        model=model.DownloadDataFile(
-            path="path", size=6163, time=datetime.now(tz=timezone.utc)
-        ),
+        model=model.DownloadDataFile(path="path", size=6163, time=datetime.now(tz=UTC)),
     )
     initial.add_files(file)
     replaced = initial.replace(owner="a-new-owner")
@@ -911,7 +909,7 @@ def test_as_new(initial: Dataset) -> None:
     assert new.updated_by is None
     assert new.lifecycle is None
     assert new.creation_time is not None
-    assert abs(new.creation_time - datetime.now(tz=timezone.utc)) < timedelta(seconds=1)
+    assert abs(new.creation_time - datetime.now(tz=UTC)) < timedelta(seconds=1)
 
     assert new.number_of_files == initial.number_of_files
     assert new.size == initial.size

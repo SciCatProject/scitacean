@@ -330,7 +330,7 @@ def _process_data_file(file: model.UploadDataFile) -> model.DownloadDataFile:
 def _process_dataset(
     dset: model.UploadDerivedDataset | model.UploadRawDataset,
 ) -> model.DownloadDataset:
-    created_at = datetime.datetime.now(tz=datetime.timezone.utc)
+    created_at = datetime.datetime.now(tz=datetime.UTC)
     # TODO use user login if possible
     # Using strict_validation=False because the input model should already be validated.
     # If there are validation errors, it was probably intended by the user.
@@ -364,7 +364,7 @@ def _process_orig_datablock(
     dblock: model.UploadOrigDatablock,
     dset: model.DownloadDataset,
 ) -> model.DownloadOrigDatablock:
-    created_at = datetime.datetime.now(tz=datetime.timezone.utc)
+    created_at = datetime.datetime.now(tz=datetime.UTC)
     # TODO use user login if possible
     # TODO more fields
     # Using strict_validation=False because the input model should already be validated.
@@ -389,7 +389,7 @@ def _process_orig_datablock(
 def _process_attachment(
     attachment: model.UploadAttachment, dataset_id: PID | None = None
 ) -> model.DownloadAttachment:
-    created_at = datetime.datetime.now(tz=datetime.timezone.utc)
+    created_at = datetime.datetime.now(tz=datetime.UTC)
     fields = _model_dict(attachment)
     if fields.get("id") is None:
         fields["id"] = str(uuid.uuid4())
@@ -409,7 +409,7 @@ def _process_attachment(
 
 
 def _process_sample(sample: model.UploadSample) -> model.DownloadSample:
-    created_at = datetime.datetime.now(tz=datetime.timezone.utc)
+    created_at = datetime.datetime.now(tz=datetime.UTC)
     fields = _model_dict(sample)
     if fields.get("sampleId") is None:
         fields["sampleId"] = str(uuid.uuid4())

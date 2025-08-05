@@ -12,7 +12,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any, ClassVar, Literal, TypeVar
 
 import dateutil.parser
@@ -40,7 +40,7 @@ def _parse_datetime(x: datetime | str | None) -> datetime | None:
     if isinstance(x, datetime) or x is None:
         return x
     if x == "now":
-        return datetime.now(tz=timezone.utc)
+        return datetime.now(tz=UTC)
     return dateutil.parser.parse(x)
 
 

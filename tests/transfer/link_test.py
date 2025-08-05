@@ -3,7 +3,7 @@
 
 import hashlib
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import cast
 
@@ -130,7 +130,7 @@ def test_client_with_link(tmp_path: Path) -> None:
         accessGroups=["group1"],
         contactEmail="p.stibbons@uu.am",
         creationLocation="UU",
-        creationTime=datetime(2023, 6, 23, 10, 0, 0, tzinfo=timezone.utc),
+        creationTime=datetime(2023, 6, 23, 10, 0, 0, tzinfo=UTC),
         numberOfFiles=1,
         numberOfFilesArchived=0,
         owner="PonderStibbons",
@@ -147,7 +147,7 @@ def test_client_with_link(tmp_path: Path) -> None:
                 path="file1.txt",
                 size=len(content),
                 chk=checksum,
-                time=datetime(2023, 6, 23, 10, 0, 0, tzinfo=timezone.utc),
+                time=datetime(2023, 6, 23, 10, 0, 0, tzinfo=UTC),
             )
         ],
         datasetId=ds.pid,
@@ -189,7 +189,7 @@ def test_client_with_link_local_file_exists(tmp_path: Path) -> None:
         accessGroups=["group1"],
         contactEmail="p.stibbons@uu.am",
         creationLocation="UU",
-        creationTime=datetime(2023, 6, 23, 10, 0, 0, tzinfo=timezone.utc),
+        creationTime=datetime(2023, 6, 23, 10, 0, 0, tzinfo=UTC),
         numberOfFiles=1,
         numberOfFilesArchived=0,
         owner="PonderStibbons",
@@ -206,7 +206,7 @@ def test_client_with_link_local_file_exists(tmp_path: Path) -> None:
                 path="file1.txt",
                 size=len(content),
                 chk=checksum,
-                time=datetime(2023, 6, 23, 10, 0, 0, tzinfo=timezone.utc),
+                time=datetime(2023, 6, 23, 10, 0, 0, tzinfo=UTC),
             )
         ],
         datasetId=ds.pid,
