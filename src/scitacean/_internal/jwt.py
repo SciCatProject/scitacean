@@ -4,7 +4,7 @@
 
 import base64
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import cast
 
 
@@ -21,7 +21,7 @@ def expiry(token: str) -> datetime:
     _, payload, _ = decode(token)
     # 'exp' should always be given in UTC. Since we have no way of checking that,
     # assume that it is the case.
-    return datetime.fromtimestamp(float(payload["exp"]), tz=timezone.utc)
+    return datetime.fromtimestamp(float(payload["exp"]), tz=UTC)
 
 
 def _decode_part(s: str) -> dict[str, str | int]:

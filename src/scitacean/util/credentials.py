@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import NoReturn
 
 from .._internal.jwt import expiry
@@ -87,7 +87,7 @@ class ExpiringToken(StrStorage):
         try:
             expires_at = expiry(value_str)
         except ValueError:
-            expires_at = datetime.now(tz=timezone.utc) + timedelta(weeks=100)
+            expires_at = datetime.now(tz=UTC) + timedelta(weeks=100)
         return cls(
             value=value,
             expires_at=expires_at,

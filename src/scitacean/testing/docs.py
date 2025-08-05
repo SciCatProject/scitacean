@@ -4,7 +4,7 @@ Utilities for the documentation.
 Should probably not be used externally.
 """
 
-from dateutil.parser import parse as parse_date
+from datetime import datetime
 
 from ..filesystem import RemotePath
 from ..model import (
@@ -37,14 +37,14 @@ def _create_raw_dataset(client: FakeClient) -> None:
         description="Measured the thaum flux",
         createdBy="Ponder Stibbons",
         updatedBy="anonymous",
-        updatedAt=parse_date("2022-11-01T13:22:08.927Z"),
-        createdAt=parse_date("2022-08-17T14:20:23.675Z"),
+        updatedAt=datetime.fromisoformat("2022-11-01T13:22:08.927Z"),
+        createdAt=datetime.fromisoformat("2022-08-17T14:20:23.675Z"),
         owner="Ponder Stibbons",
         ownerGroup="uu",
         accessGroups=["faculty"],
         principalInvestigator="p.stibbons@uu.am",
         contactEmail="p.stibbons@uu.am",
-        creationTime=parse_date("2022-06-29T14:01:05.000Z"),
+        creationTime=datetime.fromisoformat("2022-06-29T14:01:05.000Z"),
         creationLocation="UnseenUniversity",
         numberOfFiles=2,
         size=len(content1) + len(content2),
@@ -66,12 +66,12 @@ def _create_raw_dataset(client: FakeClient) -> None:
                 DownloadDataFile(
                     path="flux.dat",
                     size=len(content1),
-                    time=parse_date("2022-08-17T13:54:12Z"),
+                    time=datetime.fromisoformat("2022-08-17T13:54:12Z"),
                 ),
                 DownloadDataFile(
                     path="logs/measurement.log",
                     size=len(content2),
-                    time=parse_date("2022-08-17T13:55:21Z"),
+                    time=datetime.fromisoformat("2022-08-17T13:55:21Z"),
                 ),
             ],
         )

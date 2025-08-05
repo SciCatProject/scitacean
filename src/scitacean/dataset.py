@@ -9,7 +9,7 @@ import itertools
 import os
 from collections import Counter
 from collections.abc import Generator, Iterable
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any, Literal, TypeVar
 
 from ._base_model import convert_download_to_user_model, convert_user_to_upload_model
@@ -410,7 +410,7 @@ class Dataset(DatasetBase):
         """
         return self.replace(
             _read_only={field.name: None for field in Dataset.fields(read_only=True)},
-            creation_time=datetime.now(tz=timezone.utc),
+            creation_time=datetime.now(tz=UTC),
         )
 
     def derive(
@@ -454,7 +454,7 @@ class Dataset(DatasetBase):
         return Dataset(
             type=DatasetType.DERIVED,
             input_datasets=[self.pid],
-            creation_time=datetime.now(tz=timezone.utc),
+            creation_time=datetime.now(tz=UTC),
             **{name: getattr(self, name) for name in keep},
         )
 

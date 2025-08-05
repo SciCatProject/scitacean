@@ -14,7 +14,7 @@ from __future__ import annotations
 import hashlib
 import os
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path, PurePath
 from typing import Any, TypeVar
 
@@ -218,7 +218,7 @@ def file_size(path: Path) -> int:
 
 def file_modification_time(path: Path) -> datetime:
     """Return the time in UTC when a local file was last modified."""
-    return datetime.fromtimestamp(path.stat().st_mtime).astimezone(timezone.utc)
+    return datetime.fromtimestamp(path.stat().st_mtime).astimezone(UTC)
 
 
 def _new_hash(algorithm: str) -> Any:

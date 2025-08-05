@@ -2,7 +2,7 @@
 # Copyright (c) 2025 SciCat Project (https://github.com/SciCatProject/scitacean)
 
 import hashlib
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -23,7 +23,7 @@ def make_file(
     fs.create_file(path, contents=contents)
     # Not exact but should at least be precise to the second
     # and avoids potential difficulties of querying the file system.
-    creation_time = datetime.now().astimezone(timezone.utc)
+    creation_time = datetime.now().astimezone(UTC)
 
     return {
         "path": path,

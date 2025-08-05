@@ -7,7 +7,6 @@ from datetime import datetime
 from typing import cast
 
 import pytest
-from dateutil.parser import parse as parse_date
 from pyfakefs.fake_filesystem import FakeFilesystem
 
 from scitacean import (
@@ -41,7 +40,7 @@ def dataset() -> Dataset:
         investigator="ridcully@uu.am",
         contact_email="p.stibbons@uu.am",
         source_folder="/hex/source123",
-        creation_time=parse_date("2011-08-24T12:34:56Z"),
+        creation_time=datetime.fromisoformat("2011-08-24T12:34:56Z"),
         input_datasets=[],
         name="Data A38",
         owner="PonderStibbons",

@@ -7,11 +7,9 @@ from __future__ import annotations
 import dataclasses
 import os
 import warnings
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import NoReturn, cast
-
-import dateutil.parser
 
 from .error import IntegrityError
 from .filesystem import RemotePath, checksum_of_file, file_modification_time, file_size
@@ -134,7 +132,7 @@ class File:
             Size in bytes on the remote filesystem.
         creation_time:
             Date and time the file was created on the remote filesystem.
-            If a ``str``, it is parsed using ``dateutil.parser.parse``.
+            If a ``str``, it is parsed using :meth:`datetime.datetime.fromisoformat`.
         checksum:
             Checksum of the file.
         checksum_algorithm:
@@ -163,7 +161,7 @@ class File:
         creation_time = (
             creation_time
             if isinstance(creation_time, datetime)
-            else dateutil.parser.parse(creation_time)
+            else datetime.fromisoformat(creation_time)
         )
         return File(
             local_path=None,
@@ -367,7 +365,7 @@ class File:
             A new file object.
         """
         if remote_creation_time is None:
-            remote_creation_time = datetime.now().astimezone(timezone.utc)
+            remote_creation_time = datetime.now().astimezone(UTC)
         args = {
             "remote_path": RemotePath(remote_path) if remote_path is not None else None,
             "remote_gid": remote_gid,
@@ -487,4 +485,4 @@ class _Checksum:
         self._value = checksum_of_file(path, algorithm=algorithm)
         self._path = path
         self._algorithm = algorithm
-        self._access_time = datetime.now(tz=timezone.utc)
+        self._access_time = datetime.now(tz=UTC)

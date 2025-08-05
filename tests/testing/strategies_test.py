@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2025 SciCat Project (https://github.com/SciCatProject/scitacean)
-from dateutil.parser import parse as parse_datetime
+from datetime import datetime
+
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
@@ -31,7 +32,7 @@ def test_datasets_can_set_type_to_derived(dset: Dataset) -> None:
         name="my-dataset-name",
         access_groups=["group1", "another-group"],
         source_folder="/the/source/of/truth",
-        created_at=parse_datetime("2123-11-29T17:44:56Z"),
+        created_at=datetime.fromisoformat("2123-11-29T17:44:56Z"),
         pid=PID(prefix="prefix", pid="some-id"),
         description=None,
     )
@@ -40,7 +41,7 @@ def test_datasets_can_fix_fields(dset: Dataset) -> None:
     assert dset.name == "my-dataset-name"
     assert dset.access_groups == ["group1", "another-group"]
     assert dset.source_folder == "/the/source/of/truth"
-    assert dset.created_at == parse_datetime("2123-11-29T17:44:56Z")
+    assert dset.created_at == datetime.fromisoformat("2123-11-29T17:44:56Z")
     assert dset.pid == PID(prefix="prefix", pid="some-id")
     assert dset.description is None
 

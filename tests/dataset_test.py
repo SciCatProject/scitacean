@@ -2,11 +2,10 @@
 # Copyright (c) 2025 SciCat Project (https://github.com/SciCatProject/scitacean)
 # mypy: disable-error-code="arg-type, union-attr"
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
-from dateutil.parser import parse as parse_datetime
 from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 from pyfakefs.fake_filesystem import FakeFilesystem
@@ -23,7 +22,7 @@ def raw_download_model() -> model.DownloadDataset:
     return model.DownloadDataset(
         contactEmail="p.stibbons@uu.am",
         creationLocation="UnseenUniversity",
-        creationTime=parse_datetime("1995-08-06T14:14:14Z"),
+        creationTime=datetime.fromisoformat("1995-08-06T14:14:14Z"),
         inputDatasets=None,
         numberOfFilesArchived=None,
         owner="pstibbons",
@@ -36,12 +35,12 @@ def raw_download_model() -> model.DownloadDataset:
         version="3",
         classification="IN=medium,AV=low,CO=low",
         comment="Where did this come from?",
-        createdAt=parse_datetime("1995-08-06T14:14:14Z"),
+        createdAt=datetime.fromisoformat("1995-08-06T14:14:14Z"),
         createdBy="pstibbons",
         dataFormat=".thaum",
         dataQualityMetrics=24,
         description="Some shady data",
-        endTime=parse_datetime("1995-08-03T00:00:00Z"),
+        endTime=datetime.fromisoformat("1995-08-03T00:00:00Z"),
         instrumentGroup="professors",
         instrumentId="0000-aa",
         isPublished=True,
@@ -60,7 +59,7 @@ def raw_download_model() -> model.DownloadDataset:
         sharedWith=["librarian"],
         size=400,
         sourceFolderHost="ftp://uu.am/data",
-        updatedAt=parse_datetime("1995-08-06T17:30:18Z"),
+        updatedAt=datetime.fromisoformat("1995-08-06T17:30:18Z"),
         updatedBy="librarian",
         validationStatus="ok",
         datasetlifecycle=model.DownloadLifecycle(
@@ -91,7 +90,7 @@ def derived_download_model() -> model.DownloadDataset:
     return model.DownloadDataset(
         contactEmail="p.stibbons@uu.am",
         creationLocation=None,
-        creationTime=parse_datetime("1995-08-06T14:14:14Z"),
+        creationTime=datetime.fromisoformat("1995-08-06T14:14:14Z"),
         inputDatasets=[PID.parse("123.cc/948.f7.2a")],
         numberOfFilesArchived=None,
         owner="pstibbons",
@@ -104,7 +103,7 @@ def derived_download_model() -> model.DownloadDataset:
         version="3",
         classification="IN=medium,AV=low,CO=low",
         comment="Why did we actually make this data?",
-        createdAt=parse_datetime("1995-08-06T14:14:14Z"),
+        createdAt=datetime.fromisoformat("1995-08-06T14:14:14Z"),
         createdBy="pstibbons",
         dataFormat=None,
         dataQualityMetrics=24,
@@ -128,7 +127,7 @@ def derived_download_model() -> model.DownloadDataset:
         sharedWith=["librarian"],
         size=400,
         sourceFolderHost="ftp://uu.am/data",
-        updatedAt=parse_datetime("1995-08-06T17:30:18Z"),
+        updatedAt=datetime.fromisoformat("1995-08-06T17:30:18Z"),
         updatedBy="librarian",
         validationStatus="ok",
         datasetlifecycle=model.DownloadLifecycle(
@@ -456,7 +455,7 @@ def test_make_scicat_models_datablock_with_one_file(dataset: Dataset) -> None:
         size=6163,
         chk="8450ac0",
         gid="group",
-        time=datetime.now(tz=timezone.utc),
+        time=datetime.now(tz=UTC),
     )
     dataset.add_files(File.from_download_model(local_path=None, model=file_model))
 
@@ -621,7 +620,7 @@ def test_eq_self(dset: Dataset) -> None:
         File.from_download_model(
             local_path=None,
             model=model.DownloadDataFile(
-                path="path", size=94571, time=datetime.now(tz=timezone.utc)
+                path="path", size=94571, time=datetime.now(tz=UTC)
             ),
         )
     )
@@ -667,7 +666,7 @@ def test_neq_single_mismatched_file(initial: Dataset) -> None:
         File.from_download_model(
             local_path=None,
             model=model.DownloadDataFile(
-                path="path", size=51553312, time=datetime.now(tz=timezone.utc)
+                path="path", size=51553312, time=datetime.now(tz=UTC)
             ),
         )
     )
@@ -675,7 +674,7 @@ def test_neq_single_mismatched_file(initial: Dataset) -> None:
         File.from_download_model(
             local_path=None,
             model=model.DownloadDataFile(
-                path="path", size=94571, time=datetime.now(tz=timezone.utc)
+                path="path", size=94571, time=datetime.now(tz=UTC)
             ),
         )
     )
@@ -691,7 +690,7 @@ def test_neq_extra_file(initial: Dataset) -> None:
         File.from_download_model(
             local_path="/local",
             model=model.DownloadDataFile(
-                path="path", size=51553312, time=datetime.now(tz=timezone.utc)
+                path="path", size=51553312, time=datetime.now(tz=UTC)
             ),
         )
     )
@@ -828,9 +827,7 @@ def test_replace_does_not_change_files_no_input_files(initial: Dataset) -> None:
 def test_replace_does_not_change_files_with_input_files(initial: Dataset) -> None:
     file = File.from_download_model(
         local_path=None,
-        model=model.DownloadDataFile(
-            path="path", size=6163, time=datetime.now(tz=timezone.utc)
-        ),
+        model=model.DownloadDataFile(path="path", size=6163, time=datetime.now(tz=UTC)),
     )
     initial.add_files(file)
     replaced = initial.replace(owner="a-new-owner")
@@ -911,7 +908,7 @@ def test_as_new(initial: Dataset) -> None:
     assert new.updated_by is None
     assert new.lifecycle is None
     assert new.creation_time is not None
-    assert abs(new.creation_time - datetime.now(tz=timezone.utc)) < timedelta(seconds=1)
+    assert abs(new.creation_time - datetime.now(tz=UTC)) < timedelta(seconds=1)
 
     assert new.number_of_files == initial.number_of_files
     assert new.size == initial.size

@@ -6,7 +6,7 @@ import dataclasses
 import tempfile
 from collections.abc import Iterator
 from contextlib import contextmanager
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import paramiko
@@ -337,7 +337,7 @@ def test_stat_uploaded_file(
     assert uploaded.remote_gid == "1000"
 
     uploaded = dataclasses.replace(uploaded, local_path=None)
-    assert datetime.now(tz=timezone.utc) - uploaded.creation_time < timedelta(seconds=5)
+    assert datetime.now(tz=UTC) - uploaded.creation_time < timedelta(seconds=5)
 
 
 class CorruptingSFTP(paramiko.SFTPClient):
@@ -478,7 +478,7 @@ def test_client_with_sftp(
         access_groups=["group1"],
         contact_email="p.stibbons@uu.am",
         creation_location="UU",
-        creation_time=datetime(2023, 6, 23, 10, 0, 0, tzinfo=timezone.utc),
+        creation_time=datetime(2023, 6, 23, 10, 0, 0, tzinfo=UTC),
         name="Secret Thaum Storage",
         owner="PonderStibbons",
         owner_group="uu",

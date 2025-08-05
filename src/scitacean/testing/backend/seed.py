@@ -9,9 +9,8 @@ the local database before making it available to tests.
 
 import pickle
 from copy import deepcopy
+from datetime import datetime
 from pathlib import Path
-
-from dateutil.parser import parse as parse_datetime
 
 from ... import model
 from ...client import Client
@@ -39,7 +38,7 @@ _DATASETS: dict[str, UploadRawDataset | UploadDerivedDataset] = {
         accessGroups=["uu", "faculty"],
         classification="IN=medium,AV=low,CO=low",
         contactEmail="ponder.stibbons@uu.am",
-        creationTime=parse_datetime("2004-06-13T01:45:28.100Z"),
+        creationTime=datetime.fromisoformat("2004-06-13T01:45:28.100Z"),
         datasetName="My darkest magic yet",
         description="Doing some dark shit",
         isPublished=False,
@@ -65,7 +64,7 @@ _DATASETS: dict[str, UploadRawDataset | UploadDerivedDataset] = {
         accessGroups=["uu", "faculty"],
         classification="IN=medium,AV=low,CO=low",
         contactEmail="ponder.stibbons@uu.am",
-        creationTime=parse_datetime("2005-11-04T13:37:44.002Z"),
+        creationTime=datetime.fromisoformat("2005-11-04T13:37:44.002Z"),
         datasetName="Reprocessed dark magic",
         description="Making it even darker",
         isPublished=True,
@@ -87,7 +86,7 @@ _DATASETS: dict[str, UploadRawDataset | UploadDerivedDataset] = {
         accessGroups=["uu"],
         classification="IN=medium,AV=low,CO=low",
         contactEmail="mustrum.ridcully69@uu.am",
-        creationTime=parse_datetime("1998-11-05T23:00:42.000Z"),
+        creationTime=datetime.fromisoformat("1998-11-05T23:00:42.000Z"),
         datasetName="Shoe counter",
         description="Got all these shoes!",
         isPublished=True,
@@ -112,7 +111,7 @@ _DATASETS: dict[str, UploadRawDataset | UploadDerivedDataset] = {
         classification="IN=medium,AV=low,CO=low",
         contactEmail="owner@mail.com",
         orcidOfOwner="00-11-22-33",
-        creationTime=parse_datetime("1998-11-05T23:00:42.000Z"),
+        creationTime=datetime.fromisoformat("1998-11-05T23:00:42.000Z"),
         datasetName="Dataset with broken fields",
         description="Bad fields: orcidOfOwner, numberOfFiles, size",
         isPublished=False,
@@ -134,7 +133,7 @@ _DATASETS: dict[str, UploadRawDataset | UploadDerivedDataset] = {
         ownerGroup="PLACEHOLDER",
         accessGroups=["uu", "faculty"],
         contactEmail="ponder.stibbons@uu.am",
-        creationTime=parse_datetime("2004-06-13T01:45:28.100Z"),
+        creationTime=datetime.fromisoformat("2004-06-13T01:45:28.100Z"),
         datasetName="dataset 1",
         numberOfFiles=0,
         numberOfFilesArchived=0,
@@ -152,7 +151,7 @@ _DATASETS: dict[str, UploadRawDataset | UploadDerivedDataset] = {
         ownerGroup="PLACEHOLDER",
         accessGroups=["uu", "faculty"],
         contactEmail="ponder.stibbons@uu.am",
-        creationTime=parse_datetime("2004-06-14T14:00:30Z"),
+        creationTime=datetime.fromisoformat("2004-06-14T14:00:30Z"),
         datasetName="dataset 2",
         numberOfFiles=0,
         numberOfFilesArchived=0,
@@ -170,7 +169,7 @@ _DATASETS: dict[str, UploadRawDataset | UploadDerivedDataset] = {
         ownerGroup="PLACEHOLDER",
         accessGroups=["uu", "faculty"],
         contactEmail="ponder.stibbons@uu.am",
-        creationTime=parse_datetime("2004-06-10T00:13:13Z"),
+        creationTime=datetime.fromisoformat("2004-06-10T00:13:13Z"),
         datasetName="dataset 3",
         numberOfFiles=0,
         numberOfFilesArchived=0,
@@ -188,7 +187,7 @@ _DATASETS: dict[str, UploadRawDataset | UploadDerivedDataset] = {
         ownerGroup="PLACEHOLDER",
         accessGroups=["uu", "faculty"],
         contactEmail="ponder.stibbons@uu.am",
-        creationTime=parse_datetime("2005-11-03T21:56:02Z"),
+        creationTime=datetime.fromisoformat("2005-11-03T21:56:02Z"),
         datasetName="dataset 1",
         numberOfFiles=0,
         numberOfFilesArchived=0,
@@ -205,7 +204,7 @@ _DATASETS: dict[str, UploadRawDataset | UploadDerivedDataset] = {
         ownerGroup="PLACEHOLDER",
         accessGroups=["uu", "faculty"],
         contactEmail="ponder.stibbons@uu.am",
-        creationTime=parse_datetime("2004-10-02T08:47:33Z"),
+        creationTime=datetime.fromisoformat("2004-10-02T08:47:33Z"),
         datasetName="dataset 1",
         numberOfFiles=0,
         numberOfFilesArchived=0,
@@ -220,7 +219,7 @@ _DATASETS: dict[str, UploadRawDataset | UploadDerivedDataset] = {
         ownerGroup="PLACEHOLDER",
         accessGroups=["uu", "faculty"],
         contactEmail="ponder.stibbons@uu.am",
-        creationTime=parse_datetime("2004-10-14T09:18:58Z"),
+        creationTime=datetime.fromisoformat("2004-10-14T09:18:58Z"),
         datasetName="derived dataset 2",
         numberOfFiles=0,
         numberOfFilesArchived=0,
@@ -243,7 +242,7 @@ _ORIG_DATABLOCKS: dict[str, list[UploadOrigDatablock]] = {
                 UploadDataFile(
                     path="file1.txt",
                     size=300,
-                    time=parse_datetime("2005-11-04T13:22:09.000Z"),
+                    time=datetime.fromisoformat("2005-11-04T13:22:09.000Z"),
                     chk="97157d347fe9af920f5e61e96cf401cb",
                     gid="1000",
                     uid="1000",
@@ -252,7 +251,7 @@ _ORIG_DATABLOCKS: dict[str, list[UploadOrigDatablock]] = {
                 UploadDataFile(
                     path="sub/song.mp3",
                     size=319,
-                    time=parse_datetime("2005-11-02T09:02:54.100Z"),
+                    time=datetime.fromisoformat("2005-11-02T09:02:54.100Z"),
                     chk=None,
                     gid="1000",
                     uid="1000",
@@ -269,7 +268,7 @@ _ORIG_DATABLOCKS: dict[str, list[UploadOrigDatablock]] = {
                 UploadDataFile(
                     path="table.csv",
                     size=464,
-                    time=parse_datetime("2005-10-31T00:00:01.000Z"),
+                    time=datetime.fromisoformat("2005-10-31T00:00:01.000Z"),
                     chk="dddd8355da9105acabb9928196f022ca0581ffb73d8b89c891eb6f71477cb4cb",
                     gid="2000",
                     uid="0",
@@ -286,7 +285,7 @@ _ORIG_DATABLOCKS: dict[str, list[UploadOrigDatablock]] = {
                 UploadDataFile(
                     path="shoes",
                     size=64,
-                    time=parse_datetime("1998-11-05T22:56:13.000Z"),
+                    time=datetime.fromisoformat("1998-11-05T22:56:13.000Z"),
                     chk="95fe96bf90f6a53c1e20d6578e0d9e6e",
                     gid="0",
                     uid="0",
