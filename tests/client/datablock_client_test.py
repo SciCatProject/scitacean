@@ -2,8 +2,9 @@
 # Copyright (c) 2025 SciCat Project (https://github.com/SciCatProject/scitacean)
 # mypy: disable-error-code="arg-type"
 
+from datetime import datetime
+
 import pytest
-from dateutil.parser import parse as parse_date
 
 from scitacean import Client
 from scitacean.client import ScicatClient
@@ -29,7 +30,7 @@ def derived_dataset(scicat_access: backend_config.SciCatAccess) -> UploadDerived
     return UploadDerivedDataset(
         datasetName="Koelsche Lieder",
         contactEmail="black.foess@dom.koelle",
-        creationTime=parse_date("1995-11-11T11:11:11.000Z"),
+        creationTime=datetime.fromisoformat("1995-11-11T11:11:11.000Z"),
         owner="bfoess",
         investigator="b.foess@dom.koelle",
         sourceFolder="/dom/platt",
@@ -49,7 +50,9 @@ def orig_datablock(scicat_access: backend_config.SciCatAccess) -> UploadOrigData
         size=9235,
         dataFileList=[
             UploadDataFile(
-                path="data.nxs", size=9235, time=parse_date("2023-08-18T13:52:33.000Z")
+                path="data.nxs",
+                size=9235,
+                time=datetime.fromisoformat("2023-08-18T13:52:33.000Z"),
             )
         ],
     )

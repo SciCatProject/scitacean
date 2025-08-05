@@ -5,10 +5,10 @@ import re
 from collections.abc import Iterator
 from contextlib import contextmanager
 from copy import deepcopy
+from datetime import datetime
 from pathlib import Path
 
 import pytest
-from dateutil.parser import parse as parse_date
 from pyfakefs.fake_filesystem import FakeFilesystem
 
 from scitacean import PID, Client, Dataset, DatasetType, File, IntegrityError
@@ -37,7 +37,7 @@ def data_files() -> tuple[list[DownloadDataFile], dict[str, bytes]]:
             path=name,
             size=len(content),
             chk=_checksum(content),
-            time=parse_date("1995-08-06T14:14:14"),
+            time=datetime.fromisoformat("1995-08-06T14:14:14"),
         )
         for name, content in contents.items()
     ]
@@ -53,7 +53,7 @@ def dataset_and_files(
 ) -> DatasetAndFiles:
     model = DownloadDataset(
         contactEmail="p.stibbons@uu.am",
-        creationTime=parse_date("1995-08-06T14:14:14"),
+        creationTime=datetime.fromisoformat("1995-08-06T14:14:14"),
         numberOfFiles=len(data_files[0]),
         numberOfFilesArchived=0,
         owner="pstibbons",
@@ -223,7 +223,7 @@ def test_download_files_refuses_download_if_flattening_creates_clash(
         File.from_remote(
             "sub_directory/file1.dat",
             size=len(contents["sub_directory/file1.dat"]),
-            creation_time=parse_date("1995-08-06T14:14:14"),
+            creation_time=datetime.fromisoformat("1995-08-06T14:14:14"),
             checksum=_checksum(contents["sub_directory/file1.dat"]),
             checksum_algorithm="md5",
         )
@@ -268,7 +268,7 @@ def test_download_files_ignores_checksum_if_alg_is_none(
     model = DownloadDataFile(
         path="file.txt",
         size=len(content),
-        time=parse_date("2022-06-22T15:42:53+00:00"),
+        time=datetime.fromisoformat("2022-06-22T15:42:53+00:00"),
         chk=bad_checksum,
     )
     dataset.add_orig_datablock(checksum_algorithm=None)
@@ -295,7 +295,7 @@ def test_download_files_detects_bad_checksum(
     model = DownloadDataFile(
         path="file.txt",
         size=len(content),
-        time=parse_date("2022-06-22T15:42:53+00:00"),
+        time=datetime.fromisoformat("2022-06-22T15:42:53+00:00"),
         chk=bad_checksum,
     )
     dataset.add_orig_datablock(checksum_algorithm="md5")
@@ -324,7 +324,7 @@ def test_download_files_detects_bad_size(
     model = DownloadDataFile(
         path="file.txt",
         size=89412,  # Too large
-        time=parse_date("2022-06-22T15:42:53+00:00"),
+        time=datetime.fromisoformat("2022-06-22T15:42:53+00:00"),
         chk=bad_checksum,
     )
     dataset.add_orig_datablock(checksum_algorithm="md5")

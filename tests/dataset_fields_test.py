@@ -7,7 +7,6 @@
 
 from datetime import UTC, datetime, timedelta
 
-import dateutil.parser
 import pydantic
 import pytest
 from hypothesis import given, settings
@@ -63,17 +62,17 @@ def test_init_dataset_sets_creation_time() -> None:
 def test_init_dataset_can_set_creation_time() -> None:
     dt: str | datetime
 
-    dt = dateutil.parser.parse("2022-01-10T11:14:52.623Z")
+    dt = datetime.fromisoformat("2022-01-10T11:14:52.623Z")
     dset = Dataset(type="derived", creation_time=dt)
     assert dset.creation_time == dt
 
-    dt = dateutil.parser.parse("2022-01-10T11:14:52+02:00")
+    dt = datetime.fromisoformat("2022-01-10T11:14:52+02:00")
     dset = Dataset(type="derived", creation_time=dt)
     assert dset.creation_time == dt
 
     dt = "1994-03-21T22:51:33-01:00"
     dset = Dataset(type="derived", creation_time=dt)
-    assert dset.creation_time == dateutil.parser.parse(dt)
+    assert dset.creation_time == datetime.fromisoformat(dt)
 
     dset = Dataset(type="derived", creation_time="now")
     assert dset.creation_time is not None
@@ -137,7 +136,7 @@ def test_init_from_models_sets_metadata() -> None:
     dset = Dataset.from_download_models(
         dataset_model=DownloadDataset(
             contactEmail="p.stibbons@uu.am",
-            creationTime=dateutil.parser.parse("2022-01-10T11:14:52+02:00"),
+            creationTime=datetime.fromisoformat("2022-01-10T11:14:52+02:00"),
             numberOfFiles=0,
             numberOfFilesArchived=0,
             packedSize=0,
@@ -149,7 +148,7 @@ def test_init_from_models_sets_metadata() -> None:
             type=DatasetType.RAW,
             ownerGroup="faculty",
             createdBy="pstibbons",
-            createdAt=dateutil.parser.parse("2022-01-10T12:41:22+02:00"),
+            createdAt=datetime.fromisoformat("2022-01-10T12:41:22+02:00"),
         ),
         orig_datablock_models=[
             DownloadOrigDatablock(
@@ -163,14 +162,14 @@ def test_init_from_models_sets_metadata() -> None:
     )
 
     assert dset.contact_email == "p.stibbons@uu.am"
-    assert dset.creation_time == dateutil.parser.parse("2022-01-10T11:14:52+02:00")
+    assert dset.creation_time == datetime.fromisoformat("2022-01-10T11:14:52+02:00")
     assert dset.principal_investigator == "my principal investigator"
     assert dset.owner == "PonderStibbons"
     assert dset.source_folder == "/hex/source91"
     assert dset.type == DatasetType.RAW
     assert dset.owner_group == "faculty"
     assert dset.created_by == "pstibbons"
-    assert dset.created_at == dateutil.parser.parse("2022-01-10T12:41:22+02:00")
+    assert dset.created_at == datetime.fromisoformat("2022-01-10T12:41:22+02:00")
 
     assert dset.is_published is None
     assert dset.owner_email is None
@@ -186,7 +185,7 @@ def test_init_from_models_sets_files() -> None:
     dset = Dataset.from_download_models(
         dataset_model=DownloadDataset(
             contactEmail="p.stibbons@uu.am",
-            creationTime=dateutil.parser.parse("2022-01-10T11:14:52-01:00"),
+            creationTime=datetime.fromisoformat("2022-01-10T11:14:52-01:00"),
             numberOfFiles=2,
             numberOfFilesArchived=0,
             principalInvestigator="librarian@uu.am",
@@ -204,12 +203,12 @@ def test_init_from_models_sets_files() -> None:
                     DownloadDataFile(
                         path="file1.dat",
                         size=6123,
-                        time=dateutil.parser.parse("2022-01-09T18:32:01-01:00"),
+                        time=datetime.fromisoformat("2022-01-09T18:32:01-01:00"),
                     ),
                     DownloadDataFile(
                         path="sub/file2.png",
                         size=551,
-                        time=dateutil.parser.parse("2022-01-09T18:32:42-01:00"),
+                        time=datetime.fromisoformat("2022-01-09T18:32:42-01:00"),
                     ),
                 ],
                 size=6123 + 551,
@@ -242,7 +241,7 @@ def test_init_from_models_sets_files() -> None:
 def test_init_from_models_sets_files_multi_datablocks() -> None:
     dataset_model = DownloadDataset(
         contactEmail="p.stibbons@uu.am",
-        creationTime=dateutil.parser.parse("2022-01-10T11:14:52-01:00"),
+        creationTime=datetime.fromisoformat("2022-01-10T11:14:52-01:00"),
         numberOfFiles=2,
         numberOfFilesArchived=0,
         packedSize=0,
@@ -260,7 +259,7 @@ def test_init_from_models_sets_files_multi_datablocks() -> None:
                 DownloadDataFile(
                     path="file1.dat",
                     size=6123,
-                    time=dateutil.parser.parse("2022-01-10T11:14:52-01:00"),
+                    time=datetime.fromisoformat("2022-01-10T11:14:52-01:00"),
                 )
             ],
             datasetId=PID.parse("prefix/abcd-de"),
@@ -273,7 +272,7 @@ def test_init_from_models_sets_files_multi_datablocks() -> None:
                 DownloadDataFile(
                     path="sub/file2.png",
                     size=992,
-                    time=dateutil.parser.parse("2022-01-10T11:14:52-01:00"),
+                    time=datetime.fromisoformat("2022-01-10T11:14:52-01:00"),
                 )
             ],
             datasetId=PID.parse("prefix/abcd-de"),
@@ -347,7 +346,7 @@ def test_make_raw_model() -> None:
     )
     expected = UploadRawDataset(
         contactEmail="p.stibbons@uu.am",
-        creationTime=dateutil.parser.parse("2142-04-02T16:44:56"),
+        creationTime=datetime.fromisoformat("2142-04-02T16:44:56"),
         datasetName="raw-dataset-62",
         owner="Ponder Stibbons;Mustrum Ridcully",
         ownerGroup="faculty",
@@ -385,7 +384,7 @@ def test_make_derived_model() -> None:
     expected = UploadDerivedDataset(
         datasetName="derived-dataset",
         contactEmail="p.stibbons@uu.am;m.ridcully@uu.am",
-        creationTime=dateutil.parser.parse("2142-04-02T16:44:56"),
+        creationTime=datetime.fromisoformat("2142-04-02T16:44:56"),
         owner="Ponder Stibbons;Mustrum Ridcully",
         ownerGroup="faculty",
         investigator="p.stibbons@uu.am",

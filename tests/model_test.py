@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2025 SciCat Project (https://github.com/SciCatProject/scitacean)
 import dataclasses
+from datetime import datetime
 from typing import TypeVar
 
 import pytest
-from dateutil.parser import parse as parse_date
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
@@ -111,7 +111,7 @@ def test_derived_dataset_default_values(
     dset = UploadDerivedDataset(
         accessGroups=["access1"],
         contactEmail="contact@email.com",
-        creationTime=parse_date("2000-01-01T01:01:01.000Z"),
+        creationTime=datetime.fromisoformat("2000-01-01T01:01:01.000Z"),
         datasetName="Test derived dataset",
         inputDatasets=[PID(prefix="PID.prefix.a0b1", pid="abcd")],
         investigator="inv@esti.gator",
@@ -129,7 +129,7 @@ def test_derived_dataset_default_values(
     # Inputs
     assert finalized.accessGroups == ["access1"]
     assert finalized.contactEmail == "contact@email.com"
-    assert finalized.creationTime == parse_date("2000-01-01T01:01:01.000Z")
+    assert finalized.creationTime == datetime.fromisoformat("2000-01-01T01:01:01.000Z")
     assert finalized.datasetName == "Test derived dataset"
     assert finalized.inputDatasets == [PID(prefix="PID.prefix.a0b1", pid="abcd")]
     assert finalized.principalInvestigator == "inv@esti.gator"
@@ -174,7 +174,7 @@ def test_raw_dataset_default_values(
     dset = UploadRawDataset(
         accessGroups=["access1"],
         contactEmail="contact@email.com",
-        creationTime=parse_date("2000-01-01T01:01:01.000Z"),
+        creationTime=datetime.fromisoformat("2000-01-01T01:01:01.000Z"),
         creationLocation="site",
         datasetName="Test raw dataset",
         inputDatasets=[],
@@ -196,7 +196,7 @@ def test_raw_dataset_default_values(
     assert finalized.accessGroups == ["access1"]
     assert finalized.contactEmail == "contact@email.com"
     assert finalized.creationLocation == "site"
-    assert finalized.creationTime == parse_date("2000-01-01T01:01:01.000Z")
+    assert finalized.creationTime == datetime.fromisoformat("2000-01-01T01:01:01.000Z")
     assert finalized.inputDatasets == []
     assert finalized.owner == scicat_access.user.username
     assert finalized.ownerGroup == scicat_access.user.group

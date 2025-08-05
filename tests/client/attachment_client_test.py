@@ -3,9 +3,9 @@
 # mypy: disable-error-code="arg-type"
 
 from copy import deepcopy
+from datetime import datetime
 
 import pytest
-from dateutil.parser import parse as parse_date
 
 from scitacean import PID, Client, ScicatCommError, Thumbnail
 from scitacean.client import ScicatClient
@@ -33,7 +33,7 @@ def derived_dataset(scicat_access: backend_config.SciCatAccess) -> UploadDerived
     return UploadDerivedDataset(
         datasetName="Koelsche Lieder",
         contactEmail="black.foess@dom.koelle",
-        creationTime=parse_date("1995-11-11T11:11:11.000Z"),
+        creationTime=datetime.fromisoformat("1995-11-11T11:11:11.000Z"),
         owner="bfoess",
         investigator="b.foess@dom.koelle",
         sourceFolder="/dom/platt",

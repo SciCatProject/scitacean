@@ -6,7 +6,6 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
-from dateutil.parser import parse as parse_datetime
 from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 from pyfakefs.fake_filesystem import FakeFilesystem
@@ -23,7 +22,7 @@ def raw_download_model() -> model.DownloadDataset:
     return model.DownloadDataset(
         contactEmail="p.stibbons@uu.am",
         creationLocation="UnseenUniversity",
-        creationTime=parse_datetime("1995-08-06T14:14:14Z"),
+        creationTime=datetime.fromisoformat("1995-08-06T14:14:14Z"),
         inputDatasets=None,
         numberOfFilesArchived=None,
         owner="pstibbons",
@@ -36,12 +35,12 @@ def raw_download_model() -> model.DownloadDataset:
         version="3",
         classification="IN=medium,AV=low,CO=low",
         comment="Where did this come from?",
-        createdAt=parse_datetime("1995-08-06T14:14:14Z"),
+        createdAt=datetime.fromisoformat("1995-08-06T14:14:14Z"),
         createdBy="pstibbons",
         dataFormat=".thaum",
         dataQualityMetrics=24,
         description="Some shady data",
-        endTime=parse_datetime("1995-08-03T00:00:00Z"),
+        endTime=datetime.fromisoformat("1995-08-03T00:00:00Z"),
         instrumentGroup="professors",
         instrumentId="0000-aa",
         isPublished=True,
@@ -60,7 +59,7 @@ def raw_download_model() -> model.DownloadDataset:
         sharedWith=["librarian"],
         size=400,
         sourceFolderHost="ftp://uu.am/data",
-        updatedAt=parse_datetime("1995-08-06T17:30:18Z"),
+        updatedAt=datetime.fromisoformat("1995-08-06T17:30:18Z"),
         updatedBy="librarian",
         validationStatus="ok",
         datasetlifecycle=model.DownloadLifecycle(
@@ -91,7 +90,7 @@ def derived_download_model() -> model.DownloadDataset:
     return model.DownloadDataset(
         contactEmail="p.stibbons@uu.am",
         creationLocation=None,
-        creationTime=parse_datetime("1995-08-06T14:14:14Z"),
+        creationTime=datetime.fromisoformat("1995-08-06T14:14:14Z"),
         inputDatasets=[PID.parse("123.cc/948.f7.2a")],
         numberOfFilesArchived=None,
         owner="pstibbons",
@@ -104,7 +103,7 @@ def derived_download_model() -> model.DownloadDataset:
         version="3",
         classification="IN=medium,AV=low,CO=low",
         comment="Why did we actually make this data?",
-        createdAt=parse_datetime("1995-08-06T14:14:14Z"),
+        createdAt=datetime.fromisoformat("1995-08-06T14:14:14Z"),
         createdBy="pstibbons",
         dataFormat=None,
         dataQualityMetrics=24,
@@ -128,7 +127,7 @@ def derived_download_model() -> model.DownloadDataset:
         sharedWith=["librarian"],
         size=400,
         sourceFolderHost="ftp://uu.am/data",
-        updatedAt=parse_datetime("1995-08-06T17:30:18Z"),
+        updatedAt=datetime.fromisoformat("1995-08-06T17:30:18Z"),
         updatedBy="librarian",
         validationStatus="ok",
         datasetlifecycle=model.DownloadLifecycle(

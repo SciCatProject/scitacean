@@ -15,8 +15,6 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Any, ClassVar, Literal, TypeVar
 
-import dateutil.parser
-
 from ._base_model import DatasetType
 from .datablock import OrigDatablock
 from .filesystem import RemotePath
@@ -41,7 +39,7 @@ def _parse_datetime(x: datetime | str | None) -> datetime | None:
         return x
     if x == "now":
         return datetime.now(tz=UTC)
-    return dateutil.parser.parse(x)
+    return datetime.fromisoformat(x)
 
 
 def _parse_pid(pid: str | PID | None) -> PID | None:

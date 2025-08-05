@@ -1988,7 +1988,6 @@ dependencies = [
     { name = "email-validator" },
     { name = "httpx" },
     { name = "pydantic" },
-    { name = "python-dateutil" },
 ]
 
 [package.optional-dependencies]
@@ -2025,7 +2024,6 @@ dev = [
     { name = "ruff" },
     { name = "types-docutils" },
     { name = "types-paramiko" },
-    { name = "types-python-dateutil" },
     { name = "types-pyyaml" },
     { name = "types-requests" },
 ]
@@ -2072,7 +2070,6 @@ requires-dist = [
     { name = "hypothesis", marker = "extra == 'test'", specifier = ">=6.48" },
     { name = "paramiko", marker = "extra == 'sftp'", specifier = ">=3" },
     { name = "pydantic", specifier = ">=2" },
-    { name = "python-dateutil", specifier = ">=2.8" },
     { name = "pyyaml", marker = "extra == 'test'", specifier = ">=5" },
 ]
 provides-extras = ["sftp", "test"]
@@ -2099,7 +2096,6 @@ dev = [
     { name = "ruff" },
     { name = "types-docutils" },
     { name = "types-paramiko" },
-    { name = "types-python-dateutil" },
     { name = "types-pyyaml" },
     { name = "types-requests" },
 ]

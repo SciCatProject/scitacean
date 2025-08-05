@@ -11,8 +11,6 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import NoReturn, cast
 
-import dateutil.parser
-
 from .error import IntegrityError
 from .filesystem import RemotePath, checksum_of_file, file_modification_time, file_size
 from .logging import get_logger
@@ -134,7 +132,7 @@ class File:
             Size in bytes on the remote filesystem.
         creation_time:
             Date and time the file was created on the remote filesystem.
-            If a ``str``, it is parsed using ``dateutil.parser.parse``.
+            If a ``str``, it is parsed using :meth:`datetime.datetime.fromisoformat`.
         checksum:
             Checksum of the file.
         checksum_algorithm:
@@ -163,7 +161,7 @@ class File:
         creation_time = (
             creation_time
             if isinstance(creation_time, datetime)
-            else dateutil.parser.parse(creation_time)
+            else datetime.fromisoformat(creation_time)
         )
         return File(
             local_path=None,

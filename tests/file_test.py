@@ -7,7 +7,6 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from dateutil.parser import parse as parse_date
 from pyfakefs.fake_filesystem import FakeFilesystem
 
 from scitacean import File, IntegrityError, RemotePath
@@ -100,7 +99,7 @@ def test_file_from_remote_default_args() -> None:
     assert file.remote_path == "/remote/source/file.nxs"
     assert file.size == 6123
     assert isinstance(file.creation_time, datetime)
-    assert file.creation_time == parse_date("2023-09-27T16:00:15Z")
+    assert file.creation_time == datetime.fromisoformat("2023-09-27T16:00:15Z")
     assert file.checksum() is None
     assert file.checksum_algorithm is None
     assert file.remote_uid is None
@@ -112,7 +111,7 @@ def test_file_from_remote_all_args() -> None:
     file = File.from_remote(
         remote_path="/remote/image.png",
         size=9,
-        creation_time=parse_date("2023-10-09T08:12:59Z"),
+        creation_time=datetime.fromisoformat("2023-10-09T08:12:59Z"),
         checksum="abcde",
         checksum_algorithm="md5",
         remote_uid="user-usy",
@@ -122,7 +121,7 @@ def test_file_from_remote_all_args() -> None:
     assert file.local_path is None
     assert file.remote_path == "/remote/image.png"
     assert file.size == 9
-    assert file.creation_time == parse_date("2023-10-09T08:12:59Z")
+    assert file.creation_time == datetime.fromisoformat("2023-10-09T08:12:59Z")
     assert file.checksum() == "abcde"
     assert file.checksum_algorithm == "md5"
     assert file.remote_uid == "user-usy"
@@ -142,7 +141,9 @@ def test_file_from_remote_checksum_requires_algorithm() -> None:
 
 def test_file_from_download_model() -> None:
     model = DownloadDataFile(
-        path="dir/image.jpg", size=12345, time=parse_date("2022-06-22T15:42:53.123Z")
+        path="dir/image.jpg",
+        size=12345,
+        time=datetime.fromisoformat("2022-06-22T15:42:53.123Z"),
     )
     file = File.from_download_model(model)
 
@@ -150,7 +151,7 @@ def test_file_from_download_model() -> None:
     assert file.local_path is None
     assert file.checksum() is None
     assert file.size == 12345
-    assert file.creation_time == parse_date("2022-06-22T15:42:53.123Z")
+    assert file.creation_time == datetime.fromisoformat("2022-06-22T15:42:53.123Z")
 
 
 def test_file_from_download_model_remote_path_uses_forward_slash() -> None:
@@ -158,7 +159,7 @@ def test_file_from_download_model_remote_path_uses_forward_slash() -> None:
         DownloadDataFile(
             path="data/subdir/file.dat",
             size=0,
-            time=parse_date("2022-06-22T15:42:53.123Z"),
+            time=datetime.fromisoformat("2022-06-22T15:42:53.123Z"),
         ),
         local_path=None,
     )
@@ -168,7 +169,7 @@ def test_file_from_download_model_remote_path_uses_forward_slash() -> None:
         DownloadDataFile(
             path="data/subdir/file.dat",
             size=0,
-            time=parse_date("2022-06-22T15:42:53.123Z"),
+            time=datetime.fromisoformat("2022-06-22T15:42:53.123Z"),
         ),
         local_path=Path("data") / "subdir",
     )
@@ -204,7 +205,8 @@ def test_uploaded(fake_file: dict[str, Any]) -> None:
         checksum_algorithm="sha256",
     )
     uploaded = file.uploaded(
-        remote_gid="the-group", remote_creation_time=parse_date("2100-09-07T11:34:51")
+        remote_gid="the-group",
+        remote_creation_time=datetime.fromisoformat("2100-09-07T11:34:51"),
     )
 
     assert uploaded.is_on_local
@@ -217,14 +219,16 @@ def test_uploaded(fake_file: dict[str, Any]) -> None:
     )
     assert uploaded.remote_uid == "the-user"
     assert uploaded.remote_gid == "the-group"
-    assert uploaded._remote_creation_time == parse_date("2100-09-07T11:34:51")
+    assert uploaded._remote_creation_time == datetime.fromisoformat(
+        "2100-09-07T11:34:51"
+    )
 
 
 def test_downloaded() -> None:
     model = DownloadDataFile(
         path="dir/stream.s",
         size=55123,
-        time=parse_date("2025-01-09T21:00:21.421Z"),
+        time=datetime.fromisoformat("2025-01-09T21:00:21.421Z"),
         perm="xrw",
     )
     file = File.from_download_model(model)
@@ -241,7 +245,7 @@ def test_downloaded() -> None:
 def test_creation_time_is_always_local_time(fake_file: dict[str, Any]) -> None:
     file = File.from_local(path=fake_file["path"])
     model = file.make_model()
-    model.time = parse_date("2105-04-01T04:52:23")
+    model.time = datetime.fromisoformat("2105-04-01T04:52:23")
     uploaded = file.uploaded()
 
     assert abs(fake_file["creation_time"] - uploaded.creation_time) < timedelta(
@@ -313,7 +317,7 @@ def test_validate_after_download_detects_bad_checksum(
     model = DownloadDataFile(
         path=fake_file["path"].name,
         size=fake_file["size"],
-        time=parse_date("2022-06-22T15:42:53.123Z"),
+        time=datetime.fromisoformat("2022-06-22T15:42:53.123Z"),
         chk="incorrect-checksum",
     )
     file = replace(
@@ -332,7 +336,7 @@ def test_validate_after_download_ignores_checksum_if_no_algorithm(
     model = DownloadDataFile(
         path=fake_file["path"].name,
         size=fake_file["size"],
-        time=parse_date("2022-06-22T15:42:53.123Z"),
+        time=datetime.fromisoformat("2022-06-22T15:42:53.123Z"),
         chk="incorrect-checksum",
     )
     file = File.from_download_model(model)
@@ -348,7 +352,7 @@ def test_validate_after_download_detects_size_mismatch(
     model = DownloadDataFile(
         path=fake_file["path"].name,
         size=fake_file["size"] + 100,
-        time=parse_date("2022-06-22T15:42:53.123Z"),
+        time=datetime.fromisoformat("2022-06-22T15:42:53.123Z"),
         chk="incorrect-checksum",
     )
     file = replace(
@@ -368,7 +372,7 @@ def test_local_is_not_up_to_date_for_remote_file(chk: str | None) -> None:
             path="data.csv",
             size=65178,
             chk=chk,
-            time=parse_date("2022-06-22T15:42:53.123Z"),
+            time=datetime.fromisoformat("2022-06-22T15:42:53.123Z"),
         )
     )
     assert not file.local_is_up_to_date()
@@ -392,7 +396,7 @@ def test_local_is_up_to_date_default_checksum_alg(fs: FakeFilesystem) -> None:
             path="data.csv",
             size=65178,
             chk=checksum_digest,
-            time=parse_date("2022-06-22T15:42:53.123Z"),
+            time=datetime.fromisoformat("2022-06-22T15:42:53.123Z"),
         )
     ).downloaded(local_path="data.csv")
     with pytest.warns(UserWarning, match="using the default"):
@@ -403,7 +407,7 @@ def test_local_is_up_to_date_matching_checksum(fake_file: dict[str, Any]) -> Non
     model = DownloadDataFile(
         path=fake_file["path"].name,
         size=fake_file["size"],
-        time=parse_date("2022-06-22T15:42:53.123Z"),
+        time=datetime.fromisoformat("2022-06-22T15:42:53.123Z"),
         chk=fake_file["checksum"],
     )
     file = replace(
@@ -417,7 +421,7 @@ def test_local_is_not_up_to_date_differing_checksum(fake_file: dict[str, Any]) -
     model = DownloadDataFile(
         path=fake_file["path"].name,
         size=fake_file["size"],
-        time=parse_date("2022-06-22T15:42:53.123Z"),
+        time=datetime.fromisoformat("2022-06-22T15:42:53.123Z"),
         chk="a-different-checksum",
     )
     file = replace(

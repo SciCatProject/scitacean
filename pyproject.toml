@@ -32,7 +32,6 @@ dependencies = [
     "email-validator >= 2",
     "httpx >= 0.24",
     "pydantic >= 2",
-    "python-dateutil >= 2.8",
 ]
 
 [project.optional-dependencies]
@@ -55,7 +54,6 @@ dev = [
     "pytest-sugar",
     "types-docutils",
     "types-paramiko",
-    "types-python-dateutil",
     "types-PyYAML",
     "types-requests",
 ]

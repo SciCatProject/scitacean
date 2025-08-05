@@ -15,7 +15,6 @@ from typing import (
 )
 
 import pydantic
-from dateutil.parser import parse as parse_datetime
 
 from ._internal.orcid import is_valid_orcid
 from .filesystem import RemotePath
@@ -182,14 +181,14 @@ def construct(
 def validate_datetime(value: str | datetime | None) -> datetime | None:
     """Convert strings to datetimes.
 
-    This uses dateutil.parser.parse instead of Pydantic's builtin parser in order to
-    produce results that are consistent with user inputs.
-    Pydantic uses a custom type for timezones which is not fully compatible with
-    dateutil's.
+    This uses ``datetime.fromisoformat`` instead of Pydantic's builtin parser in order
+    to produce results that are consistent with user inputs.
+    Pydantic uses a custom type for timezones which is not fully compatible
+    with the builtin type.
     """
     if not isinstance(value, str):
         return value
-    return parse_datetime(value)
+    return datetime.fromisoformat(value)
 
 
 def validate_emails(value: str | None) -> str | None:
