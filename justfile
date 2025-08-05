@@ -58,6 +58,7 @@ docs: docs-build
 # Build the documentation
 docs-build:
     @uv run --group=docs python -m sphinx -v -j2 -b html -d build/.doctrees docs html
+    @touch html/.nojekyll
     @find html -type f -name "*.ipynb" -not -path "html/_sources/*" -delete
 
 # Remove all documentation artifacts (intermediate and final)
@@ -67,6 +68,9 @@ clean-docs:
     rm -rf html
 
 # --- Other ---
+
+build:
+    @uv run --group=build python -m build
 
 # Remove the output from a Jupyter notebook
 strip-output *notebooks:
