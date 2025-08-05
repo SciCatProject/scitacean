@@ -1,8 +1,43 @@
-# Lint the codebase.
-lint:
-    @uv run --group=lint ruff check
+_default:
+    @just --list
 
-# Remove the output from a Jupyter notebook.
+# --- Formatting ---
+
+alias f:= format
+
+# Format files
+format *files: (format-python files)
+
+# Format Python files
+format-python *files:
+    @uv run --group=format ruff format {{files}}
+
+# Format Markdown files
+format-md *files='.':
+    @uv run --group=format mdformat {{files}}
+
+# --- Linting ---
+
+alias l := lint
+
+# Lint the codebase
+lint *files: (lint-python files) (spell files)
+
+# Lint Python files
+lint-python *files:
+    @uv run --group=lint ruff check --fix --exit-non-zero-on-fix {{files}}
+
+# Check spelling
+spell *files:
+    @uv run --group=lint codespell {{files}}
+
+# Type-check with Mypy
+mypy *args='.':
+    @uv run --group=dev mypy {{args}}
+
+# --- Other ---
+
+# Remove the output from a Jupyter notebook
 strip-output *notebooks:
     @uv run --group=format nbstripout \
       --drop-empty-cells \

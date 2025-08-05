@@ -1,53 +1,70 @@
 repos:
-- repo: https://github.com/astral-sh/uv-pre-commit
-  rev: 0.8.4
-  hooks:
-    - id: uv-lock
-- repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v5.0.0
-  hooks:
-    - id: check-added-large-files
-    - id: check-case-conflict
-    - id: check-illegal-windows-names
-    - id: check-json
-    - id: check-merge-conflict
-    - id: check-toml
-    - id: check-yaml
-    - id: detect-private-key
-    - id: end-of-file-fixer
-    - id: trailing-whitespace
-      args: [--markdown-linebreak-ext=md]
-- repo: local
-  hooks:
-    - id: nbstripout
-      # name: Strip Jupyter Notebook Output
-      name: nbstripout
-      entry: just strip-output
-      language: system
-      types: ["jupyter"]
-- repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.12.0
-  hooks:
-    - id: ruff-format
-      types_or: [ python, pyi ]
-    - id: ruff
-      args: [--fix, --exit-non-zero-on-fix]
-      types_or: [ python, pyi, jupyter ]
-- repo: https://github.com/codespell-project/codespell
-  rev: v2.4.1
-  hooks:
-    - id: codespell
-      additional_dependencies:
-        - tomli
-- repo: https://github.com/pre-commit/pygrep-hooks
-  rev: v1.10.0
-  hooks:
-    - id: python-use-type-annotations
-    - id: rst-backticks
-    - id: rst-directive-colons
-    - id: rst-inline-touching-normal
-    - id: text-unicode-replacement-char
-- repo: https://github.com/rhysd/actionlint
-  rev: v1.7.7
-  hooks:
-    - id: actionlint
+  - repo: local
+    hooks:
+      - id: uv-lock
+        name: lock dependencies
+        entry: uv lock
+        language: system
+        files: ^(uv\.lock|pyproject\.toml|uv\.toml)$
+        pass_filenames: false
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-case-conflict
+      - id: check-illegal-windows-names
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-toml
+      - id: check-yaml
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+
+  - repo: local
+    hooks:
+      - id: nbstripout
+        name: strip notebook outputs
+        entry: just strip-output
+        language: system
+        types_or: ["jupyter"]
+        require_serial: true
+      - id: format-python
+        name: format python code
+        entry: just format-python
+        language: system
+        types_or: ["python", "pyi"]
+        require_serial: true
+      - id: format-md
+        name: format markdown
+        entry: just format-md
+        language: system
+        types: [file, markdown]
+
+      - id: lint-python
+        name: lint python code
+        entry: just lint-python
+        language: system
+        types_or: ["python", "pyi", "jupyter"]
+        require_serial: true
+      - id: spelling
+        name: check spelling
+        entry: just spell
+        language: system
+        types: [text]
+
+  - repo: https://github.com/pre-commit/pygrep-hooks
+    rev: v1.10.0
+    hooks:
+      - id: python-use-type-annotations
+      - id: rst-backticks
+      - id: rst-directive-colons
+      - id: rst-inline-touching-normal
+      - id: text-unicode-replacement-char
+
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.7
+    hooks:
+      - id: actionlint
