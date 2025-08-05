@@ -51,4 +51,7 @@ jobs:
     uses: ./.github/workflows/docs.yml
     with:
       publish: ${{ github.event_name == 'release' && github.event.action == 'published' }}
+    permissions:
+      pages: write
+      id-token: write
     secrets: inherit
