@@ -11,6 +11,7 @@ description = "High-level interface for SciCat"
 license = "BSD-3-Clause"
 license-files = ["LICENSE"]
 authors = [{ name = "Scitacean contributors" }]
+dynamic = ["version"]
 readme = "README.md"
 keywords = ["scicat"]
 classifiers = [
@@ -35,12 +36,6 @@ dependencies = [
     "python-dateutil >= 2.8",
     "tomli >= 2.2.0",  # TODO remove when we drop py3.10
 ]
-dynamic = ["version"]
-
-[project.urls]
-"Documentation" = "https://scicatproject.github.io/scitacean"
-"Bug Tracker" = "https://github.com/SciCatProject/scitacean/issues"
-"Source" = "https://github.com/SciCatProject/scitacean"
 
 [project.optional-dependencies]
 sftp = ["paramiko >= 3"]
@@ -49,6 +44,28 @@ test = [
     "hypothesis >= 6.48",
     "pyyaml >= 5"
 ]
+
+[dependency-groups]
+dev = [
+    {include-group = "lint"},
+    {include-group = "test"},
+    "jupyterlab>=4.4.5",
+]
+format = [
+    "ruff",
+    "nbstripout",
+]
+lint = [
+    "ruff",
+]
+test = [
+
+]
+
+[project.urls]
+"Documentation" = "https://scicatproject.github.io/scitacean"
+"Bug Tracker" = "https://github.com/SciCatProject/scitacean/issues"
+"Source" = "https://github.com/SciCatProject/scitacean"
 
 [tool.setuptools_scm]
 
