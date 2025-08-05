@@ -192,6 +192,8 @@ doctest_default_flags = (
 linkcheck_ignore = [
     # Specific lines in GitHub blobs cannot be found by linkcheck.
     r"https?://github\.com/.*?/blob/[a-f0-9]+/.+?#",
+    # These hit a rate limit and are very slow.
+    r"https?://github\.com/.*?/blob/",
 ]
 
 # -- Options for autodoc_pydantic -----------------------------------------
