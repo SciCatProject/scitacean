@@ -26,6 +26,3 @@ __pycache__/
 Pipfile
 venv
 .venv
-
-# We don't use uv for project management
-uv.lock
