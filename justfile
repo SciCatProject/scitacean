@@ -13,6 +13,9 @@ test-all *args:
 test *args:
     @uv run --group=test pytest {{args}}
 
+test-lowest *args:
+    @uv run --resolution=lowest-direct --group=test --group=sftp pytest --backend-tests --sftp-tests {{args}}
+
 # --- Formatting ---
 
 alias f := format
