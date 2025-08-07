@@ -1,4 +1,4 @@
-name: Test
+name: Nightly using lower bound dependencies
 
 on:
   workflow_dispatch:
