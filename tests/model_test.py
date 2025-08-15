@@ -153,7 +153,7 @@ def test_derived_dataset_default_values(
     assert finalized.size == 0
     assert finalized.techniques == []
     assert finalized.updatedAt  # some non-empty str
-    assert finalized.version == "v3"
+    assert finalized.version == "3"
 
     # Left empty
     assert finalized.description is None is None
@@ -222,7 +222,7 @@ def test_raw_dataset_default_values(
     assert finalized.size == 0
     assert finalized.techniques == []
     assert finalized.updatedAt  # some non-empty str
-    assert finalized.version == "v3"
+    assert finalized.version == "3"
 
     # Left empty
     assert finalized.dataFormat is None
