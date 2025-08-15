@@ -16,7 +16,7 @@ services:
       - "27017:27017"
 
   scicat:
-    image: ghcr.io/scicatproject/backend-next:v4.8.0
+    image: ghcr.io/scicatproject/backend-next:v4.20.2
     container_name: scitacean-test-scicat
     depends_on:
       - mongodb
