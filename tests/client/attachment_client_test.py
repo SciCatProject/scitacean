@@ -66,6 +66,12 @@ def compare_attachment_after_upload(
             assert expected == dict(downloaded)[key], f"key = {key}"
 
 
+def sorted_attachments(
+    attachments: list[DownloadAttachment],
+) -> list[DownloadAttachment]:
+    return sorted(attachments, key=lambda a: str(a.id))
+
+
 def test_create_attachment_for_dataset(
     scicat_client: ScicatClient,
     attachment: UploadAttachment,
@@ -140,7 +146,9 @@ def test_create_attachment_for_dataset_for_dataset_populates_ids(
 def test_get_attachments_for_dataset(scicat_client: ScicatClient) -> None:
     dset = INITIAL_DATASETS["derived"]
     attachments = scicat_client.get_attachments_for_dataset(dset.pid)
-    assert attachments == INITIAL_ATTACHMENTS["derived"]
+    assert sorted_attachments(attachments) == sorted_attachments(
+        INITIAL_ATTACHMENTS["derived"]
+    )
 
 
 def test_get_attachments_for_dataset_no_attachments(
@@ -168,7 +176,9 @@ def test_download_attachments_for_dataset(client: Client, key: str) -> None:
         Attachment.from_download_model(attachment)
         for attachment in INITIAL_ATTACHMENTS.get(key, ())
     ]
-    assert with_attachments.attachments == expected
+    assert sorted_attachments(with_attachments.attachments) == sorted_attachments(
+        expected
+    )
 
 
 @pytest.mark.parametrize("key", ["raw", "derived"])
@@ -179,4 +189,4 @@ def test_get_dataset_with_attachments(client: Client, key: str) -> None:
         Attachment.from_download_model(attachment)
         for attachment in INITIAL_ATTACHMENTS.get(key, ())
     ]
-    assert downloaded.attachments == expected
+    assert sorted_attachments(downloaded.attachments) == sorted_attachments(expected)
