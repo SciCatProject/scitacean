@@ -226,6 +226,29 @@ def test_select_download_uses_second_child_transfer_success(dataset: Dataset) ->
     assert not transfer_2.reverted
 
 
+def test_select_download_does_not_keep_going_after_first_success(
+    dataset: Dataset,
+) -> None:
+    transfer_1 = SuccessfulTransfer()
+    transfer_2 = SuccessfulTransfer()
+    transfer = SelectFileTransfer([transfer_1, transfer_2])
+
+    remote = dataset.source_folder / "file"  # type: ignore[operator]
+    local = Path("local_file")
+    with transfer.connect_for_download(dataset, RemotePath("file")) as con:
+        con.download_files(remote=[remote], local=[local])
+
+    assert not transfer_1.is_open_for_download
+    assert transfer_1.downloaded == [(remote, local)]
+    assert not transfer_1.uploaded
+    assert not transfer_1.reverted
+
+    assert not transfer_2.is_open_for_download
+    assert not transfer_2.downloaded
+    assert not transfer_2.uploaded
+    assert not transfer_2.reverted
+
+
 def test_select_upload_uses_single_child_transfer_success(dataset: Dataset) -> None:
     transfer_1 = SuccessfulTransfer()
     transfer = SelectFileTransfer([transfer_1])
