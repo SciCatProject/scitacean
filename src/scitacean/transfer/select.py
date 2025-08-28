@@ -156,6 +156,7 @@ class SelectFileTransfer:
                     continue
                 success = True
                 yield connection
+                break  # Do not try any more transfers.
         if not success:
             raise FileNotAccessibleError(
                 f"Unable to {action} files for dataset: "
