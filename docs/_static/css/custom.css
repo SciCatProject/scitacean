@@ -14,15 +14,14 @@ html[data-theme="dark"] {
     --pst-color-primary: #ed6c6b;
     --pst-color-secondary: #459db9;
     --pst-color-border: #aaa;
+    --pst-color-background: #191c1e;
     --pst-color-on-background: #161a1e;
     --pst-color-surface: #242729;
     --pst-color-link-hover: var(--pst-color-link);
 
-    --bs-body-color: var(--pst-color-text-base);
-
     --cean-color-header-text: #d4d4d4;
     --cean-color-header-text-highlight: #e5e5e5;
-    --cean-color-table-odd: var(--pst-color-surface);
+    --cean-color-table-even: var(--pst-color-background);
 }
 
 /* Code cells from nbsphinx */
@@ -71,12 +70,12 @@ code.literal {
     border: none;
 }
 
-.table td {
+td {
     border-top: none;
 }
 
-.table .row-odd {
-    background-color: var(--cean-color-table-odd);
+tr.row-even {
+    background-color: var(--cean-color-table-even) !important;
 }
 
 a,
