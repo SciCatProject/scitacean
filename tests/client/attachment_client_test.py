@@ -96,6 +96,7 @@ def test_create_attachment_for_dataset(
     compare_attachment_after_upload(attachment2, finalized2)
 
 
+@pytest.mark.skip("https://github.com/SciCatProject/scicat-backend-next/issues/2254")
 def test_create_attachment_for_dataset_with_existing_id(
     real_client: Client,
     attachment: UploadAttachment,
