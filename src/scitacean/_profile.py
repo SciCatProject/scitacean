@@ -142,7 +142,7 @@ def _get_url(profile: Profile | None, url: str | None) -> str:
         case (p, None):
             return p.url  # type: ignore[union-attr]
         case _:
-            return url  # type: ignore[return-value]
+            return url
 
 
 def _get_file_transfer(
