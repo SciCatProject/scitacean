@@ -65,7 +65,7 @@ def test_upload_attachment_fields(attachment: model.Attachment) -> None:
 @given(st.builds(model.Attachment))
 def test_upload_model_rejects_non_upload_fields(attachment: model.Attachment) -> None:
     attachment._created_by = "the-creator"
-    with pytest.raises(ValueError, match="field.*upload"):
+    with pytest.raises(ValueError, match=r"field.*upload"):
         attachment.make_upload_model()
 
 

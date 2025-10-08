@@ -2252,6 +2252,7 @@ dev = [
     { name = "pytest-xdist", specifier = ">=3" },
     { name = "pyyaml", specifier = ">=5" },
     { name = "ruff", specifier = ">=0.12.7" },
+    { name = "ruff", specifier = ">=0.14.0" },
     { name = "sphinx", specifier = ">=8.1" },
     { name = "sphinx-autodoc-typehints", specifier = ">=3.0" },
     { name = "sphinx-copybutton", specifier = ">=0.5.2" },
@@ -2276,7 +2277,7 @@ docs = [
 format = [
     { name = "mdformat", specifier = ">=0.7.22" },
     { name = "nbstripout", specifier = ">=0.8.1" },
-    { name = "ruff", specifier = ">=0.12.7" },
+    { name = "ruff", specifier = ">=0.14.0" },
 ]
 lint = [
     { name = "codespell", specifier = ">=2.4" },
