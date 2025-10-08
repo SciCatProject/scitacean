@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v7
       - name: Install Just
         uses: extractions/setup-just@v3
       - name: Install pre-commit
@@ -34,7 +34,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v7
       - name: Install Just
         uses: extractions/setup-just@v3
       - run: just mypy
@@ -45,6 +45,7 @@ jobs:
     strategy:
       matrix:
         include:
+          - {python: '3.14', os: ubuntu-24.04, command: test-all}
           - {python: '3.13', os: ubuntu-24.04, command: test-all}
           - {python: '3.12', os: ubuntu-24.04, command: test-all}
           - {python: '3.11', os: ubuntu-24.04, command: test-all}

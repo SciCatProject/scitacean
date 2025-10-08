@@ -24,6 +24,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Scientific/Engineering",
     "Typing :: Typed",
 ]
@@ -74,7 +75,7 @@ docs = [
     "sphinx-design >= 0.6.1",
 ]
 format = [
-    "ruff >= 0.12.7",
+    "ruff >= 0.14.0",
     "mdformat >= 0.7.22",
     "nbstripout >= 0.8.1",
 ]
@@ -150,7 +151,6 @@ select = ["B", "C4", "D", "DTZ", "E", "F", "G", "I", "FBT003", "FURB", "PERF", "
 ignore = [
     "D105",  # most magic methods don't need docstrings as their purpose is always the same
     "E741", "E742", "E743",  # do not use names ‘l’, ‘O’, or ‘I’; they are not a problem with a proper font
-    "UP038",  # leads to slower code
     # Conflict with ruff format, see
     # https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
     "COM812", "COM819", "D206", "D300", "E111", "E114", "E117", "ISC001", "ISC002", "Q000", "Q001", "Q002", "Q003", "W191",

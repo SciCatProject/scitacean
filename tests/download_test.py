@@ -231,7 +231,7 @@ def test_download_files_refuses_download_if_flattening_creates_clash(
     client = Client.without_login(
         url="/", file_transfer=FakeFileTransfer(fs=fs, files=contents)
     )
-    with pytest.raises(RuntimeError, match="file1.dat"):
+    with pytest.raises(RuntimeError, match=r"file1\.dat"):
         client.download_files(dataset, target="./download", select=True)
     assert not list(Path("download").iterdir())
 
@@ -261,7 +261,7 @@ def test_download_files_returns_updated_dataset(
 def test_download_files_ignores_checksum_if_alg_is_none(
     fs: FakeFilesystem, dataset_and_files: DatasetAndFiles
 ) -> None:
-    dataset, contents = dataset_and_files
+    dataset, _ = dataset_and_files
 
     content = b"random-stuff"
     bad_checksum = "incorrect-checksum"
@@ -288,7 +288,7 @@ def test_download_files_ignores_checksum_if_alg_is_none(
 def test_download_files_detects_bad_checksum(
     fs: FakeFilesystem, dataset_and_files: DatasetAndFiles
 ) -> None:
-    dataset, contents = dataset_and_files
+    dataset, _ = dataset_and_files
 
     content = b"random-stuff"
     bad_checksum = "incorrect-checksum"
@@ -317,7 +317,7 @@ def test_download_files_detects_bad_size(
     dataset_and_files: DatasetAndFiles,
     caplog: pytest.LogCaptureFixture,
 ) -> None:
-    dataset, contents = dataset_and_files
+    dataset, _ = dataset_and_files
 
     content = b"random-stuff"
     bad_checksum = hashlib.md5(content).hexdigest()

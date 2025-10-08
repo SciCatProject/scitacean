@@ -263,7 +263,7 @@ def test_add_multiple_local_files_to_new_dataset(
 @pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
 def test_adding_multiple_conflicting_local_files_raises(typ: DatasetType) -> None:
     dset = Dataset(type=typ)
-    with pytest.raises(ValueError, match="data.dat"):
+    with pytest.raises(ValueError, match=r"data\.dat"):
         dset.add_local_files("common/location1/data.dat", "common/data.dat")
 
     assert not list(dset.files)
@@ -281,7 +281,7 @@ def test_adding_separate_conflicting_local_files_raises(
 
     dset = Dataset(type=typ)
     dset.add_local_files("common/location1/data.dat")
-    with pytest.raises(ValueError, match="data.dat"):
+    with pytest.raises(ValueError, match=r"data\.dat"):
         dset.add_local_files("common/data.dat")
 
     assert len(list(dset.files)) == 1
@@ -309,7 +309,7 @@ def test_adding_conflicting_local_files_in_multiple_datablocks_raises(
     dset.add_orig_datablock(checksum_algorithm="md5")
     dset.add_orig_datablock(checksum_algorithm="md5")
     dset.add_local_files("common/location1/data.dat", datablock=0)
-    with pytest.raises(ValueError, match="data.dat"):
+    with pytest.raises(ValueError, match=r"data\.dat"):
         dset.add_local_files("common/data.dat", datablock=1)
 
     assert len(list(dset.files)) == 1
