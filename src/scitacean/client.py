@@ -247,6 +247,33 @@ class Client:
             attachment_models=attachment_models,
         )
 
+    def get_proposal(
+        self,
+        proposal_id: str,
+        strict_validation: bool = False,
+    ) -> model.Proposal:
+        """Download a proposal from SciCat.
+
+        Parameters
+        ----------
+        proposal_id:
+            ID of the proposal.
+        strict_validation:
+            If ``True``, the sample must pass validation.
+            If ``False``, a sample is still returned if validation fails.
+            Note that some sample fields may have a bad value or type.
+            A warning will be logged if validation fails.
+
+        Returns
+        -------
+        :
+            The downloaded proposal.
+        """
+        proposal_model = self.scicat.get_proposal_model(
+            proposal_id, strict_validation=strict_validation
+        )
+        return model.Proposal.from_download_model(proposal_model)
+
     def get_sample(
         self,
         sample_id: str,
@@ -929,6 +956,47 @@ class ScicatClient:
             for attachment in attachment_json
         ]
 
+    def get_proposal_model(
+        self, proposal_id: str, strict_validation: bool = False
+    ) -> model.DownloadProposal:
+        """Fetch a proposal from SciCat.
+
+        Parameters
+        ----------
+        proposal_id:
+            ID of the proposal to fetch.
+        strict_validation:
+            If ``True``, the sample must pass validation.
+            If ``False``, a sample is still returned if validation fails.
+            Note that some fields may have a bad value or type.
+            A warning will be logged if validation fails.
+
+        Returns
+        -------
+        :
+            A model of the proposal.
+
+        Raises
+        ------
+        scitacean.ScicatCommError
+            If the proposal does not exist or communication fails for some other reason.
+        """
+        proposal_json = self._call_endpoint(
+            cmd="get",
+            url=f"proposals/{quote_plus(proposal_id)}",
+            operation="get_proposal_model",
+        )
+        if not proposal_json:
+            raise ScicatCommError(
+                f"Cannot get proposal with {proposal_id=}, "
+                f"no such proposal in SciCat at {self._base_url}."
+            )
+        return model.construct(
+            model.DownloadProposal,
+            _strict_validation=strict_validation,
+            **proposal_json,
+        )
+
     def get_sample_model(
         self, sample_id: str, strict_validation: bool = False
     ) -> model.DownloadSample:
@@ -1091,6 +1159,38 @@ class ScicatClient:
             )
         return model.construct(
             model.DownloadAttachment, _strict_validation=False, **uploaded
+        )
+
+    def create_proposal_model(
+        self, proposal: model.UploadProposal
+    ) -> model.DownloadProposal:
+        """Create a new proposal in SciCat.
+
+        Parameters
+        ----------
+        proposal:
+            Model of the proposal to create.
+
+        Returns
+        -------
+        :
+            The uploaded proposal as returned by SciCat.
+            This is the input plus some modifications.
+
+        Raises
+        ------
+        scitacean.ScicatCommError
+            If SciCat refuses the proposal or communication
+            fails for some other reason.
+        """
+        uploaded = self._call_endpoint(
+            cmd="post",
+            url="proposals",
+            data=proposal,
+            operation="create_proposal_model",
+        )
+        return model.construct(
+            model.DownloadProposal, _strict_validation=False, **uploaded
         )
 
     def create_sample_model(self, sample: model.UploadSample) -> model.DownloadSample:
