@@ -75,6 +75,10 @@ clean-docs:
 build:
     @uv run --group=build python -m build
 
+[working-directory: 'tools/model-generation']
+generate-models:
+    @uv run python generate_models.py --launch-scicat
+
 # Remove the output from a Jupyter notebook
 strip-output *notebooks:
     @uv run --group=format nbstripout \

@@ -23,6 +23,7 @@ def ingestor_access(
     )
 
 
+# Override the default real_client fixture to use ingestor permissions.
 @pytest.fixture
 def real_client(
     request: pytest.FixtureRequest,
