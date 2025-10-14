@@ -23,7 +23,7 @@ jobs:
       # should not fail the job. So just run again if it fails. A second failure means that
       # either the different formatters can't agree on a format or that static analysis failed.
       - run: pre-commit run -a || pre-commit run -a
-      - uses: stefanzweifel/git-auto-commit-action@v6
+      - uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: Apply automatic formatting
 
