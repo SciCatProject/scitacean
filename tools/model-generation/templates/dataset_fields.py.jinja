@@ -32,6 +32,7 @@ type(None)
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import datetime, UTC
 from typing import Any, ClassVar, Literal, TypeVar
@@ -50,6 +51,7 @@ from .model import (
     Technique,
     construct,
 )
+from .ontology import find_technique
 from .pid import PID
 
 M = TypeVar("M", bound=BaseModel)
@@ -73,6 +75,15 @@ def _parse_remote_path(path: str | RemotePath | None) -> RemotePath | None:
     if path is None:
         return path
     return RemotePath(path)
+
+
+def _parse_techniques(arg: Iterable[str | Technique] | None) -> list[Technique] | None:
+    if arg is None:
+        return None
+    return [
+        t if isinstance(t, Technique) else find_technique(t)
+        for t in arg
+    ]
 
 
 def _validate_checksum_algorithm(algorithm: str | None) -> str | None:

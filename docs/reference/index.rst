@@ -72,6 +72,7 @@ Submodules
    :recursive:
 
    model
+   ontology
    testing
    typing
 
