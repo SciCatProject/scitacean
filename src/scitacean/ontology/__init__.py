@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) 2025 SciCat Project (https://github.com/SciCatProject/scitacean)
 """Tools for working with ontologies."""
 
 import bz2

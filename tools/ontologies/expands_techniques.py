@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) 2025 SciCat Project (https://github.com/SciCatProject/scitacean)
 """Download and parse the ExPaNDS experimental techniques ontology.
 
 This script extracts a mapping from ids (IRI) to class labels from the ontology.
