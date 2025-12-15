@@ -17,7 +17,7 @@ from typing import (
 
 import pydantic
 
-from ._internal.orcid import is_valid_orcid
+from ._internal.orcid import parse_orcid_id
 from .filesystem import RemotePath
 from .logging import get_logger
 
@@ -185,15 +185,7 @@ def validate_emails(value: str | None) -> str | None:
 def validate_orcids(value: str | None) -> str | None:
     if value is None:
         return value
-    try:
-        if is_valid_orcid(value):
-            return value
-    except (RuntimeError, ValueError, TypeError):
-        pass
-    raise ValueError(
-        "value is not a valid ORCID, "
-        "note that ORCIDs must be prefixed with 'https://orcid.org'."
-    )
+    return parse_orcid_id(value)
 
 
 def validate_absolute_remote_path(value: str | None) -> RemotePath | None:
