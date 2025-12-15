@@ -1,8 +1,17 @@
 """Download and parse the ExPaNDS experimental techniques ontology.
 
-This script extracts a mapping from class labels to ids (IRI) from the ontology.
-It saves the result to a given file as a bz2 compressed JSON file.
+This script extracts a mapping from ids (IRI) to class labels from the ontology.
+The resulting dict has this structure:
 
+.. code-block:: python
+
+    {
+      id: [main-label, alternative-label, ...]
+    }
+
+Labels are converted to lowercase and stripped of leading and trailing whitespace.
+
+The results are saved to a given file as a bz2 compressed JSON file.
 The bz2 format was chosen as it yielded the smallest file among the
 algorithms available in the standard library.
 """
@@ -24,6 +33,8 @@ IRI_PREFIX = "http://purl.org/pan-science/PaNET/"
 CLASS_TYPE = "http://www.w3.org/2002/07/owl#Class"
 # Key for class labels:
 LABEL_KEY = "http://www.w3.org/2000/01/rdf-schema#label"
+# Key for alternative class labels:
+ALT_LABEL_KEY = "http://www.w3.org/2004/02/skos/core#altLabel"
 
 Ontology: TypeAlias = list[dict[str, Any]]
 
@@ -73,20 +84,27 @@ def filter_techniques(ontology: Ontology) -> Ontology:
     ]
 
 
-def get_label(item: dict[str, Any]) -> str:
+def get_labels(item: dict[str, Any]) -> list[str]:
     [entry] = item[LABEL_KEY]
-    return entry["@value"]  # type: ignore[no-any-return]
+    alt_labels = [lab["@value"] for lab in item.get(ALT_LABEL_KEY, [])]
+    return [entry["@value"], *alt_labels]
 
 
-def parse_to_dict(ontology: Ontology) -> dict[str, str]:
-    return {get_label(item).lower().strip(): item["@id"] for item in ontology}
+def process_label(raw_label: str) -> str:
+    return raw_label.lower().strip()
 
 
-def write_result(mapping: dict[str, str], out: Path) -> None:
+def parse_to_dict(ontology: Ontology) -> dict[str, list[str]]:
+    return {
+        item["@id"]: [process_label(label) for label in get_labels(item)]
+        for item in ontology
+    }
+
+
+def write_result(mapping: dict[str, list[str]], out: Path) -> None:
     serialized = json.dumps(mapping).encode("utf-8")
     # replace all suffixes with `.json.bz2`
     path = out.parent.joinpath(out.name.split(".", 1)[0] + ".json.bz2")
-    print(f"Writing parsed data to {path}")
     with bz2.open(path, "wb") as f:
         f.write(serialized)
 
@@ -95,8 +113,8 @@ def main() -> None:
     args = parse_args()
     ontology = load(args.load)
     maybe_save_ontology(ontology, args.persist)
-    labels_to_ids = parse_to_dict(filter_techniques(ontology))
-    write_result(labels_to_ids, args.out)
+    ids_to_labels = parse_to_dict(filter_techniques(ontology))
+    write_result(ids_to_labels, args.out)
 
 
 if __name__ == "__main__":
