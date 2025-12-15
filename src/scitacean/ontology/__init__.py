@@ -77,9 +77,22 @@ def find_technique(label_or_iri: str) -> Technique:
 
 def _lookup_label(label: str) -> Technique:
     label = label.strip().lower()
-    for iri, labels in expands_techniques().items():
-        if label in labels:
-            return Technique(pid=iri, name=labels[0])
+    found = [
+        (iri, labels[0])
+        for iri, labels in expands_techniques().items()
+        if label in labels
+    ]
+    if len(found) == 1:
+        return Technique(pid=found[0][0], name=found[0][1])
+    elif len(found) > 1:
+        raise ValueError(
+            f"Found multiple techniques with label '{label}': {[f[0] for f in found]}. "
+            "Please specify the exact IRI instead or construct a Technique model "
+            "manually.\n"
+            "See the ExPaNDS experimental technique ontology for allowed labels at "
+            "https://expands-eu.github.io/ExPaNDS-experimental-techniques-ontology/index-en.html"
+        )
+    # else: len(found) == 0
     raise ValueError(
         f"Unknown technique label: '{label}'\n"
         "See the ExPaNDS experimental technique ontology for allowed labels at "

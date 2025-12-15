@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2025 SciCat Project (https://github.com/SciCatProject/scitacean)
+import pytest
 
 from scitacean import model, ontology
 
@@ -61,3 +62,8 @@ def test_can_look_up_technique_by_iri() -> None:
         name="neutron reflectometry",
     )
     assert technique == expected
+
+
+def test_lookup_rejects_ambiguous_label() -> None:
+    with pytest.raises(ValueError, match="multiple techniques"):
+        ontology.find_technique("diffraction")
