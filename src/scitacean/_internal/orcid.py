@@ -7,8 +7,10 @@ Based on
 https://support.orcid.org/hc/en-us/articles/360006897674-Structure-of-the-ORCID-Identifier
 """
 
+_ORCID_RESOLVER: str = "https://orcid.org"
 
-def orcid_checksum(orcid_id: str) -> str:
+
+def orcid_id_checksum(orcid_id: str) -> str:
     total = 0
     for c in orcid_id.replace("-", "")[:-1]:
         total = (total + int(c)) * 2
@@ -16,18 +18,28 @@ def orcid_checksum(orcid_id: str) -> str:
     return "X" if result == 10 else str(result)
 
 
-def is_valid_orcid(orcid_uri: str) -> bool:
-    base, orcid_id = orcid_uri.rsplit("/", 1)
-    if base != "https://orcid.org":
-        # must start with the ORCID URL
-        return False
-    if orcid_id.count("-") != 3:
-        # must have four blocks of numbers
-        return False
-    if not all(len(x) == 4 for x in orcid_id.split("-")):
-        # each block must have 4 digits
-        return False
-    if orcid_checksum(orcid_id) != orcid_id[-1]:
-        # checksum must match last digit
-        return False
-    return True
+def parse_orcid_id(value: str) -> str:
+    match value.rsplit("/", 1):
+        case [resolver, orcid_id]:
+            if resolver != _ORCID_RESOLVER:
+                # Must be the correct ORCID URL.
+                raise ValueError(
+                    f"Invalid ORCID URL: '{resolver}'. Must be '{_ORCID_RESOLVER}'"
+                )
+            parsed = value
+        case [orcid_id]:
+            parsed = f"{_ORCID_RESOLVER}/{value}"
+        case _:
+            raise RuntimeError("internal error")
+    _check_id(orcid_id)
+    return parsed
+
+
+def _check_id(orcid_id: str) -> None:
+    segments = orcid_id.split("-")
+    if len(segments) != 4 or not all(len(s) == 4 for s in segments):
+        # Must have 4 blocks of 4 digits each.
+        raise ValueError(f"Invalid ORCID iD: '{orcid_id}'. Incorrect structure.")
+    if orcid_id_checksum(orcid_id) != orcid_id[-1]:
+        # Checksum must match the last digit.
+        raise ValueError(f"Invalid ORCID iD: '{orcid_id}'. Checksum does not match.")

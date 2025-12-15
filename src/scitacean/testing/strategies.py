@@ -36,7 +36,7 @@ from email_validator import EmailNotValidError, ValidatedEmail, validate_email
 from hypothesis import strategies as st
 
 from .. import Dataset, DatasetType, RemotePath, model
-from .._internal.orcid import orcid_checksum
+from .._internal.orcid import orcid_id_checksum
 
 
 # email_validator and by extension pydantic is more picky than hypothesis
@@ -122,7 +122,7 @@ def orcids() -> st.SearchStrategy[str]:
     """
 
     def make_orcid(digits: str) -> str:
-        digits = digits[:-1] + orcid_checksum(digits)
+        digits = digits[:-1] + orcid_id_checksum(digits)
         return "https://orcid.org/" + "-".join(
             digits[i : i + 4] for i in range(0, 16, 4)
         )
