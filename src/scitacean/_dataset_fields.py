@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Any, ClassVar, Literal, TypeVar
@@ -29,6 +30,7 @@ from .model import (
     Technique,
     construct,
 )
+from .ontology import find_technique
 from .pid import PID
 
 M = TypeVar("M", bound=BaseModel)
@@ -52,6 +54,12 @@ def _parse_remote_path(path: str | RemotePath | None) -> RemotePath | None:
     if path is None:
         return path
     return RemotePath(path)
+
+
+def _parse_techniques(arg: Iterable[str | Technique] | None) -> list[Technique] | None:
+    if arg is None:
+        return None
+    return [t if isinstance(t, Technique) else find_technique(t) for t in arg]
 
 
 def _validate_checksum_algorithm(algorithm: str | None) -> str | None:
@@ -615,7 +623,7 @@ class DatasetBase:
         source_folder: RemotePath | str | None = None,
         source_folder_host: str | None = None,
         start_time: datetime | None = None,
-        techniques: list[Technique] | None = None,
+        techniques: Iterable[str | Technique] | None = None,
         used_software: list[str] | None = None,
         validation_status: str | None = None,
         meta: dict[str, Any] | None = None,
@@ -656,7 +664,7 @@ class DatasetBase:
         self._source_folder = _parse_remote_path(source_folder)
         self._source_folder_host = source_folder_host
         self._start_time = start_time
-        self._techniques = techniques
+        self._techniques = _parse_techniques(techniques)
         self._used_software = used_software
         self._validation_status = validation_status
         self._api_version = None
@@ -1033,9 +1041,9 @@ class DatasetBase:
         return self._techniques
 
     @techniques.setter
-    def techniques(self, techniques: list[Technique] | None) -> None:
+    def techniques(self, techniques: Iterable[str | Technique] | None) -> None:
         """Stores the metadata information for techniques."""
-        self._techniques = techniques
+        self._techniques = _parse_techniques(techniques)
 
     @property
     def updated_at(self) -> datetime | None:

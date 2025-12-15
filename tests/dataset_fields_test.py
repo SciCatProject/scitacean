@@ -18,6 +18,7 @@ from scitacean.model import (
     DownloadDataFile,
     DownloadDataset,
     DownloadOrigDatablock,
+    Technique,
     UploadDerivedDataset,
     UploadRawDataset,
 )
@@ -430,12 +431,12 @@ def test_orcid_validation_valid(good_orcid: str) -> None:
     dset = Dataset(
         type="raw",
         name="test ORCID",
-        contact_email="jan-lukas.wynen@ess.eu",
+        contact_email="mail.person@sci.uni",
         creation_location="scitacean/tests",
         creation_time="2142-04-02T16:44:56",
-        owner="Jan-Lukas Wynen",
+        owner="Mustrum Ridcully",
         owner_group="ess",
-        principal_investigator="jan-lukas.wynen@ess.eu",
+        principal_investigator="mail.person@sci.uni",
         source_folder=RemotePath("/hex/source62"),
         orcid_of_owner=good_orcid,
     )
@@ -454,11 +455,11 @@ def test_orcid_validation_valid(good_orcid: str) -> None:
 def test_orcid_validation_missing_url(bad_orcid: str) -> None:
     dset = Dataset(
         type="raw",
-        contact_email="jan-lukas.wynen@ess.eu",
+        contact_email="mail.person@sci.uni",
         creation_time="2142-04-02T16:44:56",
-        owner="Jan-Lukas Wynen",
+        owner="Mustrum Ridcully",
         owner_group="ess",
-        principal_investigator="jan-lukas.wynen@ess.eu",
+        principal_investigator="mail.person@sci.uni",
         source_folder=RemotePath("/hex/source62"),
         orcid_of_owner=bad_orcid,
     )
@@ -466,4 +467,52 @@ def test_orcid_validation_missing_url(bad_orcid: str) -> None:
         dset.make_upload_model()
 
 
-# TODO technique
+def test_technique_set_model() -> None:
+    technique = Technique(pid="test/technique", name="Test Technique")
+    dset = Dataset(
+        type="raw",
+        contact_email="mail.person@sci.uni",
+        creation_time="2142-04-02T16:44:56",
+        owner="Mustrum Ridcully",
+        owner_group="ess",
+        principal_investigator="mail.person@sci.uni",
+        source_folder=RemotePath("/hex/source62"),
+        techniques=[technique],
+    )
+    assert dset.techniques == [technique]
+
+
+def test_technique_set_label() -> None:
+    dset = Dataset(
+        type="raw",
+        contact_email="mail.person@sci.uni",
+        creation_time="2142-04-02T16:44:56",
+        owner="Mustrum Ridcully",
+        owner_group="ess",
+        principal_investigator="mail.person@sci.uni",
+        source_folder=RemotePath("/hex/source62"),
+        techniques=["neutron powder diffraction"],
+    )
+    expected = Technique(
+        pid="http://purl.org/pan-science/PaNET/PaNET01100",
+        name="neutron powder diffraction",
+    )
+    Technique(
+        name="neutron powder diffraction",
+        pid="http://purl.org/pan-science/PaNET/PaNET01100",
+    )
+    assert dset.techniques == [expected]
+
+
+def test_technique_set_invalid_label_raises_value_error() -> None:
+    dset = Dataset(
+        type="raw",
+        contact_email="mail.person@sci.uni",
+        creation_time="2142-04-02T16:44:56",
+        owner="Mustrum Ridcully",
+        owner_group="ess",
+        principal_investigator="mail.person@sci.uni",
+        source_folder=RemotePath("/hex/source62"),
+    )
+    with pytest.raises(ValueError, match="Unknown technique"):
+        dset.techniques = ["bad technique"]
