@@ -129,6 +129,7 @@ class FakeClient(Client):
         self.datasets: dict[PID, model.DownloadDataset] = {}
         self.orig_datablocks: dict[PID, list[model.DownloadOrigDatablock]] = {}
         self.attachments: dict[PID, list[model.DownloadAttachment]] = {}
+        self.proposals: dict[str, model.DownloadProposal] = {}
         self.samples: dict[str, model.DownloadSample] = {}
 
     @classmethod
@@ -226,6 +227,19 @@ class FakeScicatClient(ScicatClient):
         return self.main.attachments.get(pid) or []
 
     @_conditionally_disabled
+    def get_proposal_model(
+        self, proposal_id: str, strict_validation: bool = False
+    ) -> model.DownloadProposal:
+        """Fetch a proposal from SciCat."""
+        _ = strict_validation  # unused by fake
+        try:
+            return self.main.proposals[proposal_id]
+        except KeyError:
+            raise ScicatCommError(
+                f"Unable to retrieve proposal {proposal_id}"
+            ) from None
+
+    @_conditionally_disabled
     def get_sample_model(
         self, sample_id: str, strict_validation: bool = False
     ) -> model.DownloadSample:
@@ -281,6 +295,21 @@ class FakeScicatClient(ScicatClient):
         if dataset_id not in self.main.datasets:
             raise ScicatCommError(f"No dataset with id {dataset_id}")
         self.main.attachments.setdefault(dataset_id, []).append(ingested)
+        return ingested
+
+    @_conditionally_disabled
+    def create_proposal_model(
+        self, proposal: model.UploadProposal
+    ) -> model.DownloadProposal:
+        """Create a new proposal in SciCat."""
+        ingested = _process_proposal(proposal)
+        proposal_id: str = ingested.proposalId  # type: ignore[assignment]
+        if proposal_id in self.main.proposals:
+            raise ScicatCommError(
+                f"Cannot create proposal with id '{proposal_id}' "
+                "because there already is a proposal with this id."
+            )
+        self.main.proposals[proposal_id] = ingested
         return ingested
 
     @_conditionally_disabled
@@ -399,6 +428,22 @@ def _process_attachment(
     # If there are validation errors, it was probably intended by the user.
     return model.construct(
         model.DownloadAttachment,
+        _strict_validation=False,
+        createdBy="fake",
+        createdAt=created_at,
+        updatedBy="fake",
+        updatedAt=created_at,
+        **fields,
+    )
+
+
+def _process_proposal(proposal: model.UploadProposal) -> model.DownloadProposal:
+    created_at = datetime.datetime.now(tz=datetime.UTC)
+    fields = _model_dict(proposal)
+    # Using strict_validation=False because the input model should already be validated.
+    # If there are validation errors, it was probably intended by the user.
+    return model.construct(
+        model.DownloadProposal,
         _strict_validation=False,
         createdBy="fake",
         createdAt=created_at,

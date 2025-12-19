@@ -30,6 +30,8 @@ Dataclasses exposed to users, primarily through :class:`Dataset`.
   History
   Instrument
   Lifecycle
+  MeasurementPeriod
+  Proposal
   Relationship
   Sample
   Technique
@@ -48,7 +50,9 @@ Pydantic models for the data received from SciCat in downloads.
   DownloadHistory
   DownloadInstrument
   DownloadLifecycle
+  DownloadMeasurementPeriod
   DownloadOrigDatablock
+  DownloadProposal
   DownloadRelationship
   DownloadSample
   DownloadTechnique
@@ -64,7 +68,9 @@ Pydantic models sent to SciCat in uploads.
   UploadDatablock
   UploadDataFile
   UploadDerivedDataset
+  UploadMeasurementPeriod
   UploadOrigDatablock
+  UploadProposal
   UploadRawDataset
   UploadRelationship
   UploadSample
@@ -80,6 +86,7 @@ Pydantic models sent to SciCat in uploads.
 
 from __future__ import annotations
 
+import builtins
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
@@ -555,6 +562,78 @@ class DownloadInstrument(BaseModel):
         return Instrument
 
 
+class DownloadProposal(BaseModel):
+    email: str | None = None
+    ownerGroup: str | None = None
+    proposalId: str | None = None
+    title: str | None = None
+    measurementPeriodList: list[DownloadMeasurementPeriod] | None = None
+    abstract: str | None = None
+    accessGroups: list[str] | None = None
+    createdAt: datetime | None = None
+    createdBy: str | None = None
+    endTime: datetime | None = None
+    firstname: str | None = None
+    instrumentGroup: str | None = None
+    isPublished: bool | None = None
+    lastname: str | None = None
+    metadata: dict[str, Any] | None = None
+    parentProposalId: str | None = None
+    pi_email: str | None = None
+    pi_firstname: str | None = None
+    pi_lastname: str | None = None
+    startTime: datetime | None = None
+    type: str | None = None
+    updatedAt: datetime | None = None
+    updatedBy: str | None = None
+
+    @classmethod
+    def user_model_type(cls) -> builtins.type[Proposal]:
+        return Proposal
+
+    # Custom properties to work around naming inconsistencies in SciCat.
+    @property
+    def piEmail(self) -> str | None:
+        return self.pi_email
+
+    @property
+    def piFirstname(self) -> str | None:
+        return self.pi_firstname
+
+    @property
+    def piLastname(self) -> str | None:
+        return self.pi_lastname
+
+
+class UploadProposal(BaseModel):
+    email: str
+    ownerGroup: str
+    proposalId: str
+    title: str
+    MeasurementPeriodList: list[UploadMeasurementPeriod] | None = None
+    abstract: str | None = None
+    accessGroups: list[str] | None = None
+    endTime: datetime | None = None
+    firstname: str | None = None
+    instrumentGroup: str | None = None
+    lastname: str | None = None
+    metadata: dict[str, Any] | None = None
+    parentProposalId: str | None = None
+    pi_email: str | None = None
+    pi_firstname: str | None = None
+    pi_lastname: str | None = None
+    startTime: datetime | None = None
+    type: str | None = None
+
+    @classmethod
+    def user_model_type(cls) -> builtins.type[Proposal]:
+        return Proposal
+
+    @classmethod
+    def download_model_type(cls) -> builtins.type[DownloadProposal]:
+        return DownloadProposal
+
+
 class DownloadSample(BaseModel):
     ownerGroup: str | None = None
     accessGroups: list[str] | None = None
@@ -599,6 +678,36 @@ class UploadSample(BaseModel):
     @classmethod
     def download_model_type(cls) -> type[DownloadSample]:
         return DownloadSample
+
+
+class DownloadMeasurementPeriod(BaseModel):
+    comment: str | None = None
+    end: datetime | None = None
+    instrument: str | None = None
+    start: datetime | None = None
+
+    @classmethod
+    def user_model_type(cls) -> type[MeasurementPeriod]:
+        return MeasurementPeriod
+
+    @classmethod
+    def upload_model_type(cls) -> type[UploadMeasurementPeriod]:
+        return UploadMeasurementPeriod
+
+
+class UploadMeasurementPeriod(BaseModel):
+    end: datetime
+    instrument: str
+    start: datetime
+    comment: str | None = None
+
+    @classmethod
+    def user_model_type(cls) -> type[MeasurementPeriod]:
+        return MeasurementPeriod
+
+    @classmethod
+    def download_model_type(cls) -> type[DownloadMeasurementPeriod]:
+        return DownloadMeasurementPeriod
 
 
 @dataclass(kw_only=True, slots=True)
@@ -847,6 +956,70 @@ class Instrument(BaseUserModel):
 
 
 @dataclass(kw_only=True, slots=True)
+class Proposal(BaseUserModel):
+    email: str
+    owner_group: str
+    proposal_id: str
+    title: str
+    measurement_period_list: list[MeasurementPeriod] | None = None
+    abstract: str | None = None
+    access_groups: list[str] | None = None
+    end_time: datetime | None = None
+    firstname: str | None = None
+    instrument_group: str | None = None
+    lastname: str | None = None
+    metadata: dict[str, Any] | None = None
+    parent_proposal_id: str | None = None
+    pi_email: str | None = None
+    pi_firstname: str | None = None
+    pi_lastname: str | None = None
+    start_time: datetime | None = None
+    type: str | None = None
+    _created_at: datetime | None = None
+    _created_by: str | None = None
+    _is_published: bool | None = None
+    _updated_at: datetime | None = None
+    _updated_by: str | None = None
+
+    @property
+    def created_at(self) -> datetime | None:
+        return self._created_at
+
+    @property
+    def created_by(self) -> str | None:
+        return self._created_by
+
+    @property
+    def is_published(self) -> bool | None:
+        return self._is_published
+
+    @property
+    def updated_at(self) -> datetime | None:
+        return self._updated_at
+
+    @property
+    def updated_by(self) -> str | None:
+        return self._updated_by
+
+    @classmethod
+    def from_download_model(cls, download_model: DownloadProposal) -> Proposal:
+        """Construct an instance from an associated SciCat download model."""
+        return cls(**cls._download_model_dict(download_model))
+
+    def make_upload_model(self) -> UploadProposal:
+        """Construct a SciCat upload model from self."""
+        return UploadProposal(**self._upload_model_dict())
+
+    @classmethod
+    def upload_model_type(cls) -> builtins.type[UploadProposal]:
+        return UploadProposal
+
+    @classmethod
+    def download_model_type(cls) -> builtins.type[DownloadProposal]:
+        return DownloadProposal
+
+
+@dataclass(kw_only=True, slots=True)
 class Sample(BaseUserModel):
     owner_group: str
     access_groups: list[str] | None = None
@@ -895,6 +1068,33 @@ class Sample(BaseUserModel):
         return DownloadSample
 
 
+@dataclass(kw_only=True, slots=True)
+class MeasurementPeriod(BaseUserModel):
+    end: datetime
+    instrument: str
+    start: datetime
+    comment: str | None = None
+
+    @classmethod
+    def from_download_model(
+        cls, download_model: DownloadMeasurementPeriod
+    ) -> MeasurementPeriod:
+        """Construct an instance from an associated SciCat download model."""
+        return cls(**cls._download_model_dict(download_model))
+
+    def make_upload_model(self) -> UploadMeasurementPeriod:
+        """Construct a SciCat upload model from self."""
+        return UploadMeasurementPeriod(**self._upload_model_dict())
+
+    @classmethod
+    def upload_model_type(cls) -> type[UploadMeasurementPeriod]:
+        return UploadMeasurementPeriod
+
+    @classmethod
+    def download_model_type(cls) -> type[DownloadMeasurementPeriod]:
+        return DownloadMeasurementPeriod
+
+
 # Some models contain fields that are other models which are defined
 # further down in the file.
 # Instead of ordering models according to their dependencies, resolve
@@ -914,8 +1114,12 @@ DownloadHistory.model_rebuild()
 DownloadDataFile.model_rebuild()
 UploadDataFile.model_rebuild()
 DownloadInstrument.model_rebuild()
+DownloadProposal.model_rebuild()
+UploadProposal.model_rebuild()
 DownloadSample.model_rebuild()
 UploadSample.model_rebuild()
+DownloadMeasurementPeriod.model_rebuild()
+UploadMeasurementPeriod.model_rebuild()
 DownloadDataset.model_rebuild()
 UploadDerivedDataset.model_rebuild()
 UploadRawDataset.model_rebuild()
@@ -932,13 +1136,17 @@ __all__ = (
     "DownloadHistory",
     "DownloadInstrument",
     "DownloadLifecycle",
+    "DownloadMeasurementPeriod",
     "DownloadOrigDatablock",
+    "DownloadProposal",
     "DownloadRelationship",
     "DownloadSample",
     "DownloadTechnique",
     "History",
     "Instrument",
     "Lifecycle",
+    "MeasurementPeriod",
+    "Proposal",
     "Relationship",
     "Sample",
     "Technique",
@@ -946,7 +1154,9 @@ __all__ = (
     "UploadDataFile",
     "UploadDatablock",
     "UploadDerivedDataset",
+    "UploadMeasurementPeriod",
     "UploadOrigDatablock",
+    "UploadProposal",
     "UploadRawDataset",
     "UploadRelationship",
     "UploadSample",
