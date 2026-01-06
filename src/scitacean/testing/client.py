@@ -129,6 +129,7 @@ class FakeClient(Client):
         self.datasets: dict[PID, model.DownloadDataset] = {}
         self.orig_datablocks: dict[PID, list[model.DownloadOrigDatablock]] = {}
         self.attachments: dict[PID, list[model.DownloadAttachment]] = {}
+        self.instruments: dict[str, model.DownloadInstrument] = {}
         self.proposals: dict[str, model.DownloadProposal] = {}
         self.samples: dict[str, model.DownloadSample] = {}
 
@@ -225,6 +226,27 @@ class FakeScicatClient(ScicatClient):
         """Fetch all attachments from SciCat for a given dataset."""
         _ = strict_validation  # unused by fake
         return self.main.attachments.get(pid) or []
+
+    @_conditionally_disabled
+    def get_instrument_model(
+        self, instrument_id: str, strict_validation: bool = False
+    ) -> model.DownloadInstrument:
+        """Fetch an instrument from SciCat."""
+        _ = strict_validation  # unused by fake
+        try:
+            return self.main.instruments[instrument_id]
+        except KeyError:
+            raise ScicatCommError(
+                f"Unable to retrieve instrument {instrument_id}"
+            ) from None
+
+    @_conditionally_disabled
+    def get_all_instrument_models(
+        self, strict_validation: bool = False
+    ) -> list[model.DownloadInstrument]:
+        """Fetch all available instruments from SciCat."""
+        _ = strict_validation  # unused by fake
+        return list(self.main.instruments.values())
 
     @_conditionally_disabled
     def get_proposal_model(
