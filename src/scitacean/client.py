@@ -956,6 +956,89 @@ class ScicatClient:
             for attachment in attachment_json
         ]
 
+    def get_instrument_model(
+        self, instrument_id: str, strict_validation: bool = False
+    ) -> model.DownloadInstrument:
+        """Fetch an instrument from SciCat.
+
+        Parameters
+        ----------
+        instrument_id:
+            ID of the instrument to fetch.
+        strict_validation:
+            If ``True``, the sample must pass validation.
+            If ``False``, a sample is still returned if validation fails.
+            Note that some fields may have a bad value or type.
+            A warning will be logged if validation fails.
+
+        Returns
+        -------
+        :
+            A model of the instrument.
+
+        Raises
+        ------
+        scitacean.ScicatCommError
+            If the instrument does not exist or communication
+            fails for some other reason.
+        """
+        instrument_json = self.call_endpoint(
+            cmd="get",
+            url=f"instruments/{quote_plus(instrument_id)}",
+            operation="get_instrument_model",
+        )
+        if not instrument_json:
+            raise ScicatCommError(
+                f"Cannot get instrument with {instrument_id=}, "
+                f"no such instrument in SciCat at {self._base_url}."
+            )
+        return model.construct(
+            model.DownloadInstrument,
+            _strict_validation=strict_validation,
+            **instrument_json,
+        )
+
+    def get_all_instrument_models(
+        self, strict_validation: bool = False
+    ) -> list[model.DownloadInstrument]:
+        """Fetch all available instruments from SciCat.
+
+        Parameters
+        ----------
+        strict_validation:
+            If ``True``, the sample must pass validation.
+            If ``False``, a sample is still returned if validation fails.
+            Note that some fields may have a bad value or type.
+            A warning will be logged if validation fails.
+
+        Returns
+        -------
+        :
+            A list of models of the instruments.
+
+        Raises
+        ------
+        scitacean.ScicatCommError
+            If communication fails.
+        """
+        instrument_json = self.call_endpoint(
+            cmd="get",
+            url="instruments",
+            operation="get_all_instrument_models",
+        )
+        if not instrument_json:
+            raise ScicatCommError(
+                f"Cannot get instruments from SciCat at {self._base_url}."
+            )
+        return [
+            model.construct(
+                model.DownloadInstrument,
+                _strict_validation=strict_validation,
+                **instrument,
+            )
+            for instrument in instrument_json
+        ]
+
     def get_proposal_model(
         self, proposal_id: str, strict_validation: bool = False
     ) -> model.DownloadProposal:
