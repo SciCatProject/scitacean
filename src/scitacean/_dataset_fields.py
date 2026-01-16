@@ -336,7 +336,7 @@ class DatasetBase:
             name="name",
             description="A name for the dataset, given by the creator to carry some semantic meaning. Useful for display purposes e.g. instead of displaying the pid. Will be autofilled if missing using info from sourceFolder.",
             read_only=False,
-            required=False,
+            required=True,
             scicat_name="datasetName",
             type=str,
             used_by_derived=True,
