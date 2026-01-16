@@ -35,12 +35,6 @@ def docker_compose_down(config_file: _PathLike) -> None:
     )
 
 
-def docker_compose_run(config_file: _PathLike, service: str, *cmd: str) -> None:
-    subprocess.check_call(
-        ["docker", "compose", "--file", os.fspath(config_file), "run", service, *cmd]
-    )
-
-
 def _try_parse_json(s: str) -> Any:
     # The precise output of `docker ps` can vary.
     # So parse it leniently; if a line isn't valid JSON, it surely does not
