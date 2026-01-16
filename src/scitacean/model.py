@@ -170,6 +170,7 @@ class DownloadDataset(BaseModel):
 class UploadDerivedDataset(BaseModel):
     contactEmail: str
     creationTime: datetime
+    datasetName: str | None
     inputDatasets: list[PID]
     investigator: str
     numberOfFilesArchived: NonNegativeInt
@@ -190,7 +191,6 @@ class UploadDerivedDataset(BaseModel):
     keywords: list[str] | None = None
     license: str | None = None
     scientificMetadata: dict[str, Any] | None = None
-    datasetName: str | None = None
     numberOfFiles: NonNegativeInt | None = None
     orcidOfOwner: str | None = None
     ownerEmail: str | None = None
@@ -225,6 +225,7 @@ class UploadRawDataset(BaseModel):
     contactEmail: str
     creationLocation: str
     creationTime: datetime
+    datasetName: str | None
     inputDatasets: list[PID]
     investigator: str
     numberOfFilesArchived: NonNegativeInt
@@ -249,7 +250,6 @@ class UploadRawDataset(BaseModel):
     keywords: list[str] | None = None
     license: str | None = None
     scientificMetadata: dict[str, Any] | None = None
-    datasetName: str | None = None
     numberOfFiles: NonNegativeInt | None = None
     orcidOfOwner: str | None = None
     ownerEmail: str | None = None

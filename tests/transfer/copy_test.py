@@ -353,6 +353,7 @@ def test_client_upload_with_copy(tmp_path: Path) -> None:
         access_groups=["group1"],
         contact_email="p.stibbons@uu.am",
         creation_location="UU",
+        name="Mustrum's test data",
         owner="PonderStibbons",
         owner_group="uu",
         principal_investigator="MustrumRidcully",
