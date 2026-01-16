@@ -80,8 +80,14 @@ def _copy_seed(target_seed_dir: Path) -> None:
 def configure(target_dir: Path | str) -> Path:
     """Generate a config file for docker compose and copy seed data."""
     target_dir = Path(target_dir)
-    target_seed_dir = target_dir / "data" / "seed"
-    target_seed_dir.mkdir(parents=True)
+    target_data_dir = target_dir / "data"
+    target_data_dir.mkdir(parents=True)
+    # Make world-writable so that the docker user has write access regardless of whether
+    # its UID matches the host UID.
+    target_data_dir.chmod(0o777)
+
+    target_seed_dir = target_data_dir / "seed"
+    target_seed_dir.mkdir()
     _copy_seed(target_seed_dir)
 
     config_target = target_dir / "docker-compose.yaml"
