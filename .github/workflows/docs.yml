@@ -38,7 +38,7 @@ jobs:
     name: Deploy documentation
     needs: build-docs
     if: ${{ inputs.publish }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
     permissions:
       pages: write
       id-token: write
