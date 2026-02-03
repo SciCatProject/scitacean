@@ -12,6 +12,8 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
+import pydantic
+
 from .. import model
 from .._profile import Profile, make_client_params
 from ..client import Client, ScicatClient
@@ -354,6 +356,21 @@ class FakeScicatClient(ScicatClient):
         """Validate model remotely in SciCat."""
         # Models were locally validated on construction, assume they are valid.
         pass
+
+    def call_endpoint(
+        self,
+        *,
+        cmd: str,
+        url: str,
+        operation: str,
+        data: pydantic.BaseModel | None = None,
+        params: dict[str, str] | None = None,
+    ) -> Any:
+        """DISABLED Call a REST API endpoint of SciCat."""
+        raise RuntimeError(
+            "Using `call_endpoint` is not supported by FakeClient. "
+            f"Called with {cmd=} {url=} {operation=} {data=} {params=}"
+        )
 
 
 def _model_dict(mod: model.BaseModel) -> dict[str, Any]:
