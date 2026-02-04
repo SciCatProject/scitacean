@@ -758,7 +758,7 @@ class ScicatClient:
         scitacean.ScicatCommError
             If the dataset does not exist or communication fails for some other reason.
         """
-        dset_json = self._call_endpoint(
+        dset_json = self.call_endpoint(
             cmd="get",
             url=f"datasets/{quote_plus(str(pid))}",
             operation="get_dataset_model",
@@ -863,7 +863,7 @@ class ScicatClient:
         if limits:
             params["limits"] = json.dumps(limits)
 
-        dsets_json = self._call_endpoint(
+        dsets_json = self.call_endpoint(
             cmd="get",
             url="datasets/fullquery",
             params=params,
@@ -906,7 +906,7 @@ class ScicatClient:
         scitacean.ScicatCommError
             If communication fails.
         """
-        dblock_json = self._call_endpoint(
+        dblock_json = self.call_endpoint(
             cmd="get",
             url=f"datasets/{quote_plus(str(pid))}/origdatablocks",
             operation="get_orig_datablocks",
@@ -942,7 +942,7 @@ class ScicatClient:
         scitacean.ScicatCommError
             If communication fails.
         """
-        attachment_json = self._call_endpoint(
+        attachment_json = self.call_endpoint(
             cmd="get",
             url=f"datasets/{quote_plus(str(pid))}/attachments",
             operation="get_attachments_for_dataset",
@@ -954,6 +954,89 @@ class ScicatClient:
                 **attachment,
             )
             for attachment in attachment_json
+        ]
+
+    def get_instrument_model(
+        self, instrument_id: str, strict_validation: bool = False
+    ) -> model.DownloadInstrument:
+        """Fetch an instrument from SciCat.
+
+        Parameters
+        ----------
+        instrument_id:
+            ID of the instrument to fetch.
+        strict_validation:
+            If ``True``, the sample must pass validation.
+            If ``False``, a sample is still returned if validation fails.
+            Note that some fields may have a bad value or type.
+            A warning will be logged if validation fails.
+
+        Returns
+        -------
+        :
+            A model of the instrument.
+
+        Raises
+        ------
+        scitacean.ScicatCommError
+            If the instrument does not exist or communication
+            fails for some other reason.
+        """
+        instrument_json = self.call_endpoint(
+            cmd="get",
+            url=f"instruments/{quote_plus(instrument_id)}",
+            operation="get_instrument_model",
+        )
+        if not instrument_json:
+            raise ScicatCommError(
+                f"Cannot get instrument with {instrument_id=}, "
+                f"no such instrument in SciCat at {self._base_url}."
+            )
+        return model.construct(
+            model.DownloadInstrument,
+            _strict_validation=strict_validation,
+            **instrument_json,
+        )
+
+    def get_all_instrument_models(
+        self, strict_validation: bool = False
+    ) -> list[model.DownloadInstrument]:
+        """Fetch all available instruments from SciCat.
+
+        Parameters
+        ----------
+        strict_validation:
+            If ``True``, the sample must pass validation.
+            If ``False``, a sample is still returned if validation fails.
+            Note that some fields may have a bad value or type.
+            A warning will be logged if validation fails.
+
+        Returns
+        -------
+        :
+            A list of models of the instruments.
+
+        Raises
+        ------
+        scitacean.ScicatCommError
+            If communication fails.
+        """
+        instrument_json = self.call_endpoint(
+            cmd="get",
+            url="instruments",
+            operation="get_all_instrument_models",
+        )
+        if not instrument_json:
+            raise ScicatCommError(
+                f"Cannot get instruments from SciCat at {self._base_url}."
+            )
+        return [
+            model.construct(
+                model.DownloadInstrument,
+                _strict_validation=strict_validation,
+                **instrument,
+            )
+            for instrument in instrument_json
         ]
 
     def get_proposal_model(
@@ -981,7 +1064,7 @@ class ScicatClient:
         scitacean.ScicatCommError
             If the proposal does not exist or communication fails for some other reason.
         """
-        proposal_json = self._call_endpoint(
+        proposal_json = self.call_endpoint(
             cmd="get",
             url=f"proposals/{quote_plus(proposal_id)}",
             operation="get_proposal_model",
@@ -1022,7 +1105,7 @@ class ScicatClient:
         scitacean.ScicatCommError
             If the sample does not exist or communication fails for some other reason.
         """
-        sample_json = self._call_endpoint(
+        sample_json = self.call_endpoint(
             cmd="get",
             url=f"samples/{quote_plus(sample_id)}",
             operation="get_sample_model",
@@ -1070,7 +1153,7 @@ class ScicatClient:
             If SciCat refuses the dataset or communication
             fails for some other reason.
         """
-        uploaded = self._call_endpoint(
+        uploaded = self.call_endpoint(
             cmd="post", url="datasets", data=dset, operation="create_dataset_model"
         )
         return model.construct(
@@ -1106,7 +1189,7 @@ class ScicatClient:
             If SciCat refuses the datablock or communication
             fails for some other reason.
         """
-        uploaded = self._call_endpoint(
+        uploaded = self.call_endpoint(
             cmd="post",
             url=f"datasets/{quote_plus(str(dataset_id))}/origdatablocks",
             data=dblock,
@@ -1145,7 +1228,7 @@ class ScicatClient:
             If SciCat refuses the attachment or communication
             fails for some other reason.
         """
-        uploaded = self._call_endpoint(
+        uploaded = self.call_endpoint(
             cmd="post",
             url=f"datasets/{quote_plus(str(dataset_id))}/attachments",
             data=attachment,
@@ -1183,7 +1266,7 @@ class ScicatClient:
             If SciCat refuses the proposal or communication
             fails for some other reason.
         """
-        uploaded = self._call_endpoint(
+        uploaded = self.call_endpoint(
             cmd="post",
             url="proposals",
             data=proposal,
@@ -1223,7 +1306,7 @@ class ScicatClient:
             If SciCat refuses the sample or communication
             fails for some other reason.
         """
-        uploaded = self._call_endpoint(
+        uploaded = self.call_endpoint(
             cmd="post", url="samples", data=sample, operation="create_sample_model"
         )
         return model.construct(
@@ -1245,7 +1328,7 @@ class ScicatClient:
         ValueError
             If the dataset does not pass validation.
         """
-        response = self._call_endpoint(
+        response = self.call_endpoint(
             cmd="post",
             url="datasets/isValid",
             data=dset,
@@ -1259,7 +1342,7 @@ class ScicatClient:
         *,
         cmd: str,
         url: str,
-        data: model.BaseModel | None = None,
+        data: pydantic.BaseModel | None = None,
         params: dict[str, str] | None = None,
     ) -> httpx.Response:
         if self._token is not None:
@@ -1294,15 +1377,56 @@ class ScicatClient:
                 *tuple(_strip_token(arg, token) for arg in exc.args)
             ) from None
 
-    def _call_endpoint(
+    def call_endpoint(
         self,
         *,
         cmd: str,
         url: str,
         operation: str,
-        data: model.BaseModel | None = None,
+        data: pydantic.BaseModel | None = None,
         params: dict[str, str] | None = None,
     ) -> Any:
+        """Call a REST API endpoint of SciCat.
+
+        This is a low-level function for raw API calls with SciCat.
+        It calls a given endpoint with the stored credentials and base URL of this
+        client. It returns the resulting JSON on success or raises a
+        :class:`ScicatCommError` on failure.
+
+        Parameters
+        ----------
+        cmd:
+            HTTP command to use: "GET", "POST", etc.
+        url:
+            Relative URL to concatenate to the SciCat base URL.
+        operation:
+            A name for this operation. Used in error messages and logs.
+        data:
+            An optional Pydantic model to serialize and pass as the request body.
+        params:
+            Request params to encode in the URL.
+
+        Returns
+        -------
+        :
+            The returned JSON if there is any, otherwise ``None``.
+
+        Examples
+        --------
+        Use the following to get a dataset by its PID.
+
+        .. code-block:: python
+
+            from urllib.parse import quote_plus
+            ds_json = client.call_endpoint(
+                cmd="get",
+                url=f"datasets/{quote_plus(str(pid))}",
+                operation="get_dataset_model",
+            )
+
+        Note the use `quote_plus` for the PID. You must ensure to properly escape
+        all URL components.
+        """
         full_url = _url_concat(self._base_url, url)
         logger = get_logger()
         logger.info("Calling SciCat API at %s for operation '%s'", full_url, operation)

@@ -12,6 +12,8 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
+import pydantic
+
 from .. import model
 from .._profile import Profile, make_client_params
 from ..client import Client, ScicatClient
@@ -129,6 +131,7 @@ class FakeClient(Client):
         self.datasets: dict[PID, model.DownloadDataset] = {}
         self.orig_datablocks: dict[PID, list[model.DownloadOrigDatablock]] = {}
         self.attachments: dict[PID, list[model.DownloadAttachment]] = {}
+        self.instruments: dict[str, model.DownloadInstrument] = {}
         self.proposals: dict[str, model.DownloadProposal] = {}
         self.samples: dict[str, model.DownloadSample] = {}
 
@@ -225,6 +228,27 @@ class FakeScicatClient(ScicatClient):
         """Fetch all attachments from SciCat for a given dataset."""
         _ = strict_validation  # unused by fake
         return self.main.attachments.get(pid) or []
+
+    @_conditionally_disabled
+    def get_instrument_model(
+        self, instrument_id: str, strict_validation: bool = False
+    ) -> model.DownloadInstrument:
+        """Fetch an instrument from SciCat."""
+        _ = strict_validation  # unused by fake
+        try:
+            return self.main.instruments[instrument_id]
+        except KeyError:
+            raise ScicatCommError(
+                f"Unable to retrieve instrument {instrument_id}"
+            ) from None
+
+    @_conditionally_disabled
+    def get_all_instrument_models(
+        self, strict_validation: bool = False
+    ) -> list[model.DownloadInstrument]:
+        """Fetch all available instruments from SciCat."""
+        _ = strict_validation  # unused by fake
+        return list(self.main.instruments.values())
 
     @_conditionally_disabled
     def get_proposal_model(
@@ -332,6 +356,21 @@ class FakeScicatClient(ScicatClient):
         """Validate model remotely in SciCat."""
         # Models were locally validated on construction, assume they are valid.
         pass
+
+    def call_endpoint(
+        self,
+        *,
+        cmd: str,
+        url: str,
+        operation: str,
+        data: pydantic.BaseModel | None = None,
+        params: dict[str, str] | None = None,
+    ) -> Any:
+        """DISABLED Call a REST API endpoint of SciCat."""
+        raise RuntimeError(
+            "Using `call_endpoint` is not supported by FakeClient. "
+            f"Called with {cmd=} {url=} {operation=} {data=} {params=}"
+        )
 
 
 def _model_dict(mod: model.BaseModel) -> dict[str, Any]:
