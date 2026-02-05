@@ -22,7 +22,7 @@ Dependencies
 
       uv tool install rust-just
 
-- Optional: Install **prek** to run the same lints and formatters as on CI.
+- Optional: Install **prek** to run the same linters and code formatters.
   See the `documentation <https://prek.j178.dev/installation/>`_ or use
 
   .. code-block:: shell
