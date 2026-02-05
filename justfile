@@ -13,6 +13,7 @@ test-all *args:
 test *args:
     @uv run --group=test pytest {{ args }}
 
+# Run tests with dependencies as lowest bounds
 test-lowest *args:
     @uv run --resolution=lowest-direct --group=test --group=sftp pytest --backend-tests --sftp-tests {{ args }}
 
@@ -31,6 +32,7 @@ format-python:
 format-md:
     @prek run mdformat -a
 
+# Format Justfiles
 format-just:
     @prek run just-format -a
 
@@ -79,6 +81,7 @@ clean-docs:
 build:
     @uv build
 
+# Generate SciCat models, launches a SciCat backend
 [working-directory('tools/model-generation')]
 generate-models:
     @uv run python generate_models.py --launch-scicat
