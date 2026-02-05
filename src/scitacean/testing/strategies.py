@@ -152,7 +152,7 @@ def _lifecycle_strategy() -> st.SearchStrategy[model.Lifecycle]:
 
 def _source_folder_strategy() -> st.SearchStrategy[RemotePath]:
     return st.from_type(RemotePath).map(
-        lambda p: (p if p.is_absolute() else RemotePath(f"/{p.posix}"))
+        lambda p: p if p.is_absolute() else RemotePath(f"/{p.posix}")
     )
 
 

@@ -33,7 +33,7 @@ repos:
                 "--extra-keys 'metadata.language_info.version cell.metadata.jp-MarkdownHeadingCollapsed cell.metadata.pycharm'" ]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.14
+    rev: v0.15.0
     hooks:
       - id: ruff
         args: [ --fix ]
@@ -59,9 +59,10 @@ repos:
         files: "justfile"
 
   - repo: https://github.com/crate-ci/typos
-    rev: v1.42.3
+    rev: v1.43.1
     hooks:
       - id: typos
+        args: [--force-exclude]
 
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0

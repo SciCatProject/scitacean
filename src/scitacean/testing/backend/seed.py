@@ -303,7 +303,7 @@ _ATTACHMENTS: dict[str, list[UploadAttachment]] = {
             ownerGroup="PLACEHOLDER",
             accessGroups=["uu"],
             datasetId=PID(pid="PLACEHOLDER"),
-            thumbnail=Thumbnail(mime="image/png", data=b"nag;aso;i"),
+            thumbnail=Thumbnail(mime="image/png", data=b"nag;also;i"),
         ),
         UploadAttachment(
             caption="Pretty picture no 1",
