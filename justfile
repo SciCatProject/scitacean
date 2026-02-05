@@ -21,33 +21,33 @@ test-lowest *args:
 alias f := format
 
 # Format args
-format *args: (format-python args) (format-md args)
+format: format-python format-md format-just
 
 # Format Python args
-format-python *args:
-    @prek run ruff-format {{ args }}
+format-python:
+    @prek run ruff-format -a
 
 # Format Markdown args
-format-md *args='.':
-    @prek run mdformat {{ args }}
+format-md:
+    @prek run mdformat -a
 
 format-just:
-    @prek run just-format
+    @prek run just-format -a
 
 # --- Linting ---
 
 alias l := lint
 
 # Lint the codebase
-lint *args: (lint-python args) (spell args)
+lint: lint-python spell
 
 # Lint Python args
-lint-python *args:
-    @prek run ruff {{ args }}
+lint-python:
+    @prek run ruff -a
 
 # Check spelling
-spell *args:
-    @prek run typos {{ args }}
+spell:
+    @prek run typos -a
 
 # Type-check with Mypy
 mypy *args='.':
