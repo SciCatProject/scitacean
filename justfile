@@ -93,3 +93,7 @@ strip-output *notebooks:
 # Lock dependencies
 lock:
     @uv lock
+
+# Update dependencies
+update-deps:
+    @uv lock --upgrade
