@@ -56,7 +56,7 @@ def proposal(ingestor_access: backend_config.SciCatAccess) -> Proposal:
         owner_group=scicat_access.user.group,
         proposal_id="123def",
         title="A test proposal",
-        access_groups=["group1", "2nd_group"],
+        access_groups=["group1", "second_group"],
         pi_email="principal@investigator.net",
         pi_firstname="John",
         pi_lastname="Principal",

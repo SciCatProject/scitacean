@@ -160,6 +160,10 @@ pydocstyle.convention = "numpy"
 "src/scitacean/model.py" = ["D10"]
 "src/scitacean/testing/strategies.py" = ["D401"]
 
+[tool.typos.default.extend-words]
+# Use in SciCat docs
+Ntegrity = "Ntegrity"
+
 [tool.typos.default.extend-identifiers]
 # typos things it should be 'ser' -> 'set'
 plain_serializer_function_ser_schema = "plain_serializer_function_ser_schema"

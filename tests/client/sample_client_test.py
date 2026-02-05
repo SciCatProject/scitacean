@@ -47,7 +47,7 @@ def sample(ingestor_access: backend_config.SciCatAccess) -> Sample:
     scicat_access = ingestor_access
     return Sample(
         owner_group=scicat_access.user.group,
-        access_groups=["group1", "2nd_group"],
+        access_groups=["group1", "second_group"],
         description="A test sample for Scitacean",
         owner=scicat_access.user.username,
         sample_characteristics={"layers": ["H2O", "EtOH"], "mass": 2},
