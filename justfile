@@ -75,8 +75,9 @@ clean-docs:
 
 # --- Other ---
 
+# Build a wheel
 build:
-    @uv run --group=build python -m build
+    @uv build
 
 [working-directory('tools/model-generation')]
 generate-models:
