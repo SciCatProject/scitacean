@@ -159,3 +159,7 @@ pydocstyle.convention = "numpy"
 "tools/*" = ["D10"]
 "src/scitacean/model.py" = ["D10"]
 "src/scitacean/testing/strategies.py" = ["D401"]
+
+[tool.typos.default.extend-identifiers]
+# typos things it should be 'ser' -> 'set'
+plain_serializer_function_ser_schema = "plain_serializer_function_ser_schema"
