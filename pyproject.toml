@@ -46,8 +46,6 @@ test = [
 [dependency-groups]
 dev = [
     {include-group = "docs"},
-    {include-group = "format"},
-    {include-group = "lint"},
     {include-group = "sftp"},
     {include-group = "test"},
     "jinja2 >= 3.1",
@@ -73,15 +71,6 @@ docs = [
     "sphinx-autodoc-typehints >= 3.0",
     "sphinx-copybutton >= 0.5.2",
     "sphinx-design >= 0.6.1",
-]
-format = [
-    "ruff >= 0.14.0",
-    "mdformat >= 0.7.22",
-    "nbstripout >= 0.8.1",
-]
-lint = [
-    "codespell >= 2.4",
-    "ruff >= 0.12.7",
 ]
 sftp = ["paramiko >= 3"]
 test = [
@@ -173,10 +162,3 @@ pydocstyle.convention = "numpy"
 "tools/*" = ["D10"]
 "src/scitacean/model.py" = ["D10"]
 "src/scitacean/testing/strategies.py" = ["D401"]
-
-[tool.codespell]
-ignore-words-list = [
-    "specfield",
-    "socio-economic",
-]
-skip = "build,docs/generated,html"

@@ -20,40 +20,48 @@ repos:
       - id: check-yaml
       - id: detect-private-key
       - id: end-of-file-fixer
+        exclude: '\.idea/'
       - id: trailing-whitespace
         args: [--markdown-linebreak-ext=md]
 
-  - repo: local
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.9.0
     hooks:
       - id: nbstripout
-        name: strip notebook outputs
-        entry: just strip-output
-        language: system
-        types_or: ["jupyter"]
-        require_serial: true
-      - id: format-python
-        name: format python code
-        entry: just format-python
-        language: system
-        types_or: ["python", "pyi"]
-        require_serial: true
-      - id: format-md
-        name: format markdown
-        entry: just format-md
-        language: system
-        types: [file, markdown]
+        types: [ "jupyter" ]
+        args: [ "--drop-empty-cells",
+                "--extra-keys 'metadata.language_info.version cell.metadata.jp-MarkdownHeadingCollapsed cell.metadata.pycharm'" ]
 
-      - id: lint-python
-        name: lint python code
-        entry: just lint-python
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.14
+    hooks:
+      - id: ruff
+        args: [ --fix ]
+        types_or: [ python, pyi, jupyter ]
+      - id: ruff-format
+        types_or: [ python, pyi ]
+
+  - repo: https://github.com/hukkin/mdformat
+    rev: 1.0.0
+    hooks:
+      - id: mdformat
+        additional_dependencies:
+          - mdformat-beautysh
+          - mdformat-ruff
+
+  - repo: local
+    hooks:
+      - id: just-format
+        name: just fmt
+        entry: just --fmt --unstable
+        pass_filenames: false
         language: system
-        types_or: ["python", "pyi", "jupyter"]
-        require_serial: true
-      - id: spelling
-        name: check spelling
-        entry: just spell
-        language: system
-        types: [text]
+        files: "justfile"
+
+  - repo: https://github.com/crate-ci/typos
+    rev: v1.42.3
+    hooks:
+      - id: typos
 
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0
