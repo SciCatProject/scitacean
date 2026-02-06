@@ -38,11 +38,12 @@ To update them, run
 
     prek auto-update
 
-Note that an earlier version implemented linters and formatters in ``justfile`` with ``uv run ...``
-commands and managed tool versions in dependency groups.
-``prek`` then called, e.g., ``just format``.
-This did not work well because it depends on ``just`` and ``uv`` to be visible on the ``PATH``
-of the shell that does the commit and this is not always the case (e.g., in PyCharm).
+.. note::
+    An earlier version implemented linters and formatters in ``justfile`` with
+    ``uv run ...`` commands and managed tool versions in dependency groups.
+    ``prek`` then called, e.g., ``just format``.
+    This did not work well because it depends on ``just`` and ``uv`` to be visible on the ``PATH``
+    of the shell that does the commit and this is not always the case (e.g., in PyCharm).
 
 .. rubric:: Footnotes
 
