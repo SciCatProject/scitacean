@@ -43,11 +43,11 @@ Set up git hooks
 The CI pipeline runs a number of code formatting and static analysis tools.
 If they fail, a build is rejected.
 To avoid that, you can run the same tools locally.
-This can be done conveniently using `pre-commit <https://pre-commit.com/>`_:
+This can be done conveniently using `prek <https://prek.com/>`_:
 
 .. code-block:: sh
 
-    pre-commit install
+    prek install
 
 Alternatively, most checks can also be run manually through ``just``.
 Take a look at ``.pre-commit-config.yaml`` for a list of all checks.
