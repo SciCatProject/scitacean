@@ -43,7 +43,7 @@ Set up git hooks
 The CI pipeline runs a number of code formatting and static analysis tools.
 If they fail, a build is rejected.
 To avoid that, you can run the same tools locally.
-This can be done conveniently using `prek <https://prek.com/>`_:
+This can be done conveniently using `prek <https://prek.j178.dev/>`_:
 
 .. code-block:: sh
 
