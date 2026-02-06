@@ -22,12 +22,12 @@ Dependencies
 
       uv tool install rust-just
 
-- Optional: Install **pre-commit** to run the same lints and formatters as on CI.
-  See the `documentation <https://pre-commit.com/#installation>`_ or use
+- Optional: Install **prek** to run the same linters and code formatters.
+  See the `documentation <https://prek.j178.dev/installation/>`_ or use
 
   .. code-block:: shell
 
-    uv tool install pre-commit --with pre-commit-uv
+    uv tool install prek
 
 - Install **Pandoc** with is required building the documentation.
   `pandoc <https://pandoc.org/>`_ is not on PyPI and needs to be

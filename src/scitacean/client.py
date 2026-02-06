@@ -703,7 +703,7 @@ class ScicatClient:
                     url=url,
                     username=username,
                     password=password,
-                    timeout=timeout if timeout else datetime.timedelta(seconds=10),
+                    timeout=timeout or datetime.timedelta(seconds=10),
                 )
             ),
             timeout=timeout,
@@ -1558,7 +1558,7 @@ def _file_selector(select: FileSelector) -> Callable[[File], bool]:
     if isinstance(select, (list, tuple)):
         return lambda f: f.remote_path in select
     if isinstance(select, re.Pattern):
-        return lambda f: (select.search(f.remote_path.posix) is not None)
+        return lambda f: select.search(f.remote_path.posix) is not None
     return select
 
 

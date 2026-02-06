@@ -7,48 +7,53 @@ alias t := test-all
 
 # Run all tests
 test-all *args:
-    @uv run --group=test --group=sftp pytest --backend-tests --sftp-tests {{args}}
+    @uv run --group=test --group=sftp pytest --backend-tests --sftp-tests {{ args }}
 
 # Run basic tests
 test *args:
-    @uv run --group=test pytest {{args}}
+    @uv run --group=test pytest {{ args }}
 
+# Run tests with dependencies as lowest bounds
 test-lowest *args:
-    @uv run --resolution=lowest-direct --group=test --group=sftp pytest --backend-tests --sftp-tests {{args}}
+    @uv run --resolution=lowest-direct --group=test --group=sftp pytest --backend-tests --sftp-tests {{ args }}
 
 # --- Formatting ---
 
 alias f := format
 
-# Format files
-format *files: (format-python files)
+# Format args
+format: format-python format-md format-just
 
-# Format Python files
-format-python *files:
-    @uv run --group=format ruff format {{files}}
+# Format Python args
+format-python:
+    @prek run ruff-format -a
 
-# Format Markdown files
-format-md *files='.':
-    @uv run --group=format mdformat {{files}}
+# Format Markdown args
+format-md:
+    @prek run mdformat -a
+
+# Format Justfiles
+format-just:
+    @prek run just-format -a
 
 # --- Linting ---
 
 alias l := lint
 
 # Lint the codebase
-lint *files: (lint-python files) (spell files)
+lint: lint-python spell
 
-# Lint Python files
-lint-python *files:
-    @uv run --group=lint ruff check --fix --exit-non-zero-on-fix {{files}}
+# Lint Python args
+lint-python:
+    @prek run ruff -a
 
 # Check spelling
-spell *files:
-    @uv run --group=lint codespell {{files}}
+spell:
+    @prek run typos -a
 
 # Type-check with Mypy
 mypy *args='.':
-    @uv run --group=dev mypy {{args}}
+    @uv run --group=dev mypy {{ args }}
 
 # --- Docs ---
 
@@ -72,20 +77,23 @@ clean-docs:
 
 # --- Other ---
 
+# Build a wheel
 build:
-    @uv run --group=build python -m build
+    @uv build
 
-[working-directory: 'tools/model-generation']
+# Generate SciCat models, launches a SciCat backend
+[working-directory('tools/model-generation')]
 generate-models:
     @uv run python generate_models.py --launch-scicat
 
 # Remove the output from a Jupyter notebook
 strip-output *notebooks:
-    @uv run --group=format nbstripout \
-      --drop-empty-cells \
-      --extra-keys 'metadata.language_info.version cell.metadata.jp-MarkdownHeadingCollapsed cell.metadata.pycharm' \
-      {{notebooks}}
+    @prek run nbstripout {{ notebooks }}
 
 # Lock dependencies
 lock:
     @uv lock
+
+# Update dependencies
+update-deps:
+    @uv lock --upgrade

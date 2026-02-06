@@ -52,7 +52,7 @@ def attachment(scicat_access: backend_config.SciCatAccess) -> UploadAttachment:
         caption="An attachment",
         thumbnail=Thumbnail(mime="image/png", data=b"9278c78a904jh"),
         ownerGroup=scicat_access.user.group,
-        accessGroups=["group1", "2nd_group"],
+        accessGroups=["group1", "second_group"],
     )
 
 

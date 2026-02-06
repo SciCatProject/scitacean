@@ -36,7 +36,7 @@ def get_file_transfer(client: Client) -> FakeFileTransfer:
 @pytest.fixture
 def dataset() -> Dataset:
     return Dataset(
-        access_groups=["group1", "2nd_group"],
+        access_groups=["group1", "second_group"],
         investigator="ridcully@uu.am",
         contact_email="p.stibbons@uu.am",
         source_folder="/hex/source123",

@@ -87,9 +87,11 @@ class Spec:
         return sorted(
             sorted(
                 filter(
-                    lambda field: (kind == "download" and field.download)
-                    or (kind == "upload" and field.upload)
-                    or (kind == "user"),
+                    lambda field: (
+                        (kind == "download" and field.download)
+                        or (kind == "upload" and field.upload)
+                        or (kind == "user")
+                    ),
                     self.fields.values(),
                 ),
                 key=lambda field: field.name,
@@ -129,9 +131,11 @@ class DatasetSpec(Spec):
     ) -> list[DatasetField]:
         return list(
             filter(
-                lambda field: field.used_by_derived
-                if dset_type == "derived"
-                else field.used_by_raw,
+                lambda field: (
+                    field.used_by_derived
+                    if dset_type == "derived"
+                    else field.used_by_raw
+                ),
                 self.fields_for(kind),
             )
         )

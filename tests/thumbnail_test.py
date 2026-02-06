@@ -109,8 +109,8 @@ def test_load_file_unknown_mime_type(fs: FakeFilesystem) -> None:
 
 
 def test_serialize() -> None:
-    thumbnail = Thumbnail(mime="image/jpeg", data=b"ags9da0")
-    assert thumbnail.serialize() == "data:image/jpeg;base64,YWdzOWRhMA=="
+    thumbnail = Thumbnail(mime="image/jpeg", data=b"ag2s9da0")
+    assert thumbnail.serialize() == "data:image/jpeg;base64,YWcyczlkYTA="
 
 
 def test_serialize_parse_roundtrip() -> None:
