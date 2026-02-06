@@ -29,7 +29,7 @@ Linters and formatters are managed as pre-commit hooks in ``.pre-commit-config.y
 using `prek <https://prek.j178.dev/installation/>`_.
 When running linters or formatters through ``just``, e.g., ``just format``,
 ``just`` will call ``prek`` internally.
-This way, we can ensure that we always us the same tool versions on developer and CI machines.
+This way, we can ensure that we always use the same tool versions on developer and CI machines.
 
 This means that linter versions are managed in ``.pre-commit-config.yaml``, _not_ ``pyproject.toml``.
 To update them, run
@@ -42,7 +42,7 @@ Note that an earlier version implemented linters and formatters in ``justfile`` 
 commands and managed tool versions in dependency groups.
 ``prek`` then called, e.g., ``just format``.
 This did not work well because it depends on ``just`` and ``uv`` to be visible on the ``PATH``
-of she shell that does the commit and this is not always the case (e.g., in PyCharm).
+of the shell that does the commit and this is not always the case (e.g., in PyCharm).
 
 .. rubric:: Footnotes
 
