@@ -15,7 +15,7 @@ Dependencies
   `here <https://docs.astral.sh/uv/getting-started/installation/>`_.
 
 - You can install **Just** as described in its
-  `documentation <https://just.systems/man/en/introduction.html>`_.
+  `just documentation <https://just.systems/man/en/introduction.html>`_.
   Or as a uv tool using
 
   .. code-block:: shell
@@ -23,7 +23,7 @@ Dependencies
       uv tool install rust-just
 
 - Optional: Install **prek** to run the same linters and code formatters.
-  See the `documentation <https://prek.j178.dev/installation/>`_ or use
+  See the `prek documentation <https://prek.j178.dev/installation/>`_ or use
 
   .. code-block:: shell
 
