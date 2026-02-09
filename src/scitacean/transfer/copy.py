@@ -306,12 +306,14 @@ class CopyFileTransfer:
             based on ``representative_file_path``.
         """
         source_folder = Path(self.source_folder_for(dataset).posix)
-        if not source_folder.parents[-2].exists():
+        parents = source_folder.parents
+        i_folder_to_check = max(len(parents) - 2, 0)
+        if not parents[i_folder_to_check].exists():
             # This check may have a lot of false negatives.
             # But we cannot check whether `source_folder` exists because the user
             # may intend for the upload to create that folder.
             # Checking the top level parent after the root should still catch many
-            # cases as long as the remote uses paths are uncommon on user machines.
+            # cases as long as the remote uses paths that are uncommon on user machines.
             # E.g., for /ess/data/2025/... we get parents[-2] = /ess which should
             # not exist on non-ess machines.
             raise FileNotAccessibleError(
