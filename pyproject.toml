@@ -54,7 +54,6 @@ dev = [
     "pytest-sugar >= 1.0",
     "types-docutils >= 0.21",
     "types-paramiko >= 3.5",
-    "types-requests >= 2.32",
     "types-PyYAML >= 6.0",
 ]
 docs = [
@@ -71,7 +70,7 @@ docs = [
 ]
 sftp = ["paramiko >= 3"]
 test = [
-    "filelock[typing] >= 3",
+    "filelock >= 3",
     "hypothesis >= 6.48",
     "pyfakefs >= 5",
     "pytest >= 7",
