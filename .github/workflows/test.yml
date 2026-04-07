@@ -55,7 +55,7 @@ jobs:
       - name: Pin Python version
         run: uv python pin ${{ inputs.python-version }}
       - name: Install Just
-        uses: extractions/setup-just@v3
+        uses: extractions/setup-just@v4
       - run: just ${{ inputs.command }}
         if: ${{ !inputs.backend-version }}
       - run: just ${{ inputs.command }} --scitacean-backend-version=${{ inputs.backend-version }}
