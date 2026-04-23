@@ -636,122 +636,151 @@ class DatasetBase:
 
     @access_groups.setter
     def access_groups(self, access_groups: list[str] | None) -> None:
-        """List of groups which have access to this item."""
         self._access_groups = access_groups
 
     @property
     def api_version(self) -> str | None:
-        """Version of the API used in creation of the dataset."""
+        """Version of the API used to create the dataset."""
         return self._api_version
 
     @property
     def classification(self) -> str | None:
-        """ACIA information about AUthenticity,COnfidentiality,INtegrity and AVailability requirements of dataset. E.g. AV(ailabilty)=medium could trigger the creation of a two tape copies. Format 'AV=medium,CO=low'"""
+        """ACIA information about the dataset.
+
+        ACIA stands for AUthenticity,COnfidentiality,INtegrity and AVailability.
+        Example: ``'AV=medium,CO=low'``
+
+        SciCat may trigger different operations based on this value.
+        """
         return self._classification
 
     @classification.setter
     def classification(self, classification: str | None) -> None:
-        """ACIA information about AUthenticity,COnfidentiality,INtegrity and AVailability requirements of dataset. E.g. AV(ailabilty)=medium could trigger the creation of a two tape copies. Format 'AV=medium,CO=low'"""
         self._classification = classification
 
     @property
     def comment(self) -> str | None:
-        """Comment the user has about a given dataset."""
+        """Comment about the dataset."""
         return self._comment
 
     @comment.setter
     def comment(self, comment: str | None) -> None:
-        """Comment the user has about a given dataset."""
         self._comment = comment
 
     @property
     def contact_email(self) -> str | None:
-        """Email of the contact person for this dataset. The string may contain a list of emails, which should then be separated by semicolons."""
+        """Email of the contact person for this dataset.
+
+        The string may contain a list of emails,
+        which should then be separated by semicolons.
+        """
         return self._contact_email
 
     @contact_email.setter
     def contact_email(self, contact_email: str | None) -> None:
-        """Email of the contact person for this dataset. The string may contain a list of emails, which should then be separated by semicolons."""
         self._contact_email = contact_email
 
     @property
     def created_at(self) -> datetime | None:
-        """Date and time when this record was created. This field is managed by mongoose with through the timestamp settings. The field should be a string containing a date in ISO 8601 format (2024-02-27T12:26:57.313Z)"""
+        """Date and time when this dataset was created in the database.
+
+        This field is managed by SciCat.
+        """
         return self._created_at
 
     @property
     def created_by(self) -> str | None:
-        """Indicate the user who created this record. This property is added and maintained by the system."""
+        """Username who created this dataset.
+
+        This field is managed by SciCat.
+        """
         return self._created_by
 
     @property
     def creation_location(self) -> str | None:
-        """Unique location identifier where data was taken, usually in the form /Site-name/facility-name/instrumentOrBeamline-name. This field is required if the dataset is a Raw dataset."""
+        """Unique location identifier where data was taken.
+
+        Usually one of these forms::
+
+            /site-name/facility-name/instrumentOrBeamline-name
+            facility-name:instrumentOrBeamline-name
+        """
         return self._creation_location
 
     @creation_location.setter
     def creation_location(self, creation_location: str | None) -> None:
-        """Unique location identifier where data was taken, usually in the form /Site-name/facility-name/instrumentOrBeamline-name. This field is required if the dataset is a Raw dataset."""
         self._creation_location = creation_location
 
     @property
     def creation_time(self) -> datetime | None:
-        """Time when dataset became fully available on disk, i.e. all containing files have been written,  or the dataset was created in SciCat.<br>It is expected to be in ISO8601 format according to specifications for internet date/time format in RFC 3339, chapter 5.6 (https://www.rfc-editor.org/rfc/rfc3339#section-5).<br>Local times without timezone/offset info are automatically transformed to UTC using the timezone of the API server."""
+        """Time when dataset became fully available.
+
+        This can be the time when all containing files have been written,
+        or when the dataset was created in SciCat.
+        Local times without timezone/offset info are automatically transformed to
+        UTC using the timezone of the API server.
+
+        Inserted automatically by Scitacean on upload.
+        """
         return self._creation_time
 
     @creation_time.setter
     def creation_time(self, creation_time: str | datetime | None) -> None:
-        """Time when dataset became fully available on disk, i.e. all containing files have been written,  or the dataset was created in SciCat.<br>It is expected to be in ISO8601 format according to specifications for internet date/time format in RFC 3339, chapter 5.6 (https://www.rfc-editor.org/rfc/rfc3339#section-5).<br>Local times without timezone/offset info are automatically transformed to UTC using the timezone of the API server."""
         self._creation_time = _parse_datetime(creation_time)
 
     @property
     def data_format(self) -> str | None:
-        """Defines the format of the data files in this dataset, e.g Nexus Version x.y."""
+        """Format of the data files in this dataset.
+
+        Example: ```Nexus Version x.y.```
+        """
         return self._data_format
 
     @data_format.setter
     def data_format(self, data_format: str | None) -> None:
-        """Defines the format of the data files in this dataset, e.g Nexus Version x.y."""
         self._data_format = data_format
 
     @property
     def data_quality_metrics(self) -> int | None:
-        """Data Quality Metrics is a number given by the user to rate the dataset."""
+        """A number  given by the user to rate the dataset."""
         return self._data_quality_metrics
 
     @data_quality_metrics.setter
     def data_quality_metrics(self, data_quality_metrics: int | None) -> None:
-        """Data Quality Metrics is a number given by the user to rate the dataset."""
         self._data_quality_metrics = data_quality_metrics
 
     @property
     def description(self) -> str | None:
-        """Free text explanation of contents of dataset."""
+        """Free text explanation of the contents of the dataset."""
         return self._description
 
     @description.setter
     def description(self, description: str | None) -> None:
-        """Free text explanation of contents of dataset."""
         self._description = description
 
     @property
     def end_time(self) -> datetime | None:
-        """End time of data acquisition for the current dataset.<br>It is expected to be in ISO8601 format according to specifications for internet date/time format in RFC 3339, chapter 5.6 (https://www.rfc-editor.org/rfc/rfc3339#section-5).<br>Local times without timezone/offset info are automatically transformed to UTC using the timezone of the API server."""
+        """End time of data acquisition for the current dataset.
+
+        Local times without timezone/offset info are automatically transformed to
+        UTC using the timezone of the API server.
+        """
         return self._end_time
 
     @end_time.setter
     def end_time(self, end_time: datetime | None) -> None:
-        """End time of data acquisition for the current dataset.<br>It is expected to be in ISO8601 format according to specifications for internet date/time format in RFC 3339, chapter 5.6 (https://www.rfc-editor.org/rfc/rfc3339#section-5).<br>Local times without timezone/offset info are automatically transformed to UTC using the timezone of the API server."""
         self._end_time = end_time
 
     @property
     def input_datasets(self) -> list[PID] | None:
-        """Array of input dataset identifiers used in producing the derived dataset. Ideally these are the global identifier to existing datasets inside this or federated data catalogs."""
+        """Array of input dataset identifiers used in producing this dataset.
+
+        Can be identifiers in the same or another federated catalogue.
+        """
         return self._input_datasets
 
     @input_datasets.setter
     def input_datasets(self, input_datasets: list[PID] | None) -> None:
-        """Array of input dataset identifiers used in producing the derived dataset. Ideally these are the global identifier to existing datasets inside this or federated data catalogs."""
         self._input_datasets = input_datasets
 
     @property
@@ -761,67 +790,67 @@ class DatasetBase:
 
     @instrument_group.setter
     def instrument_group(self, instrument_group: str | None) -> None:
-        """Group of the instrument which this item was acquired on."""
         self._instrument_group = instrument_group
 
     @property
     def instrument_id(self) -> str | None:
-        """ID of the instrument where the data was created."""
+        """IDs of the instruments where the data was created."""
         return self._instrument_id
 
     @instrument_id.setter
     def instrument_id(self, instrument_id: str | None) -> None:
-        """ID of the instrument where the data was created."""
         self._instrument_id = instrument_id
 
     @property
     def investigator(self) -> str | None:
-        """First name and last name of the person or people pursuing the data analysis. The string may contain a list of names, which should then be separated by semicolons."""
-        return self._investigator
+        """Legacy fallback for principal_investigator."""
+        return self._principal_investigator
 
     @investigator.setter
     def investigator(self, investigator: str | None) -> None:
-        """First name and last name of the person or people pursuing the data analysis. The string may contain a list of names, which should then be separated by semicolons."""
-        self._investigator = investigator
+        self._principal_investigator = investigator
 
     @property
     def is_published(self) -> bool | None:
-        """Flag is true when data are made publicly available."""
+        """True if dataset is publicly available."""
         return self._is_published
 
     @is_published.setter
     def is_published(self, is_published: bool | None) -> None:
-        """Flag is true when data are made publicly available."""
         self._is_published = is_published
 
     @property
     def job_log_data(self) -> str | None:
-        """The output job logfile. Keep the size of this log data well below 15 MB."""
+        """The job log file.
+
+        Keep the size of this log data well below 15 MB.
+        """
         return self._job_log_data
 
     @job_log_data.setter
     def job_log_data(self, job_log_data: str | None) -> None:
-        """The output job logfile. Keep the size of this log data well below 15 MB."""
         self._job_log_data = job_log_data
 
     @property
     def job_parameters(self) -> dict[str, Any] | None:
-        """The creation process of the derived data will usually depend on input job parameters. The full structure of these input parameters are stored here."""
+        """Parameters used by the job that created this dataset."""
         return self._job_parameters
 
     @job_parameters.setter
     def job_parameters(self, job_parameters: dict[str, Any] | None) -> None:
-        """The creation process of the derived data will usually depend on input job parameters. The full structure of these input parameters are stored here."""
         self._job_parameters = job_parameters
 
     @property
     def keywords(self) -> list[str] | None:
-        """Array of tags associated with the meaning or contents of this dataset. Values should ideally come from defined vocabularies, taxonomies, ontologies or knowledge graphs."""
+        """Array of tags associated with the meaning or contents of this dataset.
+
+        Values should ideally come from defined vocabularies, taxonomies,
+        ontologies, or knowledge graphs.
+        """
         return self._keywords
 
     @keywords.setter
     def keywords(self, keywords: list[str] | None) -> None:
-        """Array of tags associated with the meaning or contents of this dataset. Values should ideally come from defined vocabularies, taxonomies, ontologies or knowledge graphs."""
         self._keywords = keywords
 
     @property
@@ -831,62 +860,74 @@ class DatasetBase:
 
     @license.setter
     def license(self, license: str | None) -> None:
-        """Name of the license under which the data can be used."""
         self._license = license
 
     @property
     def lifecycle(self) -> Lifecycle | None:
-        """Describes the current status of the dataset during its lifetime with respect to the storage handling systems."""
+        """Current status of the dataset during its lifetime w.r.t. storage handling."""
         return self._lifecycle
 
     @property
     def name(self) -> str | None:
-        """A name for the dataset, given by the creator to carry some semantic meaning. Useful for display purposes e.g. instead of displaying the pid. Will be autofilled if missing using info from sourceFolder."""
+        """The name of the dataset.
+
+        Can be set freely by the creator to help identify the dataset.
+        """
         return self._name
 
     @name.setter
     def name(self, name: str | None) -> None:
-        """A name for the dataset, given by the creator to carry some semantic meaning. Useful for display purposes e.g. instead of displaying the pid. Will be autofilled if missing using info from sourceFolder."""
         self._name = name
 
     @property
     def orcid_of_owner(self) -> str | None:
-        """ORCID of the owner or custodian. The string may contain a list of ORCIDs, which should then be separated by semicolons."""
+        """ORCID iD of the owner or custodian.
+
+        The string may contain a list of ORCIDs,
+        which should then be separated by semicolons.
+        """
         return self._orcid_of_owner
 
     @orcid_of_owner.setter
     def orcid_of_owner(self, orcid_of_owner: str | None) -> None:
-        """ORCID of the owner or custodian. The string may contain a list of ORCIDs, which should then be separated by semicolons."""
         self._orcid_of_owner = orcid_of_owner
 
     @property
     def owner(self) -> str | None:
-        """Owner or custodian of the dataset, usually first name + last name. The string may contain a list of persons, which should then be separated by semicolons."""
+        """Full name of the owner or custodian of the dataset.
+
+        The string may contain a list of persons,
+        which should then be separated by semicolons.
+        """
         return self._owner
 
     @owner.setter
     def owner(self, owner: str | None) -> None:
-        """Owner or custodian of the dataset, usually first name + last name. The string may contain a list of persons, which should then be separated by semicolons."""
         self._owner = owner
 
     @property
     def owner_email(self) -> str | None:
-        """Email of the owner or custodian of the dataset. The string may contain a list of emails, which should then be separated by semicolons."""
+        """Email of the owner or custodian of the dataset.
+
+        The string may contain a list of emails,
+        which should then be separated by semicolons.
+        """
         return self._owner_email
 
     @owner_email.setter
     def owner_email(self, owner_email: str | None) -> None:
-        """Email of the owner or custodian of the dataset. The string may contain a list of emails, which should then be separated by semicolons."""
         self._owner_email = owner_email
 
     @property
     def owner_group(self) -> str | None:
-        """Name of the group owning this item."""
+        """Name of the group owning this item.
+
+        This group must exist in SciCat and is used to control access to this dataset.
+        """
         return self._owner_group
 
     @owner_group.setter
     def owner_group(self, owner_group: str | None) -> None:
-        """Name of the group owning this item."""
         self._owner_group = owner_group
 
     @property
@@ -896,12 +937,14 @@ class DatasetBase:
 
     @property
     def principal_investigator(self) -> str | None:
-        """First name and last name of principal investigator(s). If multiple PIs are present, use a semicolon separated list. This field is required if the dataset is a Raw dataset."""
+        """Full name of the principal investigator(s).
+
+        If multiple PIs are present, use a semicolon-separated list.
+        """
         return self._principal_investigator
 
     @principal_investigator.setter
     def principal_investigator(self, principal_investigator: str | None) -> None:
-        """First name and last name of principal investigator(s). If multiple PIs are present, use a semicolon separated list. This field is required if the dataset is a Raw dataset."""
         self._principal_investigator = principal_investigator
 
     @property
@@ -911,27 +954,24 @@ class DatasetBase:
 
     @proposal_id.setter
     def proposal_id(self, proposal_id: str | None) -> None:
-        """The ID of the proposal to which the dataset belongs."""
         self._proposal_id = proposal_id
 
     @property
     def relationships(self) -> list[Relationship] | None:
-        """Stores the relationships with other datasets."""
+        """Relationships with other datasets."""
         return self._relationships
 
     @relationships.setter
     def relationships(self, relationships: list[Relationship] | None) -> None:
-        """Stores the relationships with other datasets."""
         self._relationships = relationships
 
     @property
     def run_number(self) -> str | None:
-        """Run number assigned by the system to the data acquisition for the current dataset."""
+        """Run number of the data acquisition."""
         return self._run_number
 
     @run_number.setter
     def run_number(self, run_number: str | None) -> None:
-        """Run number assigned by the system to the data acquisition for the current dataset."""
         self._run_number = run_number
 
     @property
@@ -941,7 +981,6 @@ class DatasetBase:
 
     @sample_id.setter
     def sample_id(self, sample_id: str | None) -> None:
-        """ID of the sample used when collecting the data."""
         self._sample_id = sample_id
 
     @property
@@ -951,77 +990,97 @@ class DatasetBase:
 
     @shared_with.setter
     def shared_with(self, shared_with: list[str] | None) -> None:
-        """List of users that the dataset has been shared with."""
         self._shared_with = shared_with
 
     @property
     def source_folder(self) -> RemotePath | None:
-        """Absolute file path on file server containing the files of this dataset, e.g. /some/path/to/sourcefolder. In case of a single file dataset, e.g. HDF5 data, it contains the path up to, but excluding the filename. Trailing slashes are removed."""
+        """Absolute file path on fileserver containing the files of this dataset.
+
+        This is usually a POSIX path, e.g., ``/some/path/to/sourcefolder``.
+        All files must be placed within this folder and its subfolders.
+        """
         return self._source_folder
 
     @source_folder.setter
     def source_folder(self, source_folder: RemotePath | str | None) -> None:
-        """Absolute file path on file server containing the files of this dataset, e.g. /some/path/to/sourcefolder. In case of a single file dataset, e.g. HDF5 data, it contains the path up to, but excluding the filename. Trailing slashes are removed."""
         self._source_folder = _parse_remote_path(source_folder)
 
     @property
     def source_folder_host(self) -> str | None:
-        """DNS host name of file server hosting sourceFolder, optionally including a protocol e.g. [protocol://]fileserver1.example.com"""
+        """DNS host name of the fileserver hosting the files."""
         return self._source_folder_host
 
     @source_folder_host.setter
     def source_folder_host(self, source_folder_host: str | None) -> None:
-        """DNS host name of file server hosting sourceFolder, optionally including a protocol e.g. [protocol://]fileserver1.example.com"""
         self._source_folder_host = source_folder_host
 
     @property
     def start_time(self) -> datetime | None:
-        """Start time of data acquisition for the current dataset.<br>It is expected to be in ISO8601 format according to specifications for internet date/time format in RFC 3339, chapter 5.6 (https://www.rfc-editor.org/rfc/rfc3339#section-5).<br>Local times without timezone/offset info are automatically transformed to UTC using the timezone of the API server."""
+        """Start time of data acquisition for the current dataset.
+
+        Local times without timezone/offset info are automatically transformed to
+        UTC using the timezone of the API server.
+        """
         return self._start_time
 
     @start_time.setter
     def start_time(self, start_time: datetime | None) -> None:
-        """Start time of data acquisition for the current dataset.<br>It is expected to be in ISO8601 format according to specifications for internet date/time format in RFC 3339, chapter 5.6 (https://www.rfc-editor.org/rfc/rfc3339#section-5).<br>Local times without timezone/offset info are automatically transformed to UTC using the timezone of the API server."""
         self._start_time = start_time
 
     @property
     def techniques(self) -> list[Technique] | None:
-        """Stores the metadata information for techniques."""
+        """Techniques used to create the data.
+
+        See Also
+        --------
+        ontology:
+            Helper module for defining techniques based on known ontologies.
+        """
         return self._techniques
 
     @techniques.setter
     def techniques(self, techniques: Iterable[str | Technique] | None) -> None:
-        """Stores the metadata information for techniques."""
         self._techniques = _parse_techniques(techniques)
 
     @property
     def updated_at(self) -> datetime | None:
-        """Date and time when this record was updated last. This field is managed by mongoose with through the timestamp settings. The field should be a string containing a date in ISO 8601 format (2024-02-27T12:26:57.313Z)"""
+        """Date and time when this record was updated last.
+
+        This field is managed by SciCat.
+        """
         return self._updated_at
 
     @property
     def updated_by(self) -> str | None:
-        """Indicate the user who updated this record last. This property is added and maintained by the system."""
+        """Username who last updated this dataset.
+
+        This field is managed by SciCat.
+        """
         return self._updated_by
 
     @property
     def used_software(self) -> list[str] | None:
-        """A list of links to software repositories which uniquely identifies the pieces of software, including versions, used for yielding the derived data."""
+        """Software used to create this data.
+
+        Should ideally contain complete and unique identifiers such as links to
+        software releases, DOIs, or software name + version combinations.
+        """
         return self._used_software
 
     @used_software.setter
     def used_software(self, used_software: list[str] | None) -> None:
-        """A list of links to software repositories which uniquely identifies the pieces of software, including versions, used for yielding the derived data."""
         self._used_software = used_software
 
     @property
     def validation_status(self) -> str | None:
-        """Defines a level of trust, e.g. a measure of how much data was verified or used by other persons."""
+        """Level of trust.
+
+        For example,  a measure of how much data was verified or used by other persons.
+        """
         return self._validation_status
 
     @validation_status.setter
     def validation_status(self, validation_status: str | None) -> None:
-        """Defines a level of trust, e.g. a measure of how much data was verified or used by other persons."""
         self._validation_status = validation_status
 
     @property
@@ -1031,12 +1090,16 @@ class DatasetBase:
 
     @meta.setter
     def meta(self, meta: dict[str, Any]) -> None:
-        """Dict of scientific metadata."""
         self._meta = meta
 
     @property
     def type(self) -> DatasetType:
-        """Characterize type of dataset, either 'raw' or 'derived'. Autofilled when choosing the proper inherited models."""
+        """The type of this dataset.
+
+        - ``'raw'``: A dataset without any ancestors, e.g., measured or simulated data.
+        - ``'derived'``: A dataset derived from other datasets.
+        - _other_: Any other string allowed by the SciCat instance.
+        """
         return self._type
 
     @staticmethod
