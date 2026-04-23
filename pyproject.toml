@@ -45,9 +45,9 @@ test = [
 
 [dependency-groups]
 dev = [
-    {include-group = "docs"},
-    {include-group = "sftp"},
-    {include-group = "test"},
+    { include-group = "docs" },
+    { include-group = "sftp" },
+    { include-group = "test" },
     "jinja2 >= 3.1",
     "jupyterlab >= 4.4.5",
     "mypy >= 1.17",
@@ -110,7 +110,7 @@ filterwarnings = [
 [tool.mypy]
 plugins = "pydantic.mypy"
 mypy_path = "src"
-exclude = ["docs/conf.py", "tools/model-generation", "venv"]
+exclude = ["docs/conf.py", "venv"]
 ignore_missing_imports = true
 enable_error_code = [
     "ignore-without-code",
@@ -134,8 +134,8 @@ extend-exclude = [".*", "__pycache__", "build", "dist", "venv"]
 [tool.ruff.lint]
 select = ["B", "C4", "D", "DTZ", "E", "F", "G", "I", "FBT003", "FURB", "PERF", "PGH", "PT", "PYI", "RUF", "S", "T20", "UP", "W"]
 ignore = [
-    "D105",  # most magic methods don't need docstrings as their purpose is always the same
-    "E741", "E742", "E743",  # do not use names ‘l’, ‘O’, or ‘I’; they are not a problem with a proper font
+    "D105", # most magic methods don't need docstrings as their purpose is always the same
+    "E741", "E742", "E743", # do not use names ‘l’, ‘O’, or ‘I’; they are not a problem with a proper font
     # Conflict with ruff format, see
     # https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
     "COM812", "COM819", "D206", "D300", "E111", "E114", "E117", "ISC001", "ISC002", "Q000", "Q001", "Q002", "Q003", "W191",
@@ -146,9 +146,9 @@ pydocstyle.convention = "numpy"
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = [
-    "S101",  # asserts are fine in tests
-    "D10",  # no docstrings required in tests
-    "S324",  # insecure hsh function; we don't use hashing for security
+    "S101", # asserts are fine in tests
+    "D10", # no docstrings required in tests
+    "S324", # insecure hsh function; we don't use hashing for security
 ]
 "docs/*" = [
     "D", "E402", "F811", "F841", "RUF015", "S101", "T201",
