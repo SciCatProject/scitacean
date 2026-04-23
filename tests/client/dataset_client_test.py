@@ -9,10 +9,7 @@ import pytest
 
 from scitacean import PID, Client, Dataset, RemotePath, ScicatCommError
 from scitacean.client import ScicatClient
-from scitacean.model import (
-    DatasetType,
-    UploadDerivedDataset,
-)
+from scitacean.model import UploadDataset
 from scitacean.testing.backend import config as backend_config
 from scitacean.testing.backend.seed import (
     INITIAL_DATASETS,
@@ -26,15 +23,15 @@ def scicat_client(client: Client) -> ScicatClient:
 
 
 @pytest.fixture
-def derived_dataset(scicat_access: backend_config.SciCatAccess) -> UploadDerivedDataset:
-    return UploadDerivedDataset(
+def derived_dataset(scicat_access: backend_config.SciCatAccess) -> UploadDataset:
+    return UploadDataset(
         datasetName="Koelsche Lieder",
         contactEmail="black.foess@dom.koelle",
         creationTime=datetime.fromisoformat("1995-11-11T11:11:11.000Z"),
         owner="bfoess",
-        investigator="b.foess@dom.koelle",
-        sourceFolder="/dom/platt",
-        type=DatasetType.DERIVED,
+        principalInvestigators=["b.foess@dom.koelle"],
+        sourceFolder=RemotePath("/dom/platt"),
+        type="derived",
         inputDatasets=[],
         usedSoftware=[],
         ownerGroup=scicat_access.user.group,
@@ -59,7 +56,7 @@ def test_get_dataset_model_bad_id(scicat_client: ScicatClient) -> None:
 
 
 def test_create_dataset_model(
-    scicat_client: ScicatClient, derived_dataset: UploadDerivedDataset
+    scicat_client: ScicatClient, derived_dataset: UploadDataset
 ) -> None:
     finalized = scicat_client.create_dataset_model(derived_dataset)
     downloaded = scicat_client.get_dataset_model(finalized.pid, strict_validation=True)
@@ -72,7 +69,7 @@ def test_create_dataset_model(
 
 def test_validate_dataset_model(
     real_client: Client,
-    derived_dataset: UploadDerivedDataset,
+    derived_dataset: UploadDataset,
     require_scicat_backend: None,
 ) -> None:
     real_client.scicat.validate_dataset_model(derived_dataset)
@@ -123,7 +120,7 @@ def test_can_get_public_dataset_without_login(
 
 def test_cannot_upload_without_login(
     require_scicat_backend: None,
-    derived_dataset: UploadDerivedDataset,
+    derived_dataset: UploadDataset,
     scicat_access: backend_config.SciCatAccess,
 ) -> None:
     client = Client.without_login(url=scicat_access.url)
@@ -134,7 +131,7 @@ def test_cannot_upload_without_login(
 def test_get_broken_dataset(client: Client) -> None:
     dset = INITIAL_DATASETS["partially-broken"]
     downloaded = client.get_dataset(dset.pid)
-    assert downloaded.type == DatasetType.DERIVED
+    assert downloaded.type == "derived"
     # Intact field; was properly converted to RemotePath
     assert isinstance(downloaded.source_folder, RemotePath)
     assert downloaded.source_folder == "/remote/source"

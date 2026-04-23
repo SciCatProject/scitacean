@@ -13,7 +13,7 @@ def test_dataset_html_repr() -> None:
         name="My dataset",
         contact_email="devsci.cat",
         owner="The People",
-        instrument_id="the-peoples-neutron-gun",
+        instrument_ids=["the-peoples-neutron-gun"],
         used_software=["scitacean"],
         source_folder=RemotePath("/remote/dir/"),
         meta={
@@ -27,7 +27,7 @@ def test_dataset_html_repr() -> None:
     assert "My dataset" in res
     assert "used_software" in res
     assert "temperature" in res
-    assert "unit" in res
+    assert "5 [C]" in res
 
 
 def test_attachment_html_repr() -> None:

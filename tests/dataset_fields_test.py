@@ -12,45 +12,28 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from scitacean import PID, Dataset, DatasetType
+from scitacean import PID, Dataset
 from scitacean.filesystem import RemotePath
 from scitacean.model import (
     DownloadDataFile,
     DownloadDataset,
     DownloadOrigDatablock,
     Technique,
-    UploadDerivedDataset,
-    UploadRawDataset,
+    UploadDataset,
 )
 
 # Fields whose types are not supported by hypothesis.
 # E.g. because they contain `Any`.
 _UNGENERATABLE_FIELDS = ("job_parameters", "meta")
-# Fields that are readonly, but still required in the constructor.
-_NOT_SETTABLE_FIELDS = ("type",)
+
+
+# TODO test that readonly cannot be written
+# TODO test that writable can be written
 
 
 def test_init_dataset_with_only_type() -> None:
     dset = Dataset(type="raw")
-    assert dset.type == DatasetType.RAW
-
-
-@pytest.mark.parametrize(
-    "typ", ["raw", "derived", DatasetType.RAW, DatasetType.DERIVED]
-)
-def test_init_dataset_accepted_types(typ: str | DatasetType) -> None:
-    dset = Dataset(type=typ)
-    assert dset.type == typ
-
-
-def test_init_dataset_raises_for_bad_type() -> None:
-    with pytest.raises(ValueError, match="DatasetType"):
-        Dataset(type="bad-type")
-
-
-def test_init_dataset_needs_type() -> None:
-    with pytest.raises(TypeError):
-        Dataset()  # type: ignore[call-arg]
+    assert dset.type == "raw"
 
 
 def test_init_dataset_sets_creation_time() -> None:
@@ -106,29 +89,25 @@ def test_can_init_writable_fields(field: Dataset.Field, data: st.DataObject) -> 
 
 @pytest.mark.parametrize(
     "field",
-    (
-        f
-        for f in Dataset.fields(read_only=False)
-        if f.name not in _UNGENERATABLE_FIELDS and f.name not in _NOT_SETTABLE_FIELDS
-    ),
+    (f for f in Dataset.fields(read_only=False) if f.name not in _UNGENERATABLE_FIELDS),
     ids=lambda f: f.name,
 )
 @given(st.data())
 @settings(max_examples=10)
 def test_can_set_writable_fields(field: Dataset.Field, data: st.DataObject) -> None:
     value = data.draw(st.from_type(field.type))
-    dset = Dataset(type="raw")
+    dset = Dataset()
     setattr(dset, field.name, value)
     assert getattr(dset, field.name) == value
 
 
 @pytest.mark.parametrize(
     "field",
-    (f for f in Dataset.fields() if f.name != "type" and not f.read_only),
+    (f for f in Dataset.fields() if not f.read_only),
     ids=lambda f: f.name,
 )
 def test_can_set_writable_fields_to_none(field: Dataset.Field) -> None:
-    dset = Dataset(type="raw")
+    dset = Dataset()
     setattr(dset, field.name, None)
     assert getattr(dset, field.name) is None
 
@@ -142,11 +121,11 @@ def test_init_from_models_sets_metadata() -> None:
             numberOfFilesArchived=0,
             packedSize=0,
             pid=PID.parse("prefix/0123-ab"),
-            principalInvestigator="my principal investigator",
+            principalInvestigators=["my principal investigator"],
             owner="PonderStibbons",
             size=0,
             sourceFolder=RemotePath("/hex/source91"),
-            type=DatasetType.RAW,
+            type="raw",
             ownerGroup="faculty",
             createdBy="pstibbons",
             createdAt=datetime.fromisoformat("2022-01-10T12:41:22+02:00"),
@@ -167,7 +146,7 @@ def test_init_from_models_sets_metadata() -> None:
     assert dset.principal_investigator == "my principal investigator"
     assert dset.owner == "PonderStibbons"
     assert dset.source_folder == "/hex/source91"
-    assert dset.type == DatasetType.RAW
+    assert dset.type == "raw"
     assert dset.owner_group == "faculty"
     assert dset.created_by == "pstibbons"
     assert dset.created_at == datetime.fromisoformat("2022-01-10T12:41:22+02:00")
@@ -189,13 +168,13 @@ def test_init_from_models_sets_files() -> None:
             creationTime=datetime.fromisoformat("2022-01-10T11:14:52-01:00"),
             numberOfFiles=2,
             numberOfFilesArchived=0,
-            principalInvestigator="librarian@uu.am",
+            principalInvestigators=["librarian@uu.am"],
             owner="PonderStibbons",
             size=6123 + 551,
             packedSize=0,
             pid=PID.parse("prefix/abcd-de"),
             sourceFolder=RemotePath("/hex/source91"),
-            type=DatasetType.RAW,
+            type="raw",
             ownerGroup="faculty",
         ),
         orig_datablock_models=[
@@ -247,11 +226,11 @@ def test_init_from_models_sets_files_multi_datablocks() -> None:
         numberOfFilesArchived=0,
         packedSize=0,
         pid=PID.parse("prefix/abcd-de"),
-        principalInvestigator="librarian@uu.am",
+        principalInvestigators=["librarian@uu.am"],
         owner="PonderStibbons",
         size=6123 + 992,
         sourceFolder=RemotePath("/hex/source91"),
-        type=DatasetType.RAW,
+        type="raw",
         ownerGroup="faculty",
     )
     orig_datablock_models = [
@@ -306,29 +285,12 @@ def test_init_from_models_sets_files_multi_datablocks() -> None:
     assert f1.make_model().path == "sub/file2.png"
 
 
-def test_fields_type_filter_derived() -> None:
-    assert all(
-        field.used_by_derived for field in Dataset.fields(dataset_type="derived")
-    )
-
-
-def test_fields_type_filter_raw() -> None:
-    assert all(field.used_by_raw for field in Dataset.fields(dataset_type="raw"))
-
-
 def test_fields_read_only_filter_true() -> None:
     assert all(field.read_only for field in Dataset.fields(read_only=True))
 
 
 def test_fields_read_only_filter_false() -> None:
     assert all(not field.read_only for field in Dataset.fields(read_only=False))
-
-
-def test_fields_read_only__and_type_filter() -> None:
-    assert all(
-        not field.read_only and field.used_by_raw
-        for field in Dataset.fields(read_only=False, dataset_type="raw")
-    )
 
 
 def test_make_raw_model() -> None:
@@ -339,22 +301,21 @@ def test_make_raw_model() -> None:
         creation_time="2142-04-02T16:44:56",
         owner="Ponder Stibbons;Mustrum Ridcully",
         owner_group="faculty",
-        principal_investigator="my principal investigator",
+        principal_investigators=["my principal investigator"],
         source_folder=RemotePath("/hex/source62"),
         creation_location="ANK/UU",
         shared_with=["librarian", "hicks"],
         used_software=["scitacean"],
     )
-    expected = UploadRawDataset(
+    expected = UploadDataset(
         contactEmail="p.stibbons@uu.am",
         creationTime=datetime.fromisoformat("2142-04-02T16:44:56"),
         datasetName="raw-dataset-62",
         owner="Ponder Stibbons;Mustrum Ridcully",
         ownerGroup="faculty",
-        principalInvestigator="my principal investigator",
-        investigator="my principal investigator",
+        principalInvestigators=["my principal investigator"],
         sourceFolder=RemotePath("/hex/source62"),
-        type=DatasetType.RAW,
+        type="raw",
         scientificMetadata=None,
         creationLocation="ANK/UU",
         sharedWith=["librarian", "hicks"],
@@ -376,21 +337,21 @@ def test_make_derived_model() -> None:
         creation_time="2142-04-02T16:44:56",
         owner="Ponder Stibbons;Mustrum Ridcully",
         owner_group="faculty",
-        investigator="p.stibbons@uu.am",
+        principal_investigators=["p.stibbons@uu.am"],
         source_folder=RemotePath("/hex/source62"),
         meta={"weight": {"value": 5.23, "unit": "kg"}},
         input_datasets=[PID(pid="623-122")],
         used_software=["scitacean", "magick"],
     )
-    expected = UploadDerivedDataset(
+    expected = UploadDataset(
         datasetName="derived-dataset",
         contactEmail="p.stibbons@uu.am;m.ridcully@uu.am",
         creationTime=datetime.fromisoformat("2142-04-02T16:44:56"),
         owner="Ponder Stibbons;Mustrum Ridcully",
         ownerGroup="faculty",
-        investigator="p.stibbons@uu.am",
+        principalInvestigators=["p.stibbons@uu.am"],
         sourceFolder=RemotePath("/hex/source62"),
-        type=DatasetType.DERIVED,
+        type="derived",
         isPublished=None,
         scientificMetadata={"weight": {"value": 5.23, "unit": "kg"}},
         inputDatasets=[PID(pid="623-122")],
@@ -411,7 +372,7 @@ def test_email_validation(field: Dataset.Field) -> None:
         creation_time="2142-04-02T16:44:56",
         owner="Mustrum Ridcully",
         owner_group="faculty",
-        principal_investigator="p.stibbons@uu.am",
+        principal_investigators=["p.stibbons@uu.am"],
         source_folder=RemotePath("/hex/source62"),
     )
     setattr(dset, field, "not-an-email")
@@ -436,7 +397,7 @@ def test_orcid_validation_valid(good_orcid: str) -> None:
         creation_time="2142-04-02T16:44:56",
         owner="Mustrum Ridcully",
         owner_group="ess",
-        principal_investigator="mail.person@sci.uni",
+        principal_investigators=["mail.person@sci.uni"],
         source_folder=RemotePath("/hex/source62"),
         orcid_of_owner=good_orcid,
     )
@@ -446,20 +407,19 @@ def test_orcid_validation_valid(good_orcid: str) -> None:
 @pytest.mark.parametrize(
     "bad_orcid",
     [
-        "0000-0002-3761-3201",
         "https://not-orcid.eu/0000-0002-3761-3201",
         "https://orcid.org/0010-0002-3765-3201",
         "https://orcid.org/0000-0002-3761-320X",
     ],
 )
-def test_orcid_validation_missing_url(bad_orcid: str) -> None:
+def test_orcid_validation_bad(bad_orcid: str) -> None:
     dset = Dataset(
         type="raw",
         contact_email="mail.person@sci.uni",
         creation_time="2142-04-02T16:44:56",
         owner="Mustrum Ridcully",
         owner_group="ess",
-        principal_investigator="mail.person@sci.uni",
+        principal_investigators=["mail.person@sci.uni"],
         source_folder=RemotePath("/hex/source62"),
         orcid_of_owner=bad_orcid,
     )
@@ -475,7 +435,7 @@ def test_technique_set_model() -> None:
         creation_time="2142-04-02T16:44:56",
         owner="Mustrum Ridcully",
         owner_group="ess",
-        principal_investigator="mail.person@sci.uni",
+        principal_investigators=["mail.person@sci.uni"],
         source_folder=RemotePath("/hex/source62"),
         techniques=[technique],
     )
@@ -489,7 +449,7 @@ def test_technique_set_label() -> None:
         creation_time="2142-04-02T16:44:56",
         owner="Mustrum Ridcully",
         owner_group="ess",
-        principal_investigator="mail.person@sci.uni",
+        principal_investigators=["mail.person@sci.uni"],
         source_folder=RemotePath("/hex/source62"),
         techniques=["neutron powder diffraction"],
     )
@@ -511,7 +471,7 @@ def test_technique_set_invalid_label_raises_value_error() -> None:
         creation_time="2142-04-02T16:44:56",
         owner="Mustrum Ridcully",
         owner_group="ess",
-        principal_investigator="mail.person@sci.uni",
+        principal_investigators=["mail.person@sci.uni"],
         source_folder=RemotePath("/hex/source62"),
     )
     with pytest.raises(ValueError, match="Unknown technique"):

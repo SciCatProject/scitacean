@@ -12,7 +12,6 @@ from pyfakefs.fake_filesystem import FakeFilesystem
 from scitacean import (
     PID,
     Dataset,
-    DatasetType,
     File,
     FileNotAccessibleError,
     RemotePath,
@@ -248,10 +247,10 @@ def test_client_download_with_copy(tmp_path: Path) -> None:
         owner="PonderStibbons",
         ownerGroup="uu",
         pid=PID(prefix="UU.0123", pid="1234567890"),
-        principalInvestigator="MustrumRidcully",
+        principalInvestigators=["MustrumRidcully"],
         size=len(content),
         sourceFolder=RemotePath(str(remote_dir)),
-        type=DatasetType.RAW,
+        type="raw",
     )
     db = DownloadOrigDatablock(
         dataFileList=[
@@ -304,10 +303,10 @@ def test_client_download_with_copy_local_file_exists(tmp_path: Path) -> None:
         owner="PonderStibbons",
         ownerGroup="uu",
         pid=PID(prefix="UU.0123", pid="1234567890"),
-        principalInvestigator="MustrumRidcully",
+        principalInvestigators=["MustrumRidcully"],
         size=len(content),
         sourceFolder=RemotePath(str(remote_dir)),
-        type=DatasetType.RAW,
+        type="raw",
     )
     db = DownloadOrigDatablock(
         dataFileList=[
@@ -356,9 +355,9 @@ def test_client_upload_with_copy(tmp_path: Path) -> None:
         name="Mustrum's test data",
         owner="PonderStibbons",
         owner_group="uu",
-        principal_investigator="MustrumRidcully",
+        principal_investigators=["MustrumRidcully"],
         source_folder=RemotePath.from_local(remote_dir),
-        type=DatasetType.RAW,
+        type="raw",
     )
     ds.add_local_files(local_dir / "file1.txt")
 

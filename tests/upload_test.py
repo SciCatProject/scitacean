@@ -13,7 +13,6 @@ from scitacean import (
     Attachment,
     Client,
     Dataset,
-    DatasetType,
     File,
     RemotePath,
     ScicatCommError,
@@ -37,7 +36,7 @@ def get_file_transfer(client: Client) -> FakeFileTransfer:
 def dataset() -> Dataset:
     return Dataset(
         access_groups=["group1", "second_group"],
-        investigator="ridcully@uu.am",
+        principal_investigators=["ridcully@uu.am"],
         contact_email="p.stibbons@uu.am",
         source_folder="/hex/source123",
         creation_time=datetime.fromisoformat("2011-08-24T12:34:56Z"),
@@ -51,7 +50,7 @@ def dataset() -> Dataset:
             "temperature": {"value": "123", "unit": "K"},
             "weight": {"value": "42", "unit": "mg"},
         },
-        type=DatasetType.DERIVED,
+        type="derived",
     )
 
 

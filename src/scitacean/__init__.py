@@ -23,7 +23,7 @@ from .error import (
 )
 from .file import File
 from .filesystem import RemotePath
-from .model import Attachment, DatasetType, Sample
+from .model import Attachment, Sample
 from .pid import PID
 from .thumbnail import Thumbnail
 from .warning import VisibleDeprecationWarning
@@ -33,7 +33,6 @@ __all__ = (
     "Attachment",
     "Client",
     "Dataset",
-    "DatasetType",
     "File",
     "FileNotAccessibleError",
     "FileUploadError",

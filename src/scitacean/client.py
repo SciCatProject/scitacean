@@ -1427,7 +1427,7 @@ class ScicatClient:
         Note the use `quote_plus` for the PID. You must ensure to properly escape
         all URL components.
         """
-        full_url = _url_concat(self._base_url, url)
+        full_url = _url_concat(_api_override(self._base_url, url.split("/", 1)[0]), url)
         logger = get_logger()
         logger.info("Calling SciCat API at %s for operation '%s'", full_url, operation)
 
@@ -1479,6 +1479,28 @@ def _make_orig_datablock(
         _strict_validation=strict_validation,
         **{**fields, "dataFileList": files},
     )
+
+
+_API_V4_ENDPOINTS = (
+    "attachments",
+    "datablocks",
+    "datasets",
+    "origdatablocks",
+)
+# Replace any occurrence if 'v3' (group 1) followed by a slash or at the end of the str.
+_API_V4_REPLACEMENT_REGEX = re.compile(r"/(v3)(/|$)")
+
+
+def _api_override(url: str, endpoint: str) -> str:
+    if endpoint in _API_V4_ENDPOINTS:
+        if (m := _API_V4_REPLACEMENT_REGEX.search(url)) is None:
+            warnings.warn(
+                f"Failed to set API version in SciCat URL {url}", stacklevel=2
+            )
+            return url
+        a, b = m.span(1)
+        return "".join((url[:a], "v4", url[b:]))
+    return url
 
 
 def _log_in_via_users_login(
