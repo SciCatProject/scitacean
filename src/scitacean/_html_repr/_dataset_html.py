@@ -3,6 +3,7 @@
 """HTML representations of datasets for Jupyter."""
 
 import html
+import inspect
 from collections.abc import Iterable
 from typing import Any
 
@@ -134,6 +135,13 @@ _MAIN_FIELDS = {
 }
 
 
+def _get_field_description(name: str) -> str:
+    prop = inspect.getattr_static(Dataset, name, None)
+    if prop is None:
+        return ""
+    return inspect.getdoc(prop) or ""
+
+
 def _get_fields(dset: Dataset) -> list[Field]:
     validation = _validate(dset)
     fields = [
@@ -141,7 +149,7 @@ def _get_fields(dset: Dataset) -> list[Field]:
             name=field.name,
             value=getattr(dset, field.name, None),
             type=field.type,
-            description=field.description,
+            description=_get_field_description(field.name),
             read_only=field.read_only,
             required=field.required,
             error=_check_error(field, validation),
