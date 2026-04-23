@@ -1,11 +1,5 @@
-##########################################
-# This file was automatically generated. #
-# Do not modify it directly!             #
-##########################################
-
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2025 SciCat Project (https://github.com/SciCatProject/scitacean)
-# ruff: noqa: D400, D401, E501, RUF023
+# Copyright (c) 2026 SciCat Project (https://github.com/SciCatProject/scitacean)
 
 """Base class for Dataset."""
 
@@ -76,7 +70,6 @@ class DatasetBase:
     @dataclass(frozen=True, kw_only=True, slots=True)
     class Field:
         name: str
-        description: str
         read_only: bool
         required: bool
         scicat_name: str
@@ -94,7 +87,6 @@ class DatasetBase:
     _FIELD_SPEC: ClassVar[list[Field]] = [
         Field(
             name="type",
-            description="Characterize type of dataset, either 'raw' or 'derived'. Autofilled when choosing the proper inherited models.",
             read_only=False,
             required=True,
             scicat_name="type",
@@ -104,7 +96,6 @@ class DatasetBase:
         ),
         Field(
             name="access_groups",
-            description="List of groups which have access to this item.",
             read_only=False,
             required=False,
             scicat_name="accessGroups",
@@ -114,7 +105,6 @@ class DatasetBase:
         ),
         Field(
             name="api_version",
-            description="Version of the API used in creation of the dataset.",
             read_only=True,
             required=False,
             scicat_name="version",
@@ -124,7 +114,6 @@ class DatasetBase:
         ),
         Field(
             name="classification",
-            description="ACIA information about AUthenticity,COnfidentiality,INtegrity and AVailability requirements of dataset. E.g. AV(ailabilty)=medium could trigger the creation of a two tape copies. Format 'AV=medium,CO=low'",
             read_only=False,
             required=False,
             scicat_name="classification",
@@ -134,7 +123,6 @@ class DatasetBase:
         ),
         Field(
             name="comment",
-            description="Comment the user has about a given dataset.",
             read_only=False,
             required=False,
             scicat_name="comment",
@@ -144,7 +132,6 @@ class DatasetBase:
         ),
         Field(
             name="contact_email",
-            description="Email of the contact person for this dataset. The string may contain a list of emails, which should then be separated by semicolons.",
             read_only=False,
             required=True,
             scicat_name="contactEmail",
@@ -154,7 +141,6 @@ class DatasetBase:
         ),
         Field(
             name="created_at",
-            description="Date and time when this record was created. This field is managed by mongoose with through the timestamp settings. The field should be a string containing a date in ISO 8601 format (2024-02-27T12:26:57.313Z)",
             read_only=True,
             required=False,
             scicat_name="createdAt",
@@ -164,7 +150,6 @@ class DatasetBase:
         ),
         Field(
             name="created_by",
-            description="Indicate the user who created this record. This property is added and maintained by the system.",
             read_only=True,
             required=False,
             scicat_name="createdBy",
@@ -174,7 +159,6 @@ class DatasetBase:
         ),
         Field(
             name="creation_location",
-            description="Unique location identifier where data was taken, usually in the form /Site-name/facility-name/instrumentOrBeamline-name. This field is required if the dataset is a Raw dataset.",
             read_only=False,
             required=True,
             scicat_name="creationLocation",
@@ -184,7 +168,6 @@ class DatasetBase:
         ),
         Field(
             name="creation_time",
-            description="Time when dataset became fully available on disk, i.e. all containing files have been written,  or the dataset was created in SciCat.<br>It is expected to be in ISO8601 format according to specifications for internet date/time format in RFC 3339, chapter 5.6 (https://www.rfc-editor.org/rfc/rfc3339#section-5).<br>Local times without timezone/offset info are automatically transformed to UTC using the timezone of the API server.",
             read_only=False,
             required=True,
             scicat_name="creationTime",
@@ -194,7 +177,6 @@ class DatasetBase:
         ),
         Field(
             name="data_format",
-            description="Defines the format of the data files in this dataset, e.g Nexus Version x.y.",
             read_only=False,
             required=False,
             scicat_name="dataFormat",
@@ -204,7 +186,6 @@ class DatasetBase:
         ),
         Field(
             name="data_quality_metrics",
-            description="Data Quality Metrics is a number given by the user to rate the dataset.",
             read_only=False,
             required=False,
             scicat_name="dataQualityMetrics",
@@ -214,7 +195,6 @@ class DatasetBase:
         ),
         Field(
             name="description",
-            description="Free text explanation of contents of dataset.",
             read_only=False,
             required=False,
             scicat_name="description",
@@ -224,7 +204,6 @@ class DatasetBase:
         ),
         Field(
             name="end_time",
-            description="End time of data acquisition for the current dataset.<br>It is expected to be in ISO8601 format according to specifications for internet date/time format in RFC 3339, chapter 5.6 (https://www.rfc-editor.org/rfc/rfc3339#section-5).<br>Local times without timezone/offset info are automatically transformed to UTC using the timezone of the API server.",
             read_only=False,
             required=False,
             scicat_name="endTime",
@@ -234,7 +213,6 @@ class DatasetBase:
         ),
         Field(
             name="input_datasets",
-            description="Array of input dataset identifiers used in producing the derived dataset. Ideally these are the global identifier to existing datasets inside this or federated data catalogs.",
             read_only=False,
             required=True,
             scicat_name="inputDatasets",
@@ -244,7 +222,6 @@ class DatasetBase:
         ),
         Field(
             name="instrument_group",
-            description="Group of the instrument which this item was acquired on.",
             read_only=False,
             required=False,
             scicat_name="instrumentGroup",
@@ -254,7 +231,6 @@ class DatasetBase:
         ),
         Field(
             name="instrument_id",
-            description="ID of the instrument where the data was created.",
             read_only=False,
             required=False,
             scicat_name="instrumentId",
@@ -264,7 +240,6 @@ class DatasetBase:
         ),
         Field(
             name="investigator",
-            description="First name and last name of the person or people pursuing the data analysis. The string may contain a list of names, which should then be separated by semicolons.",
             read_only=False,
             required=True,
             scicat_name="investigator",
@@ -274,7 +249,6 @@ class DatasetBase:
         ),
         Field(
             name="is_published",
-            description="Flag is true when data are made publicly available.",
             read_only=False,
             required=False,
             scicat_name="isPublished",
@@ -284,7 +258,6 @@ class DatasetBase:
         ),
         Field(
             name="job_log_data",
-            description="The output job logfile. Keep the size of this log data well below 15 MB.",
             read_only=False,
             required=False,
             scicat_name="jobLogData",
@@ -294,7 +267,6 @@ class DatasetBase:
         ),
         Field(
             name="job_parameters",
-            description="The creation process of the derived data will usually depend on input job parameters. The full structure of these input parameters are stored here.",
             read_only=False,
             required=False,
             scicat_name="jobParameters",
@@ -304,7 +276,6 @@ class DatasetBase:
         ),
         Field(
             name="keywords",
-            description="Array of tags associated with the meaning or contents of this dataset. Values should ideally come from defined vocabularies, taxonomies, ontologies or knowledge graphs.",
             read_only=False,
             required=False,
             scicat_name="keywords",
@@ -314,7 +285,6 @@ class DatasetBase:
         ),
         Field(
             name="license",
-            description="Name of the license under which the data can be used.",
             read_only=False,
             required=False,
             scicat_name="license",
@@ -324,7 +294,6 @@ class DatasetBase:
         ),
         Field(
             name="lifecycle",
-            description="Describes the current status of the dataset during its lifetime with respect to the storage handling systems.",
             read_only=True,
             required=False,
             scicat_name="datasetlifecycle",
@@ -334,7 +303,6 @@ class DatasetBase:
         ),
         Field(
             name="name",
-            description="A name for the dataset, given by the creator to carry some semantic meaning. Useful for display purposes e.g. instead of displaying the pid. Will be autofilled if missing using info from sourceFolder.",
             read_only=False,
             required=True,
             scicat_name="datasetName",
@@ -344,7 +312,6 @@ class DatasetBase:
         ),
         Field(
             name="orcid_of_owner",
-            description="ORCID of the owner or custodian. The string may contain a list of ORCIDs, which should then be separated by semicolons.",
             read_only=False,
             required=False,
             scicat_name="orcidOfOwner",
@@ -354,7 +321,6 @@ class DatasetBase:
         ),
         Field(
             name="owner",
-            description="Owner or custodian of the dataset, usually first name + last name. The string may contain a list of persons, which should then be separated by semicolons.",
             read_only=False,
             required=True,
             scicat_name="owner",
@@ -364,7 +330,6 @@ class DatasetBase:
         ),
         Field(
             name="owner_email",
-            description="Email of the owner or custodian of the dataset. The string may contain a list of emails, which should then be separated by semicolons.",
             read_only=False,
             required=False,
             scicat_name="ownerEmail",
@@ -374,7 +339,6 @@ class DatasetBase:
         ),
         Field(
             name="owner_group",
-            description="Name of the group owning this item.",
             read_only=False,
             required=True,
             scicat_name="ownerGroup",
@@ -384,7 +348,6 @@ class DatasetBase:
         ),
         Field(
             name="pid",
-            description="Persistent identifier of the dataset.",
             read_only=True,
             required=False,
             scicat_name="pid",
@@ -394,7 +357,6 @@ class DatasetBase:
         ),
         Field(
             name="principal_investigator",
-            description="First name and last name of principal investigator(s). If multiple PIs are present, use a semicolon separated list. This field is required if the dataset is a Raw dataset.",
             read_only=False,
             required=True,
             scicat_name="principalInvestigator",
@@ -404,7 +366,6 @@ class DatasetBase:
         ),
         Field(
             name="proposal_id",
-            description="The ID of the proposal to which the dataset belongs.",
             read_only=False,
             required=False,
             scicat_name="proposalId",
@@ -414,7 +375,6 @@ class DatasetBase:
         ),
         Field(
             name="relationships",
-            description="Stores the relationships with other datasets.",
             read_only=False,
             required=False,
             scicat_name="relationships",
@@ -424,7 +384,6 @@ class DatasetBase:
         ),
         Field(
             name="run_number",
-            description="Run number assigned by the system to the data acquisition for the current dataset.",
             read_only=False,
             required=False,
             scicat_name="runNumber",
@@ -434,7 +393,6 @@ class DatasetBase:
         ),
         Field(
             name="sample_id",
-            description="ID of the sample used when collecting the data.",
             read_only=False,
             required=False,
             scicat_name="sampleId",
@@ -444,7 +402,6 @@ class DatasetBase:
         ),
         Field(
             name="shared_with",
-            description="List of users that the dataset has been shared with.",
             read_only=False,
             required=False,
             scicat_name="sharedWith",
@@ -454,7 +411,6 @@ class DatasetBase:
         ),
         Field(
             name="source_folder",
-            description="Absolute file path on file server containing the files of this dataset, e.g. /some/path/to/sourcefolder. In case of a single file dataset, e.g. HDF5 data, it contains the path up to, but excluding the filename. Trailing slashes are removed.",
             read_only=False,
             required=True,
             scicat_name="sourceFolder",
@@ -464,7 +420,6 @@ class DatasetBase:
         ),
         Field(
             name="source_folder_host",
-            description="DNS host name of file server hosting sourceFolder, optionally including a protocol e.g. [protocol://]fileserver1.example.com",
             read_only=False,
             required=False,
             scicat_name="sourceFolderHost",
@@ -474,7 +429,6 @@ class DatasetBase:
         ),
         Field(
             name="start_time",
-            description="Start time of data acquisition for the current dataset.<br>It is expected to be in ISO8601 format according to specifications for internet date/time format in RFC 3339, chapter 5.6 (https://www.rfc-editor.org/rfc/rfc3339#section-5).<br>Local times without timezone/offset info are automatically transformed to UTC using the timezone of the API server.",
             read_only=False,
             required=False,
             scicat_name="startTime",
@@ -484,7 +438,6 @@ class DatasetBase:
         ),
         Field(
             name="techniques",
-            description="Stores the metadata information for techniques.",
             read_only=False,
             required=False,
             scicat_name="techniques",
@@ -494,7 +447,6 @@ class DatasetBase:
         ),
         Field(
             name="updated_at",
-            description="Date and time when this record was updated last. This field is managed by mongoose with through the timestamp settings. The field should be a string containing a date in ISO 8601 format (2024-02-27T12:26:57.313Z)",
             read_only=True,
             required=False,
             scicat_name="updatedAt",
@@ -504,7 +456,6 @@ class DatasetBase:
         ),
         Field(
             name="updated_by",
-            description="Indicate the user who updated this record last. This property is added and maintained by the system.",
             read_only=True,
             required=False,
             scicat_name="updatedBy",
@@ -514,7 +465,6 @@ class DatasetBase:
         ),
         Field(
             name="used_software",
-            description="A list of links to software repositories which uniquely identifies the pieces of software, including versions, used for yielding the derived data.",
             read_only=False,
             required=True,
             scicat_name="usedSoftware",
@@ -524,7 +474,6 @@ class DatasetBase:
         ),
         Field(
             name="validation_status",
-            description="Defines a level of trust, e.g. a measure of how much data was verified or used by other persons.",
             read_only=False,
             required=False,
             scicat_name="validationStatus",
@@ -538,6 +487,7 @@ class DatasetBase:
         "_access_groups",
         "_api_version",
         "_attachments",
+        "_attachments",
         "_classification",
         "_comment",
         "_contact_email",
@@ -547,6 +497,7 @@ class DatasetBase:
         "_creation_time",
         "_data_format",
         "_data_quality_metrics",
+        "_default_checksum_algorithm",
         "_description",
         "_end_time",
         "_input_datasets",
@@ -559,8 +510,10 @@ class DatasetBase:
         "_keywords",
         "_license",
         "_lifecycle",
+        "_meta",
         "_name",
         "_orcid_of_owner",
+        "_orig_datablocks",
         "_owner",
         "_owner_email",
         "_owner_group",
@@ -575,15 +528,11 @@ class DatasetBase:
         "_source_folder_host",
         "_start_time",
         "_techniques",
+        "_type",
         "_updated_at",
         "_updated_by",
         "_used_software",
         "_validation_status",
-        "_meta",
-        "_type",
-        "_default_checksum_algorithm",
-        "_orig_datablocks",
-        "_attachments",
     )
 
     def __init__(
