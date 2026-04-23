@@ -81,11 +81,6 @@ clean-docs:
 build:
     @uv build
 
-# Generate SciCat models, launches a SciCat backend
-[working-directory('tools/model-generation')]
-generate-models:
-    @uv run python generate_models.py --launch-scicat
-
 # Remove the output from a Jupyter notebook
 strip-output *notebooks:
     @prek run nbstripout {{ notebooks }}

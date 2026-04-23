@@ -1,10 +1,5 @@
-##########################################
-# This file was automatically generated. #
-# Do not modify it directly!             #
-##########################################
-
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2025 SciCat Project (https://github.com/SciCatProject/scitacean)
+# Copyright (c) 2026 SciCat Project (https://github.com/SciCatProject/scitacean)
 """Models for communication with SciCat and user facing dataclasses.
 
 The high-level :class:`scitacean.Client` and :class:`scitacean.Dataset` return objects
