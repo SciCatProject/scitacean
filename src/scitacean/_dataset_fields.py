@@ -8,9 +8,8 @@ from __future__ import annotations
 from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Any, ClassVar, Literal, TypeVar
+from typing import Any, ClassVar, TypeVar
 
-from ._base_model import DatasetType
 from .datablock import OrigDatablock
 from .filesystem import RemotePath
 from .model import (
@@ -74,15 +73,6 @@ class DatasetBase:
         required: bool
         scicat_name: str
         type: type
-        used_by_derived: bool
-        used_by_raw: bool
-
-        def used_by(self, dataset_type: DatasetType) -> bool:
-            return (
-                self.used_by_raw
-                if dataset_type == DatasetType.RAW
-                else self.used_by_derived
-            )
 
     _FIELD_SPEC: ClassVar[list[Field]] = [
         Field(
@@ -90,9 +80,7 @@ class DatasetBase:
             read_only=False,
             required=True,
             scicat_name="type",
-            type=DatasetType,
-            used_by_derived=True,
-            used_by_raw=True,
+            type=str,
         ),
         Field(
             name="access_groups",
@@ -100,8 +88,6 @@ class DatasetBase:
             required=False,
             scicat_name="accessGroups",
             type=list[str],
-            used_by_derived=True,
-            used_by_raw=True,
         ),
         Field(
             name="api_version",
@@ -109,8 +95,6 @@ class DatasetBase:
             required=False,
             scicat_name="version",
             type=str,
-            used_by_derived=True,
-            used_by_raw=True,
         ),
         Field(
             name="classification",
@@ -118,8 +102,6 @@ class DatasetBase:
             required=False,
             scicat_name="classification",
             type=str,
-            used_by_derived=True,
-            used_by_raw=True,
         ),
         Field(
             name="comment",
@@ -127,8 +109,6 @@ class DatasetBase:
             required=False,
             scicat_name="comment",
             type=str,
-            used_by_derived=True,
-            used_by_raw=True,
         ),
         Field(
             name="contact_email",
@@ -136,8 +116,6 @@ class DatasetBase:
             required=True,
             scicat_name="contactEmail",
             type=str,
-            used_by_derived=True,
-            used_by_raw=True,
         ),
         Field(
             name="created_at",
@@ -145,8 +123,6 @@ class DatasetBase:
             required=False,
             scicat_name="createdAt",
             type=datetime,
-            used_by_derived=True,
-            used_by_raw=True,
         ),
         Field(
             name="created_by",
@@ -154,8 +130,6 @@ class DatasetBase:
             required=False,
             scicat_name="createdBy",
             type=str,
-            used_by_derived=True,
-            used_by_raw=True,
         ),
         Field(
             name="creation_location",
@@ -163,8 +137,6 @@ class DatasetBase:
             required=True,
             scicat_name="creationLocation",
             type=str,
-            used_by_derived=False,
-            used_by_raw=True,
         ),
         Field(
             name="creation_time",
@@ -172,8 +144,6 @@ class DatasetBase:
             required=True,
             scicat_name="creationTime",
             type=datetime,
-            used_by_derived=True,
-            used_by_raw=True,
         ),
         Field(
             name="data_format",
@@ -181,8 +151,6 @@ class DatasetBase:
             required=False,
             scicat_name="dataFormat",
             type=str,
-            used_by_derived=False,
-            used_by_raw=True,
         ),
         Field(
             name="data_quality_metrics",
@@ -190,8 +158,6 @@ class DatasetBase:
             required=False,
             scicat_name="dataQualityMetrics",
             type=int,
-            used_by_derived=True,
-            used_by_raw=True,
         ),
         Field(
             name="description",
@@ -199,8 +165,6 @@ class DatasetBase:
             required=False,
             scicat_name="description",
             type=str,
-            used_by_derived=True,
-            used_by_raw=True,
         ),
         Field(
             name="end_time",
@@ -208,8 +172,6 @@ class DatasetBase:
             required=False,
             scicat_name="endTime",
             type=datetime,
-            used_by_derived=False,
-            used_by_raw=True,
         ),
         Field(
             name="input_datasets",
@@ -217,8 +179,6 @@ class DatasetBase:
             required=True,
             scicat_name="inputDatasets",
             type=list[PID],
-            used_by_derived=True,
-            used_by_raw=True,
         ),
         Field(
             name="instrument_group",
@@ -226,26 +186,13 @@ class DatasetBase:
             required=False,
             scicat_name="instrumentGroup",
             type=str,
-            used_by_derived=True,
-            used_by_raw=True,
         ),
         Field(
-            name="instrument_id",
+            name="instrument_ids",
             read_only=False,
             required=False,
-            scicat_name="instrumentId",
-            type=str,
-            used_by_derived=False,
-            used_by_raw=True,
-        ),
-        Field(
-            name="investigator",
-            read_only=False,
-            required=True,
-            scicat_name="investigator",
-            type=str,
-            used_by_derived=True,
-            used_by_raw=True,
+            scicat_name="instrumentIds",
+            type=list[str],
         ),
         Field(
             name="is_published",
@@ -253,8 +200,6 @@ class DatasetBase:
             required=False,
             scicat_name="isPublished",
             type=bool,
-            used_by_derived=True,
-            used_by_raw=True,
         ),
         Field(
             name="job_log_data",
@@ -262,8 +207,6 @@ class DatasetBase:
             required=False,
             scicat_name="jobLogData",
             type=str,
-            used_by_derived=True,
-            used_by_raw=True,
         ),
         Field(
             name="job_parameters",
@@ -271,8 +214,6 @@ class DatasetBase:
             required=False,
             scicat_name="jobParameters",
             type=dict[str, Any],
-            used_by_derived=True,
-            used_by_raw=True,
         ),
         Field(
             name="keywords",
@@ -280,8 +221,6 @@ class DatasetBase:
             required=False,
             scicat_name="keywords",
             type=list[str],
-            used_by_derived=True,
-            used_by_raw=True,
         ),
         Field(
             name="license",
@@ -289,8 +228,6 @@ class DatasetBase:
             required=False,
             scicat_name="license",
             type=str,
-            used_by_derived=True,
-            used_by_raw=True,
         ),
         Field(
             name="lifecycle",
@@ -298,8 +235,6 @@ class DatasetBase:
             required=False,
             scicat_name="datasetlifecycle",
             type=Lifecycle,
-            used_by_derived=True,
-            used_by_raw=True,
         ),
         Field(
             name="name",
@@ -307,8 +242,6 @@ class DatasetBase:
             required=True,
             scicat_name="datasetName",
             type=str,
-            used_by_derived=True,
-            used_by_raw=True,
         ),
         Field(
             name="orcid_of_owner",
@@ -316,8 +249,6 @@ class DatasetBase:
             required=False,
             scicat_name="orcidOfOwner",
             type=str,
-            used_by_derived=True,
-            used_by_raw=True,
         ),
         Field(
             name="owner",
@@ -325,8 +256,6 @@ class DatasetBase:
             required=True,
             scicat_name="owner",
             type=str,
-            used_by_derived=True,
-            used_by_raw=True,
         ),
         Field(
             name="owner_email",
@@ -334,8 +263,6 @@ class DatasetBase:
             required=False,
             scicat_name="ownerEmail",
             type=str,
-            used_by_derived=True,
-            used_by_raw=True,
         ),
         Field(
             name="owner_group",
@@ -343,8 +270,6 @@ class DatasetBase:
             required=True,
             scicat_name="ownerGroup",
             type=str,
-            used_by_derived=True,
-            used_by_raw=True,
         ),
         Field(
             name="pid",
@@ -352,26 +277,20 @@ class DatasetBase:
             required=False,
             scicat_name="pid",
             type=PID,
-            used_by_derived=True,
-            used_by_raw=True,
         ),
         Field(
-            name="principal_investigator",
+            name="principal_investigators",
             read_only=False,
             required=True,
-            scicat_name="principalInvestigator",
-            type=str,
-            used_by_derived=False,
-            used_by_raw=True,
+            scicat_name="principalInvestigators",
+            type=list[str],
         ),
         Field(
-            name="proposal_id",
+            name="proposal_ids",
             read_only=False,
             required=False,
-            scicat_name="proposalId",
-            type=str,
-            used_by_derived=True,
-            used_by_raw=True,
+            scicat_name="proposalIds",
+            type=list[str],
         ),
         Field(
             name="relationships",
@@ -379,8 +298,6 @@ class DatasetBase:
             required=False,
             scicat_name="relationships",
             type=list[Relationship],
-            used_by_derived=True,
-            used_by_raw=True,
         ),
         Field(
             name="run_number",
@@ -388,17 +305,27 @@ class DatasetBase:
             required=False,
             scicat_name="runNumber",
             type=str,
-            used_by_derived=True,
-            used_by_raw=True,
         ),
         Field(
-            name="sample_id",
+            name="sample_ids",
             read_only=False,
             required=False,
-            scicat_name="sampleId",
+            scicat_name="sampleIds",
+            type=list[str],
+        ),
+        Field(
+            name="scientific_metadata_schema",
+            read_only=False,
+            required=False,
+            scicat_name="scientificMetadataSchema",
             type=str,
-            used_by_derived=False,
-            used_by_raw=True,
+        ),
+        Field(
+            name="scientific_metadata_valid",
+            read_only=False,
+            required=False,
+            scicat_name="scientificMetadataValid",
+            type=bool,
         ),
         Field(
             name="shared_with",
@@ -406,8 +333,6 @@ class DatasetBase:
             required=False,
             scicat_name="sharedWith",
             type=list[str],
-            used_by_derived=True,
-            used_by_raw=True,
         ),
         Field(
             name="source_folder",
@@ -415,8 +340,6 @@ class DatasetBase:
             required=True,
             scicat_name="sourceFolder",
             type=RemotePath,
-            used_by_derived=True,
-            used_by_raw=True,
         ),
         Field(
             name="source_folder_host",
@@ -424,8 +347,6 @@ class DatasetBase:
             required=False,
             scicat_name="sourceFolderHost",
             type=str,
-            used_by_derived=True,
-            used_by_raw=True,
         ),
         Field(
             name="start_time",
@@ -433,8 +354,6 @@ class DatasetBase:
             required=False,
             scicat_name="startTime",
             type=datetime,
-            used_by_derived=False,
-            used_by_raw=True,
         ),
         Field(
             name="techniques",
@@ -442,8 +361,6 @@ class DatasetBase:
             required=False,
             scicat_name="techniques",
             type=list[Technique],
-            used_by_derived=True,
-            used_by_raw=True,
         ),
         Field(
             name="updated_at",
@@ -451,8 +368,6 @@ class DatasetBase:
             required=False,
             scicat_name="updatedAt",
             type=datetime,
-            used_by_derived=True,
-            used_by_raw=True,
         ),
         Field(
             name="updated_by",
@@ -460,8 +375,6 @@ class DatasetBase:
             required=False,
             scicat_name="updatedBy",
             type=str,
-            used_by_derived=True,
-            used_by_raw=True,
         ),
         Field(
             name="used_software",
@@ -469,8 +382,6 @@ class DatasetBase:
             required=True,
             scicat_name="usedSoftware",
             type=list[str],
-            used_by_derived=True,
-            used_by_raw=True,
         ),
         Field(
             name="validation_status",
@@ -478,8 +389,6 @@ class DatasetBase:
             required=False,
             scicat_name="validationStatus",
             type=str,
-            used_by_derived=True,
-            used_by_raw=True,
         ),
     ]
 
@@ -502,8 +411,7 @@ class DatasetBase:
         "_end_time",
         "_input_datasets",
         "_instrument_group",
-        "_instrument_id",
-        "_investigator",
+        "_instrument_ids",
         "_is_published",
         "_job_log_data",
         "_job_parameters",
@@ -518,11 +426,13 @@ class DatasetBase:
         "_owner_email",
         "_owner_group",
         "_pid",
-        "_principal_investigator",
-        "_proposal_id",
+        "_principal_investigators",
+        "_proposal_ids",
         "_relationships",
         "_run_number",
-        "_sample_id",
+        "_sample_ids",
+        "_scientific_metadata_schema",
+        "_scientific_metadata_valid",
         "_shared_with",
         "_source_folder",
         "_source_folder_host",
@@ -537,7 +447,7 @@ class DatasetBase:
 
     def __init__(
         self,
-        type: DatasetType | Literal["raw", "derived"],
+        type: str | None = None,
         access_groups: list[str] | None = None,
         classification: str | None = None,
         comment: str | None = None,
@@ -550,8 +460,7 @@ class DatasetBase:
         end_time: datetime | None = None,
         input_datasets: list[PID] | None = None,
         instrument_group: str | None = None,
-        instrument_id: str | None = None,
-        investigator: str | None = None,
+        instrument_ids: list[str] | None = None,
         is_published: bool | None = None,
         job_log_data: str | None = None,
         job_parameters: dict[str, Any] | None = None,
@@ -563,11 +472,13 @@ class DatasetBase:
         owner: str | None = None,
         owner_email: str | None = None,
         owner_group: str | None = None,
-        principal_investigator: str | None = None,
-        proposal_id: str | None = None,
+        principal_investigators: list[str] | None = None,
+        proposal_ids: list[str] | None = None,
         relationships: list[Relationship] | None = None,
         run_number: str | None = None,
-        sample_id: str | None = None,
+        sample_ids: list[str] | None = None,
+        scientific_metadata_schema: str | None = None,
+        scientific_metadata_valid: bool | None = None,
         shared_with: list[str] | None = None,
         source_folder: RemotePath | str | None = None,
         source_folder_host: str | None = None,
@@ -578,7 +489,7 @@ class DatasetBase:
         meta: dict[str, Any] | None = None,
         checksum_algorithm: str | None = "blake2b",
     ) -> None:
-        self._type = DatasetType(type)
+        self._type = type
         self._access_groups = access_groups
         self._classification = classification
         self._comment = comment
@@ -591,8 +502,7 @@ class DatasetBase:
         self._end_time = end_time
         self._input_datasets = input_datasets
         self._instrument_group = instrument_group
-        self._instrument_id = instrument_id
-        self._investigator = investigator
+        self._instrument_ids = instrument_ids
         self._is_published = is_published
         self._job_log_data = job_log_data
         self._job_parameters = job_parameters
@@ -604,12 +514,14 @@ class DatasetBase:
         self._owner = owner
         self._owner_email = owner_email
         self._owner_group = owner_group
-        self._principal_investigator = principal_investigator
-        self._proposal_id = proposal_id
+        self._principal_investigators = principal_investigators
+        self._proposal_ids = proposal_ids
         self._relationships = relationships
         self._run_number = run_number
-        self._sample_id = sample_id
+        self._sample_ids = sample_ids
         self._shared_with = shared_with
+        self._scientific_metadata_schema = scientific_metadata_schema
+        self._scientific_metadata_valid = scientific_metadata_valid
         self._source_folder = _parse_remote_path(source_folder)
         self._source_folder_host = source_folder_host
         self._start_time = start_time
@@ -793,22 +705,37 @@ class DatasetBase:
         self._instrument_group = instrument_group
 
     @property
-    def instrument_id(self) -> str | None:
+    def instrument_ids(self) -> list[str] | None:
         """IDs of the instruments where the data was created."""
-        return self._instrument_id
+        return self._instrument_ids
+
+    @instrument_ids.setter
+    def instrument_ids(self, instrument_ids: str | None) -> None:
+        self._instrument_ids = instrument_ids
+
+    @property
+    def instrument_id(self) -> str | None:
+        """Single instrument ID if there is at most one.
+
+        Raises :class:`ValueError` if there are multiple IDs in the dataset.
+        """
+        if not self._instrument_ids:
+            return None
+        [val] = self._instrument_ids
+        return val
 
     @instrument_id.setter
     def instrument_id(self, instrument_id: str | None) -> None:
-        self._instrument_id = instrument_id
+        self._instrument_ids = [instrument_id] if instrument_id is not None else None
 
     @property
     def investigator(self) -> str | None:
         """Legacy fallback for principal_investigator."""
-        return self._principal_investigator
+        return self.principal_investigator
 
     @investigator.setter
     def investigator(self, investigator: str | None) -> None:
-        self._principal_investigator = investigator
+        self.principal_investigators = investigator
 
     @property
     def is_published(self) -> bool | None:
@@ -936,25 +863,56 @@ class DatasetBase:
         return self._pid
 
     @property
-    def principal_investigator(self) -> str | None:
-        """Full name of the principal investigator(s).
+    def principal_investigators(self) -> list[str] | None:
+        """Full name of the principal investigator(s)."""
+        return self._principal_investigators
 
-        If multiple PIs are present, use a semicolon-separated list.
+    @principal_investigators.setter
+    def principal_investigators(
+        self, principal_investigators: list[str] | None
+    ) -> None:
+        self._principal_investigators = principal_investigators
+
+    @property
+    def principal_investigator(self) -> str | None:
+        """Full name of the single principal investigator if there is at most one.
+
+        Raises :class:`ValueError` if there are multiple IDs in the dataset.
         """
-        return self._principal_investigator
+        if not self._principal_investigators:
+            return None
+        [val] = self._principal_investigators
+        return val
 
     @principal_investigator.setter
     def principal_investigator(self, principal_investigator: str | None) -> None:
-        self._principal_investigator = principal_investigator
+        self._principal_investigators = (
+            [principal_investigator] if principal_investigator is not None else None
+        )
+
+    @property
+    def proposal_ids(self) -> list[str] | None:
+        """The IDs of the proposals to which the dataset belongs."""
+        return self._proposal_ids
+
+    @proposal_ids.setter
+    def proposal_ids(self, proposal_ids: list[str] | None) -> None:
+        self._proposal_ids = proposal_ids
 
     @property
     def proposal_id(self) -> str | None:
-        """The ID of the proposal to which the dataset belongs."""
-        return self._proposal_id
+        """The ID of the single proposal for this dataset if there is at most one.
+
+        Raises :class:`ValueError` if there are multiple IDs in the dataset.
+        """
+        if not self._proposal_ids:
+            return None
+        [val] = self._proposal_ids
+        return val
 
     @proposal_id.setter
     def proposal_id(self, proposal_id: str | None) -> None:
-        self._proposal_id = proposal_id
+        self._proposal_ids = [proposal_id] if proposal_id is not None else None
 
     @property
     def relationships(self) -> list[Relationship] | None:
@@ -975,13 +933,45 @@ class DatasetBase:
         self._run_number = run_number
 
     @property
+    def sample_ids(self) -> list[str] | None:
+        """ID(s) of the sample(s) used when collecting the data."""
+        return self._sample_ids
+
+    @sample_ids.setter
+    def sample_ids(self, sample_ids: list[str] | None) -> None:
+        self._sample_ids = sample_ids
+
+    @property
     def sample_id(self) -> str | None:
-        """ID of the sample used when collecting the data."""
-        return self._sample_id
+        """ID of the sample used when collecting the data if there is at most one."""
+        if not self._sample_ids:
+            return None
+        [val] = self._sample_ids
+        return val
 
     @sample_id.setter
     def sample_id(self, sample_id: str | None) -> None:
-        self._sample_id = sample_id
+        self._sample_ids = [sample_id] if sample_id is not None else None
+
+    @property
+    def scientific_metadata_schema(self) -> str | None:
+        """Link to the schema for scientific Metadata validation."""
+        return self._scientific_metadata_schema
+
+    @scientific_metadata_schema.setter
+    def scientific_metadata_schema(
+        self, scientific_metadata_schema: str | None
+    ) -> None:
+        self._scientific_metadata_schema = scientific_metadata_schema
+
+    @property
+    def scientific_metadata_valid(self) -> str | None:
+        """Whether the scientific metadata complies with the schema."""
+        return self._scientific_metadata_valid
+
+    @scientific_metadata_valid.setter
+    def scientific_metadata_valid(self, scientific_metadata_valid: bool | None) -> None:
+        self._scientific_metadata_valid = scientific_metadata_valid
 
     @property
     def shared_with(self) -> list[str] | None:
@@ -1093,7 +1083,7 @@ class DatasetBase:
         self._meta = meta
 
     @property
-    def type(self) -> DatasetType:
+    def type(self) -> str | None:
         """The type of this dataset.
 
         - ``'raw'``: A dataset without any ancestors, e.g., measured or simulated data.
@@ -1101,6 +1091,10 @@ class DatasetBase:
         - _other_: Any other string allowed by the SciCat instance.
         """
         return self._type
+
+    @type.setter
+    def type(self, ty: str | None) -> None:
+        self._type = ty
 
     @staticmethod
     def _prepare_fields_from_download(
@@ -1111,9 +1105,7 @@ class DatasetBase:
         for field in DatasetBase._FIELD_SPEC:
             if field.read_only:
                 read_only["_" + field.name] = getattr(download_model, field.scicat_name)
-            elif hasattr(
-                download_model, field.scicat_name
-            ):  # TODO remove condition in API v4
+            else:
                 init_args[field.name] = getattr(download_model, field.scicat_name)
 
         init_args["meta"] = download_model.scientificMetadata

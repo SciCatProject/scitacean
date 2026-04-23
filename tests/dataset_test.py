@@ -10,7 +10,7 @@ from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 from pyfakefs.fake_filesystem import FakeFilesystem
 
-from scitacean import PID, Dataset, DatasetType, File, RemotePath, Thumbnail, model
+from scitacean import PID, Dataset, File, RemotePath, Thumbnail, model
 from scitacean.testing import strategies as sst
 from scitacean.testing.client import process_uploaded_dataset
 
@@ -27,9 +27,9 @@ def raw_download_model() -> model.DownloadDataset:
         numberOfFilesArchived=None,
         owner="pstibbons",
         ownerGroup="faculty",
-        principalInvestigator="Ponder Stibbons",
+        principalInvestigators=["Ponder Stibbons"],
         sourceFolder=RemotePath("/uu/hex"),
-        type=DatasetType.RAW,
+        type="raw",
         usedSoftware=None,
         accessGroups=["uu"],
         version="3",
@@ -42,7 +42,7 @@ def raw_download_model() -> model.DownloadDataset:
         description="Some shady data",
         endTime=datetime.fromisoformat("1995-08-03T00:00:00Z"),
         instrumentGroup="professors",
-        instrumentId="0000-aa",
+        instrumentIds=["0000-aa"],
         isPublished=True,
         jobLogData=None,
         jobParameters=None,
@@ -54,8 +54,8 @@ def raw_download_model() -> model.DownloadDataset:
         ownerEmail="m.ridcully@uu.am",
         packedSize=0,
         pid=PID.parse("123.cc/948.f7.2a"),
-        proposalId="33.dc",
-        sampleId="bac.a4",
+        proposalIds=["33.dc"],
+        sampleIds=["bac.a4"],
         sharedWith=["librarian"],
         size=400,
         sourceFolderHost="ftp://uu.am/data",
@@ -95,9 +95,9 @@ def derived_download_model() -> model.DownloadDataset:
         numberOfFilesArchived=None,
         owner="pstibbons",
         ownerGroup="faculty",
-        principalInvestigator="Ponder Stibbons",
+        principalInvestigators=["Ponder Stibbons"],
         sourceFolder=RemotePath("/uu/hex"),
-        type=DatasetType.DERIVED,
+        type="derived",
         usedSoftware=["scitacean"],
         accessGroups=["uu"],
         version="3",
@@ -110,7 +110,7 @@ def derived_download_model() -> model.DownloadDataset:
         description="Dubiously analyzed data",
         endTime=None,
         instrumentGroup="professors",
-        instrumentId=None,
+        instrumentIds=None,
         isPublished=True,
         jobLogData="process interrupted",
         jobParameters={"nodes": 4},
@@ -122,8 +122,8 @@ def derived_download_model() -> model.DownloadDataset:
         ownerEmail="m.ridcully@uu.am",
         packedSize=0,
         pid=PID.parse("123.cc/948.f7.2a"),
-        proposalId=None,
-        sampleId=None,
+        proposalIds=None,
+        sampleIds=None,
         sharedWith=["librarian"],
         size=400,
         sourceFolderHost="ftp://uu.am/data",
@@ -173,25 +173,11 @@ def test_from_download_models_initializes_fields(
 
     dset = Dataset.from_download_models(dataset_download_model, [])
     for field in dset.fields():
-        if field.name in ("instrument_id", "sample_id", "proposal_id", "investigator"):
-            continue  # TODO remove when API v4 is released
-        if field.used_by(dataset_download_model.type):
-            assert getattr(dset, field.name) == get_model_field(field.scicat_name)
+        assert getattr(dset, field.name) == get_model_field(field.scicat_name)
 
 
-def test_from_download_models_does_not_initialize_wrong_fields(
-    dataset_download_model: model.DownloadDataset,
-) -> None:
-    dset = Dataset.from_download_models(dataset_download_model, [])
-    for field in dset.fields():
-        if field.name == "principal_investigator":
-            continue  # TODO remove when API v4 is released
-        if not field.used_by(dataset_download_model.type):
-            assert getattr(dset, field.name) is None
-
-
-@pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
-def test_new_dataset_has_no_files(typ: DatasetType) -> None:
+@pytest.mark.parametrize("typ", ["raw", "derived"])
+def test_new_dataset_has_no_files(typ: str) -> None:
     dset = Dataset(type=typ)
     assert len(list(dset.files)) == 0
     assert dset.number_of_files == 0
@@ -200,8 +186,8 @@ def test_new_dataset_has_no_files(typ: DatasetType) -> None:
     assert dset.size == 0
 
 
-@pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
-def test_add_local_file_to_new_dataset(typ: DatasetType, fs: FakeFilesystem) -> None:
+@pytest.mark.parametrize("typ", ["raw", "derived"])
+def test_add_local_file_to_new_dataset(typ: str, fs: FakeFilesystem) -> None:
     file_data = make_file(fs, "local/folder/data.dat")
 
     dset = Dataset(type=typ)
@@ -225,10 +211,8 @@ def test_add_local_file_to_new_dataset(typ: DatasetType, fs: FakeFilesystem) -> 
     assert abs(file_data["creation_time"] - f.make_model().time) < timedelta(seconds=1)
 
 
-@pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
-def test_add_multiple_local_files_to_new_dataset(
-    typ: DatasetType, fs: FakeFilesystem
-) -> None:
+@pytest.mark.parametrize("typ", ["raw", "derived"])
+def test_add_multiple_local_files_to_new_dataset(typ: str, fs: FakeFilesystem) -> None:
     file_data0 = make_file(fs, "common/location1/data.dat")
     file_data1 = make_file(fs, "common/song.mp3")
 
@@ -260,8 +244,8 @@ def test_add_multiple_local_files_to_new_dataset(
     assert f1.checksum_algorithm == "blake2b"
 
 
-@pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
-def test_adding_multiple_conflicting_local_files_raises(typ: DatasetType) -> None:
+@pytest.mark.parametrize("typ", ["raw", "derived"])
+def test_adding_multiple_conflicting_local_files_raises(typ: str) -> None:
     dset = Dataset(type=typ)
     with pytest.raises(ValueError, match=r"data\.dat"):
         dset.add_local_files("common/location1/data.dat", "common/data.dat")
@@ -273,9 +257,9 @@ def test_adding_multiple_conflicting_local_files_raises(typ: DatasetType) -> Non
     assert dset.size == 0
 
 
-@pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
+@pytest.mark.parametrize("typ", ["raw", "derived"])
 def test_adding_separate_conflicting_local_files_raises(
-    typ: DatasetType, fs: FakeFilesystem
+    typ: str, fs: FakeFilesystem
 ) -> None:
     file_data0 = make_file(fs, "common/location1/data.dat")
 
@@ -299,9 +283,9 @@ def test_adding_separate_conflicting_local_files_raises(
     assert f0.checksum_algorithm == "blake2b"
 
 
-@pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
+@pytest.mark.parametrize("typ", ["raw", "derived"])
 def test_adding_conflicting_local_files_in_multiple_datablocks_raises(
-    typ: DatasetType, fs: FakeFilesystem
+    typ: str, fs: FakeFilesystem
 ) -> None:
     file_data0 = make_file(fs, "common/location1/data.dat")
 
@@ -327,10 +311,10 @@ def test_adding_conflicting_local_files_in_multiple_datablocks_raises(
     assert f0.checksum_algorithm == "md5"
 
 
-@pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
+@pytest.mark.parametrize("typ", ["raw", "derived"])
 @pytest.mark.parametrize("algorithm", ["sha256", None])
 def test_can_set_default_checksum_algorithm(
-    typ: DatasetType, algorithm: str | None, fs: FakeFilesystem
+    typ: str, algorithm: str | None, fs: FakeFilesystem
 ) -> None:
     make_file(fs, "local/data.dat")
 
@@ -341,10 +325,10 @@ def test_can_set_default_checksum_algorithm(
     assert f.checksum_algorithm == algorithm
 
 
-@pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
+@pytest.mark.parametrize("typ", ["raw", "derived"])
 @pytest.mark.parametrize("ds_algorithm", ["sha256", None])
 def test_file_checksum_algorithm_takes_precedence_over_dataset(
-    typ: DatasetType, ds_algorithm: str | None
+    typ: str, ds_algorithm: str | None
 ) -> None:
     dset = Dataset(type=typ, checksum_algorithm=ds_algorithm)
     dset.add_files(
@@ -361,10 +345,10 @@ def test_file_checksum_algorithm_takes_precedence_over_dataset(
     assert f.checksum_algorithm == "md5"
 
 
-@pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
+@pytest.mark.parametrize("typ", ["raw", "derived"])
 @pytest.mark.parametrize("ds_algorithm", ["sha256", None])
 def test_add_files_given_algorithm_overrides_default(
-    typ: DatasetType, ds_algorithm: str | None
+    typ: str, ds_algorithm: str | None
 ) -> None:
     dset = Dataset(type=typ, checksum_algorithm=ds_algorithm)
     file1 = File.from_remote(
@@ -387,10 +371,10 @@ def test_add_files_given_algorithm_overrides_default(
     assert f2.checksum_algorithm == "md5"
 
 
-@pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
+@pytest.mark.parametrize("typ", ["raw", "derived"])
 @pytest.mark.parametrize("ds_algorithm", ["sha256", None])
 def test_add_files_rejects_files_with_different_checksum_algorithms(
-    typ: DatasetType, ds_algorithm: str | None
+    typ: str, ds_algorithm: str | None
 ) -> None:
     dset = Dataset(type=typ, checksum_algorithm=ds_algorithm)
     file1 = File.from_remote(
@@ -431,12 +415,6 @@ def test_dataset_models_roundtrip(initial: Dataset) -> None:
         orig_datablock_models=dblock_models,
         attachment_models=attachment_models,
     )
-
-    # TODO remove in API v4
-    rebuilt.investigator = initial.investigator
-    rebuilt.proposal_id = initial.proposal_id
-    rebuilt.sample_id = initial.sample_id
-    rebuilt.instrument_id = initial.instrument_id
 
     assert initial == rebuilt
 
@@ -557,7 +535,7 @@ def test_add_attachment_from_file(fs: FakeFilesystem) -> None:
     dataset = Dataset(
         type="raw",
         owner_group="owner",
-        proposal_id="dset-proposal",
+        proposal_ids=["dset-proposal"],
         access_groups=["dset-access"],
     )
     dataset.add_attachment(
@@ -585,7 +563,7 @@ def test_add_attachment_from_thumbnail(fs: FakeFilesystem) -> None:
     dataset = Dataset(
         type="raw",
         owner_group="owner",
-        proposal_id="dset-proposal",
+        proposal_ids=["dset-proposal"],
         access_groups=["dset-access"],
     )
     dataset.add_attachment(
@@ -796,7 +774,7 @@ def test_replace_replaces_multiple_fields(initial: Dataset) -> None:
 @settings(max_examples=5)
 def test_replace_other_fields_are_copied(initial: Dataset) -> None:
     replaced = initial.replace(
-        investigator="inv@esti.gator",
+        principal_investigators=["inv@esti.gator"],
         techniques=[model.Technique(pid="tech/abcd.01", name="magick")],
         type="raw",
         _read_only={"api_version": 666},
@@ -925,7 +903,7 @@ def test_derive_default(initial: Dataset) -> None:
     assert derived.input_datasets == [initial.pid]
     assert derived.lifecycle is None
 
-    assert derived.investigator == initial.investigator
+    assert derived.principal_investigators == initial.principal_investigators
     assert derived.owner == initial.owner
     assert derived.orcid_of_owner == initial.orcid_of_owner
     assert derived.owner_email == initial.owner_email
@@ -996,10 +974,8 @@ def invalid_field_example() -> tuple[str, str]:
 
 @given(initial=sst.datasets(for_upload=True))
 @settings(max_examples=10)
-def test_dataset_dict_like_keys_per_type(initial: Dataset) -> None:
-    my_names = {
-        field.name for field in Dataset._FIELD_SPEC if field.used_by(initial.type)
-    }
+def test_dataset_dict_like_keys(initial: Dataset) -> None:
+    my_names = {field.name for field in Dataset._FIELD_SPEC}
     assert set(initial.keys()) == my_names
 
 

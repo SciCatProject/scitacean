@@ -10,7 +10,7 @@ import os
 from collections import Counter
 from collections.abc import Generator, Iterable
 from datetime import UTC, datetime
-from typing import Any, Literal, TypeVar
+from typing import Any, TypeVar
 
 from ._base_model import convert_download_to_user_model, convert_user_to_upload_model
 from ._dataset_fields import DatasetBase
@@ -18,14 +18,12 @@ from .datablock import OrigDatablock
 from .file import File
 from .model import (
     Attachment,
-    DatasetType,
     DownloadAttachment,
     DownloadDataset,
     DownloadOrigDatablock,
     UploadAttachment,
-    UploadDerivedDataset,
+    UploadDataset,
     UploadOrigDatablock,
-    UploadRawDataset,
 )
 from .pid import PID
 from .thumbnail import Thumbnail
@@ -77,7 +75,6 @@ class Dataset(DatasetBase):
     @classmethod
     def fields(
         cls,
-        dataset_type: DatasetType | Literal["derived", "raw"] | None = None,
         read_only: bool | None = None,
     ) -> Generator[Dataset.Field, None, None]:
         """Iterate over dataset fields.
@@ -86,9 +83,6 @@ class Dataset(DatasetBase):
 
         Parameters
         ----------
-        dataset_type:
-            If set, return only the fields for this dataset type.
-            If unset, do not filter fields.
         read_only:
             If true or false, return only fields which are read-only
             or allow write-access, respectively.
@@ -100,13 +94,6 @@ class Dataset(DatasetBase):
             Iterable over the fields of datasets.
         """
         it = iter(DatasetBase._FIELD_SPEC)
-        if dataset_type is not None:
-            attr = (
-                "used_by_derived"
-                if dataset_type == DatasetType.DERIVED
-                else "used_by_raw"
-            )
-            it = filter(lambda field: getattr(field, attr), it)
         if read_only is not None:
             it = filter(lambda field: field.read_only == read_only, it)
         yield from it
@@ -418,10 +405,10 @@ class Dataset(DatasetBase):
         *,
         keep: Iterable[str] = (
             "contact_email",
-            "investigator",
             "orcid_of_owner",
             "owner",
             "owner_email",
+            "principal_investigators",
             "techniques",
         ),
     ) -> Dataset:
@@ -452,7 +439,7 @@ class Dataset(DatasetBase):
         if self.pid is None:
             raise ValueError("Cannot make a derived datasets because self.pid is None.")
         return Dataset(
-            type=DatasetType.DERIVED,
+            type="derived",
             input_datasets=[self.pid],
             creation_time=datetime.now(tz=UTC),
             **{name: getattr(self, name) for name in keep},
@@ -552,15 +539,12 @@ class Dataset(DatasetBase):
             )
         return existing
 
-    def make_upload_model(self) -> UploadDerivedDataset | UploadRawDataset:
+    def make_upload_model(self) -> UploadDataset:
         """Construct a SciCat upload model from self."""
-        model: type[UploadRawDataset | UploadDerivedDataset] = (
-            UploadRawDataset if self.type == DatasetType.RAW else UploadDerivedDataset
-        )
         # Datablocks are not included here because they are handled separately
         # by make_datablock_upload_models and their own endpoints.
         special = ("relationships", "techniques", "input_datasets", "used_software")
-        return model(
+        return UploadDataset(
             numberOfFiles=self.number_of_files,
             numberOfFilesArchived=self.number_of_files_archived,
             size=self.size,
@@ -642,7 +626,7 @@ class Dataset(DatasetBase):
         from itertools import chain
 
         all_fields = {field.name for field in self.fields()}
-        my_fields = {field.name for field in self.fields(dataset_type=self.type)}
+        my_fields = {field.name for field in self.fields()}
         other_fields = all_fields - my_fields
         invalid_fields = (
             f_name for f_name in other_fields if getattr(self, f_name) is not None

@@ -5,7 +5,7 @@ from datetime import datetime
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from scitacean import PID, Dataset, DatasetType
+from scitacean import PID, Dataset
 from scitacean.testing import strategies as sst
 
 
@@ -15,13 +15,13 @@ def test_datasets_makes_valid_dataset(dset: Dataset) -> None:
 
 
 @settings(max_examples=10)
-@given(sst.datasets(type=DatasetType.RAW))
+@given(sst.datasets(type="raw"))
 def test_datasets_can_set_type_to_raw(dset: Dataset) -> None:
     assert dset.type == "raw"
 
 
 @settings(max_examples=10)
-@given(sst.datasets(type=DatasetType.DERIVED))
+@given(sst.datasets(type="derived"))
 def test_datasets_can_set_type_to_derived(dset: Dataset) -> None:
     assert dset.type == "derived"
 

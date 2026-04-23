@@ -10,7 +10,6 @@ from typing import Any
 import pydantic
 
 from ..dataset import Dataset
-from ..model import DatasetType
 from . import _resources
 from ._common_html import Field, format_field_flag, format_type, format_value
 
@@ -23,7 +22,7 @@ def dataset_html_repr(dset: Dataset) -> str:
     detail_rows = "\n".join(_format_field(field) for field in fields if not field.main)
     return template.substitute(
         style_sheet=style_sheet,
-        dataset_type=_format_dataset_type(dset.type),
+        dataset_type=dset.type.capitalize() if dset.type else "",
         file_info=_format_file_info(dset, archived=False),
         archived_file_info=_format_file_info(dset, archived=True),
         main_rows=main_rows,
@@ -157,7 +156,7 @@ def _get_fields(dset: Dataset) -> list[Field]:
         )
         for field in dset.fields()
         if field.name not in _EXCLUDED_FIELDS
-        and (field.used_by(dset.type) or getattr(dset, field.name, None) is not None)
+        and getattr(dset, field.name, None) is not None
     ]
     return sorted(
         sorted(fields, key=lambda field: field.name),
@@ -180,10 +179,6 @@ def _validate(dset: Dataset) -> dict[str, str]:
         return {}
     except pydantic.ValidationError as e:
         return {single_elem(error["loc"]): error["msg"] for error in e.errors()}
-
-
-def _format_dataset_type(dataset_type: DatasetType) -> str:
-    return "Raw" if dataset_type == DatasetType.RAW else "Derived"
 
 
 def _format_file_info(dset: Dataset, archived: bool) -> str:

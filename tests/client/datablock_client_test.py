@@ -6,12 +6,11 @@ from datetime import datetime
 
 import pytest
 
-from scitacean import Client
+from scitacean import Client, RemotePath
 from scitacean.client import ScicatClient
 from scitacean.model import (
-    DatasetType,
     UploadDataFile,
-    UploadDerivedDataset,
+    UploadDataset,
     UploadOrigDatablock,
 )
 from scitacean.testing.backend import config as backend_config
@@ -26,15 +25,15 @@ def scicat_client(client: Client) -> ScicatClient:
 
 
 @pytest.fixture
-def derived_dataset(scicat_access: backend_config.SciCatAccess) -> UploadDerivedDataset:
-    return UploadDerivedDataset(
+def derived_dataset(scicat_access: backend_config.SciCatAccess) -> UploadDataset:
+    return UploadDataset(
         datasetName="Koelsche Lieder",
         contactEmail="black.foess@dom.koelle",
         creationTime=datetime.fromisoformat("1995-11-11T11:11:11.000Z"),
         owner="bfoess",
-        investigator="b.foess@dom.koelle",
-        sourceFolder="/dom/platt",
-        type=DatasetType.DERIVED,
+        principalInvestigators=["b.foess@dom.koelle"],
+        sourceFolder=RemotePath("/dom/platt"),
+        type="derived",
         inputDatasets=[],
         usedSoftware=[],
         ownerGroup=scicat_access.user.group,
@@ -67,7 +66,7 @@ def test_get_orig_datablock(scicat_client: ScicatClient, key: str) -> None:
 
 def test_create_first_orig_datablock(
     scicat_client: ScicatClient,
-    derived_dataset: UploadDerivedDataset,
+    derived_dataset: UploadDataset,
     orig_datablock: UploadOrigDatablock,
 ) -> None:
     uploaded = scicat_client.create_dataset_model(derived_dataset)

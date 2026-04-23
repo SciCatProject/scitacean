@@ -8,17 +8,18 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from scitacean import PID, Client, DatasetType, RemotePath, model
+from scitacean import PID, Client, RemotePath, model
 from scitacean.model import (
     DownloadAttachment,
     DownloadDataset,
     DownloadOrigDatablock,
-    UploadDerivedDataset,
-    UploadRawDataset,
+    UploadDataset,
 )
 from scitacean.testing.backend import config as backend_config
 
 T = TypeVar("T")
+
+# TODO check that all models are tested and all fields are probed for upload + download
 
 
 def build_user_model_for_upload(cls: type[T]) -> st.SearchStrategy[T]:
@@ -108,19 +109,19 @@ def test_derived_dataset_default_values(
     require_scicat_backend: None,
     scicat_access: backend_config.SciCatAccess,
 ) -> None:
-    dset = UploadDerivedDataset(
+    dset = UploadDataset(
         accessGroups=["access1"],
         contactEmail="contact@email.com",
         creationTime=datetime.fromisoformat("2000-01-01T01:01:01.000Z"),
         datasetName="Test derived dataset",
         inputDatasets=[PID(prefix="PID.prefix.a0b1", pid="abcd")],
-        investigator="inv@esti.gator",
+        principalInvestigators=["inv@esti.gator"],
         numberOfFilesArchived=0,
         owner=scicat_access.user.username,
         ownerGroup=scicat_access.user.group,
         sourceFolder=RemotePath("/source/folder"),
         usedSoftware=["software1"],
-        type=DatasetType.DERIVED,
+        type="derived",
     )
     pid = real_client.scicat.create_dataset_model(dset).pid
     assert pid is not None
@@ -171,7 +172,7 @@ def test_raw_dataset_default_values(
     require_scicat_backend: None,
     scicat_access: backend_config.SciCatAccess,
 ) -> None:
-    dset = UploadRawDataset(
+    dset = UploadDataset(
         accessGroups=["access1"],
         contactEmail="contact@email.com",
         creationTime=datetime.fromisoformat("2000-01-01T01:01:01.000Z"),
@@ -181,10 +182,9 @@ def test_raw_dataset_default_values(
         numberOfFilesArchived=0,
         owner=scicat_access.user.username,
         ownerGroup=scicat_access.user.group,
-        principalInvestigator="inv@esti.gator",
-        investigator="inv@esti.gator",
+        principalInvestigators=["inv@esti.gator"],
         sourceFolder=RemotePath("/source/folder"),
-        type=DatasetType.RAW,
+        type="raw",
         usedSoftware=["software1"],
     )
     pid = real_client.scicat.create_dataset_model(dset).pid

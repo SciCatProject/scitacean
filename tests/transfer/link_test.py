@@ -10,7 +10,7 @@ from typing import cast
 import pytest
 from pyfakefs.fake_filesystem import FakeFilesystem
 
-from scitacean import PID, Dataset, DatasetType, FileNotAccessibleError, RemotePath
+from scitacean import PID, Dataset, FileNotAccessibleError, RemotePath
 from scitacean.model import DownloadDataFile, DownloadDataset, DownloadOrigDatablock
 from scitacean.testing.client import FakeClient
 from scitacean.transfer.link import LinkFileTransfer
@@ -136,10 +136,10 @@ def test_client_with_link(tmp_path: Path) -> None:
         owner="PonderStibbons",
         ownerGroup="uu",
         pid=PID(prefix="UU.0123", pid="1234567890"),
-        principalInvestigator="MustrumRidcully",
+        principalInvestigators=["MustrumRidcully"],
         size=len(content),
         sourceFolder=RemotePath(str(remote_dir)),
-        type=DatasetType.RAW,
+        type="raw",
     )
     db = DownloadOrigDatablock(
         dataFileList=[
@@ -195,10 +195,10 @@ def test_client_with_link_local_file_exists(tmp_path: Path) -> None:
         owner="PonderStibbons",
         ownerGroup="uu",
         pid=PID(prefix="UU.0123", pid="1234567890"),
-        principalInvestigator="MustrumRidcully",
+        principalInvestigators=["MustrumRidcully"],
         size=len(content),
         sourceFolder=RemotePath(str(remote_dir)),
-        type=DatasetType.RAW,
+        type="raw",
     )
     db = DownloadOrigDatablock(
         dataFileList=[

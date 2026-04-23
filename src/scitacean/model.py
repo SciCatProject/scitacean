@@ -21,7 +21,6 @@ Dataclasses exposed to users, primarily through :class:`Dataset`.
   :template: scitacean-class-template.rst
 
   Attachment
-  DatasetType
   History
   Instrument
   Lifecycle
@@ -61,12 +60,11 @@ Pydantic models sent to SciCat in uploads.
 
   UploadAttachment
   UploadDatablock
+  UploadDataset
   UploadDataFile
-  UploadDerivedDataset
   UploadMeasurementPeriod
   UploadOrigDatablock
   UploadProposal
-  UploadRawDataset
   UploadRelationship
   UploadSample
   UploadTechnique
@@ -92,7 +90,6 @@ from pydantic import NonNegativeInt
 from ._base_model import (
     BaseModel,
     BaseUserModel,
-    DatasetType,
     construct,
     validate_absolute_remote_path,
     validate_datetime,
@@ -105,55 +102,56 @@ from .thumbnail import Thumbnail
 
 
 class DownloadDataset(BaseModel):
-    contactEmail: str | None = None
-    creationLocation: str | None = None
-    creationTime: datetime | None = None
-    inputDatasets: list[PID] | None = None
-    investigator: str | None = None
-    numberOfFilesArchived: NonNegativeInt | None = None
-    owner: str | None = None
-    ownerGroup: str | None = None
-    principalInvestigator: str | None = None
-    sourceFolder: RemotePath | None = None
-    type: DatasetType | None = None
-    usedSoftware: list[str] | None = None
     accessGroups: list[str] | None = None
-    version: str | None = None
     classification: str | None = None
     comment: str | None = None
+    contactEmail: str | None = None
     createdAt: datetime | None = None
     createdBy: str | None = None
+    creationLocation: str | None = None
+    creationTime: datetime | None = None
     dataFormat: str | None = None
     dataQualityMetrics: int | None = None
+    datasetName: str | None = None
+    datasetlifecycle: DownloadLifecycle | None = None
     description: str | None = None
     endTime: datetime | None = None
+    inputDatasets: list[PID] | None = None
     instrumentGroup: str | None = None
-    instrumentId: str | None = None
+    instrumentIds: list[str] | None = None
     isPublished: bool | None = None
     jobLogData: str | None = None
     jobParameters: dict[str, Any] | None = None
     keywords: list[str] | None = None
     license: str | None = None
-    datasetlifecycle: DownloadLifecycle | None = None
-    scientificMetadata: dict[str, Any] | None = None
-    datasetName: str | None = None
     numberOfFiles: NonNegativeInt | None = None
+    numberOfFilesArchived: NonNegativeInt | None = None
     orcidOfOwner: str | None = None
+    owner: str | None = None
     ownerEmail: str | None = None
+    ownerGroup: str | None = None
     packedSize: NonNegativeInt | None = None
     pid: PID | None = None
-    proposalId: str | None = None
+    principalInvestigators: list[str] | None = None
+    proposalIds: list[str] | None = None
     relationships: list[DownloadRelationship] | None = None
     runNumber: str | None = None
-    sampleId: str | None = None
+    sampleIds: list[str] | None = None
+    scientificMetadata: dict[str, Any] | None = None
+    scientificMetadataSchema: str | None = None
+    scientificMetadataValid: bool | None = None
     sharedWith: list[str] | None = None
     size: NonNegativeInt | None = None
+    sourceFolder: RemotePath | None = None
     sourceFolderHost: str | None = None
     startTime: datetime | None = None
     techniques: list[DownloadTechnique] | None = None
+    type: str | None = None
     updatedAt: datetime | None = None
     updatedBy: str | None = None
+    usedSoftware: list[str] | None = None
     validationStatus: str | None = None
+    version: str | None = None
 
     @pydantic.field_validator(
         "creationTime", "createdAt", "endTime", "updatedAt", mode="before"
@@ -162,41 +160,50 @@ class DownloadDataset(BaseModel):
         return validate_datetime(value)
 
 
-class UploadDerivedDataset(BaseModel):
+class UploadDataset(BaseModel):
     contactEmail: str
     creationTime: datetime
-    datasetName: str | None
-    inputDatasets: list[PID]
-    investigator: str
-    numberOfFilesArchived: NonNegativeInt
-    owner: str
     ownerGroup: str
     sourceFolder: RemotePath
-    type: DatasetType
-    usedSoftware: list[str]
+    type: str
+
     accessGroups: list[str] | None = None
     classification: str | None = None
     comment: str | None = None
+    creationLocation: str | None = None
+    dataFormat: str | None = None
     dataQualityMetrics: int | None = None
+    datasetName: str | None = None
     description: str | None = None
+    endTime: datetime | None = None
+    inputDatasets: list[PID] | None = None
     instrumentGroup: str | None = None
+    instrumentIds: list[str] | None = None
     isPublished: bool | None = None
     jobLogData: str | None = None
     jobParameters: dict[str, Any] | None = None
     keywords: list[str] | None = None
     license: str | None = None
-    scientificMetadata: dict[str, Any] | None = None
     numberOfFiles: NonNegativeInt | None = None
+    numberOfFilesArchived: NonNegativeInt | None = None
     orcidOfOwner: str | None = None
+    owner: str | None = None
     ownerEmail: str | None = None
     packedSize: NonNegativeInt | None = None
-    proposalId: str | None = None
+    principalInvestigators: list[str] | None = None
+    proposalIds: list[str] | None = None
     relationships: list[UploadRelationship] | None = None
     runNumber: str | None = None
+    sampleIds: list[str] | None = None
+    scientificMetadata: dict[str, Any] | None = None
+    scientificMetadataSchema: str | None = None
+    scientificMetadataValid: bool | None = None
     sharedWith: list[str] | None = None
     size: NonNegativeInt | None = None
     sourceFolderHost: str | None = None
+    startTime: datetime | None = None
     techniques: list[UploadTechnique] | None = None
+    usedSoftware: list[str] | None = None
     validationStatus: str | None = None
 
     @pydantic.field_validator("sourceFolder", mode="before")
@@ -204,80 +211,6 @@ class UploadDerivedDataset(BaseModel):
         return validate_absolute_remote_path(value)
 
     @pydantic.field_validator("creationTime", mode="before")
-    def _validate_datetime(cls, value: Any) -> Any:
-        return validate_datetime(value)
-
-    @pydantic.field_validator("contactEmail", "ownerEmail", mode="before")
-    def _validate_emails(cls, value: Any) -> Any:
-        return validate_emails(value)
-
-    @pydantic.field_validator("orcidOfOwner", mode="before")
-    def _validate_orcids(cls, value: Any) -> Any:
-        return validate_orcids(value)
-
-
-class UploadRawDataset(BaseModel):
-    contactEmail: str
-    creationLocation: str
-    creationTime: datetime
-    datasetName: str | None
-    inputDatasets: list[PID]
-    investigator: str
-    numberOfFilesArchived: NonNegativeInt
-    owner: str
-    ownerGroup: str
-    principalInvestigator: str
-    sourceFolder: RemotePath
-    type: DatasetType
-    usedSoftware: list[str]
-    accessGroups: list[str] | None = None
-    classification: str | None = None
-    comment: str | None = None
-    dataFormat: str | None = None
-    dataQualityMetrics: int | None = None
-    description: str | None = None
-    endTime: datetime | None = None
-    instrumentGroup: str | None = None
-    instrumentId: str | None = None
-    isPublished: bool | None = None
-    jobLogData: str | None = None
-    jobParameters: dict[str, Any] | None = None
-    keywords: list[str] | None = None
-    license: str | None = None
-    scientificMetadata: dict[str, Any] | None = None
-    numberOfFiles: NonNegativeInt | None = None
-    orcidOfOwner: str | None = None
-    ownerEmail: str | None = None
-    packedSize: NonNegativeInt | None = None
-    proposalId: str | None = None
-    relationships: list[UploadRelationship] | None = None
-    runNumber: str | None = None
-    sampleId: str | None = None
-    sharedWith: list[str] | None = None
-    size: NonNegativeInt | None = None
-    sourceFolderHost: str | None = None
-    startTime: datetime | None = None
-    techniques: list[UploadTechnique] | None = None
-    validationStatus: str | None = None
-
-    @pydantic.model_validator(mode="before")
-    @classmethod
-    def _set_investigator(cls, data: Any) -> Any:
-        # The model currently has both `investigator` and `principalInvestigator`
-        # and both are mandatory. Eventually, `investigator` will be removed.
-        # So make sure we can construct the model if only one is given.
-        if isinstance(data, dict):
-            if (inv := data.get("investigator")) is not None:
-                data.setdefault("principalInvestigator", inv)
-            elif (pi := data.get("principalInvestigator")) is not None:
-                data["investigator"] = pi
-        return data
-
-    @pydantic.field_validator("sourceFolder", mode="before")
-    def _validate_absolute_remote_path(cls, value: Any) -> Any:
-        return validate_absolute_remote_path(value)
-
-    @pydantic.field_validator("creationTime", "endTime", mode="before")
     def _validate_datetime(cls, value: Any) -> Any:
         return validate_datetime(value)
 
@@ -340,19 +273,19 @@ class UploadAttachment(BaseModel):
 
 
 class DownloadOrigDatablock(BaseModel):
-    dataFileList: list[DownloadDataFile] | None = None
-    size: NonNegativeInt | None = None
-    id: str | None = pydantic.Field(alias="_id", default=None)
     accessGroups: list[str] | None = None
     chkAlg: str | None = None
     createdAt: datetime | None = None
     createdBy: str | None = None
+    dataFileList: list[DownloadDataFile] | None = None
     datasetId: PID | None = None
     instrumentGroup: str | None = None
     isPublished: bool | None = None
     ownerGroup: str | None = None
+    size: NonNegativeInt | None = None
     updatedAt: datetime | None = None
     updatedBy: str | None = None
+    version: str | None = None
 
     @pydantic.field_validator("createdAt", "updatedAt", mode="before")
     def _validate_datetime(cls, value: Any) -> Any:
@@ -364,6 +297,7 @@ class DownloadOrigDatablock(BaseModel):
 
 
 class UploadOrigDatablock(BaseModel):
+    datasetId: PID
     dataFileList: list[UploadDataFile]
     size: NonNegativeInt
     chkAlg: str | None = None
@@ -1116,14 +1050,12 @@ UploadSample.model_rebuild()
 DownloadMeasurementPeriod.model_rebuild()
 UploadMeasurementPeriod.model_rebuild()
 DownloadDataset.model_rebuild()
-UploadDerivedDataset.model_rebuild()
-UploadRawDataset.model_rebuild()
+UploadDataset.model_rebuild()
 
 __all__ = (
     "Attachment",
     "BaseModel",
     "BaseUserModel",
-    "DatasetType",
     "DownloadAttachment",
     "DownloadDataFile",
     "DownloadDatablock",
@@ -1148,11 +1080,10 @@ __all__ = (
     "UploadAttachment",
     "UploadDataFile",
     "UploadDatablock",
-    "UploadDerivedDataset",
+    "UploadDataset",
     "UploadMeasurementPeriod",
     "UploadOrigDatablock",
     "UploadProposal",
-    "UploadRawDataset",
     "UploadRelationship",
     "UploadSample",
     "UploadTechnique",
