@@ -59,6 +59,7 @@ Pydantic models sent to SciCat in uploads.
   :toctree: ../classes
 
   UploadAttachment
+  UploadAttachmentRelationship
   UploadDatablock
   UploadDataset
   UploadDataFile
@@ -82,7 +83,7 @@ from __future__ import annotations
 import builtins
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any
+from typing import Any, Literal
 
 import pydantic
 from pydantic import NonNegativeInt
@@ -174,6 +175,7 @@ class DownloadDataset(BaseModel):
 class UploadDataset(BaseModel):
     contactEmail: str
     creationTime: datetime
+    owner: str
     ownerGroup: str
     sourceFolder: RemotePath
     type: str
@@ -198,7 +200,6 @@ class UploadDataset(BaseModel):
     numberOfFiles: NonNegativeInt | None = None
     numberOfFilesArchived: NonNegativeInt | None = None
     orcidOfOwner: str | None = None
-    owner: str | None = None
     ownerEmail: str | None = None
     packedSize: NonNegativeInt | None = None
     principalInvestigators: list[str] | None = None
@@ -240,11 +241,11 @@ class DownloadAttachment(BaseModel):
     accessGroups: list[str] | None = None
     createdAt: datetime | None = None
     createdBy: str | None = None
-    datasetId: PID | None = None
     id: str | None = None
     instrumentGroup: str | None = None
     isPublished: bool | None = None
     proposalId: str | None = None
+    relationships: list[AttachmentRelationship] | None = None
     sampleId: str | None = None
     thumbnail: Thumbnail | None = None
     updatedAt: datetime | None = None
@@ -266,9 +267,10 @@ class DownloadAttachment(BaseModel):
 class UploadAttachment(BaseModel):
     caption: str
     ownerGroup: str
+    relationships: list[AttachmentRelationship]
     accessGroups: list[str] | None = None
     datasetId: PID | None = None
-    id: str | None = None
+    aid: str | None = None
     instrumentGroup: str | None = None
     proposalId: str | None = None
     sampleId: str | None = None
@@ -281,6 +283,12 @@ class UploadAttachment(BaseModel):
     @classmethod
     def download_model_type(cls) -> type[DownloadAttachment]:
         return DownloadAttachment
+
+
+class AttachmentRelationship(BaseModel):
+    targetId: str | PID
+    targetType: Literal["dataset", "proposal", "sample", "published_data"]
+    relationType: str = "is attached to"
 
 
 class DownloadOrigDatablock(BaseModel):
@@ -654,11 +662,10 @@ class UploadMeasurementPeriod(BaseModel):
 class Attachment(BaseUserModel):
     caption: str
     owner_group: str
+    relationships: list[AttachmentRelationship] | None = None
     access_groups: list[str] | None = None
-    dataset_id: PID | None = None
     id: str | None = None
     instrument_group: str | None = None
-    proposal_id: str | None = None
     sample_id: str | None = None
     thumbnail: Thumbnail | None = None
     _created_at: datetime | None = None
@@ -692,9 +699,20 @@ class Attachment(BaseUserModel):
         """Construct an instance from an associated SciCat download model."""
         return cls(**cls._download_model_dict(download_model))
 
-    def make_upload_model(self) -> UploadAttachment:
+    def make_upload_model_with_target(
+        self,
+        *,
+        target_id: str | PID,
+        target_type: Literal["dataset", "proposal", "sample", "published_data"],
+    ) -> UploadAttachment:
         """Construct a SciCat upload model from self."""
-        return UploadAttachment(**self._upload_model_dict())
+        fields = self._upload_model_dict()
+        if fields["relationships"] is None:
+            fields["relationships"] = []
+        fields["relationships"].append(
+            AttachmentRelationship(targetId=target_id, targetType=target_type)
+        )
+        return UploadAttachment(**fields)
 
     @classmethod
     def upload_model_type(cls) -> type[UploadAttachment]:
@@ -1041,6 +1059,7 @@ class MeasurementPeriod(BaseUserModel):
 # references once all classes have been defined.
 DownloadAttachment.model_rebuild()
 UploadAttachment.model_rebuild()
+AttachmentRelationship.model_rebuild()
 DownloadOrigDatablock.model_rebuild()
 UploadOrigDatablock.model_rebuild()
 DownloadDatablock.model_rebuild()
@@ -1065,6 +1084,7 @@ UploadDataset.model_rebuild()
 
 __all__ = (
     "Attachment",
+    "AttachmentRelationship",
     "BaseModel",
     "BaseUserModel",
     "DownloadAttachment",
