@@ -74,11 +74,10 @@ def dataset_and_files(
         ownerGroup="faculty",
         size=sum(f.size for f in data_files[0]),  # type: ignore[misc]
         datasetId=PID(prefix="UU.000", pid="5125.ab.663.8c9f"),
-        _id="0941.66.abff.41de",
         dataFileList=data_files[0],
     )
     dset = Dataset.from_download_model(
-        dataset_model=model, orig_datablock_models=[block]
+        dataset_model=model.model_copy(update={"origdatablocks": [block]})
     )
 
     content_abs_path = {

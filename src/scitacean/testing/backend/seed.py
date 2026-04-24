@@ -16,6 +16,7 @@ from ... import model
 from ...client import Client
 from ...filesystem import RemotePath
 from ...model import (
+    AttachmentRelationship,
     DownloadAttachment,
     DownloadDataset,
     DownloadOrigDatablock,
@@ -299,6 +300,7 @@ _ATTACHMENTS: dict[str, list[UploadAttachment]] = {
             accessGroups=["uu"],
             datasetId=PID(pid="PLACEHOLDER"),
             thumbnail=Thumbnail(mime="image/png", data=b"nag;also;i"),
+            relationships=[],
         ),
         UploadAttachment(
             caption="Pretty picture no 1",
@@ -307,6 +309,7 @@ _ATTACHMENTS: dict[str, list[UploadAttachment]] = {
             datasetId=PID(pid="PLACEHOLDER"),
             thumbnail=Thumbnail(mime="image/jpeg", data=b"gj0ajs93jka2jv89a"),
             sampleId="kjsdf",
+            relationships=[],
         ),
     ]
 }
@@ -328,10 +331,13 @@ def _apply_config_dataset(dset: UploadDataset, user: ScicatUser) -> UploadDatase
 
 
 def _apply_config_attachment(
-    attachment: UploadAttachment, user: ScicatUser
+    attachment: UploadAttachment, user: ScicatUser, dataset_id: PID
 ) -> UploadAttachment:
     attachment = deepcopy(attachment)
     attachment.ownerGroup = user.group
+    attachment.relationships = [
+        AttachmentRelationship(targetId=dataset_id, targetType="dataset")
+    ]
     return attachment
 
 
@@ -379,19 +385,17 @@ def seed_database(*, client: Client, scicat_access: SciCatAccess) -> None:
 
     upload_attachments = {
         key: [
-            _apply_config_attachment(attachment, scicat_access.user)
+            _apply_config_attachment(
+                attachment,
+                scicat_access.user,
+                dataset_id=download_datasets[key].pid,  # type: ignore[arg-type]
+            )
             for attachment in attachments
         ]
         for key, attachments in _ATTACHMENTS.items()
     }
     download_attachments = {
-        key: [
-            client.scicat.create_attachment_for_dataset(
-                attachment,
-                dataset_id=download_datasets[key].pid,  # type: ignore[arg-type]
-            )
-            for attachment in attachments
-        ]
+        key: [client.scicat.create_attachment(attachment) for attachment in attachments]
         for key, attachments in upload_attachments.items()
     }
     INITIAL_ATTACHMENTS.update(download_attachments)
