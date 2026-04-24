@@ -18,9 +18,7 @@ from .datablock import OrigDatablock
 from .file import File
 from .model import (
     Attachment,
-    DownloadAttachment,
     DownloadDataset,
-    DownloadOrigDatablock,
     UploadAttachment,
     UploadDataset,
     UploadOrigDatablock,
@@ -35,24 +33,15 @@ class Dataset(DatasetBase):
     """Metadata and linked data files for a measurement, simulation, or analysis."""
 
     @classmethod
-    def from_download_models(
-        cls,
-        dataset_model: DownloadDataset,
-        orig_datablock_models: list[DownloadOrigDatablock],
-        attachment_models: Iterable[DownloadAttachment] | None = None,
-    ) -> Dataset:
+    def from_download_model(cls, dataset_model: DownloadDataset) -> Dataset:
         """Construct a new dataset from SciCat download models.
 
         Parameters
         ----------
         dataset_model:
             Model of the dataset.
-        orig_datablock_models:
-            List of all associated original datablock models for the dataset.
-        attachment_models:
-            List of all associated attachment models for the dataset.
-            Use ``None`` if the attachments were not downloaded.
-            Use an empty list if the attachments were downloaded, but there aren't any.
+            Must contain orig datablocks and attachments if those should be
+            added to the dataset.
 
         Returns
         -------
@@ -64,11 +53,11 @@ class Dataset(DatasetBase):
         for key, val in read_only.items():
             setattr(dset, key, val)
         dset._attachments = convert_download_to_user_model(  # type: ignore[assignment]
-            attachment_models
+            dataset_model.attachments
         )
-        if orig_datablock_models is not None:
+        if dataset_model.origdatablocks is not None:
             dset._orig_datablocks.extend(
-                map(OrigDatablock.from_download_model, orig_datablock_models)
+                map(OrigDatablock.from_download_model, dataset_model.origdatablocks)
             )
         return dset
 
@@ -576,9 +565,16 @@ class Dataset(DatasetBase):
         """
         if self.number_of_files == 0:
             return DatablockUploadModels(orig_datablocks=None)
+
+        pid = self.pid
+        if pid is None:
+            raise ValueError(
+                "Cannot make datablock upload models the dataset has no PID. "
+                "Make sure to only call this method after uploading the dataset."
+            )
         return DatablockUploadModels(
             orig_datablocks=[
-                dblock.make_upload_model() for dblock in self._orig_datablocks
+                dblock.make_upload_model(pid) for dblock in self._orig_datablocks
             ]
         )
 

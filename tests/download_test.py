@@ -77,7 +77,7 @@ def dataset_and_files(
         _id="0941.66.abff.41de",
         dataFileList=data_files[0],
     )
-    dset = Dataset.from_download_models(
+    dset = Dataset.from_download_model(
         dataset_model=model, orig_datablock_models=[block]
     )
 

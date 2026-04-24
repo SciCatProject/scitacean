@@ -171,7 +171,7 @@ def test_from_download_models_initializes_fields(
             return model.Lifecycle.from_download_model(val)
         return val
 
-    dset = Dataset.from_download_models(dataset_download_model, [])
+    dset = Dataset.from_download_model(dataset_download_model)
     for field in dset.fields():
         assert getattr(dset, field.name) == get_model_field(field.scicat_name)
 
@@ -410,11 +410,11 @@ def test_dataset_models_roundtrip(initial: Dataset) -> None:
     dataset_model.updatedAt = None
     dataset_model.updatedBy = None
     dataset_model.pid = None
-    rebuilt = Dataset.from_download_models(
-        dataset_model=dataset_model,
-        orig_datablock_models=dblock_models,
-        attachment_models=attachment_models,
-    )
+
+    dataset_model.origdatablocks = dblock_models
+    dataset_model.attachments = attachment_models
+
+    rebuilt = Dataset.from_download_model(dataset_model=dataset_model)
 
     assert initial == rebuilt
 
@@ -457,22 +457,24 @@ def test_attachments_are_empty_by_default() -> None:
 def test_attachments_are_none_after_from_download_models(
     dataset_download_model: model.DownloadDataset,
 ) -> None:
-    dataset = Dataset.from_download_models(dataset_download_model, [])
+    dataset = Dataset.from_download_model(dataset_download_model)
     assert dataset.attachments is None
 
 
 def test_attachments_initialized_in_from_download_models(
     dataset_download_model: model.DownloadDataset,
 ) -> None:
-    dataset = Dataset.from_download_models(
-        dataset_download_model,
-        [],
-        attachment_models=[
-            model.DownloadAttachment(
-                caption="The attachment",
-                ownerGroup="att-owner",
-            )
-        ],
+    dataset = Dataset.from_download_model(
+        dataset_download_model.model_copy(
+            update={
+                "attachments": [
+                    model.DownloadAttachment(
+                        caption="The attachment",
+                        ownerGroup="att-owner",
+                    )
+                ]
+            }
+        ),
     )
 
     assert dataset.attachments == [
