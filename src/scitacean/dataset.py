@@ -188,8 +188,6 @@ class Dataset(DatasetBase):
         owner_group: str | None = None,
         access_groups: list[str] | None = None,
         instrument_group: str | None = None,
-        proposal_id: str | None = None,
-        sample_id: str | None = None,
     ) -> None:
         """Create a new attachment and add it to the dataset.
 
@@ -206,10 +204,6 @@ class Dataset(DatasetBase):
             Access groups of the attachment. Defaults to ``self.access_groups``.
         instrument_group:
             Instrument group of the attachment. Defaults to ``self.instrument_group``.
-        proposal_id:
-            Proposal ID of the attachment. Defaults to ``self.proposal_id``.
-        sample_id:
-            Sample ID of the attachment. Defaults to ``self.sample_id``.
         """
         if self.attachments is None:
             raise ValueError(
@@ -222,8 +216,6 @@ class Dataset(DatasetBase):
             raise ValueError("Cannot add attachments without owner group")
         access = _select_non_none_value(access_groups, self.access_groups)
         instrument = _select_non_none_value(instrument_group, self.instrument_group)
-        proposal = _select_non_none_value(proposal_id, self.proposal_id)
-        sample = _select_non_none_value(sample_id, self.sample_id)
 
         match thumbnail:
             case None:
@@ -240,8 +232,6 @@ class Dataset(DatasetBase):
                 owner_group=owner,
                 access_groups=access,
                 instrument_group=instrument,
-                proposal_id=proposal,
-                sample_id=sample,
             )
         )
 
@@ -563,15 +553,16 @@ class Dataset(DatasetBase):
         :
             Structure with datablock and orig datablock models.
         """
-        if self.number_of_files == 0:
-            return DatablockUploadModels(orig_datablocks=None)
-
         pid = self.pid
         if pid is None:
             raise ValueError(
-                "Cannot make datablock upload models the dataset has no PID. "
+                "Cannot make datablock upload models because the dataset has no PID. "
                 "Make sure to only call this method after uploading the dataset."
             )
+
+        if self.number_of_files == 0:
+            return DatablockUploadModels(orig_datablocks=None)
+
         return DatablockUploadModels(
             orig_datablocks=[
                 dblock.make_upload_model(pid) for dblock in self._orig_datablocks
@@ -586,18 +577,31 @@ class Dataset(DatasetBase):
         ValueError
             If ``self.attachments`` is ``None``,
             i.e., the attachments are uninitialized.
+            Or, if ``self.pid`` is ``None`` in which case the attachments
+            cannot be associated with this dataset in SciCat.
 
         Returns
         -------
         :
             List of attachment models.
         """
-        if self.attachments is None:
+        attachments = self.attachments
+        if attachments is None:
             raise ValueError(
                 "Cannot make upload models for attachments because "
                 "the attachments are uninitialized."
             )
-        return [a.make_upload_model() for a in self.attachments]
+
+        pid = self.pid
+        if pid is None:
+            raise ValueError(
+                "Cannot make attachment upload models because the dataset has no PID. "
+                "Make sure to only call this method after uploading the dataset."
+            )
+        return [
+            a.make_upload_model_with_target(target_id=pid, target_type="dataset")
+            for a in attachments
+        ]
 
     def validate(self) -> None:
         """Validate the fields of the dataset.

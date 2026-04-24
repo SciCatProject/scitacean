@@ -236,17 +236,15 @@ class UploadDataset(BaseModel):
 
 
 class DownloadAttachment(BaseModel):
-    caption: str | None = None
-    ownerGroup: str | None = None
     accessGroups: list[str] | None = None
+    aid: str | None = None
+    caption: str | None = None
     createdAt: datetime | None = None
     createdBy: str | None = None
-    id: str | None = None
     instrumentGroup: str | None = None
     isPublished: bool | None = None
-    proposalId: str | None = None
+    ownerGroup: str | None = None
     relationships: list[AttachmentRelationship] | None = None
-    sampleId: str | None = None
     thumbnail: Thumbnail | None = None
     updatedAt: datetime | None = None
     updatedBy: str | None = None
@@ -269,11 +267,9 @@ class UploadAttachment(BaseModel):
     ownerGroup: str
     relationships: list[AttachmentRelationship]
     accessGroups: list[str] | None = None
-    datasetId: PID | None = None
     aid: str | None = None
+    datasetId: PID | None = None
     instrumentGroup: str | None = None
-    proposalId: str | None = None
-    sampleId: str | None = None
     thumbnail: Thumbnail | None = None
 
     @classmethod

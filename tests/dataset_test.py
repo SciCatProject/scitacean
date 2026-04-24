@@ -399,6 +399,7 @@ def test_add_files_rejects_files_with_different_checksum_algorithms(
 @given(sst.datasets(for_upload=True))
 @settings(max_examples=100)
 def test_dataset_models_roundtrip(initial: Dataset) -> None:
+    initial._pid = PID.parse("test/abc")  # Required to make attachments + datablocks
     dataset_upload_model = initial.make_upload_model()
     dblock_upload_models = initial.make_datablock_upload_models().orig_datablocks
     attachment_upload_models = initial.make_attachment_upload_models()

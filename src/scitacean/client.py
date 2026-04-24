@@ -344,9 +344,12 @@ class Client:
         )
 
         return Dataset.from_download_model(
-            dataset_model=finalized_model,
-            orig_datablock_models=finalized_orig_datablocks,
-            attachment_models=finalized_attachments,
+            dataset_model=finalized_model.model_copy(
+                update={
+                    "origdatablocks": finalized_orig_datablocks,
+                    "attachments": finalized_attachments,
+                }
+            ),
         )
 
     def upload_new_sample_now(self, sample: model.Sample) -> model.Sample:
@@ -400,10 +403,7 @@ class Client:
     ) -> list[model.DownloadAttachment]:
         try:
             return [
-                self.scicat.create_attachment_for_dataset(
-                    attachment, dataset_id=dataset_id
-                )
-                for attachment in attachments
+                self.scicat.create_attachment(attachment) for attachment in attachments
             ]
         except ScicatCommError as exc:
             raise RuntimeError(
@@ -1082,8 +1082,7 @@ class ScicatClient:
         )
 
     def create_orig_datablock(
-        self,
-        dblock: model.UploadOrigDatablock,
+        self, dblock: model.UploadOrigDatablock
     ) -> model.DownloadOrigDatablock:
         """Create a new orig datablock in SciCat.
 
@@ -1108,28 +1107,18 @@ class ScicatClient:
             model.DownloadOrigDatablock, _strict_validation=False, **uploaded
         )
 
-    def create_attachment_for_dataset(
-        self,
-        attachment: model.UploadAttachment,
-        *,
-        dataset_id: PID,
+    def create_attachment(
+        self, attachment: model.UploadAttachment
     ) -> model.DownloadAttachment:
-        """Create a new attachment for a dataset in SciCat.
+        """Create a new attachment in SciCat.
 
-        The attachment ID must be either
-
-        - ``None``, in which case SciCat assigns an ID.
-        - An unused id, in which case SciCat uses it for the new attachment.
-
-        If the ID already exists, creation will fail without
-        modification to the database.
+        The attachment's ``relationship`` field must specify what objects
+        this attachment belongs to.
 
         Parameters
         ----------
         attachment:
             Model of the attachment to create.
-        dataset_id:
-            ID of the dataset to which the attachment belongs.
 
         Raises
         ------
@@ -1139,15 +1128,14 @@ class ScicatClient:
         """
         uploaded = self.call_endpoint(
             cmd="post",
-            url=f"datasets/{quote_plus(str(dataset_id))}/attachments",
+            url="attachments",
             data=attachment,
             operation="create_attachment",
         )
         if not uploaded:
             raise ScicatCommError(
-                f"Failed to upload attachment for dataset with pid={dataset_id}. "
+                "Failed to upload attachment. "
                 "The server reported success but did not return a finalized attachment."
-                " This likely means that there is no dataset with this ID."
             )
         return model.construct(
             model.DownloadAttachment, _strict_validation=False, **uploaded

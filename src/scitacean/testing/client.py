@@ -288,24 +288,18 @@ class FakeScicatClient(ScicatClient):
         return ingested
 
     @_conditionally_disabled
-    def create_attachment_for_dataset(
-        self,
-        attachment: model.UploadAttachment,
-        dataset_id: PID | None = None,
+    def create_attachment(
+        self, attachment: model.UploadAttachment
     ) -> model.DownloadAttachment:
         """Create a new attachment for a dataset in SciCat."""
-        if dataset_id is None:
-            dataset_id = attachment.datasetId
-        if dataset_id is None:
+        ingested = _process_attachment(attachment)
+        if ingested.relationships is None or len(ingested.relationships) != 1:
             raise ValueError(
-                "Cannot determine the dataset ID for attachment. "
-                "Specify the ID as a function argument or in the attachment."
+                "The fake client requires exactly one attachment relationship. "
+                f"Got {ingested.relationships!r}."
             )
-
-        ingested = _process_attachment(attachment, dataset_id)
-        if dataset_id not in self.main.datasets:
-            raise ScicatCommError(f"No dataset with id {dataset_id}")
-        self.main.attachments.setdefault(dataset_id, []).append(ingested)
+        dataset_id: PID = ingested.relationships[0].targetId  # type: ignore[assignment]
+        self.main.attachments.setdefault(PID.parse(dataset_id), []).append(ingested)
         return ingested
 
     @_conditionally_disabled
@@ -432,15 +426,13 @@ def _process_orig_datablock(
     return processed
 
 
-def _process_attachment(
-    attachment: model.UploadAttachment, dataset_id: PID | None = None
-) -> model.DownloadAttachment:
+def _process_attachment(attachment: model.UploadAttachment) -> model.DownloadAttachment:
     created_at = datetime.datetime.now(tz=datetime.UTC)
     fields = _model_dict(attachment)
     if fields.get("id") is None:
         fields["id"] = str(uuid.uuid4())
-    if dataset_id is not None:
-        fields["datasetId"] = dataset_id
+    if not fields["relationships"]:
+        raise ScicatCommError("Attachment must have at least one relationship")
     # Using strict_validation=False because the input model should already be validated.
     # If there are validation errors, it was probably intended by the user.
     return model.construct(

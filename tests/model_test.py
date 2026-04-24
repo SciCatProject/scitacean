@@ -31,7 +31,6 @@ def build_user_model_for_upload(cls: type[T]) -> st.SearchStrategy[T]:
 @pytest.mark.parametrize(
     "model_types",
     [
-        (model.Attachment, model.UploadAttachment),
         (model.Technique, model.UploadTechnique),
         (model.Relationship, model.UploadRelationship),
     ],
@@ -51,7 +50,9 @@ def test_can_make_upload_model(
 @settings(max_examples=10)
 @given(build_user_model_for_upload(model.Attachment))
 def test_upload_attachment_fields(attachment: model.Attachment) -> None:
-    upload_attachment = attachment.make_upload_model()
+    upload_attachment = attachment.make_upload_model_with_target(
+        target_id="abc", target_type="dataset"
+    )
     assert upload_attachment.caption == attachment.caption
     assert upload_attachment.accessGroups == attachment.access_groups
     assert upload_attachment.thumbnail == attachment.thumbnail
@@ -62,7 +63,7 @@ def test_upload_attachment_fields(attachment: model.Attachment) -> None:
 def test_upload_model_rejects_non_upload_fields(attachment: model.Attachment) -> None:
     attachment._created_by = "the-creator"
     with pytest.raises(ValueError, match=r"field.*upload"):
-        attachment.make_upload_model()
+        attachment.make_upload_model_with_target(target_id="abc", target_type="dataset")
 
 
 @settings(max_examples=10)
@@ -95,7 +96,7 @@ def test_download_attachment_fields(
 ) -> None:
     attachment = model.Attachment.from_download_model(download_attachment)
     assert attachment.caption == download_attachment.caption
-    assert attachment.dataset_id == download_attachment.datasetId
+    assert attachment.relationships == download_attachment.relationships
     assert attachment.thumbnail == download_attachment.thumbnail
 
 
