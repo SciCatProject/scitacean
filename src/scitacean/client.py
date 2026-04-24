@@ -224,28 +224,13 @@ class Client:
         """
         pid = PID.parse(pid)
         dataset = self.scicat.get_dataset_model(
-            pid, strict_validation=strict_validation
+            pid,
+            strict_validation=strict_validation,
+            datablocks=True,
+            attachments=attachments,
         )
 
-        try:
-            orig_datablocks = self.scicat.get_orig_datablocks(
-                pid, strict_validation=strict_validation
-            )
-        except ScicatCommError:
-            # TODO more precise error handling. We only want to set to None if
-            #   communication succeeded and the dataset exists but there simply
-            #   are no datablocks.
-            orig_datablocks = None
-
-        attachment_models = (
-            self.scicat.get_attachments_for_dataset(pid) if attachments else None
-        )
-
-        return Dataset.from_download_models(
-            dataset_model=dataset,
-            orig_datablock_models=orig_datablocks or [],
-            attachment_models=attachment_models,
-        )
+        return Dataset.from_download_model(dataset_model=dataset)
 
     def get_proposal(
         self,
@@ -351,15 +336,14 @@ class Client:
 
         with_new_pid = dataset.replace(_read_only={"pid": finalized_model.pid})
         finalized_orig_datablocks = self._upload_orig_datablocks(
-            with_new_pid.make_datablock_upload_models().orig_datablocks,
-            with_new_pid.pid,  # type: ignore[arg-type]
+            with_new_pid.make_datablock_upload_models().orig_datablocks
         )
         finalized_attachments = self._upload_attachments_for_dataset(
             with_new_pid.make_attachment_upload_models(),
             dataset_id=with_new_pid.pid,  # type: ignore[arg-type]
         )
 
-        return Dataset.from_download_models(
+        return Dataset.from_download_model(
             dataset_model=finalized_model,
             orig_datablock_models=finalized_orig_datablocks,
             attachment_models=finalized_attachments,
@@ -394,22 +378,19 @@ class Client:
         return model.Sample.from_download_model(finalized_model)
 
     def _upload_orig_datablocks(
-        self,
-        orig_datablocks: list[model.UploadOrigDatablock] | None,
-        dataset_id: PID,
+        self, orig_datablocks: list[model.UploadOrigDatablock] | None
     ) -> list[model.DownloadOrigDatablock]:
         if not orig_datablocks:
             return []
 
         try:
             return [
-                self.scicat.create_orig_datablock(orig_datablock, dataset_id=dataset_id)
+                self.scicat.create_orig_datablock(orig_datablock)
                 for orig_datablock in orig_datablocks
             ]
         except ScicatCommError as exc:
             raise RuntimeError(
-                "Failed to upload original datablocks for SciCat dataset "
-                f"{dataset_id}:"
+                "Failed to upload original datablocks:"
                 f"\n{exc.args}\nThe dataset and data files were successfully uploaded "
                 "but are not linked with each other. Please fix the dataset manually!"
             ) from exc
@@ -733,7 +714,12 @@ class ScicatClient:
         return ScicatClient(url=url, token=None, timeout=timeout)
 
     def get_dataset_model(
-        self, pid: PID, strict_validation: bool = False
+        self,
+        pid: PID,
+        strict_validation: bool = False,
+        *,
+        attachments: bool = False,
+        datablocks: bool = False,
     ) -> model.DownloadDataset:
         """Fetch a dataset from SciCat.
 
@@ -747,6 +733,10 @@ class ScicatClient:
             If ``False``, a dataset is still returned if validation fails.
             Note that some dataset fields may have a bad value or type.
             A warning will be logged if validation fails.
+        attachments:
+            Include attachments in the returned model.
+        datablocks:
+            Include (orig) datablocks in the returned model.
 
         Returns
         -------
@@ -758,9 +748,16 @@ class ScicatClient:
         scitacean.ScicatCommError
             If the dataset does not exist or communication fails for some other reason.
         """
+        include = []
+        if attachments:
+            include.append("attachments")
+        if datablocks:
+            include.append("origdatablocks")
+
         dset_json = self.call_endpoint(
             cmd="get",
             url=f"datasets/{quote_plus(str(pid))}",
+            params={"include": include} if include else None,
             operation="get_dataset_model",
         )
         if not dset_json:
@@ -878,82 +875,6 @@ class ScicatClient:
                 **dset_json,
             )
             for dset_json in dsets_json
-        ]
-
-    def get_orig_datablocks(
-        self, pid: PID, strict_validation: bool = False
-    ) -> list[model.DownloadOrigDatablock]:
-        """Fetch all orig datablocks from SciCat for a given dataset.
-
-        Parameters
-        ----------
-        pid:
-            Unique ID of the *dataset*.
-            Must include the facility ID.
-        strict_validation:
-            If ``True``, the datablocks must pass validation.
-            If ``False``, datablocks are still returned if validation fails.
-            Note that some fields may have a bad value or type.
-            A warning will be logged if validation fails.
-
-        Returns
-        -------
-        :
-            Models of the orig datablocks.
-
-        Raises
-        ------
-        scitacean.ScicatCommError
-            If communication fails.
-        """
-        dblock_json = self.call_endpoint(
-            cmd="get",
-            url=f"datasets/{quote_plus(str(pid))}/origdatablocks",
-            operation="get_orig_datablocks",
-        )
-        return [
-            _make_orig_datablock(dblock, strict_validation=strict_validation)
-            for dblock in dblock_json
-        ]
-
-    def get_attachments_for_dataset(
-        self, pid: PID, strict_validation: bool = False
-    ) -> list[model.DownloadAttachment]:
-        """Fetch all attachments from SciCat for a given dataset.
-
-        Parameters
-        ----------
-        pid:
-            Unique ID of the *dataset*.
-            Must include the facility ID.
-        strict_validation:
-            If ``True``, the attachments must pass validation.
-            If ``False``, attachments are still returned if validation fails.
-            Note that some fields may have a bad value or type.
-            A warning will be logged if validation fails.
-
-        Returns
-        -------
-        :
-            Models of the attachments.
-
-        Raises
-        ------
-        scitacean.ScicatCommError
-            If communication fails.
-        """
-        attachment_json = self.call_endpoint(
-            cmd="get",
-            url=f"datasets/{quote_plus(str(pid))}/attachments",
-            operation="get_attachments_for_dataset",
-        )
-        return [
-            model.construct(
-                model.DownloadAttachment,
-                _strict_validation=strict_validation,
-                **attachment,
-            )
-            for attachment in attachment_json
         ]
 
     def get_instrument_model(
@@ -1163,25 +1084,13 @@ class ScicatClient:
     def create_orig_datablock(
         self,
         dblock: model.UploadOrigDatablock,
-        *,
-        dataset_id: PID,
     ) -> model.DownloadOrigDatablock:
         """Create a new orig datablock in SciCat.
-
-        The datablock PID must be either
-
-        - ``None``, in which case SciCat assigns an ID.
-        - An unused id, in which case SciCat uses it for the new datablock.
-
-        If the ID already exists, creation will fail without
-        modification to the database.
 
         Parameters
         ----------
         dblock:
             Model of the orig datablock to create.
-        dataset_id:
-            PID of the dataset that this datablock belongs to.
 
         Raises
         ------
@@ -1191,7 +1100,7 @@ class ScicatClient:
         """
         uploaded = self.call_endpoint(
             cmd="post",
-            url=f"datasets/{quote_plus(str(dataset_id))}/origdatablocks",
+            url="origdatablocks",
             data=dblock,
             operation="create_orig_datablock",
         )
@@ -1384,7 +1293,7 @@ class ScicatClient:
         url: str,
         operation: str,
         data: pydantic.BaseModel | None = None,
-        params: dict[str, str] | None = None,
+        params: dict[str, Any] | None = None,
     ) -> Any:
         """Call a REST API endpoint of SciCat.
 

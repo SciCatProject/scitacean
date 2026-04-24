@@ -250,6 +250,7 @@ _ORIG_DATABLOCKS: dict[str, list[UploadOrigDatablock]] = {
                     perm="777",
                 ),
             ],
+            datasetId=PID(pid="PLACEHOLDER"),
         )
     ],
     "derived": [
@@ -267,6 +268,7 @@ _ORIG_DATABLOCKS: dict[str, list[UploadOrigDatablock]] = {
                     perm="656",
                 ),
             ],
+            datasetId=PID(pid="PLACEHOLDER"),
         )
     ],
     "public": [
@@ -284,6 +286,7 @@ _ORIG_DATABLOCKS: dict[str, list[UploadOrigDatablock]] = {
                     perm="0",
                 ),
             ],
+            datasetId=PID(pid="PLACEHOLDER"),
         )
     ],
 }
@@ -359,8 +362,7 @@ def seed_database(*, client: Client, scicat_access: SciCatAccess) -> None:
     download_orig_datablocks = {
         key: [
             client.scicat.create_orig_datablock(
-                dblock,
-                dataset_id=download_datasets[key].pid,  # type: ignore[arg-type]
+                dblock.model_copy(update={"datasetId": download_datasets[key].pid})
             )
             for dblock in dblocks
         ]

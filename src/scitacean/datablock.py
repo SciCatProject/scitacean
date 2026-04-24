@@ -11,6 +11,7 @@ from datetime import datetime
 
 from .file import File
 from .model import DownloadOrigDatablock, UploadOrigDatablock
+from .pid import PID
 
 # TODO Datablock
 
@@ -19,9 +20,7 @@ from .model import DownloadOrigDatablock, UploadOrigDatablock
 class OrigDatablock:
     """Dataclass for an orig datablock.
 
-    Instances of this class are mutable as opposed to
-    :class:`scitacean.model.OrigDatablock`.
-    They are used for building datasets and get converted to/from pydantic
+    This type is used for building datasets and gets converted to/from pydantic
     models for communication with a server.
     """
 
@@ -31,7 +30,6 @@ class OrigDatablock:
     _access_groups: list[str] | None = None
     _created_at: datetime | None = None
     _created_by: str | None = None
-    _id: str | None = None
     _is_published: bool | None = None
     _updated_at: datetime | None = None
     _updated_by: str | None = None
@@ -62,7 +60,6 @@ class OrigDatablock:
             _access_groups=dblock.accessGroups,
             _created_at=dblock.createdAt,
             _created_by=dblock.createdBy,
-            _id=orig_datablock_model.id,
             _is_published=orig_datablock_model.isPublished,
             _updated_at=dblock.updatedAt,
             _updated_by=dblock.updatedBy,
@@ -108,11 +105,6 @@ class OrigDatablock:
         return self._updated_by
 
     @property
-    def datablock_id(self) -> str | None:
-        """ID of this datablock."""
-        return self._id
-
-    @property
     def is_published(self) -> bool | None:
         """Return whether the datablock is public on SciCat."""
         return self._is_published
@@ -130,8 +122,13 @@ class OrigDatablock:
             for f in files
         )
 
-    def make_upload_model(self) -> UploadOrigDatablock:
+    def make_upload_model(self, dataset_id: PID) -> UploadOrigDatablock:
         """Build a new pydantic model to upload this datablock.
+
+        Parameters
+        ----------
+        dataset_id:
+            PID of the dataset that this datablock belongs to.
 
         Returns
         -------
@@ -142,4 +139,5 @@ class OrigDatablock:
             chkAlg=self.checksum_algorithm,
             size=self.size,
             dataFileList=[file.make_model(for_archive=False) for file in self.files],
+            datasetId=dataset_id,
         )

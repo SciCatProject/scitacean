@@ -199,35 +199,24 @@ class FakeScicatClient(ScicatClient):
 
     @_conditionally_disabled
     def get_dataset_model(
-        self, pid: PID, strict_validation: bool = False
+        self,
+        pid: PID,
+        strict_validation: bool = False,
+        *,
+        attachments: bool = False,
+        datablocks: bool = False,
     ) -> model.DownloadDataset:
         """Fetch a dataset from SciCat."""
         _ = strict_validation  # unused by fake
         try:
-            return self.main.datasets[pid]
+            ds = self.main.datasets[pid]
+            if datablocks:
+                ds.origdatablocks = self.main.orig_datablocks.get(pid, [])
+            if attachments:
+                ds.attachments = self.main.attachments.get(pid, [])
+            return ds
         except KeyError:
             raise ScicatCommError(f"Unable to retrieve dataset {pid}") from None
-
-    @_conditionally_disabled
-    def get_orig_datablocks(
-        self, pid: PID, strict_validation: bool = False
-    ) -> list[model.DownloadOrigDatablock]:
-        """Fetch an orig datablock from SciCat."""
-        _ = strict_validation  # unused by fake
-        try:
-            return self.main.orig_datablocks[pid]
-        except KeyError:
-            raise ScicatCommError(
-                f"Unable to retrieve orig datablock for dataset {pid}"
-            ) from None
-
-    @_conditionally_disabled
-    def get_attachments_for_dataset(
-        self, pid: PID, strict_validation: bool = False
-    ) -> list[model.DownloadAttachment]:
-        """Fetch all attachments from SciCat for a given dataset."""
-        _ = strict_validation  # unused by fake
-        return self.main.attachments.get(pid) or []
 
     @_conditionally_disabled
     def get_instrument_model(
@@ -275,9 +264,7 @@ class FakeScicatClient(ScicatClient):
             raise ScicatCommError(f"Unable to retrieve sample {sample_id}") from None
 
     @_conditionally_disabled
-    def create_dataset_model(
-        self, dset: model.UploadDerivedDataset | model.UploadRawDataset
-    ) -> model.DownloadDataset:
+    def create_dataset_model(self, dset: model.UploadDataset) -> model.DownloadDataset:
         """Create a new dataset in SciCat."""
         ingested = _process_dataset(dset)
         pid: PID = ingested.pid  # type: ignore[assignment]
@@ -291,13 +278,13 @@ class FakeScicatClient(ScicatClient):
 
     @_conditionally_disabled
     def create_orig_datablock(
-        self, dblock: model.UploadOrigDatablock, *, dataset_id: PID
+        self, dblock: model.UploadOrigDatablock
     ) -> model.DownloadOrigDatablock:
         """Create a new orig datablock in SciCat."""
-        if (dset := self.main.datasets.get(dataset_id)) is None:
-            raise ScicatCommError(f"No dataset with id {dataset_id}")
+        if (dset := self.main.datasets.get(dblock.datasetId)) is None:
+            raise ScicatCommError(f"No dataset with id {dblock.datasetId}")
         ingested = _process_orig_datablock(dblock, dset)
-        self.main.orig_datablocks.setdefault(dataset_id, []).append(ingested)
+        self.main.orig_datablocks.setdefault(dblock.datasetId, []).append(ingested)
         return ingested
 
     @_conditionally_disabled
@@ -350,9 +337,7 @@ class FakeScicatClient(ScicatClient):
         return ingested
 
     @_conditionally_disabled
-    def validate_dataset_model(
-        self, dset: model.UploadDerivedDataset | model.UploadRawDataset
-    ) -> None:
+    def validate_dataset_model(self, dset: model.UploadDataset) -> None:
         """Validate model remotely in SciCat."""
         # Models were locally validated on construction, assume they are valid.
         pass
@@ -396,7 +381,7 @@ def _process_data_file(file: model.UploadDataFile) -> model.DownloadDataFile:
 
 
 def _process_dataset(
-    dset: model.UploadDerivedDataset | model.UploadRawDataset,
+    dset: model.UploadDataset,
 ) -> model.DownloadDataset:
     created_at = datetime.datetime.now(tz=datetime.UTC)
     # TODO use user login if possible
@@ -442,7 +427,6 @@ def _process_orig_datablock(
         createdAt=created_at,
         updatedBy="fake",
         updatedAt=created_at,
-        datasetId=dset.pid,
         **fields,
     )
     return processed
@@ -505,7 +489,7 @@ def _process_sample(sample: model.UploadSample) -> model.DownloadSample:
 
 
 def process_uploaded_dataset(
-    dataset: model.UploadDerivedDataset | model.UploadRawDataset,
+    dataset: model.UploadDataset,
     orig_datablocks: list[model.UploadOrigDatablock] | None,
     attachments: list[model.UploadAttachment] | None,
 ) -> tuple[

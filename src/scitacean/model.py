@@ -103,6 +103,7 @@ from .thumbnail import Thumbnail
 
 class DownloadDataset(BaseModel):
     accessGroups: list[str] | None = None
+    attachments: list[DownloadAttachment] | None = None
     classification: str | None = None
     comment: str | None = None
     contactEmail: str | None = None
@@ -127,6 +128,7 @@ class DownloadDataset(BaseModel):
     numberOfFiles: NonNegativeInt | None = None
     numberOfFilesArchived: NonNegativeInt | None = None
     orcidOfOwner: str | None = None
+    origdatablocks: list[DownloadOrigDatablock] | None = None
     owner: str | None = None
     ownerEmail: str | None = None
     ownerGroup: str | None = None
@@ -158,6 +160,15 @@ class DownloadDataset(BaseModel):
     )
     def _validate_datetime(cls, value: Any) -> Any:
         return validate_datetime(value)
+
+    @pydantic.field_validator(
+        "instrumentIds", "proposalIds", "sampleIds", mode="before"
+    )
+    def _validate_id_array(cls, value: Any) -> Any:
+        if not isinstance(value, list):
+            return value
+        # SciCat may return [None]
+        return [x for x in value if x is not None]
 
 
 class UploadDataset(BaseModel):

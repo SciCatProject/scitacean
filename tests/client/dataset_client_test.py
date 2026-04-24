@@ -156,8 +156,10 @@ def test_get_broken_dataset_strict_validation(
 
 
 def test_dataset_with_orig_datablock_roundtrip(client: Client) -> None:
-    ds = Dataset.from_download_models(
-        INITIAL_DATASETS["raw"], INITIAL_ORIG_DATABLOCKS["raw"], []
+    ds = Dataset.from_download_model(
+        INITIAL_DATASETS["raw"].model_copy(
+            update={"origdatablocks": INITIAL_ORIG_DATABLOCKS["raw"]}
+        )
     ).as_new()
     # Unset fields that a raw dataset should not have but where initialized
     # in the download model.
