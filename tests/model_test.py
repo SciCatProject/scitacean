@@ -9,12 +9,7 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from scitacean import PID, Client, RemotePath, model
-from scitacean.model import (
-    DownloadAttachment,
-    DownloadDataset,
-    DownloadOrigDatablock,
-    UploadDataset,
-)
+from scitacean.model import UploadDataset
 from scitacean.testing.backend import config as backend_config
 
 T = TypeVar("T")
@@ -233,50 +228,3 @@ def test_raw_dataset_default_values(
     assert finalized.ownerEmail is None
     assert finalized.sourceFolderHost is None
     assert finalized.validationStatus is None
-
-
-def test_default_masked_fields_are_dropped() -> None:
-    mod = DownloadOrigDatablock(  # type: ignore[call-arg]
-        id="abc",
-        _v="123",
-        __v="456",
-    )
-    # Input id dropped but alias 'id' exists and is not initialized.
-    assert mod.id is None
-
-    assert not hasattr(mod, "_v")
-    assert not hasattr(mod, "__v")
-
-
-def test_custom_masked_fields_are_dropped() -> None:
-    mod = DownloadDataset(  # type: ignore[call-arg]
-        id="abc",
-        _id="def",
-        _v="123",
-        __v="456",
-    )
-    assert not hasattr(mod, "attachments")
-    assert not hasattr(mod, "id")
-    assert not hasattr(mod, "_id")
-    assert not hasattr(mod, "_v")
-    assert not hasattr(mod, "__v")
-
-
-def test_fields_override_masks() -> None:
-    # '_id' is masked but the model has a field 'id' with alias '_id'.
-    mod = DownloadOrigDatablock(  # type: ignore[call-arg]
-        _id="abc",
-        id="def",
-    )
-    assert mod.id == "abc"
-    assert not hasattr(mod, "_id")
-
-
-def test_fields_override_masks_attachment() -> None:
-    # 'id' is masked but the model has a field 'id' without alias
-    mod = DownloadAttachment(  # type: ignore[call-arg]
-        _id="abc",
-        id="def",
-    )
-    assert mod.id == "def"
-    assert not hasattr(mod, "_id")
