@@ -64,10 +64,7 @@ def fake_client(scicat_access: SciCatAccess) -> FakeClient:
         }
     )
     client.attachments.update(
-        {
-            a[0].datasetId: a  # type: ignore[misc]
-            for a in seed.INITIAL_ATTACHMENTS.values()
-        }
+        {a[0].relationships[0].targetId: a for a in seed.INITIAL_ATTACHMENTS.values()}
     )
     return client
 

@@ -20,7 +20,6 @@ import httpx
 import pydantic
 
 from . import model
-from ._base_model import convert_download_to_user_model
 from ._profile import Profile, make_client_params
 from .dataset import Dataset
 from .error import ScicatCommError, ScicatLoginError
@@ -224,7 +223,7 @@ class Client:
         """
         pid = PID.parse(pid)
         dataset = self.scicat.get_dataset_model(
-            pid,
+            PID.parse(pid),
             strict_validation=strict_validation,
             datablocks=True,
             attachments=attachments,
@@ -566,42 +565,6 @@ class Client:
             dataset, representative_file_path
         ) as con:
             yield con
-
-    def download_attachments_for(self, target: Dataset) -> Dataset:
-        """Download all attachments for a given object.
-
-        The target object must have an ID, that is, it must represent an entry
-        in SciCat and not just a locally created object.
-
-        If the input already has attachments, they will be overwritten and a
-        ``UserWarning`` will be raised.
-
-        Parameters
-        ----------
-        target:
-            Download attachments for this object.
-
-        Returns
-        -------
-        :
-            A copy of the input dataset with attachments replaced
-            with the downloaded models.
-        """
-        if target.pid is None:
-            raise ValueError(
-                "Cannot download attachments because the dataset has no PID."
-            )
-        if target.attachments is not None:
-            warnings.warn(
-                "Downloading attachments for a dataset that already has "
-                "attachments. The existing attachments will be overwritten.",
-                stacklevel=2,
-            )
-        return target.replace(
-            attachments=convert_download_to_user_model(
-                self.scicat.get_attachments_for_dataset(target.pid)
-            )
-        )
 
 
 class ScicatClient:

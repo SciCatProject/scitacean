@@ -209,7 +209,7 @@ class FakeScicatClient(ScicatClient):
         """Fetch a dataset from SciCat."""
         _ = strict_validation  # unused by fake
         try:
-            ds = self.main.datasets[pid]
+            ds = self.main.datasets[pid].model_copy(deep=True)
             if datablocks:
                 ds.origdatablocks = self.main.orig_datablocks.get(pid, [])
             if attachments:
@@ -299,6 +299,8 @@ class FakeScicatClient(ScicatClient):
                 f"Got {ingested.relationships!r}."
             )
         dataset_id: PID = ingested.relationships[0].targetId  # type: ignore[assignment]
+        if dataset_id not in self.main.datasets:
+            raise ScicatCommError(f"No dataset with id {dataset_id}")
         self.main.attachments.setdefault(PID.parse(dataset_id), []).append(ingested)
         return ingested
 

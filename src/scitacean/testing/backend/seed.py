@@ -298,18 +298,25 @@ _ATTACHMENTS: dict[str, list[UploadAttachment]] = {
             caption="Process Overview",
             ownerGroup="PLACEHOLDER",
             accessGroups=["uu"],
-            datasetId=PID(pid="PLACEHOLDER"),
             thumbnail=Thumbnail(mime="image/png", data=b"nag;also;i"),
-            relationships=[],
+            relationships=[
+                AttachmentRelationship(
+                    targetId=PID(pid="PLACEHOLDER"),
+                    targetType="dataset",
+                )
+            ],
         ),
         UploadAttachment(
             caption="Pretty picture no 1",
             ownerGroup="PLACEHOLDER",
             accessGroups=["uu", "faculty"],
-            datasetId=PID(pid="PLACEHOLDER"),
             thumbnail=Thumbnail(mime="image/jpeg", data=b"gj0ajs93jka2jv89a"),
-            sampleId="kjsdf",
-            relationships=[],
+            relationships=[
+                AttachmentRelationship(
+                    targetId=PID(pid="PLACEHOLDER"),
+                    targetType="dataset",
+                )
+            ],
         ),
     ]
 }

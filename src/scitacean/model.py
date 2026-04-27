@@ -268,7 +268,6 @@ class UploadAttachment(BaseModel):
     relationships: list[AttachmentRelationship]
     accessGroups: list[str] | None = None
     aid: str | None = None
-    datasetId: PID | None = None
     instrumentGroup: str | None = None
     thumbnail: Thumbnail | None = None
 
@@ -660,9 +659,8 @@ class Attachment(BaseUserModel):
     owner_group: str
     relationships: list[AttachmentRelationship] | None = None
     access_groups: list[str] | None = None
-    id: str | None = None
+    aid: str | None = None
     instrument_group: str | None = None
-    sample_id: str | None = None
     thumbnail: Thumbnail | None = None
     _created_at: datetime | None = None
     _created_by: str | None = None

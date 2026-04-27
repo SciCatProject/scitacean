@@ -133,8 +133,6 @@ def test_upload_without_files_creates_dataset(
         }
     )
     assert finalized == expected
-    with pytest.raises(ScicatCommError):
-        client.scicat.get_orig_datablocks(finalized.pid)
 
 
 def test_upload_without_files_does_not_need_file_transfer(dataset: Dataset) -> None:
@@ -149,8 +147,6 @@ def test_upload_without_files_does_not_need_file_transfer(dataset: Dataset) -> N
         }
     )
     assert finalized == expected
-    with pytest.raises(ScicatCommError):
-        client.scicat.get_orig_datablocks(finalized.pid)
 
 
 def test_upload_without_files_does_not_need_revert_files(dataset: Dataset) -> None:
@@ -399,7 +395,7 @@ def test_failed_attachment_upload_does_not_revert(
 ) -> None:
     dataset_with_files.attachments = attachments
     client = FakeClient(
-        disable={"create_attachment_for_dataset": ScicatCommError("Ingestion failed")},
+        disable={"create_attachment": ScicatCommError("Ingestion failed")},
         file_transfer=FakeFileTransfer(fs=fs),
     )
     with pytest.raises(RuntimeError):

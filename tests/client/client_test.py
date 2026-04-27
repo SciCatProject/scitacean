@@ -82,13 +82,13 @@ def test_fake_can_disable_functions() -> None:
     client = FakeClient(
         disable={
             "get_dataset_model": RuntimeError("custom failure"),
-            "get_orig_datablocks": IndexError("custom index error"),
+            "get_instrument_model": IndexError("custom index error"),
         }
     )
     with pytest.raises(RuntimeError, match="custom failure"):
         client.scicat.get_dataset_model(PID(pid="some-pid"))
     with pytest.raises(IndexError, match="custom index error"):
-        client.scicat.get_orig_datablocks(PID(pid="some-pid"))
+        client.scicat.get_instrument_model("some-id")
 
 
 def encode_jwt_part(part: dict[str, Any]) -> str:
