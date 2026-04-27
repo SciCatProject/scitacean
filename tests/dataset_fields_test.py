@@ -129,16 +129,16 @@ def test_init_from_models_sets_metadata() -> None:
             ownerGroup="faculty",
             createdBy="pstibbons",
             createdAt=datetime.fromisoformat("2022-01-10T12:41:22+02:00"),
-        ),
-        orig_datablock_models=[
-            DownloadOrigDatablock(
-                dataFileList=[],
-                datasetId=PID.parse("prefix/0123-ab"),
-                size=0,
-                ownerGroup="faculty",
-                chkAlg="md5",
-            )
-        ],
+            origdatablocks=[
+                DownloadOrigDatablock(
+                    dataFileList=[],
+                    datasetId=PID.parse("prefix/0123-ab"),
+                    size=0,
+                    ownerGroup="faculty",
+                    chkAlg="md5",
+                )
+            ],
+        )
     )
 
     assert dset.contact_email == "p.stibbons@uu.am"
@@ -176,27 +176,27 @@ def test_init_from_models_sets_files() -> None:
             sourceFolder=RemotePath("/hex/source91"),
             type="raw",
             ownerGroup="faculty",
-        ),
-        orig_datablock_models=[
-            DownloadOrigDatablock(
-                dataFileList=[
-                    DownloadDataFile(
-                        path="file1.dat",
-                        size=6123,
-                        time=datetime.fromisoformat("2022-01-09T18:32:01-01:00"),
-                    ),
-                    DownloadDataFile(
-                        path="sub/file2.png",
-                        size=551,
-                        time=datetime.fromisoformat("2022-01-09T18:32:42-01:00"),
-                    ),
-                ],
-                size=6123 + 551,
-                ownerGroup="faculty",
-                datasetId=PID.parse("prefix/abcd-de"),
-                chkAlg="md5",
-            )
-        ],
+            origdatablocks=[
+                DownloadOrigDatablock(
+                    dataFileList=[
+                        DownloadDataFile(
+                            path="file1.dat",
+                            size=6123,
+                            time=datetime.fromisoformat("2022-01-09T18:32:01-01:00"),
+                        ),
+                        DownloadDataFile(
+                            path="sub/file2.png",
+                            size=551,
+                            time=datetime.fromisoformat("2022-01-09T18:32:42-01:00"),
+                        ),
+                    ],
+                    size=6123 + 551,
+                    ownerGroup="faculty",
+                    datasetId=PID.parse("prefix/abcd-de"),
+                    chkAlg="md5",
+                )
+            ],
+        )
     )
 
     assert len(list(dset.files)) == 2
@@ -232,38 +232,37 @@ def test_init_from_models_sets_files_multi_datablocks() -> None:
         sourceFolder=RemotePath("/hex/source91"),
         type="raw",
         ownerGroup="faculty",
+        origdatablocks=[
+            DownloadOrigDatablock(
+                dataFileList=[
+                    DownloadDataFile(
+                        path="file1.dat",
+                        size=6123,
+                        time=datetime.fromisoformat("2022-01-10T11:14:52-01:00"),
+                    )
+                ],
+                datasetId=PID.parse("prefix/abcd-de"),
+                size=6123,
+                ownerGroup="faculty",
+                chkAlg="md5",
+            ),
+            DownloadOrigDatablock(
+                dataFileList=[
+                    DownloadDataFile(
+                        path="sub/file2.png",
+                        size=992,
+                        time=datetime.fromisoformat("2022-01-10T11:14:52-01:00"),
+                    )
+                ],
+                datasetId=PID.parse("prefix/abcd-de"),
+                size=992,
+                ownerGroup="faculty",
+                chkAlg="md5",
+            ),
+        ],
     )
-    orig_datablock_models = [
-        DownloadOrigDatablock(
-            dataFileList=[
-                DownloadDataFile(
-                    path="file1.dat",
-                    size=6123,
-                    time=datetime.fromisoformat("2022-01-10T11:14:52-01:00"),
-                )
-            ],
-            datasetId=PID.parse("prefix/abcd-de"),
-            size=6123,
-            ownerGroup="faculty",
-            chkAlg="md5",
-        ),
-        DownloadOrigDatablock(
-            dataFileList=[
-                DownloadDataFile(
-                    path="sub/file2.png",
-                    size=992,
-                    time=datetime.fromisoformat("2022-01-10T11:14:52-01:00"),
-                )
-            ],
-            datasetId=PID.parse("prefix/abcd-de"),
-            size=992,
-            ownerGroup="faculty",
-            chkAlg="md5",
-        ),
-    ]
     dset = Dataset.from_download_model(
         dataset_model=dataset_model,
-        orig_datablock_models=orig_datablock_models,
     )
 
     assert len(list(dset.files)) == 2

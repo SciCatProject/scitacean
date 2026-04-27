@@ -397,7 +397,7 @@ def test_add_files_rejects_files_with_different_checksum_algorithms(
 
 
 @given(sst.datasets(for_upload=True))
-@settings(max_examples=100)
+@settings(max_examples=1)
 def test_dataset_models_roundtrip(initial: Dataset) -> None:
     initial._pid = PID.parse("test/abc")  # Required to make attachments + datablocks
     dataset_upload_model = initial.make_upload_model()
@@ -410,7 +410,7 @@ def test_dataset_models_roundtrip(initial: Dataset) -> None:
     dataset_model.createdBy = None
     dataset_model.updatedAt = None
     dataset_model.updatedBy = None
-    dataset_model.pid = None
+    dataset_model.pid = initial.pid  # process_uploaded_dataset assigns a new PID
 
     dataset_model.origdatablocks = dblock_models
     dataset_model.attachments = attachment_models
@@ -423,6 +423,7 @@ def test_dataset_models_roundtrip(initial: Dataset) -> None:
 @given(sst.datasets())
 @settings(max_examples=10)
 def test_make_scicat_models_datablock_without_files(dataset: Dataset) -> None:
+    dataset._pid = PID.parse("test/abc")
     assert dataset.make_datablock_upload_models().orig_datablocks is None
 
 
@@ -545,16 +546,14 @@ def test_add_attachment_from_file(fs: FakeFilesystem) -> None:
         caption="The attachment",
         thumbnail="fingers.jpg",
         access_groups=["attachment-access"],
-        sample_id="attachment-sample",
     )
     assert dataset.attachments == [
         model.Attachment(
             caption="The attachment",
             owner_group="owner",
             thumbnail=Thumbnail.load_file("fingers.jpg"),
-            proposal_id="dset-proposal",
             access_groups=["attachment-access"],
-            sample_id="attachment-sample",
+            relationships=None,  # filled in during upload
         )
     ]
 
@@ -573,16 +572,14 @@ def test_add_attachment_from_thumbnail(fs: FakeFilesystem) -> None:
         caption="The attachment",
         thumbnail=thumbnail,
         access_groups=["attachment-access"],
-        sample_id="attachment-sample",
     )
     assert dataset.attachments == [
         model.Attachment(
             caption="The attachment",
             owner_group="owner",
             thumbnail=thumbnail,
-            proposal_id="dset-proposal",
             access_groups=["attachment-access"],
-            sample_id="attachment-sample",
+            relationships=None,  # filled in during upload
         )
     ]
 

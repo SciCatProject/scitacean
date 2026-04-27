@@ -377,6 +377,7 @@ class Dataset(DatasetBase):
         return self.replace(
             _read_only={field.name: None for field in Dataset.fields(read_only=True)},
             creation_time=datetime.now(tz=UTC),
+            attachments=self.attachments or [],
         )
 
     def derive(
