@@ -27,7 +27,7 @@ from typing import Any, TypeAlias
 
 import httpx
 
-SOURCE_URL = "https://expands-eu.github.io/ExPaNDS-experimental-techniques-ontology/ontology.jsonld"
+SOURCE_URL = "https://pan-ontologies.github.io/PaNET/ontology.jsonld"
 
 # Prefix used for all ExPaNDS class IRIs:
 IRI_PREFIX = "http://purl.org/pan-science/PaNET/"
