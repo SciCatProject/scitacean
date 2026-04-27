@@ -44,7 +44,7 @@ def find_technique(label_or_iri: str) -> Technique:
     """Construct a Technique model from an ontology label or IRI.
 
     The argument specifies a technique from the
-    `ExPaNDS experimental techniques ontology <https://expands-eu.github.io/ExPaNDS-experimental-techniques-ontology/index-en.html>`_.
+    `ExPaNDS experimental techniques ontology <https://pan-ontologies.github.io/PaNET/index-en.html>`_.
 
     Parameters
     ----------
@@ -90,13 +90,13 @@ def _lookup_label(label: str) -> Technique:
             "Please specify the exact IRI instead or construct a Technique model "
             "manually.\n"
             "See the ExPaNDS experimental technique ontology for allowed labels at "
-            "https://expands-eu.github.io/ExPaNDS-experimental-techniques-ontology/index-en.html"
+            "https://pan-ontologies.github.io/PaNET/index-en.html"
         )
     # else: len(found) == 0
     raise ValueError(
         f"Unknown technique label: '{label}'\n"
         "See the ExPaNDS experimental technique ontology for allowed labels at "
-        "https://expands-eu.github.io/ExPaNDS-experimental-techniques-ontology/index-en.html"
+        "https://pan-ontologies.github.io/PaNET/index-en.html"
     )
 
 
@@ -107,7 +107,7 @@ def _lookup_iri(iri: str) -> Technique:
         raise ValueError(
             f"Unknown technique IRI: '{iri}'\n"
             "See the ExPaNDS experimental technique ontology for allowed labels at "
-            "https://expands-eu.github.io/ExPaNDS-experimental-techniques-ontology/index-en.html"
+            "https://pan-ontologies.github.io/PaNET/index-en.html"
         ) from None
     return Technique(pid=iri, name=label)
 
