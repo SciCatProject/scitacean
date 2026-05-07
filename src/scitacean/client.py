@@ -21,7 +21,7 @@ import pydantic
 
 from . import model
 from ._base_model import convert_download_to_user_model
-from ._profile import Profile, make_client_params
+from ._profile import Profile, gather_login_params
 from .dataset import Dataset
 from .error import ScicatCommError, ScicatLoginError
 from .file import File
@@ -51,6 +51,7 @@ class Client:
         *,
         client: ScicatClient,
         file_transfer: FileTransfer | None,
+        profile: Profile,
     ):
         """Initialize a client.
 
@@ -59,11 +60,12 @@ class Client:
         """
         self._client = client
         self._file_transfer = file_transfer
+        self._profile = profile
 
     @classmethod
     def from_token(
         cls,
-        profile: str | Path | Profile | None = None,
+        profile: str | Profile | None = None,
         *,
         url: str | None = None,
         token: str | StrStorage,
@@ -76,7 +78,7 @@ class Client:
         profile:
             Encodes how to connect to SciCat.
             Elements are overridden by the other arguments if provided.
-            The behaviour is described in :class:`Profile`.
+            The behavior is described in :class:`Profile`.
         url:
             URL of the SciCat api.
         token:
@@ -89,19 +91,17 @@ class Client:
         :
             A new client.
         """
-        params = make_client_params(
-            profile=profile, url=url, file_transfer=file_transfer
-        )
+        p = gather_login_params(profile=profile, url=url, file_transfer=file_transfer)
         return Client(
-            client=ScicatClient.from_token(url=params.url, token=token),
-            file_transfer=params.file_transfer,
+            client=ScicatClient.from_token(url=p.url, token=token),
+            file_transfer=p.file_transfer,
+            profile=p,
         )
 
-    # TODO rename to login? and provide logout?
     @classmethod
     def from_credentials(
         cls,
-        profile: str | Path | Profile | None = None,
+        profile: str | Profile | None = None,
         *,
         url: str | None = None,
         username: str | StrStorage,
@@ -115,7 +115,7 @@ class Client:
         profile:
             Encodes how to connect to SciCat.
             Elements are overridden by the other arguments if provided.
-            The behaviour is described in :class:`Profile`.
+            The behavior is described in :class:`Profile`.
         url:
             URL of the SciCat api.
             It should include the suffix `api/vn` where `n` is a number.
@@ -131,20 +131,19 @@ class Client:
         :
             A new client.
         """
-        params = make_client_params(
-            profile=profile, url=url, file_transfer=file_transfer
-        )
+        p = gather_login_params(profile=profile, url=url, file_transfer=file_transfer)
         return Client(
             client=ScicatClient.from_credentials(
-                url=params.url, username=username, password=password
+                url=p.url, username=username, password=password
             ),
-            file_transfer=params.file_transfer,
+            file_transfer=p.file_transfer,
+            profile=p,
         )
 
     @classmethod
     def without_login(
         cls,
-        profile: str | Path | Profile | None = None,
+        profile: str | Profile | None = None,
         *,
         url: str | None = None,
         file_transfer: FileTransfer | None = None,
@@ -158,7 +157,7 @@ class Client:
         profile:
             Encodes how to connect to SciCat.
             Elements are overridden by the other arguments if provided.
-            The behaviour is described in :class:`Profile`.
+            The behavior is described in :class:`Profile`.
         url:
             URL of the SciCat api.
             It typically should include the suffix `api/vn` where `n` is a number
@@ -171,12 +170,11 @@ class Client:
         :
             A new client.
         """
-        params = make_client_params(
-            profile=profile, url=url, file_transfer=file_transfer
-        )
+        p = gather_login_params(profile=profile, url=url, file_transfer=file_transfer)
         return Client(
-            client=ScicatClient.without_login(url=params.url),
-            file_transfer=params.file_transfer,
+            client=ScicatClient.without_login(url=p.url),
+            file_transfer=p.file_transfer,
+            profile=p,
         )
 
     @property
@@ -621,6 +619,11 @@ class Client:
                 self.scicat.get_attachments_for_dataset(target.pid)
             )
         )
+
+    @property
+    def profile(self) -> Profile:
+        """Return the SciCat profile used by this client."""
+        return self._profile
 
 
 class ScicatClient:
