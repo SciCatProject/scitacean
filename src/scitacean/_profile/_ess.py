@@ -2,6 +2,9 @@
 # Copyright (c) 2026 SciCat Project (https://github.com/SciCatProject/scitacean)
 """Profiles ESS SciCat instances."""
 
+from collections.abc import Callable
+from typing import Any
+
 from ..transfer.copy import CopyFileTransfer
 from ..transfer.link import LinkFileTransfer
 from ..transfer.select import SelectFileTransfer
@@ -14,6 +17,7 @@ def ess_production_profile() -> Profile:
         url="https://scicat.ess.eu/api/v3",
         file_transfer=_ess_file_transfer(),
         frontend_url="https://scicat.ess.eu",
+        field_factories=_ess_field_factories(),
     )
 
 
@@ -22,6 +26,7 @@ def ess_staging_profile() -> Profile:
         url="https://staging.scicat.ess.eu/api/v3",
         file_transfer=_ess_file_transfer(),
         frontend_url="https://staging.scicat.ess.eu",
+        field_factories=_ess_field_factories(),
     )
 
 
@@ -51,3 +56,22 @@ def _ess_file_transfer() -> FileTransfer:
         )
 
     return SelectFileTransfer(children)
+
+
+def _ess_field_factories() -> dict[str, Callable[..., Any]]:
+    return {
+        "creationLocation": format_creation_location,
+        "ownerGroup": lambda proposalId: str(proposalId).strip(),
+        "sourceFolder": lambda proposalId, instrumentName: (
+            f"/ess/data/{str(proposalId).strip()}/"
+            f"{instrumentName.strip().lower()}/upload"
+        ),
+    }
+
+
+def format_creation_location(instrumentName: str) -> str:
+    match instrumentName.lower():
+        case "loki":
+            return "ESS:LoKI"
+        case _:
+            return f"ESS:{instrumentName.strip().upper()}"

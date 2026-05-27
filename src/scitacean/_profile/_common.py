@@ -2,8 +2,9 @@
 # Copyright (c) 2026 SciCat Project (https://github.com/SciCatProject/scitacean)
 
 from collections.abc import Callable
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 from functools import cache
+from typing import Any
 
 from ..typing import FileTransfer
 
@@ -41,6 +42,42 @@ class Profile:
     """URL of the SciCat frontend.
 
     See :attr:`Profile.url` for more information.
+    """
+
+    # TODO update for api v4
+    field_factories: dict[str, Callable[..., Any]] = field(default_factory=dict)
+    """Mapping of field names to functions that compute field values.
+
+    Each item is a pair of field name and a function that computes a value for that
+    field from other fields. The function can take any number of arguments.
+    When calling a factory the arguments are provided based on the dataset that
+    a field is being built for. See the example below.
+
+    Field names can be any dataset field plus the following:
+
+    - ``instrumentName``: The name of the instrument based on instrument ID if possible.
+
+    Scitacean itself does not currently use this field.
+    It is only used by the Scitacean widget.
+
+    Note
+    ----
+    All field names use the SciCat names (see
+    `Models <../../user-guide/classes-and-concepts.rst#models>`_) instead of the
+    names used in :class:`scitacean.Dataset`.
+    That is, e.g., ``proposalId`` instead of ``proposal_id`` or ``sourceFolder``
+    instead of ``source_folder``.
+
+    Examples
+    --------
+    Use the proposal ID of a dataset to construct the owner group:
+
+        >>> field_factories = {
+        ...     "ownerGroup": lambda proposalId: str(proposalId).strip(),
+        ... }
+
+    Using ``str()`` and ``strip()`` here is just a cautionary measure, typically,
+    the proposal ID should already be a stripped string.
     """
 
 
