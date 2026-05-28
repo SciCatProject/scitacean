@@ -17,6 +17,7 @@ def ess_production_profile() -> Profile:
         url="https://scicat.ess.eu/api/v3",
         file_transfer=_ess_file_transfer(),
         frontend_url="https://scicat.ess.eu",
+        scientific_metadata_schema="value-unit",
         field_factories=_ess_field_factories(),
     )
 
@@ -26,6 +27,7 @@ def ess_staging_profile() -> Profile:
         url="https://staging.scicat.ess.eu/api/v3",
         file_transfer=_ess_file_transfer(),
         frontend_url="https://staging.scicat.ess.eu",
+        scientific_metadata_schema="value-unit",
         field_factories=_ess_field_factories(),
     )
 

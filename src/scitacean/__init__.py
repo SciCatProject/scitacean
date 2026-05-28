@@ -10,7 +10,7 @@ try:
 except importlib.metadata.PackageNotFoundError:
     __version__ = "0.0.0"
 
-from ._profile import Profile
+from ._profile import Profile, ScientificMetadataSchema
 from .client import Client
 from .datablock import OrigDatablock
 from .dataset import Dataset
@@ -44,6 +44,7 @@ __all__ = (
     "Sample",
     "ScicatCommError",
     "ScicatLoginError",
+    "ScientificMetadataSchema",
     "Thumbnail",
     "VisibleDeprecationWarning",
 )

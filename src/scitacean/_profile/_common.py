@@ -4,9 +4,11 @@
 from collections.abc import Callable
 from dataclasses import dataclass, field, replace
 from functools import cache
-from typing import Any
+from typing import Any, Literal, TypeAlias
 
 from ..typing import FileTransfer
+
+ScientificMetadataSchema: TypeAlias = Literal["plain", "value-unit"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -42,6 +44,16 @@ class Profile:
     """URL of the SciCat frontend.
 
     See :attr:`Profile.url` for more information.
+    """
+
+    scientific_metadata_schema: ScientificMetadataSchema = "plain"
+    """The schema used for scientific metadata.
+
+    - "plain": No special handling. The metadata is used as provided by the user.
+    - "value-unit": The metadata is expected to be a dictionary
+      with keys "value" and "unit".
+
+    This is currently unused by Scitacean.
     """
 
     # TODO update for api v4
