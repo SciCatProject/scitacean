@@ -56,7 +56,6 @@ class Profile:
     This is currently unused by Scitacean.
     """
 
-    # TODO update for api v4
     field_factories: dict[str, Callable[..., Any]] = field(default_factory=dict)
     """Mapping of field names to functions that compute field values.
 
@@ -67,7 +66,8 @@ class Profile:
 
     Field names can be any dataset field plus the following:
 
-    - ``instrumentName``: The name of the instrument based on instrument ID if possible.
+    - ``instrumentNames``: The names of the instruments based
+      on instrument IDs if the Ids are known.
 
     Scitacean itself does not currently use this field.
     It is only used by the Scitacean widget.
@@ -77,7 +77,7 @@ class Profile:
     All field names use the SciCat names (see
     `Models <../../user-guide/classes-and-concepts.rst#models>`_) instead of the
     names used in :class:`scitacean.Dataset`.
-    That is, e.g., ``proposalId`` instead of ``proposal_id`` or ``sourceFolder``
+    That is, e.g., ``proposalIds`` instead of ``proposal_ids`` or ``sourceFolder``
     instead of ``source_folder``.
 
     Examples
@@ -85,7 +85,7 @@ class Profile:
     Use the proposal ID of a dataset to construct the owner group:
 
         >>> field_factories = {
-        ...     "ownerGroup": lambda proposalId: str(proposalId).strip(),
+        ...     "ownerGroup": lambda proposalId: str(proposalIds[0]).strip(),
         ... }
 
     Using ``str()`` and ``strip()`` here is just a cautionary measure, typically,

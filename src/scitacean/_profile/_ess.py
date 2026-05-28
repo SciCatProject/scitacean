@@ -2,7 +2,7 @@
 # Copyright (c) 2026 SciCat Project (https://github.com/SciCatProject/scitacean)
 """Profiles ESS SciCat instances."""
 
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from typing import Any
 
 from ..transfer.copy import CopyFileTransfer
@@ -62,18 +62,44 @@ def _ess_file_transfer() -> FileTransfer:
 
 def _ess_field_factories() -> dict[str, Callable[..., Any]]:
     return {
-        "creationLocation": format_creation_location,
-        "ownerGroup": lambda proposalId: str(proposalId).strip(),
-        "sourceFolder": lambda proposalId, instrumentName: (
-            f"/ess/data/{str(proposalId).strip()}/"
-            f"{instrumentName.strip().lower()}/upload"
-        ),
+        "creationLocation": _format_creation_location,
+        "ownerGroup": _format_owner_group,
+        "sourceFolder": _format_source_folder,
     }
 
 
-def format_creation_location(instrumentName: str) -> str:
-    match instrumentName.lower():
+def _format_creation_location(instrumentNames: Iterable[str]) -> str | None:
+    try:
+        [name] = instrumentNames
+    except ValueError:
+        return None
+
+    match name.lower():
         case "loki":
             return "ESS:LoKI"
         case _:
-            return f"ESS:{instrumentName.strip().upper()}"
+            return f"ESS:{str(name).strip().upper()}"
+
+
+def _format_owner_group(proposalIds: Iterable[str]) -> str | None:
+    try:
+        [proposal_id] = proposalIds
+    except ValueError:
+        return None
+
+    return str(proposal_id).strip()
+
+
+def _format_source_folder(
+    proposalIds: Iterable[str], instrumentNames: Iterable[str]
+) -> str | None:
+    try:
+        [proposal_id] = proposalIds
+    except ValueError:
+        return None
+    try:
+        [instrument_name] = instrumentNames
+    except ValueError:
+        return None
+
+    return f"/ess/data/{proposal_id}/{str(instrument_name).strip().lower()}/upload"
