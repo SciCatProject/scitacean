@@ -15,6 +15,7 @@ from scitacean import (
     Dataset,
     DatasetType,
     File,
+    Profile,
     RemotePath,
     ScicatCommError,
     Thumbnail,
@@ -138,8 +139,10 @@ def test_upload_without_files_creates_dataset(
         client.scicat.get_orig_datablocks(finalized.pid)
 
 
-def test_upload_without_files_does_not_need_file_transfer(dataset: Dataset) -> None:
-    client = FakeClient()
+def test_upload_without_files_does_not_need_file_transfer(
+    dataset: Dataset, test_profile: Profile
+) -> None:
+    client = FakeClient(profile=test_profile)
     finalized = client.upload_new_dataset_now(dataset)
     assert finalized.pid is not None
     expected = client.get_dataset(finalized.pid, attachments=True).replace(
@@ -154,9 +157,12 @@ def test_upload_without_files_does_not_need_file_transfer(dataset: Dataset) -> N
         client.scicat.get_orig_datablocks(finalized.pid)
 
 
-def test_upload_without_files_does_not_need_revert_files(dataset: Dataset) -> None:
+def test_upload_without_files_does_not_need_revert_files(
+    dataset: Dataset, test_profile: Profile
+) -> None:
     client = FakeClient(
-        disable={"create_dataset_model": ScicatCommError("Ingestion failed")}
+        profile=test_profile,
+        disable={"create_dataset_model": ScicatCommError("Ingestion failed")},
     )
     with pytest.raises(ScicatCommError):
         # Does not raise from attempting to access the file transfer.
@@ -164,7 +170,7 @@ def test_upload_without_files_does_not_need_revert_files(dataset: Dataset) -> No
 
 
 def test_upload_with_only_remote_files_does_not_need_file_transfer(
-    dataset: Dataset,
+    dataset: Dataset, test_profile: Profile
 ) -> None:
     creation_time = cast(datetime, dataset.creation_time)
     dataset.add_files(
@@ -173,7 +179,7 @@ def test_upload_with_only_remote_files_does_not_need_file_transfer(
         )
     )
 
-    client = FakeClient()
+    client = FakeClient(profile=test_profile)
     finalized = client.upload_new_dataset_now(dataset)
     assert finalized.pid is not None
     expected = client.get_dataset(finalized.pid, attachments=True).replace(
@@ -214,7 +220,7 @@ def test_upload_with_both_remote_and_local_files(
 
 
 def test_upload_with_file_with_both_remote_and_local_path(
-    client: FakeClient, dataset_with_files: Dataset
+    client: FakeClient, dataset_with_files: Dataset, test_profile: Profile
 ) -> None:
     file = File.from_remote(
         remote_path="file1.h5", size=6123, creation_time="2019-09-09T19:29:39Z"
@@ -223,7 +229,7 @@ def test_upload_with_file_with_both_remote_and_local_path(
     dataset_with_files.add_files(file)
 
     # Client w/o file transfer to ensure that the client never attempts to upload.
-    client = FakeClient()
+    client = FakeClient(profile=test_profile)
     with pytest.raises(ValueError, match="path"):
         client.upload_new_dataset_now(dataset_with_files)
 
@@ -292,7 +298,7 @@ def test_upload_rejects_files_outside_of_source_folder(
 
 
 def test_upload_does_not_create_dataset_if_file_upload_fails(
-    dataset_with_files: Dataset, fs: FakeFilesystem
+    dataset_with_files: Dataset, fs: FakeFilesystem, test_profile: Profile
 ) -> None:
     class RaisingUpload(FakeFileTransfer):
         source_dir = "/"
@@ -309,7 +315,7 @@ def test_upload_does_not_create_dataset_if_file_upload_fails(
         ) -> Iterator[UploadConnection]:
             yield self
 
-    client = FakeClient(file_transfer=RaisingUpload(fs=fs))
+    client = FakeClient(profile=test_profile, file_transfer=RaisingUpload(fs=fs))
 
     with pytest.raises(RuntimeError, match="Fake upload failure"):
         client.upload_new_dataset_now(dataset_with_files)
@@ -320,9 +326,10 @@ def test_upload_does_not_create_dataset_if_file_upload_fails(
 
 
 def test_upload_cleans_up_files_if_dataset_ingestion_fails(
-    dataset_with_files: Dataset, fs: FakeFilesystem
+    dataset_with_files: Dataset, fs: FakeFilesystem, test_profile: Profile
 ) -> None:
     client = FakeClient(
+        profile=test_profile,
         disable={"create_dataset_model": ScicatCommError("Ingestion failed")},
         file_transfer=FakeFileTransfer(fs=fs),
     )
@@ -333,9 +340,10 @@ def test_upload_cleans_up_files_if_dataset_ingestion_fails(
 
 
 def test_upload_does_not_create_dataset_if_validation_fails(
-    dataset_with_files: Dataset, fs: FakeFilesystem
+    dataset_with_files: Dataset, fs: FakeFilesystem, test_profile: Profile
 ) -> None:
     client = FakeClient(
+        profile=test_profile,
         disable={"validate_dataset_model": ValueError("Validation failed")},
         file_transfer=FakeFileTransfer(fs=fs),
     )
@@ -349,9 +357,10 @@ def test_upload_does_not_create_dataset_if_validation_fails(
 
 
 def test_failed_datablock_upload_does_not_revert(
-    dataset_with_files: Dataset, fs: FakeFilesystem
+    dataset_with_files: Dataset, fs: FakeFilesystem, test_profile: Profile
 ) -> None:
     client = FakeClient(
+        profile=test_profile,
         disable={"create_orig_datablock": ScicatCommError("Ingestion failed")},
         file_transfer=FakeFileTransfer(fs=fs),
     )
@@ -368,10 +377,11 @@ def test_failed_datablock_upload_does_not_revert(
 
 
 def test_upload_does_not_create_attachments_if_dataset_ingestion_fails(
-    attachments: list[Attachment], dataset: Dataset
+    attachments: list[Attachment], dataset: Dataset, test_profile: Profile
 ) -> None:
     dataset.attachments = attachments
     client = FakeClient(
+        profile=test_profile,
         disable={"create_dataset_model": ScicatCommError("Ingestion failed")},
         file_transfer=FakeFileTransfer(),
     )
@@ -382,10 +392,14 @@ def test_upload_does_not_create_attachments_if_dataset_ingestion_fails(
 
 
 def test_upload_does_not_create_attachments_if_datablock_ingestion_fails(
-    attachments: list[Attachment], dataset_with_files: Dataset, fs: FakeFilesystem
+    attachments: list[Attachment],
+    dataset_with_files: Dataset,
+    fs: FakeFilesystem,
+    test_profile: Profile,
 ) -> None:
     dataset_with_files.attachments = attachments
     client = FakeClient(
+        profile=test_profile,
         disable={"create_orig_datablock": ScicatCommError("Ingestion failed")},
         file_transfer=FakeFileTransfer(fs=fs),
     )
@@ -396,10 +410,14 @@ def test_upload_does_not_create_attachments_if_datablock_ingestion_fails(
 
 
 def test_failed_attachment_upload_does_not_revert(
-    attachments: list[Attachment], dataset_with_files: Dataset, fs: FakeFilesystem
+    attachments: list[Attachment],
+    dataset_with_files: Dataset,
+    fs: FakeFilesystem,
+    test_profile: Profile,
 ) -> None:
     dataset_with_files.attachments = attachments
     client = FakeClient(
+        profile=test_profile,
         disable={"create_attachment_for_dataset": ScicatCommError("Ingestion failed")},
         file_transfer=FakeFileTransfer(fs=fs),
     )

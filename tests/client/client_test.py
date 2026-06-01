@@ -10,7 +10,7 @@ from typing import Any
 
 import pytest
 
-from scitacean import PID, Client
+from scitacean import PID, Client, Profile
 from scitacean.testing.backend import config as backend_config
 from scitacean.testing.backend.seed import INITIAL_DATASETS
 from scitacean.testing.client import FakeClient
@@ -78,12 +78,13 @@ def test_connection_error_does_not_contain_token() -> None:
             assert "the token/which_must-be.kept secret" not in str(arg)
 
 
-def test_fake_can_disable_functions() -> None:
+def test_fake_can_disable_functions(test_profile: Profile) -> None:
     client = FakeClient(
+        profile=test_profile,
         disable={
             "get_dataset_model": RuntimeError("custom failure"),
             "get_orig_datablocks": IndexError("custom index error"),
-        }
+        },
     )
     with pytest.raises(RuntimeError, match="custom failure"):
         client.scicat.get_dataset_model(PID(pid="some-pid"))

@@ -9,13 +9,12 @@ import functools
 import uuid
 from collections.abc import Callable
 from copy import deepcopy
-from pathlib import Path
 from typing import Any
 
 import pydantic
 
 from .. import model
-from .._profile import Profile, make_client_params
+from .._profile import Profile, gather_login_params
 from ..client import Client, ScicatClient
 from ..error import ScicatCommError
 from ..pid import PID
@@ -110,6 +109,7 @@ class FakeClient(Client):
     def __init__(
         self,
         *,
+        profile: Profile,
         file_transfer: FileTransfer | None = None,
         disable: dict[str, Exception] | None = None,
     ) -> None:
@@ -125,7 +125,9 @@ class FakeClient(Client):
             Functions listed here raise the given exception
             when called and do nothing else.
         """
-        super().__init__(client=FakeScicatClient(self), file_transfer=file_transfer)
+        super().__init__(
+            client=FakeScicatClient(self), file_transfer=file_transfer, profile=profile
+        )
 
         self.disabled = {} if disable is None else dict(disable)
         self.datasets: dict[PID, model.DownloadDataset] = {}
@@ -138,7 +140,7 @@ class FakeClient(Client):
     @classmethod
     def from_token(
         cls,
-        profile: str | Path | Profile | None = None,
+        profile: str | Profile | None = None,
         *,
         url: str | None = None,
         token: str | StrStorage,
@@ -148,15 +150,13 @@ class FakeClient(Client):
 
         All arguments except ``file_Transfer`` are ignored.
         """
-        params = make_client_params(
-            profile=profile, url=url, file_transfer=file_transfer
-        )
-        return FakeClient(file_transfer=params.file_transfer)
+        p = gather_login_params(profile=profile, url=url, file_transfer=file_transfer)
+        return FakeClient(file_transfer=p.file_transfer, profile=p)
 
     @classmethod
     def from_credentials(
         cls,
-        profile: str | Path | Profile | None = None,
+        profile: str | Profile | None = None,
         *,
         url: str | None = None,
         username: str | StrStorage,
@@ -167,15 +167,13 @@ class FakeClient(Client):
 
         All arguments except ``file_Transfer`` are ignored.
         """
-        params = make_client_params(
-            profile=profile, url=url, file_transfer=file_transfer
-        )
-        return FakeClient(file_transfer=params.file_transfer)
+        p = gather_login_params(profile=profile, url=url, file_transfer=file_transfer)
+        return FakeClient(file_transfer=p.file_transfer, profile=p)
 
     @classmethod
     def without_login(
         cls,
-        profile: str | Path | Profile | None = None,
+        profile: str | Profile | None = None,
         *,
         url: str | None = None,
         file_transfer: FileTransfer | None = None,
@@ -184,10 +182,8 @@ class FakeClient(Client):
 
         All arguments except ``file_Transfer`` are ignored.
         """
-        params = make_client_params(
-            profile=profile, url=url, file_transfer=file_transfer
-        )
-        return FakeClient(file_transfer=params.file_transfer)
+        p = gather_login_params(profile=profile, url=url, file_transfer=file_transfer)
+        return FakeClient(file_transfer=p.file_transfer, profile=p)
 
 
 class FakeScicatClient(ScicatClient):
