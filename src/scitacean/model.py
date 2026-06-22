@@ -21,6 +21,7 @@ Dataclasses exposed to users, primarily through :class:`Dataset`.
   :template: scitacean-class-template.rst
 
   Attachment
+  AttachmentRelationship
   History
   Instrument
   Lifecycle
@@ -59,10 +60,9 @@ Pydantic models sent to SciCat in uploads.
   :toctree: ../classes
 
   UploadAttachment
-  UploadAttachmentRelationship
   UploadDatablock
-  UploadDataset
   UploadDataFile
+  UploadDataset
   UploadMeasurementPeriod
   UploadOrigDatablock
   UploadProposal
