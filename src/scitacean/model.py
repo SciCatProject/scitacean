@@ -242,7 +242,7 @@ class DownloadAttachment(BaseModel):
     createdAt: datetime | None = None
     createdBy: str | None = None
     instrumentGroup: str | None = None
-    isPublished: bool | None = None
+    isPublished: bool = False
     ownerGroup: str | None = None
     relationships: list[AttachmentRelationship] | None = None
     thumbnail: Thumbnail | None = None
@@ -269,6 +269,7 @@ class UploadAttachment(BaseModel):
     accessGroups: list[str] | None = None
     aid: str | None = None
     instrumentGroup: str | None = None
+    isPublished: bool = False
     thumbnail: Thumbnail | None = None
 
     @classmethod
@@ -661,10 +662,10 @@ class Attachment(BaseUserModel):
     access_groups: list[str] | None = None
     aid: str | None = None
     instrument_group: str | None = None
+    is_published: bool = False
     thumbnail: Thumbnail | None = None
     _created_at: datetime | None = None
     _created_by: str | None = None
-    _is_published: bool | None = None
     _updated_at: datetime | None = None
     _updated_by: str | None = None
 
@@ -675,10 +676,6 @@ class Attachment(BaseUserModel):
     @property
     def created_by(self) -> str | None:
         return self._created_by
-
-    @property
-    def is_published(self) -> bool | None:
-        return self._is_published
 
     @property
     def updated_at(self) -> datetime | None:
