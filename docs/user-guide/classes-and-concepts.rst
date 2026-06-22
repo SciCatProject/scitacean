@@ -65,7 +65,6 @@ They may contain fields that correspond to read-only fields in user models and c
 Field names use SciCat's convention, that is camelCase.
 
 Download models can be converted to user models by using the appropriate user model's ``from_download_model`` class method.
-In the case of Dataset, :meth:`scitacean.Dataset.from_download_models` requires models for a dataset and (orig) datablocks.
 
 .. _upload-models:
 

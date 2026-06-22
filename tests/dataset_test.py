@@ -158,7 +158,7 @@ def dataset_download_model(request: pytest.FixtureRequest) -> model.DownloadData
     return request.getfixturevalue(request.param)  # type: ignore[no-any-return]
 
 
-def test_from_download_models_initializes_fields(
+def test_from_download_model_initializes_fields(
     dataset_download_model: model.DownloadDataset,
 ) -> None:
     def get_model_field(name: str) -> object:
@@ -456,14 +456,14 @@ def test_attachments_are_empty_by_default() -> None:
     assert dataset.attachments == []
 
 
-def test_attachments_are_none_after_from_download_models(
+def test_attachments_are_none_after_from_download_model(
     dataset_download_model: model.DownloadDataset,
 ) -> None:
     dataset = Dataset.from_download_model(dataset_download_model)
     assert dataset.attachments is None
 
 
-def test_attachments_initialized_in_from_download_models(
+def test_attachments_initialized_in_from_download_model(
     dataset_download_model: model.DownloadDataset,
 ) -> None:
     dataset = Dataset.from_download_model(
