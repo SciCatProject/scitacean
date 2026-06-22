@@ -715,9 +715,10 @@ class ScicatClient:
         if datablocks:
             include.append("origdatablocks")
 
+        endpoint = "datasets" if self.is_authenticated else "datasets/public"
         dset_json = self.call_endpoint(
             cmd="get",
-            url=f"datasets/{quote_plus(str(pid))}",
+            url=f"{endpoint}/{quote_plus(str(pid))}",
             params={"include": include} if include else None,
             operation="get_dataset_model",
         )
@@ -1195,6 +1196,11 @@ class ScicatClient:
         if not response["valid"]:
             raise ValueError(f"Dataset {dset} did not pass validation in SciCat.")
 
+    @property
+    def is_authenticated(self) -> bool:
+        """Return True if this client is authenticated with SciCat."""
+        return self._token is not None
+
     def _send_to_scicat(
         self,
         *,
@@ -1343,6 +1349,7 @@ _API_V4_ENDPOINTS = (
     "attachments",
     "datablocks",
     "datasets",
+    "datasets/public",
     "origdatablocks",
 )
 # Replace any occurrence if 'v3' (group 1) followed by a slash or at the end of the str.
