@@ -21,6 +21,7 @@ from scitacean.testing.backend.seed import (
     INITIAL_ATTACHMENTS,
     INITIAL_DATASETS,
 )
+from scitacean.testing.client import FakeScicatClient
 
 
 @pytest.fixture
@@ -124,6 +125,11 @@ def test_create_attachment_with_existing_id(
 def test_cannot_create_attachment_without_relationships(
     scicat_client: ScicatClient, attachment: UploadAttachment
 ) -> None:
+    if not isinstance(scicat_client, FakeScicatClient):
+        pytest.skip(
+            "This test does not currently work with a real SciCat. \n"
+            "See https://github.com/SciCatProject/backend/issues/2797"
+        )
     with pytest.raises(ScicatCommError):
         scicat_client.create_attachment(attachment)
 
@@ -131,6 +137,11 @@ def test_cannot_create_attachment_without_relationships(
 def test_cannot_create_attachment_for_nonexistent_dataset(
     scicat_client: ScicatClient, attachment: UploadAttachment
 ) -> None:
+    if not isinstance(scicat_client, FakeScicatClient):
+        pytest.skip(
+            "This test does not currently work with a real SciCat. \n"
+            "See https://github.com/SciCatProject/backend/issues/2797"
+        )
     attachment.relationships = [
         AttachmentRelationship(
             targetType="dataset",
