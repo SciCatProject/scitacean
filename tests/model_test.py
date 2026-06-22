@@ -51,7 +51,7 @@ def test_can_make_upload_model(
 @given(build_user_model_for_upload(model.Attachment))
 def test_upload_attachment_fields(attachment: model.Attachment) -> None:
     upload_attachment = attachment.make_upload_model_with_target(
-        target_id="abc", target_type="dataset"
+        target_id=PID.parse("abc"), target_type="dataset"
     )
     assert upload_attachment.caption == attachment.caption
     assert upload_attachment.accessGroups == attachment.access_groups
@@ -63,7 +63,9 @@ def test_upload_attachment_fields(attachment: model.Attachment) -> None:
 def test_upload_model_rejects_non_upload_fields(attachment: model.Attachment) -> None:
     attachment._created_by = "the-creator"
     with pytest.raises(ValueError, match=r"field.*upload"):
-        attachment.make_upload_model_with_target(target_id="abc", target_type="dataset")
+        attachment.make_upload_model_with_target(
+            target_id=PID.parse("abc"), target_type="dataset"
+        )
 
 
 @settings(max_examples=10)

@@ -294,7 +294,7 @@ class FakeScicatClient(ScicatClient):
                 "The fake client requires exactly one attachment relationship. "
                 f"Got {ingested.relationships!r}."
             )
-        dataset_id: PID = ingested.relationships[0].targetId  # type: ignore[assignment]
+        dataset_id = ingested.relationships[0].targetId
         if dataset_id not in self.main.datasets:
             raise ScicatCommError(f"No dataset with id {dataset_id}")
         self.main.attachments.setdefault(PID.parse(dataset_id), []).append(ingested)

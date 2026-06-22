@@ -531,7 +531,7 @@ class DatasetBase:
         self._api_version = None
         self._created_at = None
         self._created_by = None
-        self._pid = None
+        self._pid: PID | None = None
         self._updated_at = None
         self._updated_by = None
         self._meta = meta or {}
@@ -710,7 +710,7 @@ class DatasetBase:
         return self._instrument_ids
 
     @instrument_ids.setter
-    def instrument_ids(self, instrument_ids: str | None) -> None:
+    def instrument_ids(self, instrument_ids: list[str] | None) -> None:
         self._instrument_ids = instrument_ids
 
     @property
@@ -956,7 +956,7 @@ class DatasetBase:
         self._scientific_metadata_schema = scientific_metadata_schema
 
     @property
-    def scientific_metadata_valid(self) -> str | None:
+    def scientific_metadata_valid(self) -> bool | None:
         """Whether the scientific metadata complies with the schema."""
         return self._scientific_metadata_valid
 

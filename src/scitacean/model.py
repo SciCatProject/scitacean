@@ -601,11 +601,11 @@ class DownloadSample(BaseModel):
         return validate_datetime(value)
 
     @classmethod
-    def user_model_type(cls) -> type[Sample]:
+    def user_model_type(cls) -> builtins.type[Sample]:
         return Sample
 
     @classmethod
-    def upload_model_type(cls) -> type[UploadSample]:
+    def upload_model_type(cls) -> builtins.type[UploadSample]:
         return UploadSample
 
 
@@ -624,11 +624,11 @@ class UploadSample(BaseModel):
     type: str | None = None
 
     @classmethod
-    def user_model_type(cls) -> type[Sample]:
+    def user_model_type(cls) -> builtins.type[Sample]:
         return Sample
 
     @classmethod
-    def download_model_type(cls) -> type[DownloadSample]:
+    def download_model_type(cls) -> builtins.type[DownloadSample]:
         return DownloadSample
 
 
@@ -701,7 +701,7 @@ class Attachment(BaseUserModel):
     def make_upload_model_with_target(
         self,
         *,
-        target_id: str | PID,
+        target_id: PID,
         target_type: Literal["dataset", "proposal", "sample", "published_data"],
     ) -> UploadAttachment:
         """Construct a SciCat upload model from self."""
@@ -1021,11 +1021,11 @@ class Sample(BaseUserModel):
         return UploadSample(**self._upload_model_dict())
 
     @classmethod
-    def upload_model_type(cls) -> type[UploadSample]:
+    def upload_model_type(cls) -> builtins.type[UploadSample]:
         return UploadSample
 
     @classmethod
-    def download_model_type(cls) -> type[DownloadSample]:
+    def download_model_type(cls) -> builtins.type[DownloadSample]:
         return DownloadSample
 
 
