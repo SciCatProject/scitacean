@@ -587,10 +587,14 @@ class DownloadSample(BaseModel):
     instrumentGroup: str | None = None
     isPublished: bool | None = None
     owner: str | None = None
+    parentSampleId: str | None = None
+    proposalId: str | None = None
     sampleCharacteristics: dict[str, Any] | None = None
     sampleId: str | None = None
+    sampleName: str | None = None
     updatedAt: datetime | None = None
     updatedBy: str | None = None
+    type: str | None = None
 
     @pydantic.field_validator("createdAt", "updatedAt", mode="before")
     def _validate_datetime(cls, value: Any) -> Any:
@@ -607,13 +611,17 @@ class DownloadSample(BaseModel):
 
 class UploadSample(BaseModel):
     ownerGroup: str
+    sampleName: str
     accessGroups: list[str] | None = None
     description: str | None = None
     instrumentGroup: str | None = None
     isPublished: bool | None = None
     owner: str | None = None
+    parentSampleId: str | None = None
+    proposalId: str | None = None
     sampleCharacteristics: dict[str, Any] | None = None
     sampleId: str | None = None
+    type: str | None = None
 
     @classmethod
     def user_model_type(cls) -> type[Sample]:
@@ -971,13 +979,17 @@ class Proposal(BaseUserModel):
 @dataclass(kw_only=True, slots=True)
 class Sample(BaseUserModel):
     owner_group: str
+    sample_name: str
     access_groups: list[str] | None = None
     description: str | None = None
     instrument_group: str | None = None
     is_published: bool | None = None
     owner: str | None = None
+    parent_sample_id: str | None = None
+    proposal_id: str | None = None
     sample_characteristics: dict[str, Any] | None = None
     sample_id: str | None = None
+    type: str | None = None
     _created_at: datetime | None = None
     _created_by: str | None = None
     _updated_at: datetime | None = None
