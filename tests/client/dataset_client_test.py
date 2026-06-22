@@ -103,19 +103,14 @@ def test_can_get_public_dataset_without_login(
     client = Client.without_login(url=scicat_access.url)
 
     dset = INITIAL_DATASETS["public"]
-    dblock = INITIAL_ORIG_DATABLOCKS["public"][0]
     downloaded = client.get_dataset(dset.pid, strict_validation=True)
 
     assert downloaded.source_folder == dset.sourceFolder
     assert downloaded.creation_time == dset.creationTime
     assert downloaded.access_groups == dset.accessGroups
 
-    for dset_file, expected_file in zip(
-        downloaded.files, dblock.dataFileList, strict=True
-    ):
-        assert dset_file.local_path is None
-        assert dset_file.size == expected_file.size
-        assert dset_file.creation_time == expected_file.time
+    # The public API does not return files
+    assert not downloaded.files
 
 
 def test_cannot_upload_without_login(
