@@ -939,7 +939,7 @@ def test_derive_keep_nothing(initial: Dataset) -> None:
     assert derived.input_datasets == [initial.pid]
     assert derived.lifecycle is None
 
-    assert derived.investigator is None
+    assert derived.principal_investigators is None
     assert derived.owner is None
     assert derived.name is None
     assert derived.used_software is None

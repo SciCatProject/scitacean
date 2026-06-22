@@ -729,15 +729,6 @@ class DatasetBase:
         self._instrument_ids = [instrument_id] if instrument_id is not None else None
 
     @property
-    def investigator(self) -> str | None:
-        """Legacy fallback for principal_investigator."""
-        return self.principal_investigator
-
-    @investigator.setter
-    def investigator(self, investigator: str | None) -> None:
-        self.principal_investigators = investigator
-
-    @property
     def is_published(self) -> bool | None:
         """True if dataset is publicly available."""
         return self._is_published
