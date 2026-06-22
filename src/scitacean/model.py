@@ -282,7 +282,7 @@ class UploadAttachment(BaseModel):
 
 
 class AttachmentRelationship(BaseModel):
-    targetId: str | PID
+    targetId: PID
     targetType: Literal["dataset", "proposal", "sample", "published_data"]
     relationType: str = "is attached to"
 
