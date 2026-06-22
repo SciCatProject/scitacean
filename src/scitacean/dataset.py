@@ -23,7 +23,6 @@ from .model import (
     UploadDataset,
     UploadOrigDatablock,
 )
-from .pid import PID
 from .thumbnail import Thumbnail
 
 _T = TypeVar("_T")
@@ -235,7 +234,7 @@ class Dataset(DatasetBase):
             )
         )
 
-    def add_files(self, *files: File, datablock: int | str | PID | None = None) -> None:
+    def add_files(self, *files: File, datablock: int | None = None) -> None:
         """Add files to the dataset.
 
         Parameters
@@ -249,9 +248,7 @@ class Dataset(DatasetBase):
 
             - ``None``: Use the last datablock in the list if possible
               or add a new one if needed.
-            - If an ``int``, use the datablock with that index.
-            - If a ``str`` or ``PID``, use the datablock with that id;
-              if there is none with matching id, raise ``KeyError``.
+            - Otherwise, use the datablock with that index.
         """
         _deny_conflicting_files(files, self._orig_datablocks)
         db = self._get_or_add_orig_datablock(
@@ -262,7 +259,7 @@ class Dataset(DatasetBase):
     def add_local_files(
         self,
         *paths: str | os.PathLike[str],
-        datablock: int | str | PID | None = None,
+        datablock: int | None = None,
     ) -> None:
         """Add files on the local file system to the dataset.
 
@@ -291,9 +288,7 @@ class Dataset(DatasetBase):
 
             - ``None``: Use the last datablock in the list if possible
               or add a new one if needed.
-            - If an ``int``, use the datablock with that index.
-            - If a ``str`` or ``PID``, use the datablock with that id;
-              if there is none with matching id, raise ``KeyError``.
+            - Otherwise, use the datablock with that index.
         """
         self.add_files(
             *(File.from_local(path) for path in paths),
@@ -477,18 +472,8 @@ class Dataset(DatasetBase):
         self._orig_datablocks.append(dblock)
         return dblock
 
-    def _get_existing_orig_datablock(self, key: int | str | PID) -> OrigDatablock:
-        if isinstance(key, str | PID):
-            try:
-                return next(
-                    db for db in self._orig_datablocks if db.datablock_id == key
-                )
-            except StopIteration:
-                raise KeyError(f"No OrigDatablock with id {key}") from None
-        return self._orig_datablocks[key]
-
     def _get_or_add_orig_datablock(
-        self, key: int | str | PID | None, checksum_algorithms: Iterable[str | None]
+        self, key: int | None, checksum_algorithms: Iterable[str | None]
     ) -> OrigDatablock:
         if algorithms := set(checksum_algorithms) - {None}:
             checksum_algorithm = algorithms.pop()
@@ -508,7 +493,7 @@ class Dataset(DatasetBase):
                 or self._default_checksum_algorithm
             )
 
-        existing = self._get_existing_orig_datablock(key)
+        existing = self._orig_datablocks[key]
         if (
             checksum_algorithm is not None
             and existing.checksum_algorithm != checksum_algorithm

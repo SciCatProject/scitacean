@@ -56,7 +56,6 @@ def _create_raw_dataset(client: FakeClient) -> None:
     )
     client.orig_datablocks[dataset_id] = [
         DownloadOrigDatablock(
-            _id="02dc390c-811c-4d6a-93bf-9f85a4214ca0",
             datasetId=dataset_id,
             size=len(content1) + len(content2),
             ownerGroup="uu",
