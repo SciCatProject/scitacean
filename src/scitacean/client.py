@@ -1004,9 +1004,7 @@ class ScicatClient:
             **sample_json,
         )
 
-    def create_dataset_model(
-        self, dset: model.UploadDerivedDataset | model.UploadRawDataset
-    ) -> model.DownloadDataset:
+    def create_dataset_model(self, dset: model.UploadDataset) -> model.DownloadDataset:
         """Create a new dataset in SciCat.
 
         The dataset PID must be either
@@ -1172,9 +1170,7 @@ class ScicatClient:
             model.DownloadSample, _strict_validation=False, **uploaded
         )
 
-    def validate_dataset_model(
-        self, dset: model.UploadDerivedDataset | model.UploadRawDataset
-    ) -> None:
+    def validate_dataset_model(self, dset: model.UploadDataset) -> None:
         """Validate a dataset in SciCat.
 
         Parameters

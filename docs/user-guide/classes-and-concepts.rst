@@ -77,9 +77,6 @@ Field names use SciCat's convention, that is camelCase.
 
 Upload models can be constructed by the corresponding user models using their ``to_upload_model`` method.
 
-For :class:`scitacean.Dataset`, there are two distinct upload models, namely :class:`scitacean.model.UploadRawDataset` and :class:`scitacean.model.UploadDerivedDataset`.
-In addition, :class:`scitacean.model.UploadOrigDatablock` and :class:`scitacean.model.UploadDataFile` are needed to fully represent Scitacean's ``Dataset`` objects.
-
 Downloading & uploading (meta) data
 -----------------------------------
 
