@@ -129,7 +129,7 @@ def test_derived_dataset_default_values(
     assert finalized.creationTime == datetime.fromisoformat("2000-01-01T01:01:01.000Z")
     assert finalized.datasetName == "Test derived dataset"
     assert finalized.inputDatasets == [PID(prefix="PID.prefix.a0b1", pid="abcd")]
-    assert finalized.principalInvestigator == "inv@esti.gator"
+    assert finalized.principalInvestigators == ["inv@esti.gator"]
     assert finalized.owner == scicat_access.user.username
     assert finalized.ownerGroup == scicat_access.user.group
     assert finalized.sourceFolder == "/source/folder"
@@ -150,7 +150,7 @@ def test_derived_dataset_default_values(
     assert finalized.size == 0
     assert finalized.techniques == []
     assert finalized.updatedAt  # some non-empty str
-    assert finalized.version == "3"
+    assert finalized.version == "4"
 
     # Left empty
     assert finalized.description is None is None
@@ -196,7 +196,7 @@ def test_raw_dataset_default_values(
     assert finalized.inputDatasets == []
     assert finalized.owner == scicat_access.user.username
     assert finalized.ownerGroup == scicat_access.user.group
-    assert finalized.principalInvestigator == "inv@esti.gator"
+    assert finalized.principalInvestigators == ["inv@esti.gator"]
     assert finalized.sourceFolder == "/source/folder"
     assert finalized.usedSoftware == ["software1"]
 
@@ -204,21 +204,21 @@ def test_raw_dataset_default_values(
     assert finalized.createdAt  # some non-empty str
     assert finalized.createdBy  # some non-empty str
     assert finalized.classification  # some non-empty str
-    assert finalized.instrumentId is None
+    assert finalized.instrumentIds == []
     assert finalized.isPublished is False
     assert finalized.keywords == []
     assert finalized.numberOfFiles == 0
     assert finalized.numberOfFilesArchived == 0
     assert finalized.packedSize == 0
     assert finalized.pid  # some non-empty str
-    assert finalized.proposalId is None
-    assert finalized.sampleId is None
+    assert finalized.proposalIds == []
+    assert finalized.sampleIds == []
     assert finalized.scientificMetadata == {}
     assert finalized.sharedWith == []
     assert finalized.size == 0
     assert finalized.techniques == []
     assert finalized.updatedAt  # some non-empty str
-    assert finalized.version == "3"
+    assert finalized.version == "4"
 
     # Left empty
     assert finalized.dataFormat is None
