@@ -396,7 +396,6 @@ class DatasetBase:
         "_access_groups",
         "_api_version",
         "_attachments",
-        "_attachments",
         "_classification",
         "_comment",
         "_contact_email",
