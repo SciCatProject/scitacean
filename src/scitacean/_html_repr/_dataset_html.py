@@ -156,7 +156,6 @@ def _get_fields(dset: Dataset) -> list[Field]:
         )
         for field in dset.fields()
         if field.name not in _EXCLUDED_FIELDS
-        and getattr(dset, field.name, None) is not None
     ]
     return sorted(
         sorted(fields, key=lambda field: field.name),
