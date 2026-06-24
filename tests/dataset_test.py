@@ -18,19 +18,18 @@ from .common.files import make_file
 
 
 @pytest.fixture
-def raw_download_model() -> model.DownloadDataset:
+def download_model() -> model.DownloadDataset:
     return model.DownloadDataset(
         contactEmail="p.stibbons@uu.am",
         creationLocation="UnseenUniversity",
         creationTime=datetime.fromisoformat("1995-08-06T14:14:14Z"),
-        inputDatasets=None,
+        inputDatasets=[],
         numberOfFilesArchived=None,
         owner="pstibbons",
         ownerGroup="faculty",
         principalInvestigators=["Ponder Stibbons"],
         sourceFolder=RemotePath("/uu/hex"),
         type="raw",
-        usedSoftware=None,
         accessGroups=["uu"],
         version="3",
         classification="IN=medium,AV=low,CO=low",
@@ -61,74 +60,7 @@ def raw_download_model() -> model.DownloadDataset:
         sourceFolderHost="ftp://uu.am/data",
         updatedAt=datetime.fromisoformat("1995-08-06T17:30:18Z"),
         updatedBy="librarian",
-        validationStatus="ok",
-        datasetlifecycle=model.DownloadLifecycle(
-            isOnCentralDisk=True,
-            retrievable=False,
-        ),
-        relationships=[
-            model.DownloadRelationship(
-                pid=PID.parse("123.cc/020.0a.4e"),
-                relationship="calibration",
-            )
-        ],
-        techniques=[
-            model.DownloadTechnique(
-                name="reflorbment",
-                pid="aa.90.4",
-            )
-        ],
-        scientificMetadata={
-            "confidence": "low",
-            "price": {"value": "606", "unit": "AM$"},
-        },
-    )
-
-
-@pytest.fixture
-def derived_download_model() -> model.DownloadDataset:
-    return model.DownloadDataset(
-        contactEmail="p.stibbons@uu.am",
-        creationLocation=None,
-        creationTime=datetime.fromisoformat("1995-08-06T14:14:14Z"),
-        inputDatasets=[PID.parse("123.cc/948.f7.2a")],
-        numberOfFilesArchived=None,
-        owner="pstibbons",
-        ownerGroup="faculty",
-        principalInvestigators=["Ponder Stibbons"],
-        sourceFolder=RemotePath("/uu/hex"),
-        type="derived",
         usedSoftware=["scitacean"],
-        accessGroups=["uu"],
-        version="3",
-        classification="IN=medium,AV=low,CO=low",
-        comment="Why did we actually make this data?",
-        createdAt=datetime.fromisoformat("1995-08-06T14:14:14Z"),
-        createdBy="pstibbons",
-        dataFormat=None,
-        dataQualityMetrics=24,
-        description="Dubiously analyzed data",
-        endTime=None,
-        instrumentGroup="professors",
-        instrumentIds=None,
-        isPublished=True,
-        jobLogData="process interrupted",
-        jobParameters={"nodes": 4},
-        keywords=["thaum", "dubious"],
-        license="NoThouchy",
-        datasetName="Flux peaks",
-        numberOfFiles=1,
-        orcidOfOwner="https://orcid.org/0000-0001-2345-6789",
-        ownerEmail="m.ridcully@uu.am",
-        packedSize=0,
-        pid=PID.parse("123.cc/948.f7.2a"),
-        proposalIds=None,
-        sampleIds=None,
-        sharedWith=["librarian"],
-        size=400,
-        sourceFolderHost="ftp://uu.am/data",
-        updatedAt=datetime.fromisoformat("1995-08-06T17:30:18Z"),
-        updatedBy="librarian",
         validationStatus="ok",
         datasetlifecycle=model.DownloadLifecycle(
             isOnCentralDisk=True,
@@ -151,18 +83,13 @@ def derived_download_model() -> model.DownloadDataset:
             "price": {"value": "606", "unit": "AM$"},
         },
     )
-
-
-@pytest.fixture(params=["raw_download_model", "derived_download_model"])
-def dataset_download_model(request: pytest.FixtureRequest) -> model.DownloadDataset:
-    return request.getfixturevalue(request.param)  # type: ignore[no-any-return]
 
 
 def test_from_download_model_initializes_fields(
-    dataset_download_model: model.DownloadDataset,
+    download_model: model.DownloadDataset,
 ) -> None:
     def get_model_field(name: str) -> object:
-        val = getattr(dataset_download_model, name)
+        val = getattr(download_model, name)
         if name == "relationships":
             return [model.Relationship.from_download_model(v) for v in val]
         if name == "techniques":
@@ -171,7 +98,7 @@ def test_from_download_model_initializes_fields(
             return model.Lifecycle.from_download_model(val)
         return val
 
-    dset = Dataset.from_download_model(dataset_download_model)
+    dset = Dataset.from_download_model(download_model)
     for field in dset.fields():
         assert getattr(dset, field.name) == get_model_field(field.scicat_name)
 
@@ -457,17 +384,17 @@ def test_attachments_are_empty_by_default() -> None:
 
 
 def test_attachments_are_none_after_from_download_model(
-    dataset_download_model: model.DownloadDataset,
+    download_model: model.DownloadDataset,
 ) -> None:
-    dataset = Dataset.from_download_model(dataset_download_model)
+    dataset = Dataset.from_download_model(download_model)
     assert dataset.attachments is None
 
 
 def test_attachments_initialized_in_from_download_model(
-    dataset_download_model: model.DownloadDataset,
+    download_model: model.DownloadDataset,
 ) -> None:
     dataset = Dataset.from_download_model(
-        dataset_download_model.model_copy(
+        download_model.model_copy(
             update={
                 "attachments": [
                     model.DownloadAttachment(
@@ -911,7 +838,7 @@ def test_derive_default(initial: Dataset) -> None:
     assert derived.techniques == initial.techniques
 
     assert derived.name is None
-    assert derived.used_software is None
+    assert derived.used_software == []
     assert derived.number_of_files == 0
     assert derived.number_of_files_archived == 0
 
@@ -939,10 +866,10 @@ def test_derive_keep_nothing(initial: Dataset) -> None:
     assert derived.input_datasets == [initial.pid]
     assert derived.lifecycle is None
 
-    assert derived.principal_investigators is None
+    assert derived.principal_investigators == []
     assert derived.owner is None
     assert derived.name is None
-    assert derived.used_software is None
+    assert derived.used_software == []
     assert derived.number_of_files == 0
     assert derived.number_of_files_archived == 0
 

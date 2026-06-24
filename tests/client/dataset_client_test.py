@@ -156,11 +156,6 @@ def test_dataset_with_orig_datablock_roundtrip(client: Client) -> None:
             update={"origdatablocks": INITIAL_ORIG_DATABLOCKS["raw"]}
         )
     ).as_new()
-    # Unset fields that a raw dataset should not have but where initialized
-    # in the download model.
-    ds.input_datasets = None
-    ds.used_software = None
-
     # We don't need a file transfer because all files are on remote.
     finalized = client.upload_new_dataset_now(ds)
     downloaded = client.get_dataset(finalized.pid)

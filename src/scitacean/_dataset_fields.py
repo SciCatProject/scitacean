@@ -875,7 +875,7 @@ class DatasetBase:
     @principal_investigator.setter
     def principal_investigator(self, principal_investigator: str | None) -> None:
         self._principal_investigators = (
-            [principal_investigator] if principal_investigator is not None else None
+            [principal_investigator] if principal_investigator is not None else []
         )
 
     @property
