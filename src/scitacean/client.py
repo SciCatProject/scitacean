@@ -212,7 +212,6 @@ class Client:
         attachments:
             Select whether to download attachments.
             If this is ``False``, the attachments of the returned dataset are ``None``.
-            They can be downloaded later using :meth:`Client.download_attachments_for`.
 
         Returns
         -------
@@ -292,7 +291,7 @@ class Client:
         This happens after the upload of files and the dataset itself.
         So if uploading the attachments fails, check the dataset in SciCat to
         determine which attachments you need to re-upload
-        (using :meth:`ScicatClient.create_attachment_for_dataset`).
+        (using :meth:`ScicatClient.create_attachment`).
 
         Parameters
         ----------
