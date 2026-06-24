@@ -499,7 +499,7 @@ class DatasetBase:
         self._data_quality_metrics = data_quality_metrics
         self._description = description
         self._end_time = end_time
-        self._input_datasets = input_datasets
+        self._input_datasets = input_datasets or []
         self._instrument_group = instrument_group
         self._instrument_ids = instrument_ids
         self._is_published = is_published
@@ -513,7 +513,7 @@ class DatasetBase:
         self._owner = owner
         self._owner_email = owner_email
         self._owner_group = owner_group
-        self._principal_investigators = principal_investigators
+        self._principal_investigators = principal_investigators or []
         self._proposal_ids = proposal_ids
         self._relationships = relationships
         self._run_number = run_number
@@ -525,7 +525,7 @@ class DatasetBase:
         self._source_folder_host = source_folder_host
         self._start_time = start_time
         self._techniques = _parse_techniques(techniques)
-        self._used_software = used_software
+        self._used_software = used_software or []
         self._validation_status = validation_status
         self._api_version = None
         self._created_at = None
@@ -683,7 +683,7 @@ class DatasetBase:
         self._end_time = end_time
 
     @property
-    def input_datasets(self) -> list[PID] | None:
+    def input_datasets(self) -> list[PID]:
         """Array of input dataset identifiers used in producing this dataset.
 
         Can be identifiers in the same or another federated catalogue.
@@ -691,7 +691,7 @@ class DatasetBase:
         return self._input_datasets
 
     @input_datasets.setter
-    def input_datasets(self, input_datasets: list[PID] | None) -> None:
+    def input_datasets(self, input_datasets: list[PID]) -> None:
         self._input_datasets = input_datasets
 
     @property
@@ -853,14 +853,12 @@ class DatasetBase:
         return self._pid
 
     @property
-    def principal_investigators(self) -> list[str] | None:
+    def principal_investigators(self) -> list[str]:
         """Full name of the principal investigator(s)."""
         return self._principal_investigators
 
     @principal_investigators.setter
-    def principal_investigators(
-        self, principal_investigators: list[str] | None
-    ) -> None:
+    def principal_investigators(self, principal_investigators: list[str]) -> None:
         self._principal_investigators = principal_investigators
 
     @property
@@ -1039,7 +1037,7 @@ class DatasetBase:
         return self._updated_by
 
     @property
-    def used_software(self) -> list[str] | None:
+    def used_software(self) -> list[str]:
         """Software used to create this data.
 
         Should ideally contain complete and unique identifiers such as links to
@@ -1048,7 +1046,7 @@ class DatasetBase:
         return self._used_software
 
     @used_software.setter
-    def used_software(self, used_software: list[str] | None) -> None:
+    def used_software(self, used_software: list[str]) -> None:
         self._used_software = used_software
 
     @property
