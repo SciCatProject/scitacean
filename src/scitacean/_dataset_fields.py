@@ -134,7 +134,7 @@ class DatasetBase:
         Field(
             name="creation_location",
             read_only=False,
-            required=True,
+            required=False,
             scicat_name="creationLocation",
             type=str,
         ),
@@ -176,7 +176,7 @@ class DatasetBase:
         Field(
             name="input_datasets",
             read_only=False,
-            required=True,
+            required=False,
             scicat_name="inputDatasets",
             type=list[PID],
         ),
@@ -239,7 +239,7 @@ class DatasetBase:
         Field(
             name="name",
             read_only=False,
-            required=True,
+            required=False,
             scicat_name="datasetName",
             type=str,
         ),
@@ -281,7 +281,7 @@ class DatasetBase:
         Field(
             name="principal_investigators",
             read_only=False,
-            required=True,
+            required=False,
             scicat_name="principalInvestigators",
             type=list[str],
         ),
@@ -379,7 +379,7 @@ class DatasetBase:
         Field(
             name="used_software",
             read_only=False,
-            required=True,
+            required=False,
             scicat_name="usedSoftware",
             type=list[str],
         ),
