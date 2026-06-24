@@ -427,8 +427,8 @@ def _process_orig_datablock(
 def _process_attachment(attachment: model.UploadAttachment) -> model.DownloadAttachment:
     created_at = datetime.datetime.now(tz=datetime.UTC)
     fields = _model_dict(attachment)
-    if fields.get("id") is None:
-        fields["id"] = str(uuid.uuid4())
+    if fields.get("aid") is None:
+        fields["aid"] = str(uuid.uuid4())
     if not fields["relationships"]:
         raise ScicatCommError("Attachment must have at least one relationship")
     # Using strict_validation=False because the input model should already be validated.
