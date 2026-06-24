@@ -562,6 +562,11 @@ class Client:
         ) as con:
             yield con
 
+    @property
+    def profile(self) -> Profile:
+        """Return the SciCat profile used by this client."""
+        return self._profile
+
 
 class ScicatClient:
     """Low-level client to call the SciCat API."""
