@@ -8,7 +8,6 @@ import dataclasses
 import datetime
 import json
 import re
-import warnings
 from collections import Counter
 from collections.abc import Callable, Iterable, Iterator
 from contextlib import contextmanager
@@ -577,7 +576,7 @@ class ScicatClient:
         token: str | StrStorage | None,
         timeout: datetime.timedelta | None,
     ):
-        self._base_url = url.removeprefix("/")
+        self._base_url = _normalize_api_url(url)
         self._timeout = datetime.timedelta(seconds=10) if timeout is None else timeout
         self._token: StrStorage | None = (
             ExpiringToken.from_jwt(SecretStr(token))
@@ -722,6 +721,7 @@ class ScicatClient:
         dset_json = self.call_endpoint(
             cmd="get",
             url=f"{endpoint}/{quote_plus(str(pid))}",
+            version="v4",
             params={"include": include} if include else None,
             operation="get_dataset_model",
         )
@@ -828,6 +828,7 @@ class ScicatClient:
         dsets_json = self.call_endpoint(
             cmd="get",
             url="datasets/fullquery",
+            version="v3",
             params=params,
             operation="query_datasets",
         )
@@ -1038,7 +1039,11 @@ class ScicatClient:
             fails for some other reason.
         """
         uploaded = self.call_endpoint(
-            cmd="post", url="datasets", data=dset, operation="create_dataset_model"
+            cmd="post",
+            url="datasets",
+            version="v4",
+            data=dset,
+            operation="create_dataset_model",
         )
         return model.construct(
             model.DownloadDataset, _strict_validation=False, **uploaded
@@ -1063,6 +1068,7 @@ class ScicatClient:
         uploaded = self.call_endpoint(
             cmd="post",
             url="origdatablocks",
+            version="v4",
             data=dblock,
             operation="create_orig_datablock",
         )
@@ -1092,6 +1098,7 @@ class ScicatClient:
         uploaded = self.call_endpoint(
             cmd="post",
             url="attachments",
+            version="v4",
             data=attachment,
             operation="create_attachment",
         )
@@ -1189,6 +1196,7 @@ class ScicatClient:
         response = self.call_endpoint(
             cmd="post",
             url="datasets/isValid",
+            version="v4",
             data=dset,
             operation="validate_dataset_model",
         )
@@ -1248,6 +1256,7 @@ class ScicatClient:
         operation: str,
         data: pydantic.BaseModel | None = None,
         params: dict[str, Any] | None = None,
+        version: str = "v3",
     ) -> Any:
         """Call a REST API endpoint of SciCat.
 
@@ -1268,6 +1277,8 @@ class ScicatClient:
             An optional Pydantic model to serialize and pass as the request body.
         params:
             Request params to encode in the URL.
+        version:
+            The API version to use. Should be of the form 'v3' or 'v4'.
 
         Returns
         -------
@@ -1290,7 +1301,7 @@ class ScicatClient:
         Note the use `quote_plus` for the PID. You must ensure to properly escape
         all URL components.
         """
-        full_url = _url_concat(_api_override(self._base_url, url.split("/", 1)[0]), url)
+        full_url = _url_concat(f"{self._base_url}/{version}", url)
         logger = get_logger()
         logger.info("Calling SciCat API at %s for operation '%s'", full_url, operation)
 
@@ -1344,26 +1355,10 @@ def _make_orig_datablock(
     )
 
 
-_API_V4_ENDPOINTS = (
-    "attachments",
-    "datablocks",
-    "datasets",
-    "datasets/public",
-    "origdatablocks",
-)
-# Replace any occurrence if 'v3' (group 1) followed by a slash or at the end of the str.
-_API_V4_REPLACEMENT_REGEX = re.compile(r"/(v3)(/|$)")
-
-
-def _api_override(url: str, endpoint: str) -> str:
-    if endpoint in _API_V4_ENDPOINTS:
-        if (m := _API_V4_REPLACEMENT_REGEX.search(url)) is None:
-            warnings.warn(
-                f"Failed to set API version in SciCat URL {url}", stacklevel=2
-            )
-            return url
-        a, b = m.span(1)
-        return "".join((url[:a], "v4", url[b:]))
+def _normalize_api_url(url: str) -> str:
+    url = url.rstrip("/").removesuffix("/v3").removesuffix("/v4")
+    if not url.endswith("/api"):
+        return f"{url.rstrip('/')}/api"
     return url
 
 

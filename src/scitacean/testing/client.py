@@ -342,6 +342,7 @@ class FakeScicatClient(ScicatClient):
         operation: str,
         data: pydantic.BaseModel | None = None,
         params: dict[str, str] | None = None,
+        version: str = "v3",
     ) -> Any:
         """DISABLED Call a REST API endpoint of SciCat."""
         raise RuntimeError(
