@@ -609,16 +609,7 @@ class Dataset(DatasetBase):
 
         .. versionadded:: 23.10.0
         """
-        from itertools import chain
-
-        all_fields = {field.name for field in self.fields()}
-        my_fields = {field.name for field in self.fields()}
-        other_fields = all_fields - my_fields
-        invalid_fields = (
-            f_name for f_name in other_fields if getattr(self, f_name) is not None
-        )
-
-        return chain(my_fields, invalid_fields)
+        return (field.name for field in self.fields())
 
     def values(self) -> Iterable[Any]:
         """Dict-like values(values of fields) method.
