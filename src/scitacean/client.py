@@ -219,7 +219,6 @@ class Client:
         :
             A new dataset.
         """
-        pid = PID.parse(pid)
         dataset = self.scicat.get_dataset_model(
             PID.parse(pid),
             strict_validation=strict_validation,
