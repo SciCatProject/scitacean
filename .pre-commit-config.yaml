@@ -25,7 +25,7 @@ repos:
         args: [--markdown-linebreak-ext=md]
 
   - repo: https://github.com/kynan/nbstripout
-    rev: 0.9.0
+    rev: 0.9.1
     hooks:
       - id: nbstripout
         types: [ "jupyter" ]
@@ -33,7 +33,7 @@ repos:
                 "--extra-keys 'metadata.language_info.version cell.metadata.jp-MarkdownHeadingCollapsed cell.metadata.pycharm'" ]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.0
+    rev: v0.15.18
     hooks:
       - id: ruff
         args: [ --fix ]
@@ -59,7 +59,7 @@ repos:
         files: "justfile"
 
   - repo: https://github.com/crate-ci/typos
-    rev: v1.43.4
+    rev: v1.47.2
     hooks:
       - id: typos
         args: [--force-exclude]
@@ -74,6 +74,6 @@ repos:
       - id: text-unicode-replacement-char
 
   - repo: https://github.com/rhysd/actionlint
-    rev: v1.7.10
+    rev: v1.7.12
     hooks:
       - id: actionlint
