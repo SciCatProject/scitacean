@@ -63,7 +63,9 @@ def test_init_dataset_can_set_creation_time() -> None:
     assert abs(dset.creation_time - datetime.now(tz=UTC)) < timedelta(seconds=30)
 
 
-@pytest.mark.parametrize("field", Dataset.fields(read_only=True), ids=lambda f: f.name)
+@pytest.mark.parametrize(
+    "field", list(Dataset.fields(read_only=True)), ids=lambda f: f.name
+)
 def test_cannot_set_read_only_fields(field: Dataset.Field) -> None:
     dset = Dataset(type="raw")
     with pytest.raises(AttributeError):
@@ -72,11 +74,11 @@ def test_cannot_set_read_only_fields(field: Dataset.Field) -> None:
 
 @pytest.mark.parametrize(
     "field",
-    (
+    [
         f
         for f in Dataset.fields(read_only=False)
         if f.name not in ("type", *_UNGENERATABLE_FIELDS)
-    ),
+    ],
     ids=lambda f: f.name,
 )
 @given(st.data())
@@ -89,7 +91,7 @@ def test_can_init_writable_fields(field: Dataset.Field, data: st.DataObject) -> 
 
 @pytest.mark.parametrize(
     "field",
-    (f for f in Dataset.fields(read_only=False) if f.name not in _UNGENERATABLE_FIELDS),
+    [f for f in Dataset.fields(read_only=False) if f.name not in _UNGENERATABLE_FIELDS],
     ids=lambda f: f.name,
 )
 @given(st.data())
@@ -103,7 +105,7 @@ def test_can_set_writable_fields(field: Dataset.Field, data: st.DataObject) -> N
 
 @pytest.mark.parametrize(
     "field",
-    (f for f in Dataset.fields() if not f.read_only),
+    [f for f in Dataset.fields() if not f.read_only],
     ids=lambda f: f.name,
 )
 def test_can_set_writable_fields_to_none(field: Dataset.Field) -> None:

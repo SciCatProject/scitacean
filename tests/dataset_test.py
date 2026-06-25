@@ -544,11 +544,11 @@ _UNGENERATABLE_FIELDS = ("job_parameters", "meta")
 # where the new value is not the same as the old value.
 @pytest.mark.parametrize(
     "field",
-    (
+    [
         f
         for f in Dataset.fields(read_only=False)
         if f.type is not bool and f.name not in _UNGENERATABLE_FIELDS
-    ),
+    ],
     ids=lambda f: f.name,
 )
 @given(sst.datasets(), st.data())
@@ -641,11 +641,11 @@ def test_neq_mismatched_attachment(initial: Dataset) -> None:
 
 @pytest.mark.parametrize(
     "field",
-    (
+    [
         field
         for field in Dataset.fields(read_only=False)
         if field.name not in _UNGENERATABLE_FIELDS
-    ),
+    ],
     ids=lambda f: f.name,
 )
 @given(sst.datasets(), st.data())
@@ -660,7 +660,7 @@ def test_replace_replaces_single_writable_field(
 
 @pytest.mark.parametrize(
     "field",
-    (
+    [
         field
         for field in Dataset.fields(read_only=True)
         if field.name
@@ -671,7 +671,7 @@ def test_replace_replaces_single_writable_field(
             "size",
             "packed_size",
         )
-    ),
+    ],
     ids=lambda f: f.name,
 )
 @given(sst.datasets(), st.data())

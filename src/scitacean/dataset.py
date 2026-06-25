@@ -767,4 +767,3 @@ def _select_non_none_value(a: _T | None, b: _T | None) -> _T | None:
             return x
         case (x, _):  # Prefer a over b
             return x
-    return None  #  This should be unreachable but Mypy complains without it.
