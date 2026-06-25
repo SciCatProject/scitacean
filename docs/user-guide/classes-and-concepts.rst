@@ -65,7 +65,6 @@ They may contain fields that correspond to read-only fields in user models and c
 Field names use SciCat's convention, that is camelCase.
 
 Download models can be converted to user models by using the appropriate user model's ``from_download_model`` class method.
-In the case of Dataset, :meth:`scitacean.Dataset.from_download_models` requires models for a dataset and (orig) datablocks.
 
 .. _upload-models:
 
@@ -76,9 +75,6 @@ Upload models are `Pydantic <https://docs.pydantic.dev/latest/>`_ models that en
 Field names use SciCat's convention, that is camelCase.
 
 Upload models can be constructed by the corresponding user models using their ``to_upload_model`` method.
-
-For :class:`scitacean.Dataset`, there are two distinct upload models, namely :class:`scitacean.model.UploadRawDataset` and :class:`scitacean.model.UploadDerivedDataset`.
-In addition, :class:`scitacean.model.UploadOrigDatablock` and :class:`scitacean.model.UploadDataFile` are needed to fully represent Scitacean's ``Dataset`` objects.
 
 Downloading & uploading (meta) data
 -----------------------------------

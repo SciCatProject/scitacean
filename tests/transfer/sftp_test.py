@@ -482,7 +482,7 @@ def test_client_with_sftp(
         name="Secret Thaum Storage",
         owner="PonderStibbons",
         owner_group="uu",
-        principal_investigator="MustrumRidcully",
+        principal_investigators=["MustrumRidcully"],
         source_folder="/data",
         type="raw",
     )

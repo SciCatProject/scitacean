@@ -13,7 +13,6 @@ from scitacean import (
     Attachment,
     Client,
     Dataset,
-    DatasetType,
     File,
     Profile,
     RemotePath,
@@ -38,7 +37,7 @@ def get_file_transfer(client: Client) -> FakeFileTransfer:
 def dataset() -> Dataset:
     return Dataset(
         access_groups=["group1", "second_group"],
-        investigator="ridcully@uu.am",
+        principal_investigators=["ridcully@uu.am"],
         contact_email="p.stibbons@uu.am",
         source_folder="/hex/source123",
         creation_time=datetime.fromisoformat("2011-08-24T12:34:56Z"),
@@ -52,7 +51,7 @@ def dataset() -> Dataset:
             "temperature": {"value": "123", "unit": "K"},
             "weight": {"value": "42", "unit": "mg"},
         },
-        type=DatasetType.DERIVED,
+        type="derived",
     )
 
 
@@ -135,8 +134,6 @@ def test_upload_without_files_creates_dataset(
         }
     )
     assert finalized == expected
-    with pytest.raises(ScicatCommError):
-        client.scicat.get_orig_datablocks(finalized.pid)
 
 
 def test_upload_without_files_does_not_need_file_transfer(
@@ -153,8 +150,6 @@ def test_upload_without_files_does_not_need_file_transfer(
         }
     )
     assert finalized == expected
-    with pytest.raises(ScicatCommError):
-        client.scicat.get_orig_datablocks(finalized.pid)
 
 
 def test_upload_without_files_does_not_need_revert_files(
@@ -418,7 +413,7 @@ def test_failed_attachment_upload_does_not_revert(
     dataset_with_files.attachments = attachments
     client = FakeClient(
         profile=test_profile,
-        disable={"create_attachment_for_dataset": ScicatCommError("Ingestion failed")},
+        disable={"create_attachment": ScicatCommError("Ingestion failed")},
         file_transfer=FakeFileTransfer(fs=fs),
     )
     with pytest.raises(RuntimeError):

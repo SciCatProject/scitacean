@@ -8,7 +8,6 @@ from __future__ import annotations
 import dataclasses
 from collections.abc import Iterable
 from datetime import datetime
-from enum import StrEnum
 from typing import (
     Any,
     TypeVar,
@@ -20,13 +19,6 @@ import pydantic
 from ._internal.orcid import parse_orcid_id
 from .filesystem import RemotePath
 from .logging import get_logger
-
-
-class DatasetType(StrEnum):
-    """Type of Dataset."""
-
-    RAW = "raw"
-    DERIVED = "derived"
 
 
 class BaseModel(pydantic.BaseModel):

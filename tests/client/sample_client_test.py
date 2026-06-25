@@ -51,6 +51,8 @@ def sample(ingestor_access: backend_config.SciCatAccess) -> Sample:
         description="A test sample for Scitacean",
         owner=scicat_access.user.username,
         sample_characteristics={"layers": ["H2O", "EtOH"], "mass": 2},
+        sample_name="TestSample",
+        type="testicious",
     )
 
 

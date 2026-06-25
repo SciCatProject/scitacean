@@ -7,20 +7,21 @@ from datetime import datetime
 
 import pytest
 
-from scitacean import PID, Client, ScicatCommError, Thumbnail
+from scitacean import PID, Client, RemotePath, ScicatCommError, Thumbnail
 from scitacean.client import ScicatClient
 from scitacean.model import (
     Attachment,
-    DatasetType,
+    AttachmentRelationship,
     DownloadAttachment,
     UploadAttachment,
-    UploadDerivedDataset,
+    UploadDataset,
 )
 from scitacean.testing.backend import config as backend_config
 from scitacean.testing.backend.seed import (
     INITIAL_ATTACHMENTS,
     INITIAL_DATASETS,
 )
+from scitacean.testing.client import FakeScicatClient
 
 
 @pytest.fixture
@@ -29,15 +30,15 @@ def scicat_client(client: Client) -> ScicatClient:
 
 
 @pytest.fixture
-def derived_dataset(scicat_access: backend_config.SciCatAccess) -> UploadDerivedDataset:
-    return UploadDerivedDataset(
+def derived_dataset(scicat_access: backend_config.SciCatAccess) -> UploadDataset:
+    return UploadDataset(
         datasetName="Koelsche Lieder",
         contactEmail="black.foess@dom.koelle",
         creationTime=datetime.fromisoformat("1995-11-11T11:11:11.000Z"),
         owner="bfoess",
-        investigator="b.foess@dom.koelle",
-        sourceFolder="/dom/platt",
-        type=DatasetType.DERIVED,
+        principalInvestigators=["b.foess@dom.koelle"],
+        sourceFolder=RemotePath("/dom/platt"),
+        type="derived",
         inputDatasets=[],
         usedSoftware=[],
         ownerGroup=scicat_access.user.group,
@@ -53,6 +54,7 @@ def attachment(scicat_access: backend_config.SciCatAccess) -> UploadAttachment:
         thumbnail=Thumbnail(mime="image/png", data=b"9278c78a904jh"),
         ownerGroup=scicat_access.user.group,
         accessGroups=["group1", "second_group"],
+        relationships=[],
     )
 
 
@@ -67,124 +69,101 @@ def compare_attachment_after_upload(
 
 
 def sorted_attachments(
-    attachments: list[DownloadAttachment],
-) -> list[DownloadAttachment]:
-    return sorted(attachments, key=lambda a: str(a.id))
+    attachments: list[DownloadAttachment] | list[Attachment] | None,
+) -> list[DownloadAttachment | Attachment]:
+    if attachments is None:
+        raise ValueError("Missing attachments")
+    return sorted(attachments, key=lambda a: str(a.aid))
 
 
-def test_create_attachment_for_dataset(
+def test_create_attachment(
     scicat_client: ScicatClient,
     attachment: UploadAttachment,
-    derived_dataset: UploadDerivedDataset,
+    derived_dataset: UploadDataset,
 ) -> None:
     attachment1 = deepcopy(attachment)
     attachment2 = deepcopy(attachment)
     attachment2.caption = "Another attachment"
 
     dataset_id = scicat_client.create_dataset_model(derived_dataset).pid
+    assert dataset_id is not None
+    attachment1.relationships = [
+        AttachmentRelationship(targetType="dataset", targetId=dataset_id)
+    ]
+    attachment2.relationships = [
+        AttachmentRelationship(targetType="dataset", targetId=dataset_id)
+    ]
 
-    finalized1 = scicat_client.create_attachment_for_dataset(
-        attachment1, dataset_id=dataset_id
-    )
-    attachment1.datasetId = dataset_id
+    finalized1 = scicat_client.create_attachment(attachment1)
     compare_attachment_after_upload(attachment1, finalized1)
 
-    finalized2 = scicat_client.create_attachment_for_dataset(
-        attachment2, dataset_id=dataset_id
-    )
-    attachment2.datasetId = dataset_id
+    finalized2 = scicat_client.create_attachment(attachment2)
     compare_attachment_after_upload(attachment2, finalized2)
 
 
 @pytest.mark.skip("https://github.com/SciCatProject/scicat-backend-next/issues/2254")
-def test_create_attachment_for_dataset_with_existing_id(
+def test_create_attachment_with_existing_id(
     real_client: Client,
     attachment: UploadAttachment,
-    derived_dataset: UploadDerivedDataset,
+    derived_dataset: UploadDataset,
     require_scicat_backend: None,
 ) -> None:
     scicat_client = real_client.scicat
 
     dataset_id = scicat_client.create_dataset_model(derived_dataset).pid
-    attachment.id = "attachment-id"
-    scicat_client.create_attachment_for_dataset(attachment, dataset_id=dataset_id)
+    assert dataset_id is not None
+    attachment.relationships = [
+        AttachmentRelationship(targetType="dataset", targetId=dataset_id)
+    ]
+    attachment.aid = "attachment-id"
+    scicat_client.create_attachment(attachment)
 
     with pytest.raises(ScicatCommError):
-        scicat_client.create_attachment_for_dataset(attachment, dataset_id=dataset_id)
+        scicat_client.create_attachment(attachment)
 
 
-def test_cannot_create_attachment_for_dataset_for_nonexistent_dataset(
+def test_cannot_create_attachment_without_relationships(
     scicat_client: ScicatClient, attachment: UploadAttachment
 ) -> None:
-    with pytest.raises(ScicatCommError):
-        scicat_client.create_attachment_for_dataset(
-            attachment, dataset_id=PID(pid="nonexistent-id")
+    if not isinstance(scicat_client, FakeScicatClient):
+        pytest.skip(
+            "This test does not currently work with a real SciCat. \n"
+            "See https://github.com/SciCatProject/backend/issues/2797"
         )
+    with pytest.raises(ScicatCommError):
+        scicat_client.create_attachment(attachment)
 
 
-def test_create_attachment_for_dataset_for_dataset_populates_ids(
-    scicat_client: ScicatClient,
-    attachment: UploadAttachment,
-    derived_dataset: UploadDerivedDataset,
+def test_cannot_create_attachment_for_nonexistent_dataset(
+    scicat_client: ScicatClient, attachment: UploadAttachment
 ) -> None:
-    assert attachment.id is None
-    assert attachment.datasetId is None
-    assert attachment.sampleId is None
-    assert attachment.proposalId is None
-
-    dataset_id = scicat_client.create_dataset_model(derived_dataset).pid
-
-    finalized = scicat_client.create_attachment_for_dataset(
-        attachment, dataset_id=dataset_id
-    )
-
-    assert finalized.id is not None
-    assert finalized.datasetId is not None
-    assert finalized.sampleId is None
-    assert finalized.proposalId is None
-
-
-def test_get_attachments_for_dataset(scicat_client: ScicatClient) -> None:
-    dset = INITIAL_DATASETS["derived"]
-    attachments = scicat_client.get_attachments_for_dataset(dset.pid)
-    assert sorted_attachments(attachments) == sorted_attachments(
-        INITIAL_ATTACHMENTS["derived"]
-    )
-
-
-def test_get_attachments_for_dataset_no_attachments(
-    scicat_client: ScicatClient,
-) -> None:
-    assert INITIAL_ATTACHMENTS.get("raw") is None
-    dset = INITIAL_DATASETS["raw"]
-    attachments = scicat_client.get_attachments_for_dataset(dset.pid)
-    assert attachments == []
+    if not isinstance(scicat_client, FakeScicatClient):
+        pytest.skip(
+            "This test does not currently work with a real SciCat. \n"
+            "See https://github.com/SciCatProject/backend/issues/2797"
+        )
+    attachment.relationships = [
+        AttachmentRelationship(
+            targetType="dataset",
+            targetId=PID(pid="nonexistent-id"),
+        )
+    ]
+    with pytest.raises(ScicatCommError):
+        scicat_client.create_attachment(attachment)
 
 
 @pytest.mark.parametrize("key", ["raw", "derived"])
 def test_get_dataset_does_not_initialise_attachments(client: Client, key: str) -> None:
     dset = INITIAL_DATASETS["derived"]
+    assert dset.pid is not None
     downloaded = client.get_dataset(dset.pid)
     assert downloaded.attachments is None
 
 
 @pytest.mark.parametrize("key", ["raw", "derived"])
-def test_download_attachments_for_dataset(client: Client, key: str) -> None:
-    dset = INITIAL_DATASETS[key]
-    downloaded = client.get_dataset(dset.pid)
-    with_attachments = client.download_attachments_for(downloaded)
-    expected = [
-        Attachment.from_download_model(attachment)
-        for attachment in INITIAL_ATTACHMENTS.get(key, ())
-    ]
-    assert sorted_attachments(with_attachments.attachments) == sorted_attachments(
-        expected
-    )
-
-
-@pytest.mark.parametrize("key", ["raw", "derived"])
 def test_get_dataset_with_attachments(client: Client, key: str) -> None:
     dset = INITIAL_DATASETS[key]
+    assert dset.pid is not None
     downloaded = client.get_dataset(dset.pid, attachments=True)
     expected = [
         Attachment.from_download_model(attachment)

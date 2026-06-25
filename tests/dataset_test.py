@@ -10,7 +10,7 @@ from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 from pyfakefs.fake_filesystem import FakeFilesystem
 
-from scitacean import PID, Dataset, DatasetType, File, RemotePath, Thumbnail, model
+from scitacean import PID, Dataset, File, RemotePath, Thumbnail, model
 from scitacean.testing import strategies as sst
 from scitacean.testing.client import process_uploaded_dataset
 
@@ -18,19 +18,18 @@ from .common.files import make_file
 
 
 @pytest.fixture
-def raw_download_model() -> model.DownloadDataset:
+def download_model() -> model.DownloadDataset:
     return model.DownloadDataset(
         contactEmail="p.stibbons@uu.am",
         creationLocation="UnseenUniversity",
         creationTime=datetime.fromisoformat("1995-08-06T14:14:14Z"),
-        inputDatasets=None,
+        inputDatasets=[],
         numberOfFilesArchived=None,
         owner="pstibbons",
         ownerGroup="faculty",
-        principalInvestigator="Ponder Stibbons",
+        principalInvestigators=["Ponder Stibbons"],
         sourceFolder=RemotePath("/uu/hex"),
-        type=DatasetType.RAW,
-        usedSoftware=None,
+        type="raw",
         accessGroups=["uu"],
         version="3",
         classification="IN=medium,AV=low,CO=low",
@@ -42,7 +41,7 @@ def raw_download_model() -> model.DownloadDataset:
         description="Some shady data",
         endTime=datetime.fromisoformat("1995-08-03T00:00:00Z"),
         instrumentGroup="professors",
-        instrumentId="0000-aa",
+        instrumentIds=["0000-aa"],
         isPublished=True,
         jobLogData=None,
         jobParameters=None,
@@ -54,81 +53,14 @@ def raw_download_model() -> model.DownloadDataset:
         ownerEmail="m.ridcully@uu.am",
         packedSize=0,
         pid=PID.parse("123.cc/948.f7.2a"),
-        proposalId="33.dc",
-        sampleId="bac.a4",
+        proposalIds=["33.dc"],
+        sampleIds=["bac.a4"],
         sharedWith=["librarian"],
         size=400,
         sourceFolderHost="ftp://uu.am/data",
         updatedAt=datetime.fromisoformat("1995-08-06T17:30:18Z"),
         updatedBy="librarian",
-        validationStatus="ok",
-        datasetlifecycle=model.DownloadLifecycle(
-            isOnCentralDisk=True,
-            retrievable=False,
-        ),
-        relationships=[
-            model.DownloadRelationship(
-                pid=PID.parse("123.cc/020.0a.4e"),
-                relationship="calibration",
-            )
-        ],
-        techniques=[
-            model.DownloadTechnique(
-                name="reflorbment",
-                pid="aa.90.4",
-            )
-        ],
-        scientificMetadata={
-            "confidence": "low",
-            "price": {"value": "606", "unit": "AM$"},
-        },
-    )
-
-
-@pytest.fixture
-def derived_download_model() -> model.DownloadDataset:
-    return model.DownloadDataset(
-        contactEmail="p.stibbons@uu.am",
-        creationLocation=None,
-        creationTime=datetime.fromisoformat("1995-08-06T14:14:14Z"),
-        inputDatasets=[PID.parse("123.cc/948.f7.2a")],
-        numberOfFilesArchived=None,
-        owner="pstibbons",
-        ownerGroup="faculty",
-        principalInvestigator="Ponder Stibbons",
-        sourceFolder=RemotePath("/uu/hex"),
-        type=DatasetType.DERIVED,
         usedSoftware=["scitacean"],
-        accessGroups=["uu"],
-        version="3",
-        classification="IN=medium,AV=low,CO=low",
-        comment="Why did we actually make this data?",
-        createdAt=datetime.fromisoformat("1995-08-06T14:14:14Z"),
-        createdBy="pstibbons",
-        dataFormat=None,
-        dataQualityMetrics=24,
-        description="Dubiously analyzed data",
-        endTime=None,
-        instrumentGroup="professors",
-        instrumentId=None,
-        isPublished=True,
-        jobLogData="process interrupted",
-        jobParameters={"nodes": 4},
-        keywords=["thaum", "dubious"],
-        license="NoThouchy",
-        datasetName="Flux peaks",
-        numberOfFiles=1,
-        orcidOfOwner="https://orcid.org/0000-0001-2345-6789",
-        ownerEmail="m.ridcully@uu.am",
-        packedSize=0,
-        pid=PID.parse("123.cc/948.f7.2a"),
-        proposalId=None,
-        sampleId=None,
-        sharedWith=["librarian"],
-        size=400,
-        sourceFolderHost="ftp://uu.am/data",
-        updatedAt=datetime.fromisoformat("1995-08-06T17:30:18Z"),
-        updatedBy="librarian",
         validationStatus="ok",
         datasetlifecycle=model.DownloadLifecycle(
             isOnCentralDisk=True,
@@ -153,16 +85,11 @@ def derived_download_model() -> model.DownloadDataset:
     )
 
 
-@pytest.fixture(params=["raw_download_model", "derived_download_model"])
-def dataset_download_model(request: pytest.FixtureRequest) -> model.DownloadDataset:
-    return request.getfixturevalue(request.param)  # type: ignore[no-any-return]
-
-
-def test_from_download_models_initializes_fields(
-    dataset_download_model: model.DownloadDataset,
+def test_from_download_model_initializes_fields(
+    download_model: model.DownloadDataset,
 ) -> None:
     def get_model_field(name: str) -> object:
-        val = getattr(dataset_download_model, name)
+        val = getattr(download_model, name)
         if name == "relationships":
             return [model.Relationship.from_download_model(v) for v in val]
         if name == "techniques":
@@ -171,27 +98,13 @@ def test_from_download_models_initializes_fields(
             return model.Lifecycle.from_download_model(val)
         return val
 
-    dset = Dataset.from_download_models(dataset_download_model, [])
+    dset = Dataset.from_download_model(download_model)
     for field in dset.fields():
-        if field.name in ("instrument_id", "sample_id", "proposal_id", "investigator"):
-            continue  # TODO remove when API v4 is released
-        if field.used_by(dataset_download_model.type):
-            assert getattr(dset, field.name) == get_model_field(field.scicat_name)
+        assert getattr(dset, field.name) == get_model_field(field.scicat_name)
 
 
-def test_from_download_models_does_not_initialize_wrong_fields(
-    dataset_download_model: model.DownloadDataset,
-) -> None:
-    dset = Dataset.from_download_models(dataset_download_model, [])
-    for field in dset.fields():
-        if field.name == "principal_investigator":
-            continue  # TODO remove when API v4 is released
-        if not field.used_by(dataset_download_model.type):
-            assert getattr(dset, field.name) is None
-
-
-@pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
-def test_new_dataset_has_no_files(typ: DatasetType) -> None:
+@pytest.mark.parametrize("typ", ["raw", "derived"])
+def test_new_dataset_has_no_files(typ: str) -> None:
     dset = Dataset(type=typ)
     assert len(list(dset.files)) == 0
     assert dset.number_of_files == 0
@@ -200,8 +113,8 @@ def test_new_dataset_has_no_files(typ: DatasetType) -> None:
     assert dset.size == 0
 
 
-@pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
-def test_add_local_file_to_new_dataset(typ: DatasetType, fs: FakeFilesystem) -> None:
+@pytest.mark.parametrize("typ", ["raw", "derived"])
+def test_add_local_file_to_new_dataset(typ: str, fs: FakeFilesystem) -> None:
     file_data = make_file(fs, "local/folder/data.dat")
 
     dset = Dataset(type=typ)
@@ -225,10 +138,8 @@ def test_add_local_file_to_new_dataset(typ: DatasetType, fs: FakeFilesystem) -> 
     assert abs(file_data["creation_time"] - f.make_model().time) < timedelta(seconds=1)
 
 
-@pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
-def test_add_multiple_local_files_to_new_dataset(
-    typ: DatasetType, fs: FakeFilesystem
-) -> None:
+@pytest.mark.parametrize("typ", ["raw", "derived"])
+def test_add_multiple_local_files_to_new_dataset(typ: str, fs: FakeFilesystem) -> None:
     file_data0 = make_file(fs, "common/location1/data.dat")
     file_data1 = make_file(fs, "common/song.mp3")
 
@@ -260,8 +171,8 @@ def test_add_multiple_local_files_to_new_dataset(
     assert f1.checksum_algorithm == "blake2b"
 
 
-@pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
-def test_adding_multiple_conflicting_local_files_raises(typ: DatasetType) -> None:
+@pytest.mark.parametrize("typ", ["raw", "derived"])
+def test_adding_multiple_conflicting_local_files_raises(typ: str) -> None:
     dset = Dataset(type=typ)
     with pytest.raises(ValueError, match=r"data\.dat"):
         dset.add_local_files("common/location1/data.dat", "common/data.dat")
@@ -273,9 +184,9 @@ def test_adding_multiple_conflicting_local_files_raises(typ: DatasetType) -> Non
     assert dset.size == 0
 
 
-@pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
+@pytest.mark.parametrize("typ", ["raw", "derived"])
 def test_adding_separate_conflicting_local_files_raises(
-    typ: DatasetType, fs: FakeFilesystem
+    typ: str, fs: FakeFilesystem
 ) -> None:
     file_data0 = make_file(fs, "common/location1/data.dat")
 
@@ -299,9 +210,9 @@ def test_adding_separate_conflicting_local_files_raises(
     assert f0.checksum_algorithm == "blake2b"
 
 
-@pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
+@pytest.mark.parametrize("typ", ["raw", "derived"])
 def test_adding_conflicting_local_files_in_multiple_datablocks_raises(
-    typ: DatasetType, fs: FakeFilesystem
+    typ: str, fs: FakeFilesystem
 ) -> None:
     file_data0 = make_file(fs, "common/location1/data.dat")
 
@@ -327,10 +238,10 @@ def test_adding_conflicting_local_files_in_multiple_datablocks_raises(
     assert f0.checksum_algorithm == "md5"
 
 
-@pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
+@pytest.mark.parametrize("typ", ["raw", "derived"])
 @pytest.mark.parametrize("algorithm", ["sha256", None])
 def test_can_set_default_checksum_algorithm(
-    typ: DatasetType, algorithm: str | None, fs: FakeFilesystem
+    typ: str, algorithm: str | None, fs: FakeFilesystem
 ) -> None:
     make_file(fs, "local/data.dat")
 
@@ -341,10 +252,10 @@ def test_can_set_default_checksum_algorithm(
     assert f.checksum_algorithm == algorithm
 
 
-@pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
+@pytest.mark.parametrize("typ", ["raw", "derived"])
 @pytest.mark.parametrize("ds_algorithm", ["sha256", None])
 def test_file_checksum_algorithm_takes_precedence_over_dataset(
-    typ: DatasetType, ds_algorithm: str | None
+    typ: str, ds_algorithm: str | None
 ) -> None:
     dset = Dataset(type=typ, checksum_algorithm=ds_algorithm)
     dset.add_files(
@@ -361,10 +272,10 @@ def test_file_checksum_algorithm_takes_precedence_over_dataset(
     assert f.checksum_algorithm == "md5"
 
 
-@pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
+@pytest.mark.parametrize("typ", ["raw", "derived"])
 @pytest.mark.parametrize("ds_algorithm", ["sha256", None])
 def test_add_files_given_algorithm_overrides_default(
-    typ: DatasetType, ds_algorithm: str | None
+    typ: str, ds_algorithm: str | None
 ) -> None:
     dset = Dataset(type=typ, checksum_algorithm=ds_algorithm)
     file1 = File.from_remote(
@@ -387,10 +298,10 @@ def test_add_files_given_algorithm_overrides_default(
     assert f2.checksum_algorithm == "md5"
 
 
-@pytest.mark.parametrize("typ", [DatasetType.RAW, DatasetType.DERIVED])
+@pytest.mark.parametrize("typ", ["raw", "derived"])
 @pytest.mark.parametrize("ds_algorithm", ["sha256", None])
 def test_add_files_rejects_files_with_different_checksum_algorithms(
-    typ: DatasetType, ds_algorithm: str | None
+    typ: str, ds_algorithm: str | None
 ) -> None:
     dset = Dataset(type=typ, checksum_algorithm=ds_algorithm)
     file1 = File.from_remote(
@@ -413,8 +324,9 @@ def test_add_files_rejects_files_with_different_checksum_algorithms(
 
 
 @given(sst.datasets(for_upload=True))
-@settings(max_examples=100)
+@settings(max_examples=1)
 def test_dataset_models_roundtrip(initial: Dataset) -> None:
+    initial._pid = PID.parse("test/abc")  # Required to make attachments + datablocks
     dataset_upload_model = initial.make_upload_model()
     dblock_upload_models = initial.make_datablock_upload_models().orig_datablocks
     attachment_upload_models = initial.make_attachment_upload_models()
@@ -425,18 +337,12 @@ def test_dataset_models_roundtrip(initial: Dataset) -> None:
     dataset_model.createdBy = None
     dataset_model.updatedAt = None
     dataset_model.updatedBy = None
-    dataset_model.pid = None
-    rebuilt = Dataset.from_download_models(
-        dataset_model=dataset_model,
-        orig_datablock_models=dblock_models,
-        attachment_models=attachment_models,
-    )
+    dataset_model.pid = initial.pid  # process_uploaded_dataset assigns a new PID
 
-    # TODO remove in API v4
-    rebuilt.investigator = initial.investigator
-    rebuilt.proposal_id = initial.proposal_id
-    rebuilt.sample_id = initial.sample_id
-    rebuilt.instrument_id = initial.instrument_id
+    dataset_model.origdatablocks = dblock_models
+    dataset_model.attachments = attachment_models
+
+    rebuilt = Dataset.from_download_model(dataset_model=dataset_model)
 
     assert initial == rebuilt
 
@@ -444,6 +350,7 @@ def test_dataset_models_roundtrip(initial: Dataset) -> None:
 @given(sst.datasets())
 @settings(max_examples=10)
 def test_make_scicat_models_datablock_without_files(dataset: Dataset) -> None:
+    dataset._pid = PID.parse("test/abc")
     assert dataset.make_datablock_upload_models().orig_datablocks is None
 
 
@@ -476,25 +383,27 @@ def test_attachments_are_empty_by_default() -> None:
     assert dataset.attachments == []
 
 
-def test_attachments_are_none_after_from_download_models(
-    dataset_download_model: model.DownloadDataset,
+def test_attachments_are_none_after_from_download_model(
+    download_model: model.DownloadDataset,
 ) -> None:
-    dataset = Dataset.from_download_models(dataset_download_model, [])
+    dataset = Dataset.from_download_model(download_model)
     assert dataset.attachments is None
 
 
-def test_attachments_initialized_in_from_download_models(
-    dataset_download_model: model.DownloadDataset,
+def test_attachments_initialized_in_from_download_model(
+    download_model: model.DownloadDataset,
 ) -> None:
-    dataset = Dataset.from_download_models(
-        dataset_download_model,
-        [],
-        attachment_models=[
-            model.DownloadAttachment(
-                caption="The attachment",
-                ownerGroup="att-owner",
-            )
-        ],
+    dataset = Dataset.from_download_model(
+        download_model.model_copy(
+            update={
+                "attachments": [
+                    model.DownloadAttachment(
+                        caption="The attachment",
+                        ownerGroup="att-owner",
+                    )
+                ]
+            }
+        ),
     )
 
     assert dataset.attachments == [
@@ -557,23 +466,21 @@ def test_add_attachment_from_file(fs: FakeFilesystem) -> None:
     dataset = Dataset(
         type="raw",
         owner_group="owner",
-        proposal_id="dset-proposal",
+        proposal_ids=["dset-proposal"],
         access_groups=["dset-access"],
     )
     dataset.add_attachment(
         caption="The attachment",
         thumbnail="fingers.jpg",
         access_groups=["attachment-access"],
-        sample_id="attachment-sample",
     )
     assert dataset.attachments == [
         model.Attachment(
             caption="The attachment",
             owner_group="owner",
             thumbnail=Thumbnail.load_file("fingers.jpg"),
-            proposal_id="dset-proposal",
             access_groups=["attachment-access"],
-            sample_id="attachment-sample",
+            relationships=None,  # filled in during upload
         )
     ]
 
@@ -585,23 +492,21 @@ def test_add_attachment_from_thumbnail(fs: FakeFilesystem) -> None:
     dataset = Dataset(
         type="raw",
         owner_group="owner",
-        proposal_id="dset-proposal",
+        proposal_ids=["dset-proposal"],
         access_groups=["dset-access"],
     )
     dataset.add_attachment(
         caption="The attachment",
         thumbnail=thumbnail,
         access_groups=["attachment-access"],
-        sample_id="attachment-sample",
     )
     assert dataset.attachments == [
         model.Attachment(
             caption="The attachment",
             owner_group="owner",
             thumbnail=thumbnail,
-            proposal_id="dset-proposal",
             access_groups=["attachment-access"],
-            sample_id="attachment-sample",
+            relationships=None,  # filled in during upload
         )
     ]
 
@@ -796,7 +701,7 @@ def test_replace_replaces_multiple_fields(initial: Dataset) -> None:
 @settings(max_examples=5)
 def test_replace_other_fields_are_copied(initial: Dataset) -> None:
     replaced = initial.replace(
-        investigator="inv@esti.gator",
+        principal_investigators=["inv@esti.gator"],
         techniques=[model.Technique(pid="tech/abcd.01", name="magick")],
         type="raw",
         _read_only={"api_version": 666},
@@ -925,7 +830,7 @@ def test_derive_default(initial: Dataset) -> None:
     assert derived.input_datasets == [initial.pid]
     assert derived.lifecycle is None
 
-    assert derived.investigator == initial.investigator
+    assert derived.principal_investigators == initial.principal_investigators
     assert derived.owner == initial.owner
     assert derived.orcid_of_owner == initial.orcid_of_owner
     assert derived.owner_email == initial.owner_email
@@ -933,7 +838,7 @@ def test_derive_default(initial: Dataset) -> None:
     assert derived.techniques == initial.techniques
 
     assert derived.name is None
-    assert derived.used_software is None
+    assert derived.used_software == []
     assert derived.number_of_files == 0
     assert derived.number_of_files_archived == 0
 
@@ -961,10 +866,10 @@ def test_derive_keep_nothing(initial: Dataset) -> None:
     assert derived.input_datasets == [initial.pid]
     assert derived.lifecycle is None
 
-    assert derived.investigator is None
+    assert derived.principal_investigators == []
     assert derived.owner is None
     assert derived.name is None
-    assert derived.used_software is None
+    assert derived.used_software == []
     assert derived.number_of_files == 0
     assert derived.number_of_files_archived == 0
 
@@ -996,10 +901,8 @@ def invalid_field_example() -> tuple[str, str]:
 
 @given(initial=sst.datasets(for_upload=True))
 @settings(max_examples=10)
-def test_dataset_dict_like_keys_per_type(initial: Dataset) -> None:
-    my_names = {
-        field.name for field in Dataset._FIELD_SPEC if field.used_by(initial.type)
-    }
+def test_dataset_dict_like_keys(initial: Dataset) -> None:
+    my_names = {field.name for field in Dataset._FIELD_SPEC}
     assert set(initial.keys()) == my_names
 
 

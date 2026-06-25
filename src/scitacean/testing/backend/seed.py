@@ -16,15 +16,14 @@ from ... import model
 from ...client import Client
 from ...filesystem import RemotePath
 from ...model import (
-    DatasetType,
+    AttachmentRelationship,
     DownloadAttachment,
     DownloadDataset,
     DownloadOrigDatablock,
     UploadAttachment,
     UploadDataFile,
-    UploadDerivedDataset,
+    UploadDataset,
     UploadOrigDatablock,
-    UploadRawDataset,
     UploadTechnique,
 )
 from ...pid import PID
@@ -32,8 +31,8 @@ from ...thumbnail import Thumbnail
 from .config import SITE, SciCatAccess, ScicatUser
 
 # Dataset models to upload to the database.
-_DATASETS: dict[str, UploadRawDataset | UploadDerivedDataset] = {
-    "raw": UploadRawDataset(
+_DATASETS: dict[str, UploadDataset] = {
+    "raw": UploadDataset(
         ownerGroup="PLACEHOLDER",
         accessGroups=["uu", "faculty"],
         classification="IN=medium,AV=low,CO=low",
@@ -46,9 +45,8 @@ _DATASETS: dict[str, UploadRawDataset | UploadDerivedDataset] = {
         owner="PLACEHOLDER",
         ownerEmail="PLACE@HOLD.ER",
         sourceFolder=RemotePath("/hex/data/123"),
-        type=DatasetType.RAW,
-        investigator="Ponder Stibbons",
-        principalInvestigator="Ponder Stibbons",
+        type="raw",
+        principalInvestigators=["Ponder Stibbons"],
         creationLocation=SITE,
         techniques=[UploadTechnique(pid="DM666", name="dark_magic")],
         scientificMetadata={
@@ -59,7 +57,7 @@ _DATASETS: dict[str, UploadRawDataset | UploadDerivedDataset] = {
         usedSoftware=[],
         inputDatasets=[],
     ),
-    "derived": UploadDerivedDataset(
+    "derived": UploadDataset(
         ownerGroup="PLACEHOLDER",
         accessGroups=["uu", "faculty"],
         classification="IN=medium,AV=low,CO=low",
@@ -72,8 +70,8 @@ _DATASETS: dict[str, UploadRawDataset | UploadDerivedDataset] = {
         owner="PLACEHOLDER",
         ownerEmail="PLACE@HOLD.ER",
         sourceFolder=RemotePath("/hex/data/dd"),
-        type=DatasetType.DERIVED,
-        investigator="Ponder Stibbons",
+        type="derived",
+        principalInvestigators=["Ponder Stibbons"],
         inputDatasets=[],
         usedSoftware=["scitacean"],
         scientificMetadata={
@@ -81,7 +79,7 @@ _DATASETS: dict[str, UploadRawDataset | UploadDerivedDataset] = {
             "pressure": {"value": "8.1", "unit": "Pa"},
         },
     ),
-    "public": UploadRawDataset(
+    "public": UploadDataset(
         ownerGroup="PLACEHOLDER",
         accessGroups=["uu"],
         classification="IN=medium,AV=low,CO=low",
@@ -94,16 +92,15 @@ _DATASETS: dict[str, UploadRawDataset | UploadDerivedDataset] = {
         owner="PLACEHOLDER",
         ownerEmail="PLACE@HOLD.ER",
         sourceFolder=RemotePath("/hex/secret/stuff"),
-        type=DatasetType.RAW,
-        investigator="Mustrum Ridcully",
-        principalInvestigator="Mustrum Ridcully",
+        type="raw",
+        principalInvestigators=["Mustrum Ridcully"],
         creationLocation=SITE,
         techniques=[UploadTechnique(pid="S", name="shoes")],
         inputDatasets=[],
         usedSoftware=["scitacean"],
     ),
     "partially-broken": model.construct(
-        UploadDerivedDataset,
+        UploadDataset,
         _strict_validation=False,
         _quiet=True,
         ownerGroup="PLACEHOLDER",
@@ -121,15 +118,15 @@ _DATASETS: dict[str, UploadRawDataset | UploadDerivedDataset] = {
         ownerEmail="PLACE@HOLD.ER",
         size=-10,
         sourceFolder=RemotePath("/remote/source"),
-        type=DatasetType.DERIVED,
-        investigator="who?!",
+        type="derived",
+        principalInvestigators=["who?!"],
         inputDatasets=[],
         usedSoftware=["scitacean"],
     ),
     # The following are used by query tests,
     # so their concrete field values are important.
     # In particular, the proposal ID must not overlap with other datasets.
-    "query-raw1": model.UploadRawDataset(
+    "query-raw1": model.UploadDataset(
         ownerGroup="PLACEHOLDER",
         accessGroups=["uu", "faculty"],
         contactEmail="ponder.stibbons@uu.am",
@@ -139,15 +136,14 @@ _DATASETS: dict[str, UploadRawDataset | UploadDerivedDataset] = {
         numberOfFilesArchived=0,
         owner="PLACEHOLDER",
         sourceFolder=RemotePath("/hex/raw1"),
-        type=DatasetType.RAW,
-        principalInvestigator="investigator 1",
-        investigator="investigator 1",
+        type="raw",
+        principalInvestigators=["investigator 1"],
         creationLocation="UU",
-        proposalId="p0124",
+        proposalIds=["p0124"],
         inputDatasets=[],
         usedSoftware=["scitacean"],
     ),
-    "query-raw2": model.UploadRawDataset(
+    "query-raw2": model.UploadDataset(
         ownerGroup="PLACEHOLDER",
         accessGroups=["uu", "faculty"],
         contactEmail="ponder.stibbons@uu.am",
@@ -157,15 +153,14 @@ _DATASETS: dict[str, UploadRawDataset | UploadDerivedDataset] = {
         numberOfFilesArchived=0,
         owner="PLACEHOLDER",
         sourceFolder=RemotePath("/hex/raw2"),
-        type=DatasetType.RAW,
-        principalInvestigator="investigator 2",
-        investigator="investigator 2",
+        type="raw",
+        principalInvestigators=["investigator 2"],
         creationLocation="UU",
-        proposalId="p0124",
+        proposalIds=["p0124"],
         inputDatasets=[],
         usedSoftware=[],
     ),
-    "query-raw3": model.UploadRawDataset(
+    "query-raw3": model.UploadDataset(
         ownerGroup="PLACEHOLDER",
         accessGroups=["uu", "faculty"],
         contactEmail="ponder.stibbons@uu.am",
@@ -175,15 +170,14 @@ _DATASETS: dict[str, UploadRawDataset | UploadDerivedDataset] = {
         numberOfFilesArchived=0,
         owner="PLACEHOLDER",
         sourceFolder=RemotePath("/hex/raw3"),
-        type=DatasetType.RAW,
-        principalInvestigator="investigator 1",
-        investigator="investigator 1",
+        type="raw",
+        principalInvestigators=["investigator 1"],
         creationLocation="UU",
-        proposalId="p0124",
+        proposalIds=["p0124"],
         inputDatasets=[],
         usedSoftware=["scitacean"],
     ),
-    "query-raw4": model.UploadRawDataset(
+    "query-raw4": model.UploadDataset(
         ownerGroup="PLACEHOLDER",
         accessGroups=["uu", "faculty"],
         contactEmail="ponder.stibbons@uu.am",
@@ -193,14 +187,13 @@ _DATASETS: dict[str, UploadRawDataset | UploadDerivedDataset] = {
         numberOfFilesArchived=0,
         owner="PLACEHOLDER",
         sourceFolder=RemotePath("/hex/raw4"),
-        type=DatasetType.RAW,
-        principalInvestigator="investigator X",
-        investigator="investigator X",
+        type="raw",
+        principalInvestigators=["investigator X"],
         creationLocation="UU",
         inputDatasets=[],
         usedSoftware=[],
     ),
-    "query-derived1": model.UploadDerivedDataset(
+    "query-derived1": model.UploadDataset(
         ownerGroup="PLACEHOLDER",
         accessGroups=["uu", "faculty"],
         contactEmail="ponder.stibbons@uu.am",
@@ -210,12 +203,12 @@ _DATASETS: dict[str, UploadRawDataset | UploadDerivedDataset] = {
         numberOfFilesArchived=0,
         owner="PLACEHOLDER",
         sourceFolder=RemotePath("/hex/derived1"),
-        type=DatasetType.DERIVED,
-        investigator="investigator 1",
+        type="derived",
+        principalInvestigators=["investigator 1"],
         inputDatasets=[],
         usedSoftware=["scitacean"],
     ),
-    "query-derived2": model.UploadDerivedDataset(
+    "query-derived2": model.UploadDataset(
         ownerGroup="PLACEHOLDER",
         accessGroups=["uu", "faculty"],
         contactEmail="ponder.stibbons@uu.am",
@@ -225,8 +218,8 @@ _DATASETS: dict[str, UploadRawDataset | UploadDerivedDataset] = {
         numberOfFilesArchived=0,
         owner="PLACEHOLDER",
         sourceFolder=RemotePath("/hex/derived2"),
-        type=DatasetType.DERIVED,
-        investigator="investigator 1",
+        type="derived",
+        principalInvestigators=["investigator 1"],
         inputDatasets=[],
         usedSoftware=["scitacean"],
     ),
@@ -258,6 +251,7 @@ _ORIG_DATABLOCKS: dict[str, list[UploadOrigDatablock]] = {
                     perm="777",
                 ),
             ],
+            datasetId=PID(pid="PLACEHOLDER"),
         )
     ],
     "derived": [
@@ -275,6 +269,7 @@ _ORIG_DATABLOCKS: dict[str, list[UploadOrigDatablock]] = {
                     perm="656",
                 ),
             ],
+            datasetId=PID(pid="PLACEHOLDER"),
         )
     ],
     "public": [
@@ -292,6 +287,7 @@ _ORIG_DATABLOCKS: dict[str, list[UploadOrigDatablock]] = {
                     perm="0",
                 ),
             ],
+            datasetId=PID(pid="PLACEHOLDER"),
         )
     ],
 }
@@ -302,16 +298,25 @@ _ATTACHMENTS: dict[str, list[UploadAttachment]] = {
             caption="Process Overview",
             ownerGroup="PLACEHOLDER",
             accessGroups=["uu"],
-            datasetId=PID(pid="PLACEHOLDER"),
             thumbnail=Thumbnail(mime="image/png", data=b"nag;also;i"),
+            relationships=[
+                AttachmentRelationship(
+                    targetId=PID(pid="PLACEHOLDER"),
+                    targetType="dataset",
+                )
+            ],
         ),
         UploadAttachment(
             caption="Pretty picture no 1",
             ownerGroup="PLACEHOLDER",
             accessGroups=["uu", "faculty"],
-            datasetId=PID(pid="PLACEHOLDER"),
             thumbnail=Thumbnail(mime="image/jpeg", data=b"gj0ajs93jka2jv89a"),
-            sampleId="kjsdf",
+            relationships=[
+                AttachmentRelationship(
+                    targetId=PID(pid="PLACEHOLDER"),
+                    targetType="dataset",
+                )
+            ],
         ),
     ]
 }
@@ -324,9 +329,7 @@ INITIAL_ATTACHMENTS: dict[str, list[DownloadAttachment]] = {}
 """Initial attachments in the testing database."""
 
 
-def _apply_config_dataset(
-    dset: UploadRawDataset | UploadDerivedDataset, user: ScicatUser
-) -> UploadRawDataset | UploadDerivedDataset:
+def _apply_config_dataset(dset: UploadDataset, user: ScicatUser) -> UploadDataset:
     dset = deepcopy(dset)
     dset.owner = user.username
     dset.ownerGroup = user.group
@@ -335,16 +338,17 @@ def _apply_config_dataset(
 
 
 def _apply_config_attachment(
-    attachment: UploadAttachment, user: ScicatUser
+    attachment: UploadAttachment, user: ScicatUser, dataset_id: PID
 ) -> UploadAttachment:
     attachment = deepcopy(attachment)
     attachment.ownerGroup = user.group
+    attachment.relationships = [
+        AttachmentRelationship(targetId=dataset_id, targetType="dataset")
+    ]
     return attachment
 
 
-def _create_dataset_model(
-    client: Client, dset: UploadRawDataset | UploadDerivedDataset
-) -> DownloadDataset:
+def _create_dataset_model(client: Client, dset: UploadDataset) -> DownloadDataset:
     uploaded = client.scicat.create_dataset_model(dset)
     # pid is a str if validation fails but we need a PID for fake clients.
     uploaded.pid = PID.parse(uploaded.pid)  # type: ignore[arg-type]
@@ -371,8 +375,7 @@ def seed_database(*, client: Client, scicat_access: SciCatAccess) -> None:
     download_orig_datablocks = {
         key: [
             client.scicat.create_orig_datablock(
-                dblock,
-                dataset_id=download_datasets[key].pid,  # type: ignore[arg-type]
+                dblock.model_copy(update={"datasetId": download_datasets[key].pid})
             )
             for dblock in dblocks
         ]
@@ -389,19 +392,17 @@ def seed_database(*, client: Client, scicat_access: SciCatAccess) -> None:
 
     upload_attachments = {
         key: [
-            _apply_config_attachment(attachment, scicat_access.user)
+            _apply_config_attachment(
+                attachment,
+                scicat_access.user,
+                dataset_id=download_datasets[key].pid,  # type: ignore[arg-type]
+            )
             for attachment in attachments
         ]
         for key, attachments in _ATTACHMENTS.items()
     }
     download_attachments = {
-        key: [
-            client.scicat.create_attachment_for_dataset(
-                attachment,
-                dataset_id=download_datasets[key].pid,  # type: ignore[arg-type]
-            )
-            for attachment in attachments
-        ]
+        key: [client.scicat.create_attachment(attachment) for attachment in attachments]
         for key, attachments in upload_attachments.items()
     }
     INITIAL_ATTACHMENTS.update(download_attachments)

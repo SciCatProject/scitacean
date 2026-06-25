@@ -195,35 +195,24 @@ class FakeScicatClient(ScicatClient):
 
     @_conditionally_disabled
     def get_dataset_model(
-        self, pid: PID, strict_validation: bool = False
+        self,
+        pid: PID,
+        strict_validation: bool = False,
+        *,
+        attachments: bool = False,
+        datablocks: bool = False,
     ) -> model.DownloadDataset:
         """Fetch a dataset from SciCat."""
         _ = strict_validation  # unused by fake
         try:
-            return self.main.datasets[pid]
+            ds = self.main.datasets[pid].model_copy(deep=True)
+            if datablocks:
+                ds.origdatablocks = self.main.orig_datablocks.get(pid, [])
+            if attachments:
+                ds.attachments = self.main.attachments.get(pid, [])
+            return ds
         except KeyError:
             raise ScicatCommError(f"Unable to retrieve dataset {pid}") from None
-
-    @_conditionally_disabled
-    def get_orig_datablocks(
-        self, pid: PID, strict_validation: bool = False
-    ) -> list[model.DownloadOrigDatablock]:
-        """Fetch an orig datablock from SciCat."""
-        _ = strict_validation  # unused by fake
-        try:
-            return self.main.orig_datablocks[pid]
-        except KeyError:
-            raise ScicatCommError(
-                f"Unable to retrieve orig datablock for dataset {pid}"
-            ) from None
-
-    @_conditionally_disabled
-    def get_attachments_for_dataset(
-        self, pid: PID, strict_validation: bool = False
-    ) -> list[model.DownloadAttachment]:
-        """Fetch all attachments from SciCat for a given dataset."""
-        _ = strict_validation  # unused by fake
-        return self.main.attachments.get(pid) or []
 
     @_conditionally_disabled
     def get_instrument_model(
@@ -271,9 +260,7 @@ class FakeScicatClient(ScicatClient):
             raise ScicatCommError(f"Unable to retrieve sample {sample_id}") from None
 
     @_conditionally_disabled
-    def create_dataset_model(
-        self, dset: model.UploadDerivedDataset | model.UploadRawDataset
-    ) -> model.DownloadDataset:
+    def create_dataset_model(self, dset: model.UploadDataset) -> model.DownloadDataset:
         """Create a new dataset in SciCat."""
         ingested = _process_dataset(dset)
         pid: PID = ingested.pid  # type: ignore[assignment]
@@ -287,34 +274,30 @@ class FakeScicatClient(ScicatClient):
 
     @_conditionally_disabled
     def create_orig_datablock(
-        self, dblock: model.UploadOrigDatablock, *, dataset_id: PID
+        self, dblock: model.UploadOrigDatablock
     ) -> model.DownloadOrigDatablock:
         """Create a new orig datablock in SciCat."""
-        if (dset := self.main.datasets.get(dataset_id)) is None:
-            raise ScicatCommError(f"No dataset with id {dataset_id}")
+        if (dset := self.main.datasets.get(dblock.datasetId)) is None:
+            raise ScicatCommError(f"No dataset with id {dblock.datasetId}")
         ingested = _process_orig_datablock(dblock, dset)
-        self.main.orig_datablocks.setdefault(dataset_id, []).append(ingested)
+        self.main.orig_datablocks.setdefault(dblock.datasetId, []).append(ingested)
         return ingested
 
     @_conditionally_disabled
-    def create_attachment_for_dataset(
-        self,
-        attachment: model.UploadAttachment,
-        dataset_id: PID | None = None,
+    def create_attachment(
+        self, attachment: model.UploadAttachment
     ) -> model.DownloadAttachment:
         """Create a new attachment for a dataset in SciCat."""
-        if dataset_id is None:
-            dataset_id = attachment.datasetId
-        if dataset_id is None:
+        ingested = _process_attachment(attachment)
+        if ingested.relationships is None or len(ingested.relationships) != 1:
             raise ValueError(
-                "Cannot determine the dataset ID for attachment. "
-                "Specify the ID as a function argument or in the attachment."
+                "The fake client requires exactly one attachment relationship. "
+                f"Got {ingested.relationships!r}."
             )
-
-        ingested = _process_attachment(attachment, dataset_id)
+        dataset_id = ingested.relationships[0].targetId
         if dataset_id not in self.main.datasets:
             raise ScicatCommError(f"No dataset with id {dataset_id}")
-        self.main.attachments.setdefault(dataset_id, []).append(ingested)
+        self.main.attachments.setdefault(PID.parse(dataset_id), []).append(ingested)
         return ingested
 
     @_conditionally_disabled
@@ -346,9 +329,7 @@ class FakeScicatClient(ScicatClient):
         return ingested
 
     @_conditionally_disabled
-    def validate_dataset_model(
-        self, dset: model.UploadDerivedDataset | model.UploadRawDataset
-    ) -> None:
+    def validate_dataset_model(self, dset: model.UploadDataset) -> None:
         """Validate model remotely in SciCat."""
         # Models were locally validated on construction, assume they are valid.
         pass
@@ -361,6 +342,7 @@ class FakeScicatClient(ScicatClient):
         operation: str,
         data: pydantic.BaseModel | None = None,
         params: dict[str, str] | None = None,
+        version: str = "v3",
     ) -> Any:
         """DISABLED Call a REST API endpoint of SciCat."""
         raise RuntimeError(
@@ -392,7 +374,7 @@ def _process_data_file(file: model.UploadDataFile) -> model.DownloadDataFile:
 
 
 def _process_dataset(
-    dset: model.UploadDerivedDataset | model.UploadRawDataset,
+    dset: model.UploadDataset,
 ) -> model.DownloadDataset:
     created_at = datetime.datetime.now(tz=datetime.UTC)
     # TODO use user login if possible
@@ -405,12 +387,6 @@ def _process_dataset(
         )
     if "techniques" in fields:
         fields["techniques"] = list(map(_process_technique, fields["techniques"]))
-
-    # TODO remove in API v4
-    for singular in ("proposalId", "sampleId", "instrumentId"):
-        if singular in fields:
-            fields[singular + "s"] = [fields[singular]]
-    fields.pop("investigator")
 
     return model.construct(
         model.DownloadDataset,
@@ -444,21 +420,18 @@ def _process_orig_datablock(
         createdAt=created_at,
         updatedBy="fake",
         updatedAt=created_at,
-        datasetId=dset.pid,
         **fields,
     )
     return processed
 
 
-def _process_attachment(
-    attachment: model.UploadAttachment, dataset_id: PID | None = None
-) -> model.DownloadAttachment:
+def _process_attachment(attachment: model.UploadAttachment) -> model.DownloadAttachment:
     created_at = datetime.datetime.now(tz=datetime.UTC)
     fields = _model_dict(attachment)
-    if fields.get("id") is None:
-        fields["id"] = str(uuid.uuid4())
-    if dataset_id is not None:
-        fields["datasetId"] = dataset_id
+    if fields.get("aid") is None:
+        fields["aid"] = str(uuid.uuid4())
+    if not fields["relationships"]:
+        raise ScicatCommError("Attachment must have at least one relationship")
     # Using strict_validation=False because the input model should already be validated.
     # If there are validation errors, it was probably intended by the user.
     return model.construct(
@@ -507,7 +480,7 @@ def _process_sample(sample: model.UploadSample) -> model.DownloadSample:
 
 
 def process_uploaded_dataset(
-    dataset: model.UploadDerivedDataset | model.UploadRawDataset,
+    dataset: model.UploadDataset,
     orig_datablocks: list[model.UploadOrigDatablock] | None,
     attachments: list[model.UploadAttachment] | None,
 ) -> tuple[

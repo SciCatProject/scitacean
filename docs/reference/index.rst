@@ -48,7 +48,6 @@ Auxiliary classes
    Profile
    RemotePath
    Thumbnail
-   DatasetType
 
 Exceptions
 ~~~~~~~~~~

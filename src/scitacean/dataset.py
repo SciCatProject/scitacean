@@ -10,7 +10,7 @@ import os
 from collections import Counter
 from collections.abc import Generator, Iterable
 from datetime import UTC, datetime
-from typing import Any, Literal, TypeVar
+from typing import Any, TypeVar
 
 from ._base_model import convert_download_to_user_model, convert_user_to_upload_model
 from ._dataset_fields import DatasetBase
@@ -18,16 +18,11 @@ from .datablock import OrigDatablock
 from .file import File
 from .model import (
     Attachment,
-    DatasetType,
-    DownloadAttachment,
     DownloadDataset,
-    DownloadOrigDatablock,
     UploadAttachment,
-    UploadDerivedDataset,
+    UploadDataset,
     UploadOrigDatablock,
-    UploadRawDataset,
 )
-from .pid import PID
 from .thumbnail import Thumbnail
 
 _T = TypeVar("_T")
@@ -37,24 +32,15 @@ class Dataset(DatasetBase):
     """Metadata and linked data files for a measurement, simulation, or analysis."""
 
     @classmethod
-    def from_download_models(
-        cls,
-        dataset_model: DownloadDataset,
-        orig_datablock_models: list[DownloadOrigDatablock],
-        attachment_models: Iterable[DownloadAttachment] | None = None,
-    ) -> Dataset:
+    def from_download_model(cls, dataset_model: DownloadDataset) -> Dataset:
         """Construct a new dataset from SciCat download models.
 
         Parameters
         ----------
         dataset_model:
             Model of the dataset.
-        orig_datablock_models:
-            List of all associated original datablock models for the dataset.
-        attachment_models:
-            List of all associated attachment models for the dataset.
-            Use ``None`` if the attachments were not downloaded.
-            Use an empty list if the attachments were downloaded, but there aren't any.
+            Must contain orig datablocks and attachments if those should be
+            added to the dataset.
 
         Returns
         -------
@@ -66,18 +52,17 @@ class Dataset(DatasetBase):
         for key, val in read_only.items():
             setattr(dset, key, val)
         dset._attachments = convert_download_to_user_model(  # type: ignore[assignment]
-            attachment_models
+            dataset_model.attachments
         )
-        if orig_datablock_models is not None:
+        if dataset_model.origdatablocks is not None:
             dset._orig_datablocks.extend(
-                map(OrigDatablock.from_download_model, orig_datablock_models)
+                map(OrigDatablock.from_download_model, dataset_model.origdatablocks)
             )
         return dset
 
     @classmethod
     def fields(
         cls,
-        dataset_type: DatasetType | Literal["derived", "raw"] | None = None,
         read_only: bool | None = None,
     ) -> Generator[Dataset.Field, None, None]:
         """Iterate over dataset fields.
@@ -86,9 +71,6 @@ class Dataset(DatasetBase):
 
         Parameters
         ----------
-        dataset_type:
-            If set, return only the fields for this dataset type.
-            If unset, do not filter fields.
         read_only:
             If true or false, return only fields which are read-only
             or allow write-access, respectively.
@@ -100,13 +82,6 @@ class Dataset(DatasetBase):
             Iterable over the fields of datasets.
         """
         it = iter(DatasetBase._FIELD_SPEC)
-        if dataset_type is not None:
-            attr = (
-                "used_by_derived"
-                if dataset_type == DatasetType.DERIVED
-                else "used_by_raw"
-            )
-            it = filter(lambda field: getattr(field, attr), it)
         if read_only is not None:
             it = filter(lambda field: field.read_only == read_only, it)
         yield from it
@@ -212,8 +187,6 @@ class Dataset(DatasetBase):
         owner_group: str | None = None,
         access_groups: list[str] | None = None,
         instrument_group: str | None = None,
-        proposal_id: str | None = None,
-        sample_id: str | None = None,
     ) -> None:
         """Create a new attachment and add it to the dataset.
 
@@ -230,10 +203,6 @@ class Dataset(DatasetBase):
             Access groups of the attachment. Defaults to ``self.access_groups``.
         instrument_group:
             Instrument group of the attachment. Defaults to ``self.instrument_group``.
-        proposal_id:
-            Proposal ID of the attachment. Defaults to ``self.proposal_id``.
-        sample_id:
-            Sample ID of the attachment. Defaults to ``self.sample_id``.
         """
         if self.attachments is None:
             raise ValueError(
@@ -246,8 +215,6 @@ class Dataset(DatasetBase):
             raise ValueError("Cannot add attachments without owner group")
         access = _select_non_none_value(access_groups, self.access_groups)
         instrument = _select_non_none_value(instrument_group, self.instrument_group)
-        proposal = _select_non_none_value(proposal_id, self.proposal_id)
-        sample = _select_non_none_value(sample_id, self.sample_id)
 
         match thumbnail:
             case None:
@@ -264,12 +231,10 @@ class Dataset(DatasetBase):
                 owner_group=owner,
                 access_groups=access,
                 instrument_group=instrument,
-                proposal_id=proposal,
-                sample_id=sample,
             )
         )
 
-    def add_files(self, *files: File, datablock: int | str | PID | None = None) -> None:
+    def add_files(self, *files: File, datablock: int | None = None) -> None:
         """Add files to the dataset.
 
         Parameters
@@ -283,9 +248,7 @@ class Dataset(DatasetBase):
 
             - ``None``: Use the last datablock in the list if possible
               or add a new one if needed.
-            - If an ``int``, use the datablock with that index.
-            - If a ``str`` or ``PID``, use the datablock with that id;
-              if there is none with matching id, raise ``KeyError``.
+            - Otherwise, use the datablock with that index.
         """
         _deny_conflicting_files(files, self._orig_datablocks)
         db = self._get_or_add_orig_datablock(
@@ -296,7 +259,7 @@ class Dataset(DatasetBase):
     def add_local_files(
         self,
         *paths: str | os.PathLike[str],
-        datablock: int | str | PID | None = None,
+        datablock: int | None = None,
     ) -> None:
         """Add files on the local file system to the dataset.
 
@@ -325,9 +288,7 @@ class Dataset(DatasetBase):
 
             - ``None``: Use the last datablock in the list if possible
               or add a new one if needed.
-            - If an ``int``, use the datablock with that index.
-            - If a ``str`` or ``PID``, use the datablock with that id;
-              if there is none with matching id, raise ``KeyError``.
+            - Otherwise, use the datablock with that index.
         """
         self.add_files(
             *(File.from_local(path) for path in paths),
@@ -411,6 +372,7 @@ class Dataset(DatasetBase):
         return self.replace(
             _read_only={field.name: None for field in Dataset.fields(read_only=True)},
             creation_time=datetime.now(tz=UTC),
+            attachments=self.attachments or [],
         )
 
     def derive(
@@ -418,10 +380,10 @@ class Dataset(DatasetBase):
         *,
         keep: Iterable[str] = (
             "contact_email",
-            "investigator",
             "orcid_of_owner",
             "owner",
             "owner_email",
+            "principal_investigators",
             "techniques",
         ),
     ) -> Dataset:
@@ -452,7 +414,7 @@ class Dataset(DatasetBase):
         if self.pid is None:
             raise ValueError("Cannot make a derived datasets because self.pid is None.")
         return Dataset(
-            type=DatasetType.DERIVED,
+            type="derived",
             input_datasets=[self.pid],
             creation_time=datetime.now(tz=UTC),
             **{name: getattr(self, name) for name in keep},
@@ -510,18 +472,8 @@ class Dataset(DatasetBase):
         self._orig_datablocks.append(dblock)
         return dblock
 
-    def _get_existing_orig_datablock(self, key: int | str | PID) -> OrigDatablock:
-        if isinstance(key, str | PID):
-            try:
-                return next(
-                    db for db in self._orig_datablocks if db.datablock_id == key
-                )
-            except StopIteration:
-                raise KeyError(f"No OrigDatablock with id {key}") from None
-        return self._orig_datablocks[key]
-
     def _get_or_add_orig_datablock(
-        self, key: int | str | PID | None, checksum_algorithms: Iterable[str | None]
+        self, key: int | None, checksum_algorithms: Iterable[str | None]
     ) -> OrigDatablock:
         if algorithms := set(checksum_algorithms) - {None}:
             checksum_algorithm = algorithms.pop()
@@ -541,7 +493,7 @@ class Dataset(DatasetBase):
                 or self._default_checksum_algorithm
             )
 
-        existing = self._get_existing_orig_datablock(key)
+        existing = self._orig_datablocks[key]
         if (
             checksum_algorithm is not None
             and existing.checksum_algorithm != checksum_algorithm
@@ -552,15 +504,12 @@ class Dataset(DatasetBase):
             )
         return existing
 
-    def make_upload_model(self) -> UploadDerivedDataset | UploadRawDataset:
+    def make_upload_model(self) -> UploadDataset:
         """Construct a SciCat upload model from self."""
-        model: type[UploadRawDataset | UploadDerivedDataset] = (
-            UploadRawDataset if self.type == DatasetType.RAW else UploadDerivedDataset
-        )
         # Datablocks are not included here because they are handled separately
         # by make_datablock_upload_models and their own endpoints.
         special = ("relationships", "techniques", "input_datasets", "used_software")
-        return model(
+        return UploadDataset(
             numberOfFiles=self.number_of_files,
             numberOfFilesArchived=self.number_of_files_archived,
             size=self.size,
@@ -590,11 +539,19 @@ class Dataset(DatasetBase):
         :
             Structure with datablock and orig datablock models.
         """
+        pid = self.pid
+        if pid is None:
+            raise ValueError(
+                "Cannot make datablock upload models because the dataset has no PID. "
+                "Make sure to only call this method after uploading the dataset."
+            )
+
         if self.number_of_files == 0:
             return DatablockUploadModels(orig_datablocks=None)
+
         return DatablockUploadModels(
             orig_datablocks=[
-                dblock.make_upload_model() for dblock in self._orig_datablocks
+                dblock.make_upload_model(pid) for dblock in self._orig_datablocks
             ]
         )
 
@@ -606,18 +563,31 @@ class Dataset(DatasetBase):
         ValueError
             If ``self.attachments`` is ``None``,
             i.e., the attachments are uninitialized.
+            Or, if ``self.pid`` is ``None`` in which case the attachments
+            cannot be associated with this dataset in SciCat.
 
         Returns
         -------
         :
             List of attachment models.
         """
-        if self.attachments is None:
+        attachments = self.attachments
+        if attachments is None:
             raise ValueError(
                 "Cannot make upload models for attachments because "
                 "the attachments are uninitialized."
             )
-        return [a.make_upload_model() for a in self.attachments]
+
+        pid = self.pid
+        if pid is None:
+            raise ValueError(
+                "Cannot make attachment upload models because the dataset has no PID. "
+                "Make sure to only call this method after uploading the dataset."
+            )
+        return [
+            a.make_upload_model_with_target(target_id=pid, target_type="dataset")
+            for a in attachments
+        ]
 
     def validate(self) -> None:
         """Validate the fields of the dataset.
@@ -639,16 +609,7 @@ class Dataset(DatasetBase):
 
         .. versionadded:: 23.10.0
         """
-        from itertools import chain
-
-        all_fields = {field.name for field in self.fields()}
-        my_fields = {field.name for field in self.fields(dataset_type=self.type)}
-        other_fields = all_fields - my_fields
-        invalid_fields = (
-            f_name for f_name in other_fields if getattr(self, f_name) is not None
-        )
-
-        return chain(my_fields, invalid_fields)
+        return (field.name for field in self.fields())
 
     def values(self) -> Iterable[Any]:
         """Dict-like values(values of fields) method.

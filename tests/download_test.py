@@ -11,7 +11,7 @@ from pathlib import Path
 import pytest
 from pyfakefs.fake_filesystem import FakeFilesystem
 
-from scitacean import PID, Client, Dataset, DatasetType, File, IntegrityError
+from scitacean import PID, Client, Dataset, File, IntegrityError
 from scitacean.filesystem import RemotePath
 from scitacean.logging import logger_name
 from scitacean.model import DownloadDataFile, DownloadDataset, DownloadOrigDatablock
@@ -60,10 +60,10 @@ def dataset_and_files(
         ownerGroup="faculty",
         packedSize=0,
         pid=PID(prefix="UU.000", pid="5125.ab.663.8c9f"),
-        principalInvestigator="m.ridcully@uu.am",
+        principalInvestigators=["m.ridcully@uu.am"],
         size=sum(f.size for f in data_files[0]),  # type: ignore[misc]
         sourceFolder=RemotePath("/src/stibbons/774"),
-        type=DatasetType.RAW,
+        type="raw",
         scientificMetadata={
             "height": {"value": 0.3, "unit": "m"},
             "mass": "hefty",
@@ -74,11 +74,10 @@ def dataset_and_files(
         ownerGroup="faculty",
         size=sum(f.size for f in data_files[0]),  # type: ignore[misc]
         datasetId=PID(prefix="UU.000", pid="5125.ab.663.8c9f"),
-        _id="0941.66.abff.41de",
         dataFileList=data_files[0],
     )
-    dset = Dataset.from_download_models(
-        dataset_model=model, orig_datablock_models=[block]
+    dset = Dataset.from_download_model(
+        dataset_model=model.model_copy(update={"origdatablocks": [block]})
     )
 
     content_abs_path = {

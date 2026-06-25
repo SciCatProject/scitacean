@@ -35,7 +35,7 @@ from typing import Any
 from email_validator import EmailNotValidError, ValidatedEmail, validate_email
 from hypothesis import strategies as st
 
-from .. import Dataset, DatasetType, RemotePath, model
+from .. import Dataset, RemotePath, model
 from .._internal.orcid import orcid_id_checksum
 
 
@@ -177,7 +177,7 @@ def _field_strategy(field: Dataset.Field) -> st.SearchStrategy[Any]:
 
 
 def _make_dataset(
-    *, type: DatasetType, args: dict[str, Any], read_only: dict[str, Any]
+    *, type: str, args: dict[str, Any], read_only: dict[str, Any]
 ) -> Dataset:
     dset = Dataset(type=type, **args)
     for key, val in read_only.items():
@@ -186,7 +186,7 @@ def _make_dataset(
 
 
 def datasets(
-    type: DatasetType | None = None, for_upload: bool = False, **fields: Any
+    type: str | None = None, for_upload: bool = False, **fields: Any
 ) -> st.SearchStrategy[Dataset]:
     """A strategy for generating datasets.
 
@@ -261,7 +261,7 @@ def datasets(
             # other tests
     """
     if type is None:
-        return st.sampled_from(DatasetType).flatmap(
+        return st.sampled_from(["derived", "raw"]).flatmap(
             partial(datasets, for_upload=for_upload, **fields)
         )
 
@@ -277,7 +277,7 @@ def datasets(
     def make_args(read_only: bool) -> dict[str, st.SearchStrategy[Any]]:
         return {
             field.name: make_arg(field)
-            for field in Dataset.fields(read_only=read_only, dataset_type=type)
+            for field in Dataset.fields(read_only=read_only)
             if field.name != "type"
         }
 

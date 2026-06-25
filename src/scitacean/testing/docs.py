@@ -8,7 +8,6 @@ from datetime import datetime
 
 from ..filesystem import RemotePath
 from ..model import (
-    DatasetType,
     DownloadDataFile,
     DownloadDataset,
     DownloadOrigDatablock,
@@ -42,7 +41,7 @@ def _create_raw_dataset(client: FakeClient) -> None:
         owner="Ponder Stibbons",
         ownerGroup="uu",
         accessGroups=["faculty"],
-        principalInvestigator="p.stibbons@uu.am",
+        principalInvestigators=["p.stibbons@uu.am"],
         contactEmail="p.stibbons@uu.am",
         creationTime=datetime.fromisoformat("2022-06-29T14:01:05.000Z"),
         creationLocation="UnseenUniversity",
@@ -53,11 +52,10 @@ def _create_raw_dataset(client: FakeClient) -> None:
             "data_type": "histogram",
             "temperature": {"value": "123", "unit": "K"},
         },
-        type=DatasetType.RAW,
+        type="raw",
     )
     client.orig_datablocks[dataset_id] = [
         DownloadOrigDatablock(
-            _id="02dc390c-811c-4d6a-93bf-9f85a4214ca0",
             datasetId=dataset_id,
             size=len(content1) + len(content2),
             ownerGroup="uu",
