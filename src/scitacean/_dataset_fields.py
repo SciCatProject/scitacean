@@ -55,6 +55,14 @@ def _parse_techniques(arg: Iterable[str | Technique] | None) -> list[Technique] 
     return [t if isinstance(t, Technique) else find_technique(t) for t in arg]
 
 
+def _parse_input_datasets(arg: Iterable[PID | str] | None) -> list[PID]:
+    if arg is None:
+        return []
+    if isinstance(arg, str):
+        arg = [arg]  # not technically supposed to work but permitted by type hint
+    return [PID.parse(pid) for pid in arg]
+
+
 def _validate_checksum_algorithm(algorithm: str | None) -> str | None:
     if algorithm is None:
         return algorithm
@@ -457,7 +465,7 @@ class DatasetBase:
         data_quality_metrics: int | None = None,
         description: str | None = None,
         end_time: datetime | None = None,
-        input_datasets: list[PID] | None = None,
+        input_datasets: Iterable[PID | str] | None = None,
         instrument_group: str | None = None,
         instrument_ids: list[str] | None = None,
         is_published: bool | None = None,
@@ -499,7 +507,7 @@ class DatasetBase:
         self._data_quality_metrics = data_quality_metrics
         self._description = description
         self._end_time = end_time
-        self._input_datasets = input_datasets or []
+        self._input_datasets = _parse_input_datasets(input_datasets)
         self._instrument_group = instrument_group
         self._instrument_ids = instrument_ids
         self._is_published = is_published
