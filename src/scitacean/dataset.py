@@ -504,32 +504,44 @@ class Dataset(DatasetBase):
             )
         return existing
 
+    def make_upload_fields(self) -> dict[str, Any]:
+        """Return a dict with the fields for uploading a dataset.
+
+        Returns
+        -------
+        :
+            The writable fields of this dataset.
+            Nested models are converted such that the following is valid:
+
+            .. code-block:: python
+
+                model.UploadDataset(**dataset.make_upload_fields())
+        """
+        special = ("relationships", "techniques", "input_datasets", "used_software")
+
+        return {
+            "numberOfFiles": self.number_of_files,
+            "numberOfFilesArchived": self.number_of_files_archived,
+            "size": self.size,
+            "packedSize": self.packed_size,
+            "scientificMetadata": self._meta or None,
+            "techniques": convert_user_to_upload_model(self.techniques),
+            "relationships": convert_user_to_upload_model(self.relationships),
+            "inputDatasets": self.input_datasets or [],
+            "usedSoftware": self.used_software or [],
+            **{
+                field.scicat_name: value
+                for field in self.fields(read_only=False)
+                if field.name not in special
+                and (value := getattr(self, field.name)) is not None
+            },
+        }
+
     def make_upload_model(self) -> UploadDataset:
         """Construct a SciCat upload model from self."""
         # Datablocks are not included here because they are handled separately
         # by make_datablock_upload_models and their own endpoints.
-        special = ("relationships", "techniques", "input_datasets", "used_software")
-        return UploadDataset(
-            numberOfFiles=self.number_of_files,
-            numberOfFilesArchived=self.number_of_files_archived,
-            size=self.size,
-            packedSize=self.packed_size,
-            scientificMetadata=self._meta or None,
-            techniques=convert_user_to_upload_model(  # type: ignore[arg-type]
-                self.techniques
-            ),
-            relationships=convert_user_to_upload_model(  # type: ignore[arg-type]
-                self.relationships
-            ),
-            inputDatasets=self.input_datasets or [],
-            usedSoftware=self.used_software or [],
-            **{
-                field.scicat_name: value
-                for field in self.fields()
-                if field.name not in special
-                and (value := getattr(self, field.name)) is not None
-            },
-        )
+        return UploadDataset(**self.make_upload_fields())
 
     def make_datablock_upload_models(self) -> DatablockUploadModels:
         """Build models for all contained (orig) datablocks.
