@@ -21,7 +21,7 @@ import pydantic
 from . import model
 from ._profile import Profile, gather_login_params
 from .dataset import Dataset
-from .error import ScicatCommError, ScicatLoginError
+from .error import FileNotAccessibleError, ScicatCommError, ScicatLoginError
 from .file import File
 from .filesystem import RemotePath
 from .logging import get_logger
@@ -540,14 +540,24 @@ class Client:
         with self._connect_for_file_download(
             dataset, to_download[0].remote_path
         ) as con:
-            con.download_files(
-                remote=[
-                    p
-                    for f in to_download
-                    if (p := f.remote_access_path(dataset.source_folder)) is not None
-                ],
-                local=[f.local_path for f in to_download],  # type: ignore[misc]
-            )
+            try:
+                con.download_files(
+                    remote=[
+                        p
+                        for f in to_download
+                        if (p := f.remote_access_path(dataset.source_folder))
+                        is not None
+                    ],
+                    local=[f.local_path for f in to_download],  # type: ignore[misc]
+                )
+            except FileNotAccessibleError as exc:
+                if not dataset.source_folder.is_absolute():
+                    exc.add_note(
+                        "The dataset's source folder is a relative path, "
+                        "so Scitacean may not be able to find the file. "
+                        "Consider overwriting the source folder with an absolute path."
+                    )
+                raise
         for f in to_download:
             f.validate_after_download()
         return dataset.replace_files(*downloaded_files)
