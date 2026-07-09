@@ -45,7 +45,7 @@ jobs:
     steps:
       - run: sudo apt install --yes docker-compose
         if: ${{ contains(inputs.os-variant, 'ubuntu') }}
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.checkout-ref }}
       - name: Install uv
