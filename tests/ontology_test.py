@@ -55,8 +55,17 @@ def test_can_look_up_technique_by_alternative_label() -> None:
     assert alternative3 == expected
 
 
-def test_can_look_up_technique_by_iri() -> None:
+def test_can_look_up_technique_by_full_iri() -> None:
     technique = ontology.find_technique("http://purl.org/pan-science/PaNET/PaNET01239")
+    expected = model.Technique(
+        pid="http://purl.org/pan-science/PaNET/PaNET01239",
+        name="neutron reflectometry",
+    )
+    assert technique == expected
+
+
+def test_can_look_up_technique_by_short_iri() -> None:
+    technique = ontology.find_technique("PaNET01239")
     expected = model.Technique(
         pid="http://purl.org/pan-science/PaNET/PaNET01239",
         name="neutron reflectometry",

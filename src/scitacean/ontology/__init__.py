@@ -70,8 +70,8 @@ def find_technique(label_or_iri: str) -> Technique:
     ValueError
         If the label or IRI is not found in the ontology.
     """
-    if _is_iri(label_or_iri):
-        return _lookup_iri(label_or_iri)
+    if iri := _try_normalize_iri(label_or_iri):
+        return _lookup_iri(iri)
     return _lookup_label(label_or_iri)
 
 
@@ -112,11 +112,15 @@ def _lookup_iri(iri: str) -> Technique:
     return Technique(pid=iri, name=label)
 
 
-_IRI_REGEX = re.compile(r"^https?://purl\.org/pan-science/PaNET/PaNET\d+$")
+_IRI_REGEX = re.compile(r"^\s*(https?://purl\.org/pan-science/PaNET/)?(PaNET\d+)\s*$")
 
 
-def _is_iri(iri: str) -> bool:
-    return bool(_IRI_REGEX.match(iri))
+def _try_normalize_iri(raw: str) -> str | None:
+    m = _IRI_REGEX.match(raw)
+    if not m:
+        return None
+    base = m.group(2)
+    return f"http://purl.org/pan-science/PaNET/{base}"
 
 
 __all__ = ["expands_techniques", "find_technique"]
