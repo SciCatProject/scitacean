@@ -9,7 +9,7 @@ import pytest
 
 from scitacean import PID, Client, Dataset, RemotePath, ScicatCommError
 from scitacean.client import ScicatClient
-from scitacean.model import UploadDataset
+from scitacean.model import Technique, UploadDataset
 from scitacean.testing.backend import config as backend_config
 from scitacean.testing.backend.seed import (
     INITIAL_DATASETS,
@@ -164,3 +164,23 @@ def test_dataset_with_orig_datablock_roundtrip(client: Client) -> None:
     assert downloaded.owner == ds.owner
     assert downloaded.size == ds.size
     assert downloaded.number_of_files == ds.number_of_files
+
+
+def test_upload_dataset_with_different_techniques(client: Client) -> None:
+    ds = Dataset.from_download_model(
+        INITIAL_DATASETS["raw"].model_copy(
+            update={"origdatablocks": INITIAL_ORIG_DATABLOCKS["raw"]}
+        )
+    ).as_new()
+    ds.techniques = [
+        "http://purl.org/pan-science/PaNET/PaNET01189",
+        "PaNET2013002",
+        "neutron powder diffraction",  # PaNET01100
+        Technique(pid="custom-id", name="My technique"),  # custom w/ id
+        "extra special",  # custom w/o technique
+    ]
+
+    finalized = client.upload_new_dataset_now(ds)
+    downloaded = client.get_dataset(finalized.pid)
+
+    assert downloaded.techniques == ds.techniques
