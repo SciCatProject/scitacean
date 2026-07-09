@@ -93,11 +93,10 @@ def _lookup_label(label: str) -> Technique:
             "https://pan-ontologies.github.io/PaNET/index-en.html"
         )
     # else: len(found) == 0
-    raise ValueError(
-        f"Unknown technique label: '{label}'\n"
-        "See the ExPaNDS experimental technique ontology for allowed labels at "
-        "https://pan-ontologies.github.io/PaNET/index-en.html"
-    )
+    # We need to set a PID for every technique. Using `pid=label` here means that
+    # the id is predicable and techniques can be compared while there should be
+    # no collisions between unrelated techniques.
+    return Technique(pid=label, name=label)
 
 
 def _lookup_iri(iri: str) -> Technique:

@@ -458,14 +458,10 @@ def test_technique_set_label() -> None:
         pid="http://purl.org/pan-science/PaNET/PaNET01100",
         name="neutron powder diffraction",
     )
-    Technique(
-        name="neutron powder diffraction",
-        pid="http://purl.org/pan-science/PaNET/PaNET01100",
-    )
     assert dset.techniques == [expected]
 
 
-def test_technique_set_invalid_label_raises_value_error() -> None:
+def test_technique_set_id() -> None:
     dset = Dataset(
         type="raw",
         contact_email="mail.person@sci.uni",
@@ -474,6 +470,28 @@ def test_technique_set_invalid_label_raises_value_error() -> None:
         owner_group="ess",
         principal_investigators=["mail.person@sci.uni"],
         source_folder=RemotePath("/hex/source62"),
+        techniques=["PaNET01100"],
     )
-    with pytest.raises(ValueError, match="Unknown technique"):
-        dset.techniques = ["bad technique"]
+    expected = Technique(
+        pid="http://purl.org/pan-science/PaNET/PaNET01100",
+        name="neutron powder diffraction",
+    )
+    assert dset.techniques == [expected]
+
+
+def test_technique_set_invalid_label_creates_custom_technique() -> None:
+    dset = Dataset(
+        type="raw",
+        contact_email="mail.person@sci.uni",
+        creation_time="2142-04-02T16:44:56",
+        owner="Mustrum Ridcully",
+        owner_group="ess",
+        principal_investigators=["mail.person@sci.uni"],
+        source_folder=RemotePath("/hex/source62"),
+        techniques=["my technique"],
+    )
+    expected = Technique(
+        pid="my technique",
+        name="my technique",
+    )
+    assert dset.techniques == [expected]

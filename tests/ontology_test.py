@@ -55,8 +55,17 @@ def test_can_look_up_technique_by_alternative_label() -> None:
     assert alternative3 == expected
 
 
-def test_can_look_up_technique_by_full_iri() -> None:
+def test_can_look_up_technique_by_full_iri_http() -> None:
     technique = ontology.find_technique("http://purl.org/pan-science/PaNET/PaNET01239")
+    expected = model.Technique(
+        pid="http://purl.org/pan-science/PaNET/PaNET01239",
+        name="neutron reflectometry",
+    )
+    assert technique == expected
+
+
+def test_can_look_up_technique_by_full_iri_https() -> None:
+    technique = ontology.find_technique("https://purl.org/pan-science/PaNET/PaNET01239")
     expected = model.Technique(
         pid="http://purl.org/pan-science/PaNET/PaNET01239",
         name="neutron reflectometry",
@@ -76,3 +85,9 @@ def test_can_look_up_technique_by_short_iri() -> None:
 def test_lookup_rejects_ambiguous_label() -> None:
     with pytest.raises(ValueError, match="multiple techniques"):
         ontology.find_technique("diffraction")
+
+
+def test_lookup_falls_back_for_unknown_label() -> None:
+    technique = ontology.find_technique("unknown-label")
+    expected = model.Technique(pid="unknown-label", name="unknown-label")
+    assert technique == expected
