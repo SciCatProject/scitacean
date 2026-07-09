@@ -19,13 +19,7 @@ jobs:
         uses: extractions/setup-just@v4
       - name: Install prek
         run: uv tool install prek
-      # The first run of prek may reformat files. If this happens, it returns 1 but this
-      # should not fail the job. So just run again if it fails. A second failure means that
-      # either the different formatters can't agree on a format or that static analysis failed.
-      - run: prek run -a || prek run -a
-      - uses: stefanzweifel/git-auto-commit-action@v7.1.0
-        with:
-          commit_message: Apply automatic formatting
+      - run: prek run -a
 
   type-checking:
     name: Type checking
@@ -45,12 +39,12 @@ jobs:
     strategy:
       matrix:
         include:
-          - {python: '3.14', os: ubuntu-24.04, command: test-all}
-          - {python: '3.13', os: ubuntu-24.04, command: test-all}
-          - {python: '3.12', os: ubuntu-24.04, command: test-all}
-          - {python: '3.11', os: ubuntu-24.04, command: test-all}
-          - {python: '3.11', os: macos-14, command: test}
-          - {python: '3.11', os: windows-2022, command: test}
+          - { python: '3.14', os: ubuntu-24.04, command: test-all }
+          - { python: '3.13', os: ubuntu-24.04, command: test-all }
+          - { python: '3.12', os: ubuntu-24.04, command: test-all }
+          - { python: '3.11', os: ubuntu-24.04, command: test-all }
+          - { python: '3.11', os: macos-14, command: test }
+          - { python: '3.11', os: windows-2022, command: test }
     uses: ./.github/workflows/test.yml
     with:
       os-variant: ${{ matrix.os }}
