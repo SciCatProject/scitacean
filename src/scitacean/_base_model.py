@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 import dataclasses
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from datetime import datetime
 from typing import (
     Any,
@@ -171,13 +171,22 @@ def validate_datetime(value: str | datetime | None) -> datetime | None:
 def validate_emails(value: str | None) -> str | None:
     if value is None:
         return value
-    return ";".join(pydantic.validate_email(item)[1] for item in value.split(";"))
+    return ";".join(
+        _maybe_validate(item, lambda x: pydantic.validate_email(x)[1])
+        for item in value.split(";")
+    )
 
 
 def validate_orcids(value: str | None) -> str | None:
     if value is None:
         return value
-    return parse_orcid_id(value)
+    return ";".join(_maybe_validate(item, parse_orcid_id) for item in value.split(";"))
+
+
+def _maybe_validate(value: str, validator: Callable[[str], str]) -> str:
+    if value:
+        return validator(value)
+    return value
 
 
 def validate_absolute_remote_path(value: str | None) -> RemotePath | None:
