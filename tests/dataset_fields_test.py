@@ -366,7 +366,7 @@ def test_make_derived_model() -> None:
 
 
 @pytest.mark.parametrize("field", ["contact_email", "owner_email"])
-def test_email_validation(field: Dataset.Field) -> None:
+def test_email_validation(field: str) -> None:
     dset = Dataset(
         type="raw",
         contact_email="p.stibbons@uu.am",
@@ -377,6 +377,37 @@ def test_email_validation(field: Dataset.Field) -> None:
         source_folder=RemotePath("/hex/source62"),
     )
     setattr(dset, field, "not-an-email")
+    with pytest.raises(pydantic.ValidationError):
+        dset.make_upload_model()
+
+
+@pytest.mark.parametrize("field", ["contact_email", "owner_email"])
+def test_email_validation_multiple_good(field: str) -> None:
+    dset = Dataset(
+        type="raw",
+        contact_email="p.stibbons@uu.am",
+        creation_time="2142-04-02T16:44:56",
+        owner="Mustrum Ridcully",
+        owner_group="faculty",
+        principal_investigators=["p.stibbons@uu.am"],
+        source_folder=RemotePath("/hex/source62"),
+    )
+    setattr(dset, field, "p.stibbons@uu.am;;mustrum@uu.am")
+    assert getattr(dset, field) == "p.stibbons@uu.am;;mustrum@uu.am"
+
+
+@pytest.mark.parametrize("field", ["contact_email", "owner_email"])
+def test_email_validation_multiple_bad(field: str) -> None:
+    dset = Dataset(
+        type="raw",
+        contact_email="p.stibbons@uu.am",
+        creation_time="2142-04-02T16:44:56",
+        owner="Mustrum Ridcully",
+        owner_group="faculty",
+        principal_investigators=["p.stibbons@uu.am"],
+        source_folder=RemotePath("/hex/source62"),
+    )
+    setattr(dset, field, "p.stibbons[at]uu.am;;mustrum@uu.am")
     with pytest.raises(pydantic.ValidationError):
         dset.make_upload_model()
 
@@ -423,6 +454,52 @@ def test_orcid_validation_bad(bad_orcid: str) -> None:
         principal_investigators=["mail.person@sci.uni"],
         source_folder=RemotePath("/hex/source62"),
         orcid_of_owner=bad_orcid,
+    )
+    with pytest.raises(pydantic.ValidationError):
+        dset.make_upload_model()
+
+
+@pytest.mark.parametrize(
+    "good_orcid",
+    [
+        "https://orcid.org/0000-0002-3761-3201;https://orcid.org/0000-0001-2345-6789",
+        "https://orcid.org/0000-0001-2345-6789;;",
+        ";https://orcid.org/0000-0003-2818-0368",
+    ],
+)
+def test_orcid_validation_multiple(good_orcid: str) -> None:
+    dset = Dataset(
+        type="raw",
+        contact_email="mail.person@sci.uni",
+        creation_time="2142-04-02T16:44:56",
+        owner="Mustrum Ridcully",
+        owner_group="ess",
+        principal_investigators=["mail.person@sci.uni"],
+        source_folder=RemotePath("/hex/source62"),
+        orcid_of_owner=good_orcid,
+    )
+    assert dset.make_upload_model().orcidOfOwner == good_orcid
+
+
+@pytest.mark.parametrize(
+    "orcid",
+    [
+        # Mixed good and bad
+        "https://orcid.org/0000-0002-3761-3201;https://orcid.org/0000-0002-3761-320X",
+        # Only bad
+        ";https://not-orcid.eu/0000-0002-3761-3201;",
+    ],
+)
+def test_orcid_validation_multiple_bad(orcid: str) -> None:
+    dset = Dataset(
+        type="raw",
+        contact_email="mail.person@sci.uni",
+        creation_time="2142-04-02T16:44:56",
+        owner="Mustrum Ridcully",
+        owner_group="ess",
+        principal_investigators=["mail.person@sci.uni"],
+        source_folder=RemotePath("/hex/source62"),
+        orcid_of_owner=orcid,
     )
     with pytest.raises(pydantic.ValidationError):
         dset.make_upload_model()
