@@ -245,8 +245,7 @@ class OAuthClientNormal:
             )
 
 
-# TODO do we need 'profile'?
 # OAuth parameters
-_SCOPES = {"openid", "profile"}
+_SCOPES = {"openid"}
 _GRANT_TYPE = "authorization_code"
 _RESPONSE_TYPE = "code"
