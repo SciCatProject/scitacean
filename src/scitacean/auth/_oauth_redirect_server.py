@@ -129,11 +129,11 @@ class _OAuthRedirectHandler(BaseHTTPRequestHandler):
             "%s (%s) from %s", self.command, code, self.client_address
         )
 
-    def log_error(self, *args, **kwargs) -> None:
+    def log_error(self, *args: object, **kwargs: object) -> None:
         # Override to avoid leaking the auth token
         logging.getLogger(_LOGGER_NAME).error("Received error")
 
-    def log_message(self, *args, **kwargs) -> None:
+    def log_message(self, *args: object, **kwargs: object) -> None:
         # Override to avoid leaking the auth token
         logging.getLogger(_LOGGER_NAME).info("Received message")
 
