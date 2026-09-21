@@ -25,7 +25,6 @@ class OAuthClientDevice:
     is therefore usable on systems without a GUI and on remote Jupyter instances.
     """
 
-    # TODO allow port range
     def __init__(
         self,
         *,
