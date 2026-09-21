@@ -32,3 +32,7 @@ class FileNotAccessibleError(RuntimeError):
     def remote_path(self) -> RemotePath:
         """The remote path of the inaccessible file."""
         return self._remote_path
+
+
+class AuthError(RuntimeError):
+    """Raised when authentication fails."""

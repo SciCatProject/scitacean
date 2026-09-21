@@ -15,6 +15,7 @@ from .client import Client
 from .datablock import OrigDatablock
 from .dataset import Dataset
 from .error import (
+    AuthError,
     FileNotAccessibleError,
     FileUploadError,
     IntegrityError,
@@ -31,6 +32,7 @@ from .warning import VisibleDeprecationWarning
 __all__ = (
     "PID",
     "Attachment",
+    "AuthError",
     "Client",
     "Dataset",
     "File",
