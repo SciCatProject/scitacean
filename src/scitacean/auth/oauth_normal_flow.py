@@ -28,13 +28,12 @@ class OAuthClientNormal:
     Jupyter instance. Use a different login method in such a case.
     """
 
-    # TODO allow port range
     def __init__(
         self,
         *,
         provider: str,
         client_id: str,
-        local_port: int,
+        local_port: int = 0,
         local_timeout: timedelta = timedelta(seconds=30),
         remote_timeout: timedelta = timedelta(seconds=5),
     ) -> None:
@@ -48,6 +47,7 @@ class OAuthClientNormal:
             The client ID of the OAuth client.
         local_port:
             The port to use for the callback server on localhost.
+            Defaults to 0, which means that the server will pick any free port.
         local_timeout:
             Timeout for the callback server.
         remote_timeout:
@@ -78,11 +78,14 @@ class OAuthClientNormal:
         )
 
         with httpx.Client(timeout=self._remote_timeout.total_seconds()) as client:
-            auth_code = self._listen_for_authorization_code(
+            auth_code, redirect_url = self._listen_for_authorization_code(
                 client, code_challenge, code_challenge_method, state
             )
             return self._exchange_auth_code_for_token(
-                client, auth_code=auth_code, code_verifier=code_verifier
+                client,
+                auth_code=auth_code,
+                code_verifier=code_verifier,
+                redirect_url=redirect_url,
             )
 
     @property
@@ -105,21 +108,24 @@ class OAuthClientNormal:
         code_challenge: str,
         code_challenge_method: str,
         state: str,
-    ) -> str:
-        auth_url = self._build_auth_url(
-            client,
-            code_challenge=code_challenge,
-            code_challenge_method=code_challenge_method,
-            state=state,
-        )
+    ) -> tuple[str, str]:
         with launch_auth_redirect_server(
             port=self._local_port, timeout=self._local_timeout, state=state
         ) as server:
+            # Derive the URL from the server port in case the server picks a port.
+            redirect_url = self._redirect_url(server.server_port)
+            auth_url = self._build_auth_url(
+                client,
+                code_challenge=code_challenge,
+                code_challenge_method=code_challenge_method,
+                state=state,
+                redirect_url=redirect_url,
+            )
             open_in_browser(auth_url)
             server.handle_request()
 
         if (auth_code := server.authorization_code) is not None:
-            return auth_code
+            return auth_code, redirect_url
         raise AuthError(
             "Did not receive an authorization code from the identity provider. "
             "Please check that you logged in correctly and check the login "
@@ -128,14 +134,19 @@ class OAuthClientNormal:
         )
 
     def _exchange_auth_code_for_token(
-        self, client: httpx.Client, auth_code: str, code_verifier: str
+        self,
+        client: httpx.Client,
+        *,
+        auth_code: str,
+        code_verifier: str,
+        redirect_url: str,
     ) -> str:
         data = {
             "code": auth_code,
             "client_id": self._client_id,
             "grant_type": _GRANT_TYPE,
             "scopes": self._scopes(),
-            "redirect_uri": self._redirect_url(),
+            "redirect_uri": redirect_url,
             "code_verifier": code_verifier,
         }
 
@@ -168,9 +179,11 @@ class OAuthClientNormal:
     def _build_auth_url(
         self,
         client: httpx.Client,
+        *,
         code_challenge: str,
         code_challenge_method: str,
         state: str,
+        redirect_url: str,
     ) -> str:
         """Build a URL to open in a browser for the user to log in."""
         if (auth_endpoint := self._idp_config.endpoints.authorization_endpoint) is None:
@@ -184,7 +197,7 @@ class OAuthClientNormal:
             params={
                 "response_type": _RESPONSE_TYPE,
                 "client_id": self._client_id,
-                "redirect_uri": self._redirect_url(),
+                "redirect_uri": redirect_url,
                 "scope": self._scopes(),
                 "state": state,
                 "code_challenge": code_challenge,
@@ -193,8 +206,9 @@ class OAuthClientNormal:
         ).url
         return str(url)
 
-    def _redirect_url(self) -> str:
-        return f"http://localhost:{self._local_port}"
+    @staticmethod
+    def _redirect_url(local_port: int) -> str:
+        return f"http://localhost:{local_port}"
 
     @staticmethod
     def _scopes() -> str:
