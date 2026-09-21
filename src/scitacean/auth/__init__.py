@@ -2,4 +2,6 @@
 # Copyright (c) 2026 SciCat Project (https://github.com/SciCatProject/scitacean)
 """Authentication client."""
 
-__all__ = []
+from .oauth_normal_flow import OAuthClientNormal
+
+__all__ = ("OAuthClientNormal",)
