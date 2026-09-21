@@ -25,7 +25,7 @@ class OAuthClientNormal:
     This requires that Python is running on the same machine as the user interface
     so that opening ``http://localhost`` in a browser connects with the machine
     running the Python code. This is notably *not* the case when using a remote
-    Jupyter session. Use a different login method in such a case.
+    Jupyter instance. Use a different login method in such a case.
     """
 
     # TODO allow port range
@@ -81,11 +81,9 @@ class OAuthClientNormal:
             auth_code = self._listen_for_authorization_code(
                 client, code_challenge, code_challenge_method, state
             )
-            access_token = self._exchange_auth_code_for_token(
+            return self._exchange_auth_code_for_token(
                 client, auth_code=auth_code, code_verifier=code_verifier
             )
-
-        return access_token
 
     @property
     def _idp_config(self) -> IdPConfig:
@@ -165,7 +163,7 @@ class OAuthClientNormal:
             )
             raise
 
-        return access_token
+        return access_token  # type: ignore[no-any-return]
 
     def _build_auth_url(
         self,
@@ -233,6 +231,7 @@ class OAuthClientNormal:
             )
 
 
+# TODO do we need 'profile'?
 # OAuth parameters
 _SCOPES = {"openid", "profile"}
 _GRANT_TYPE = "authorization_code"
