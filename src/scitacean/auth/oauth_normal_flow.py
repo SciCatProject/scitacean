@@ -5,6 +5,7 @@
 
 import secrets
 import warnings
+from collections.abc import Iterable
 from datetime import timedelta
 
 import httpx
@@ -36,6 +37,7 @@ class OAuthClientNormal:
         local_port: int = 0,
         local_timeout: timedelta = timedelta(seconds=30),
         remote_timeout: timedelta = timedelta(seconds=5),
+        scopes: Iterable[str] = ("openid",),
     ) -> None:
         """Create a new client.
 
@@ -52,12 +54,16 @@ class OAuthClientNormal:
             Timeout for the callback server.
         remote_timeout:
             Timeout for calls to the identity provider.
+        scopes:
+            The scopes to request from the identity provider.
+            Only change this if login fails with the default.
         """
         self._provider = provider
         self._client_id = client_id
         self._local_port = local_port
         self._local_timeout = local_timeout
         self._remote_timeout = remote_timeout
+        self._scopes = set(scopes)
 
     def login(self) -> str:
         """Log in with the IdP.
@@ -145,7 +151,7 @@ class OAuthClientNormal:
             "code": auth_code,
             "client_id": self._client_id,
             "grant_type": _GRANT_TYPE,
-            "scopes": self._scopes(),
+            "scopes": self._scope_param(),
             "redirect_uri": redirect_url,
             "code_verifier": code_verifier,
         }
@@ -198,7 +204,7 @@ class OAuthClientNormal:
                 "response_type": _RESPONSE_TYPE,
                 "client_id": self._client_id,
                 "redirect_uri": redirect_url,
-                "scope": self._scopes(),
+                "scope": self._scope_param(),
                 "state": state,
                 "code_challenge": code_challenge,
                 "code_challenge_method": code_challenge_method,
@@ -210,10 +216,9 @@ class OAuthClientNormal:
     def _redirect_url(local_port: int) -> str:
         return f"http://localhost:{local_port}"
 
-    @staticmethod
-    def _scopes() -> str:
+    def _scope_param(self) -> str:
         # join by " " which translated to "+" when escaped:
-        return " ".join(_SCOPES)
+        return " ".join(self._scopes)
 
     def _check_idp_compatibility(self) -> None:
         cfg = self._idp_config
@@ -229,9 +234,9 @@ class OAuthClientNormal:
                 f"It does not support the required response type '{_RESPONSE_TYPE}'. "
                 f"It only supports {cfg.response_types_supported}."
             )
-        if not _SCOPES.issubset(cfg.scopes_supported):
+        if not self._scopes.issubset(cfg.scopes_supported):
             messages.append(
-                f"It does not support the required scopes: {_SCOPES} "
+                f"It does not support the required scopes: {self._scope_param()} "
                 f"It only supports {cfg.scopes_supported}",
             )
 
@@ -246,6 +251,5 @@ class OAuthClientNormal:
 
 
 # OAuth parameters
-_SCOPES = {"openid"}
 _GRANT_TYPE = "authorization_code"
 _RESPONSE_TYPE = "code"

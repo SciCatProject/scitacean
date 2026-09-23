@@ -5,6 +5,7 @@
 
 import time
 import warnings
+from collections.abc import Iterable
 from datetime import timedelta
 from typing import Any
 
@@ -32,6 +33,7 @@ class OAuthClientDevice:
         client_id: str,
         local_timeout: timedelta = timedelta(seconds=30),
         remote_timeout: timedelta = timedelta(seconds=5),
+        scopes: Iterable[str] = ("openid",),
     ) -> None:
         """Create a new client.
 
@@ -45,11 +47,15 @@ class OAuthClientDevice:
             Timeout for receiving a confirmation from the identity provider.
         remote_timeout:
             Timeout for calls to the identity provider.
+        scopes:
+            The scopes to request from the identity provider.
+            Only change this if login fails with the default.
         """
         self._provider = provider
         self._client_id = client_id
         self._local_timeout = local_timeout
         self._remote_timeout = remote_timeout
+        self._scopes = set(scopes)
 
     def login(self) -> str:
         """Log in with the IdP.
@@ -117,9 +123,10 @@ class OAuthClientDevice:
             auth_endpoint,
             data={
                 "client_id": self._client_id,
-                "scope": self._scopes(),
                 "code_challenge": code_challenge,
                 "code_challenge_method": code_challenge_method,
+                # join by " " which translated to "+" when escaped:
+                "scope": " ".join(self._scopes),
             },
         )
         response.raise_for_status()
@@ -163,11 +170,6 @@ class OAuthClientDevice:
             "login page in your browser if it does not do so automatically."
         )
 
-    @staticmethod
-    def _scopes() -> str:
-        # join by " " which translated to "+" when escaped:
-        return " ".join(_SCOPES)
-
     def _check_idp_compatibility(self) -> None:
         cfg = self._idp_config
 
@@ -177,9 +179,9 @@ class OAuthClientDevice:
                 f"It does not support the required grant type '{_GRANT_TYPE}'. "
                 f"It only supports {cfg.grant_types_supported}."
             )
-        if not _SCOPES.issubset(cfg.scopes_supported):
+        if not self._scopes.issubset(cfg.scopes_supported):
             messages.append(
-                f"It does not support the required scopes: {_SCOPES} "
+                f"It does not support the required scopes: {self._scopes} "
                 f"It only supports {cfg.scopes_supported}",
             )
 
@@ -194,5 +196,4 @@ class OAuthClientDevice:
 
 
 # OAuth parameters
-_SCOPES = {"openid"}
 _GRANT_TYPE = "urn:ietf:params:oauth:grant-type:device_code"
