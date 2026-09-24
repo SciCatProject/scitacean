@@ -27,6 +27,6 @@ def expiry(token: str) -> datetime:
 def _decode_part(s: str) -> dict[str, str | int]:
     # urlsafe_b64decode requires a properly padded input but SciCat
     # doesn't pad its tokens.
-    padded = s + "=" * (len(s) % 4)
+    padded = s + "=" * (-len(s) % 4)
     decoded_str = base64.urlsafe_b64decode(padded).decode("utf-8")
     return cast(dict[str, str | int], json.loads(decoded_str))
