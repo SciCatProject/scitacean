@@ -3,12 +3,17 @@
 
 """An OAuth client for 'device' authentication flows."""
 
+from __future__ import annotations
+
 import time
 import warnings
 from collections.abc import Iterable
 from contextlib import closing
+from dataclasses import dataclass
 from datetime import timedelta
+from json import JSONDecodeError
 from typing import Any
+from urllib.parse import quote_plus
 
 import httpx
 
@@ -48,6 +53,7 @@ class OAuthClientDevice:
             The client ID of the OAuth client.
         local_timeout:
             Timeout for receiving a confirmation from the identity provider.
+            May be overridden by the identity provider.
         remote_timeout:
             Timeout for calls to the identity provider.
         scopes:
@@ -88,15 +94,13 @@ class OAuthClientDevice:
                 code_challenge=code_challenge,
                 code_challenge_method=code_challenge_method,
             )
-            verification_url = (
-                f"{flow_data['verification_uri']}?user_code={flow_data['user_code']}"
-            )
-            with closing(open_in_browser(verification_url)):
+            with closing(open_in_browser(flow_data.verification_uri_complete)):
                 token = self._wait_for_token(
                     client,
                     code_verifier=code_verifier,
-                    device_code=flow_data["device_code"],
-                    interval=flow_data["interval"],
+                    device_code=flow_data.device_code,
+                    interval=flow_data.interval,
+                    expires_in=flow_data.expires_in,
                 )
         return ExpiringToken.from_jwt(SecretStr(token))
 
@@ -119,7 +123,7 @@ class OAuthClientDevice:
         client: httpx.Client,
         code_challenge: str,
         code_challenge_method: str,
-    ) -> dict[str, Any]:
+    ) -> _DeviceAuthResponse:
         if (
             auth_endpoint := self._idp_config.endpoints.device_authorization_endpoint
         ) is None:
@@ -138,7 +142,12 @@ class OAuthClientDevice:
             },
         )
         response.raise_for_status()
-        return response.json()  # type: ignore[no-any-return]
+        try:
+            return _DeviceAuthResponse.new(response.json())
+        except JSONDecodeError as error:
+            raise AuthError(
+                "The identity provider returned an invalid response."
+            ) from error
 
     def _wait_for_token(
         self,
@@ -147,9 +156,11 @@ class OAuthClientDevice:
         code_verifier: str,
         device_code: str,
         interval: int,
+        expires_in: int | None,
     ) -> str:
-        start_time = time.time()
-        while time.time() - start_time < self._local_timeout.total_seconds():
+        timeout = min(expires_in or 1000, self._local_timeout.total_seconds())
+        start_time = time.monotonic()
+        while time.monotonic() - start_time < timeout:
             response = client.post(
                 self._idp_config.endpoints.token_endpoint,
                 data={
@@ -161,13 +172,19 @@ class OAuthClientDevice:
             )
             if response.is_success:
                 return response.json()["access_token"]  # type: ignore[no-any-return]
+
             # The IdP will either keep returning 400 or an 'authorization_pending'
             # error until the user has verified the device code.
-            if (
-                response.status_code != 400
-                or response.json().get("error") != "authorization_pending"
-            ):
+            if response.status_code != 400:
                 raise AuthError(f"Bad reply: {response} {response.text}")
+            data = response.json()
+            match data.get("error"):
+                case "slow_down":
+                    interval += 5
+                case "authorization_pending":
+                    pass  # all good, keep trying
+                case _:
+                    raise AuthError(f"Bad reply: {response} {response.text}")
 
             time.sleep(interval)
 
@@ -205,3 +222,27 @@ class OAuthClientDevice:
 
 # OAuth parameters
 _GRANT_TYPE = "urn:ietf:params:oauth:grant-type:device_code"
+
+
+@dataclass(frozen=True, slots=True)
+class _DeviceAuthResponse:
+    device_code: str
+    verification_uri_complete: str
+    interval: int
+    expires_in: int | None
+
+    @classmethod
+    def new(cls, data: dict[str, Any]) -> _DeviceAuthResponse:
+        try:
+            verification_uri_complete = data["verification_uri_complete"]
+        except KeyError:
+            verification_uri_complete = (
+                f"{data['verification_uri']}?user_code={quote_plus(data['user_code'])}"
+            )
+
+        return _DeviceAuthResponse(
+            device_code=data["device_code"],
+            verification_uri_complete=verification_uri_complete,
+            interval=data.get("interval", 5),  # default from RFC 8628 §3.2
+            expires_in=data.get("expires_in"),
+        )
