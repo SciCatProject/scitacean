@@ -52,7 +52,7 @@ def launch_auth_redirect_server(
     with OAuthRedirectServer(
         ("127.0.0.1", port),
         _OAuthRedirectHandler,
-        timeout=int(timeout.total_seconds()),
+        timeout=max(int(timeout.total_seconds()), 1),
         state=state,
     ) as server:
         yield server
@@ -127,6 +127,21 @@ class _OAuthRedirectHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-Type", "text/html; charset=utf-8")
         self.send_header("Content-Length", str(len(data)))
+
+        # Prevent browser caching of the URL and using it as a referer as those
+        # would leak the authorization code which is included in the URL.
+        self.send_header("Cache-Control", "no-store, max-age=0")
+        self.send_header("Pragma", "no-cache")  # HTTP/1.0 caches
+        self.send_header("Referrer-Policy", "no-referrer")
+        self.send_header("X-Content-Type-Options", "nosniff")
+
+        # The page is self-contained, so do not allow any external sources.
+        self.send_header(
+            "Content-Security-Policy",
+            "default-src 'none'; style-src 'unsafe-inline'; "
+            "script-src 'unsafe-inline'; img-src data:",
+        )
+
         self.end_headers()
         self.wfile.write(data)
 
