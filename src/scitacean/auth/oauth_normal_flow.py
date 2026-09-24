@@ -37,7 +37,7 @@ class OAuthClientNormal:
         provider: str,
         client_id: str,
         local_port: int = 0,
-        local_timeout: timedelta = timedelta(seconds=30),
+        local_timeout: timedelta = timedelta(seconds=60),
         remote_timeout: timedelta = timedelta(seconds=5),
         scopes: Iterable[str] = ("openid",),
         allow_http: bool = False,
