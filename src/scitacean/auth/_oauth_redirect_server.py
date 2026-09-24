@@ -100,10 +100,7 @@ class _OAuthRedirectHandler(BaseHTTPRequestHandler):
 
         parsed = parse.urlparse(self.path)
         if parsed.path != "/callback":
-            self._send_result_page(success=False)
-            server.failure = (
-                "The identity provider did not redirect to the correct URL."
-            )
+            self.send_response(404)
             return
 
         qs = parse.parse_qs(parsed.query)

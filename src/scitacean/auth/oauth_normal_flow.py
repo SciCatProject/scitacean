@@ -104,6 +104,11 @@ class OAuthClientNormal:
         return ExpiringToken.from_jwt(SecretStr(token))
 
     @property
+    def remote_timeout(self) -> timedelta:
+        """The timeout for calls to the identity provider."""
+        return self._remote_timeout
+
+    @property
     def _idp_config(self) -> IdPConfig:
         """Get the IdP configuration on demand.
 
@@ -115,7 +120,9 @@ class OAuthClientNormal:
         constructed and used even when there are problems with the IdP as long as
         the user uses a different login method.
         """
-        return get_idp_config(self._provider, allow_http=self._allow_http)
+        return get_idp_config(
+            self._provider, allow_http=self._allow_http, timeout=self._remote_timeout
+        )
 
     def _listen_for_authorization_code(
         self,
@@ -137,7 +144,8 @@ class OAuthClientNormal:
                 redirect_url=redirect_url,
             )
             with closing(open_in_browser(auth_url)):
-                server.handle_request()
+                while server.authorization_code is None and not server.failure:
+                    server.handle_request()
 
         if (auth_code := server.authorization_code) is not None:
             return auth_code, redirect_url
