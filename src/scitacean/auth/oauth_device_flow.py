@@ -36,6 +36,7 @@ class OAuthClientDevice:
         local_timeout: timedelta = timedelta(seconds=30),
         remote_timeout: timedelta = timedelta(seconds=5),
         scopes: Iterable[str] = ("openid",),
+        allow_http: bool = False,
     ) -> None:
         """Create a new client.
 
@@ -52,12 +53,17 @@ class OAuthClientDevice:
         scopes:
             The scopes to request from the identity provider.
             Only change this if login fails with the default.
+        allow_http:
+            Whether to allow the use of HTTP instead of HTTPS.
+            Only use this for testing!
+            Otherwise, secrets are transmitted unencrypted.
         """
         self._provider = provider
         self._client_id = client_id
         self._local_timeout = local_timeout
         self._remote_timeout = remote_timeout
         self._scopes = set(scopes)
+        self._allow_http = allow_http
 
     def login(self) -> ExpiringToken:
         """Log in with the IdP.
@@ -106,7 +112,7 @@ class OAuthClientDevice:
         constructed and used even when there are problems with the IdP as long as
         the user uses a different login method.
         """
-        return get_idp_config(self._provider)
+        return get_idp_config(self._provider, allow_http=self._allow_http)
 
     def _start_auth_flow(
         self,
