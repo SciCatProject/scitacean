@@ -50,7 +50,7 @@ def launch_auth_redirect_server(
         was received.
     """
     with OAuthRedirectServer(
-        ("", port),
+        ("127.0.0.1", port),
         _OAuthRedirectHandler,
         timeout=int(timeout.total_seconds()),
         state=state,
@@ -99,6 +99,13 @@ class _OAuthRedirectHandler(BaseHTTPRequestHandler):
         server: OAuthRedirectServer = self.server  # type: ignore[assignment]
 
         parsed = parse.urlparse(self.path)
+        if parsed.path != "/callback":
+            self._send_result_page(success=False)
+            server.failure = (
+                "The identity provider did not redirect to the correct URL."
+            )
+            return
+
         qs = parse.parse_qs(parsed.query)
         if errors := qs.get("error", []):
             self._send_result_page(success=False)
