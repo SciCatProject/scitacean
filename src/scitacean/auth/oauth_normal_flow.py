@@ -161,7 +161,7 @@ class OAuthClientNormal:
             "code": auth_code,
             "client_id": self._client_id,
             "grant_type": _GRANT_TYPE,
-            "scopes": self._scope_param(),
+            "scope": self._scope_param(),
             "redirect_uri": redirect_url,
             "code_verifier": code_verifier,
         }
