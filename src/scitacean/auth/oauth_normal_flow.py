@@ -144,8 +144,7 @@ class OAuthClientNormal:
                 redirect_url=redirect_url,
             )
             with closing(open_in_browser(auth_url)):
-                while server.authorization_code is None and not server.failure:
-                    server.handle_request()
+                server.wait_for_authorization_code()
 
         if (auth_code := server.authorization_code) is not None:
             return auth_code, redirect_url

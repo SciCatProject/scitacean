@@ -5,10 +5,12 @@
 from __future__ import annotations
 
 import logging
+import time
 from collections.abc import Generator
 from contextlib import contextmanager
 from datetime import timedelta
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from typing import Never
 from urllib import parse
 
 from . import _assets
@@ -69,23 +71,49 @@ class OAuthRedirectServer(HTTPServer):
         server_address: tuple[str, int],
         RequestHandlerClass: type,
         *,
-        timeout: int,
+        timeout: float,
         state: str,
     ) -> None:
         super().__init__(server_address, RequestHandlerClass)
         self.timeout = timeout
+        self.base_timeout = timeout
         self.state = state
         self.authorization_code: str | None = None
         self.failure: str = ""
 
     def handle_timeout(self) -> None:
         super().handle_timeout()
-        raise TimeoutError(
-            "The OAuth server did not receive an authorization code after "
-            f"{self.timeout} seconds. This means either that nobody logged "
-            "in successfully in time or that the identity provider did "
-            "not redirect or did not redirect correctly."
-        )
+        _raise_timeout_error(self.base_timeout)
+
+    def wait_for_authorization_code(self) -> None:
+        """Wait for an authorization code to arrive.
+
+        This function waits either until
+        - An auth code arrives.
+        - An invalid request arrives.
+        - The timeout is reached.
+          In this case, the timeout applies across all requests,
+          including requests to paths other than /callback so that pinging the
+          server repeatedly cannot make it hang indefinitely.
+        """
+        deadline = time.monotonic() + self.base_timeout
+        try:
+            while self.authorization_code is None and not self.failure:
+                if (remaining := deadline - time.monotonic()) <= 0:
+                    _raise_timeout_error(self.base_timeout)
+                self.timeout = remaining
+                self.handle_request()
+        finally:
+            self.timeout = self.base_timeout
+
+
+def _raise_timeout_error(timeout: float) -> Never:
+    raise TimeoutError(
+        "The OAuth server did not receive an authorization code after "
+        f"{timeout} seconds. This means either that nobody logged "
+        "in successfully in time or that the identity provider did "
+        "not redirect or did not redirect correctly."
+    )
 
 
 class _OAuthRedirectHandler(BaseHTTPRequestHandler):
@@ -101,6 +129,8 @@ class _OAuthRedirectHandler(BaseHTTPRequestHandler):
         parsed = parse.urlparse(self.path)
         if parsed.path != "/callback":
             self.send_response(404)
+            self.send_header("Content-Length", "0")
+            self.end_headers()
             return
 
         qs = parse.parse_qs(parsed.query)
