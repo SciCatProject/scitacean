@@ -54,31 +54,19 @@ def get_idp_config(provider_url: str, *, allow_http: bool) -> IdPConfig:
             ),
             token_endpoint=token_endpoint,
         ),
+        response_types_supported=tuple(data["response_types_supported"]),
         **{
-            key: data[key]
-            for key in (
-                "code_challenge_methods_supported",
-                "grant_types_supported",
-                "response_types_supported",
-                "scopes_supported",
+            key: tuple(data.get(key, default))
+            for key, default in (
+                ("code_challenge_methods_supported", ["S256"]),  # Should work anywhere
+                (
+                    "grant_types_supported",
+                    ["authorization_code", "implicit"],  # OIDC default
+                ),
+                ("scopes_supported", []),
             )
         },
     )
-
-
-def _get_config_url(
-    data: dict[str, Any], key: str, host: str, allowed_schemes: tuple[str, ...]
-) -> str | None:
-    if (url := data.get(key)) is None:
-        return None
-    require_scheme(url, allowed=allowed_schemes, what=key)
-    if urlsplit(url).netloc != host:
-        raise RuntimeError(
-            f"The host of the '{key}' in the IdP config differs from the "
-            f"IdP itself ({host}): {url}\nThis is not allowed because this indicates "
-            f"a malicious or at least dangerous config."
-        )
-    return url
 
 
 @dataclasses.dataclass(frozen=True, slots=True)
@@ -86,10 +74,10 @@ class IdPConfig:
     """Identity provider configuration."""
 
     endpoints: Endpoints
-    code_challenge_methods_supported: list[str]
-    grant_types_supported: list[str]
-    response_types_supported: list[str]
-    scopes_supported: list[str]
+    code_challenge_methods_supported: tuple[str, ...]
+    grant_types_supported: tuple[str, ...]
+    response_types_supported: tuple[str, ...]
+    scopes_supported: tuple[str, ...]
 
 
 @dataclasses.dataclass(frozen=True, slots=True)
@@ -106,3 +94,18 @@ class OAuthClient(Protocol):
 
     def login(self) -> ExpiringToken:
         """Run a login flow to get an access token from the identity provider."""
+
+
+def _get_config_url(
+    data: dict[str, Any], key: str, host: str, allowed_schemes: tuple[str, ...]
+) -> str | None:
+    if (url := data.get(key)) is None:
+        return None
+    require_scheme(url, allowed=allowed_schemes, what=key)
+    if urlsplit(url).netloc != host:
+        raise RuntimeError(
+            f"The host of the '{key}' in the IdP config differs from the "
+            f"IdP itself ({host}): {url}\nThis is not allowed because this indicates "
+            f"a malicious or at least dangerous config."
+        )
+    return url
