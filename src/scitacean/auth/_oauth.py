@@ -7,10 +7,10 @@ from __future__ import annotations
 import dataclasses
 from functools import cache
 from typing import Protocol
-from urllib.parse import urljoin
 
 import httpx
 
+from .._internal.url import url_concat
 from ..util.credentials import ExpiringToken
 
 
@@ -21,7 +21,7 @@ def get_idp_config(provider_url: str) -> IdPConfig:
     Assumes that the provider supports OpenID Connect and that there is a
     ``.well-known/openid-configuration`` endpoint.
     """
-    response = httpx.get(urljoin(provider_url, ".well-known/openid-configuration"))
+    response = httpx.get(url_concat(provider_url, ".well-known/openid-configuration"))
     if not response.is_success:
         raise RuntimeError(
             f"Failed to get IDP config from {provider_url}: {response.text}"
