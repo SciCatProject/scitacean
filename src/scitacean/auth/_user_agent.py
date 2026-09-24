@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+import html
+import json
 import webbrowser
 from functools import cache
 from typing import Any
@@ -71,7 +73,7 @@ def _open_in_browser_from_jupyter(url: str) -> OutputHandle | None:
         display_javascript(  # type: ignore[no-untyped-call]
             Javascript(  # type: ignore[no-untyped-call]
                 f"""
-const win = window.open("{url}", '_blank');
+const win = window.open({json.dumps(url)}, '_blank');
 if (win !== null) {{win.focus();}}
 """
             )
@@ -80,7 +82,7 @@ if (win !== null) {{win.focus();}}
             HTML(f"""
 <div>To <b>sign in</b> with SciCat, open this link in your browser if it did not
 open automatically:<div>
-<div><a href="{url}" target=_blank>{url}</a></div>
+<div><a href="{html.escape(url)}" target=_blank>{html.escape(url)}</a></div>
 """)  # type: ignore[no-untyped-call]
         )
     display(out)  # type: ignore[no-untyped-call]
