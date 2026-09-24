@@ -11,6 +11,7 @@ from datetime import timedelta
 import httpx
 
 from ..error import AuthError
+from ..util.credentials import ExpiringToken, SecretStr
 from . import _pkce
 from ._oauth import IdPConfig, get_idp_config
 from ._oauth_redirect_server import launch_auth_redirect_server
@@ -65,7 +66,7 @@ class OAuthClientNormal:
         self._remote_timeout = remote_timeout
         self._scopes = set(scopes)
 
-    def login(self) -> str:
+    def login(self) -> ExpiringToken:
         """Log in with the IdP.
 
         This runs an interactive login flow via the user's web browser.
@@ -87,12 +88,13 @@ class OAuthClientNormal:
             auth_code, redirect_url = self._listen_for_authorization_code(
                 client, code_challenge, code_challenge_method, state
             )
-            return self._exchange_auth_code_for_token(
+            token = self._exchange_auth_code_for_token(
                 client,
                 auth_code=auth_code,
                 code_verifier=code_verifier,
                 redirect_url=redirect_url,
             )
+        return ExpiringToken.from_jwt(SecretStr(token))
 
     @property
     def _idp_config(self) -> IdPConfig:

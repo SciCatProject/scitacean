@@ -21,7 +21,7 @@ import pydantic
 from . import model
 from ._profile import Profile, gather_login_params
 from .dataset import Dataset
-from .error import FileNotAccessibleError, ScicatCommError, ScicatLoginError
+from .error import AuthError, FileNotAccessibleError, ScicatCommError
 from .file import File
 from .filesystem import RemotePath
 from .logging import get_logger
@@ -1431,7 +1431,7 @@ def _get_token(
         return str(response.json()["access_token"])
 
     get_logger().error("Failed log in:  %s", response.text)
-    raise ScicatLoginError(response.content)
+    raise AuthError(response.content)
 
 
 FileSelector = (
