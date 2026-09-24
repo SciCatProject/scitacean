@@ -76,6 +76,7 @@ class OAuthRedirectServer(HTTPServer):
         self.timeout = timeout
         self.state = state
         self.authorization_code: str | None = None
+        self.failure: str = ""
 
     def handle_timeout(self) -> None:
         super().handle_timeout()
@@ -100,13 +101,14 @@ class _OAuthRedirectHandler(BaseHTTPRequestHandler):
         parsed = parse.urlparse(self.path)
         qs = parse.parse_qs(parsed.query)
         if errors := qs.get("error", []):
-            raise RuntimeError(f"Authentication failed: {errors}")
-        if qs.get("state", None) != [server.state]:
             self._send_result_page(success=False)
-            raise ValueError("The identity provider used an invalid OAuth state")
-
-        server.authorization_code = qs.get("code", [None])[0]
-        self._send_result_page(success=True)
+            server.failure = f"Authentication failed: {errors}."
+        elif qs.get("state", None) != [server.state]:
+            self._send_result_page(success=False)
+            server.failure = "The identity provider used an invalid OAuth state."
+        else:
+            server.authorization_code = qs.get("code", [None])[0]
+            self._send_result_page(success=True)
 
     def _send_result_page(self, *, success: bool) -> None:
         if success:
