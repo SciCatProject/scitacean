@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import dataclasses
+from datetime import timedelta
 from functools import cache
 from typing import Any, Protocol
 from urllib.parse import urlsplit
@@ -16,7 +17,9 @@ from ..util.credentials import ExpiringToken
 
 
 @cache
-def get_idp_config(provider_url: str, *, allow_http: bool) -> IdPConfig:
+def get_idp_config(
+    provider_url: str, *, allow_http: bool, timeout: timedelta
+) -> IdPConfig:
     """Read the IdP configuration from the given issuer.
 
     Assumes that the provider supports OpenID Connect and that there is a
@@ -33,6 +36,7 @@ def get_idp_config(provider_url: str, *, allow_http: bool) -> IdPConfig:
     response = httpx.get(
         url_concat(provider_url, ".well-known/openid-configuration"),
         follow_redirects=True,
+        timeout=timeout.total_seconds(),
     )
     if not response.is_success:
         raise RuntimeError(
@@ -94,6 +98,10 @@ class OAuthClient(Protocol):
 
     def login(self) -> ExpiringToken:
         """Run a login flow to get an access token from the identity provider."""
+
+    @property
+    def remote_timeout(self) -> timedelta:
+        """The timeout for calls to the identity provider."""
 
 
 def _get_config_url(

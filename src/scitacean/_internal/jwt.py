@@ -21,7 +21,10 @@ def expiry(token: str) -> datetime:
     _, payload, _ = decode(token)
     # 'exp' should always be given in UTC. Since we have no way of checking that,
     # assume that it is the case.
-    return datetime.fromtimestamp(float(payload["exp"]), tz=UTC)
+    try:
+        return datetime.fromtimestamp(float(payload["exp"]), tz=UTC)
+    except KeyError:
+        raise ValueError("Token does not contain an expiration time.") from None
 
 
 def _decode_part(s: str) -> dict[str, str | int]:
