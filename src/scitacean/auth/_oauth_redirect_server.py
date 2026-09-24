@@ -113,8 +113,11 @@ class _OAuthRedirectHandler(BaseHTTPRequestHandler):
         elif qs.get("state", None) != [server.state]:
             self._send_result_page(success=False)
             server.failure = "The identity provider used an invalid OAuth state."
+        elif (code := qs.get("code", [None])[0]) is None:
+            self._send_result_page(success=False)
+            server.failure = "The identity provider did not send an authorization code."
         else:
-            server.authorization_code = qs.get("code", [None])[0]
+            server.authorization_code = code
             self._send_result_page(success=True)
 
     def _send_result_page(self, *, success: bool) -> None:
