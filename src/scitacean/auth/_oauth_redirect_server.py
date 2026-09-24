@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import logging
+import secrets
 import time
 from collections.abc import Generator
 from contextlib import contextmanager
@@ -137,7 +138,7 @@ class _OAuthRedirectHandler(BaseHTTPRequestHandler):
         if errors := qs.get("error", []):
             self._send_result_page(success=False)
             server.failure = f"Authentication failed: {errors}."
-        elif qs.get("state", None) != [server.state]:
+        elif not secrets.compare_digest("".join(qs.get("state", ())), server.state):
             self._send_result_page(success=False)
             server.failure = "The identity provider used an invalid OAuth state."
         elif (code := qs.get("code", [None])[0]) is None:

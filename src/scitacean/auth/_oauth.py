@@ -67,7 +67,7 @@ def get_idp_config(
                     "grant_types_supported",
                     ["authorization_code", "implicit"],  # OIDC default
                 ),
-                ("scopes_supported", []),
+                ("scopes_supported", ["openid"]),
             )
         },
     )
@@ -116,4 +116,4 @@ def _get_config_url(
             f"IdP itself ({host}): {url}\nThis is not allowed because this indicates "
             f"a malicious or at least dangerous config."
         )
-    return url
+    return url  # type: ignore[no-any-return]

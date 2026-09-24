@@ -38,7 +38,7 @@ class OAuthClientDevice:
         *,
         provider: str,
         client_id: str,
-        local_timeout: timedelta = timedelta(seconds=30),
+        local_timeout: timedelta = timedelta(seconds=60),
         remote_timeout: timedelta = timedelta(seconds=5),
         scopes: Iterable[str] = ("openid",),
         allow_http: bool = False,
@@ -53,7 +53,7 @@ class OAuthClientDevice:
             The client ID of the OAuth client.
         local_timeout:
             Timeout for receiving a confirmation from the identity provider.
-            May be overridden by the identity provider.
+            The identity provider may shorten this time.
         remote_timeout:
             Timeout for calls to the identity provider.
         scopes:
