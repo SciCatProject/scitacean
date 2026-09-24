@@ -31,13 +31,13 @@ def open_in_browser(url: str) -> OutputHandle:
             return OutputHandle(None)
         if (out := _open_in_browser_from_jupyter(url)) is not None:
             return out
-        raise RuntimeError("Unable to open a web browser")
-    except Exception as error:
-        error.add_note(
-            f"Please open the following URL in your browser: {url}\n"
-            "If no browser is available on your system, use a different login method."
-        )
-        raise
+    except (RuntimeError, webbrowser.Error):
+        pass
+    print(  # noqa: T201
+        "Failed to open a web browser. "
+        f"Please open this URL in a web browser to log in: {url}"
+    )
+    return OutputHandle(None)
 
 
 class OutputHandle:
