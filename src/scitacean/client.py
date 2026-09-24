@@ -9,7 +9,7 @@ import datetime
 import json
 import re
 from collections import Counter
-from collections.abc import Callable, Iterable, Iterator
+from collections.abc import Callable, Iterable, Iterator, Sequence
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
@@ -19,7 +19,9 @@ import httpx
 import pydantic
 
 from . import model
+from ._internal.url import url_concat
 from ._profile import Profile, gather_login_params
+from .auth import OAuthClient, OAuthMethod, login_via_oauth
 from .dataset import Dataset
 from .error import AuthError, FileNotAccessibleError, ScicatCommError
 from .file import File
@@ -133,6 +135,46 @@ class Client:
         return Client(
             client=ScicatClient.from_credentials(
                 url=p.url, username=username, password=password
+            ),
+            file_transfer=p.file_transfer,
+            profile=p,
+        )
+
+    @classmethod
+    def login(
+        cls,
+        profile: str | Profile | None = None,
+        *,
+        url: str | None = None,
+        method: OAuthMethod = "auto",
+        file_transfer: FileTransfer | None = None,
+    ) -> Client:
+        """Create a new client via single-sign-on.
+
+        Parameters
+        ----------
+        profile:
+            Encodes how to connect to SciCat.
+            Elements are overridden by the other arguments if provided.
+            The behavior is described in :class:`Profile`.
+        url:
+            URL of the SciCat api.
+            It should include the suffix `api/vn` where `n` is a number.
+        method:
+            OAuth method (a.k.a. flow) to use for authentication.
+            The default is to pick the best client for the current system.
+        file_transfer:
+            Handler for down-/uploads of files.
+
+        Returns
+        -------
+        :
+            A new low-level client.
+        """
+        p = gather_login_params(profile=profile, url=url, file_transfer=file_transfer)
+        return Client(
+            client=ScicatClient.login(
+                url=p.url, method=method, oauth_clients=p.oauth_clients
             ),
             file_transfer=p.file_transfer,
             profile=p,
@@ -662,6 +704,38 @@ class ScicatClient:
             ),
             timeout=timeout,
         )
+
+    @classmethod
+    def login(
+        cls,
+        url: str,
+        oauth_clients: Sequence[OAuthClient],
+        method: OAuthMethod = "auto",
+        timeout: datetime.timedelta | None = None,
+    ) -> ScicatClient:
+        """Create a new low-level client via single-sign-on.
+
+        Parameters
+        ----------
+        url:
+            URL of the SciCat api.
+            It should include the suffix `api/vn` where `n` is a number.
+        oauth_clients:
+            Available OAuth clients to use for authentication.
+        method:
+            OAuth method (a.k.a. flow) to use for authentication.
+        timeout:
+            Timeout for all API requests.
+
+        Returns
+        -------
+        :
+            A new low-level client.
+        """
+        token = login_via_oauth(
+            scicat_url=url, method=method, configured_oauth_clients=oauth_clients
+        )
+        return ScicatClient.from_token(url=url, token=token, timeout=timeout)
 
     @classmethod
     def without_login(
@@ -1311,7 +1385,7 @@ class ScicatClient:
         Note the use `quote_plus` for the PID. You must ensure to properly escape
         all URL components.
         """
-        full_url = _url_concat(f"{self._base_url}/{version}", url)
+        full_url = url_concat(f"{self._base_url}/{version}", url)
         logger = get_logger()
         logger.info("Calling SciCat API at %s for operation '%s'", full_url, operation)
 
@@ -1331,14 +1405,6 @@ class ScicatClient:
         logger.info("API call successful for operation '%s'", operation)
 
         return None if not response.text else response.json()
-
-
-def _url_concat(a: str, b: str) -> str:
-    # Combine two pieces or a URL without handling absolute
-    # paths as in urljoin.
-    a = a if a.endswith("/") else (a + "/")
-    b = b[1:] if b.endswith("/") else b
-    return a + b
 
 
 def _strip_token(error: Any, token: str) -> str:
@@ -1377,7 +1443,7 @@ def _log_in_via_users_login(
 ) -> httpx.Response:
     # Currently only used for functional accounts.
     response = httpx.post(
-        _url_concat(url, "auth/login"),
+        url_concat(url, "auth/login"),
         json={"username": username.get_str(), "password": password.get_str()},
         timeout=timeout.seconds,
     )
@@ -1397,7 +1463,7 @@ def _log_in_via_auth_msad(
     # Strip the api/vn suffix
     base_url = re.sub(r"/api/v\d+/?", "", url)
     response = httpx.post(
-        _url_concat(base_url, "auth/msad"),
+        url_concat(base_url, "auth/msad"),
         json={"username": username.get_str(), "password": password.get_str()},
         timeout=timeout.seconds,
     )
