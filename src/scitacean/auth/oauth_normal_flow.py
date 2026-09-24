@@ -221,7 +221,7 @@ class OAuthClientNormal:
 
     @staticmethod
     def _redirect_url(local_port: int) -> str:
-        return f"http://localhost:{local_port}"
+        return f"http://127.0.0.1:{local_port}/callback"
 
     def _scope_param(self) -> str:
         # join by " " which translated to "+" when escaped:
