@@ -105,6 +105,11 @@ class OAuthClientDevice:
         return ExpiringToken.from_jwt(SecretStr(token))
 
     @property
+    def remote_timeout(self) -> timedelta:
+        """The timeout for calls to the identity provider."""
+        return self._remote_timeout
+
+    @property
     def _idp_config(self) -> IdPConfig:
         """Get the IdP configuration on demand.
 
@@ -116,7 +121,9 @@ class OAuthClientDevice:
         constructed and used even when there are problems with the IdP as long as
         the user uses a different login method.
         """
-        return get_idp_config(self._provider, allow_http=self._allow_http)
+        return get_idp_config(
+            self._provider, allow_http=self._allow_http, timeout=self._remote_timeout
+        )
 
     def _start_auth_flow(
         self,

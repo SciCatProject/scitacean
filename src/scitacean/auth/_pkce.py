@@ -44,7 +44,7 @@ def _compute_code_challenge(
         warnings.warn(
             "The identity provider does not promise support for challenge "
             f"method '{method}'. It only reports methods "
-            f"({', '.join(challenge_methods_supported)}. Proceeding with method "
+            f"({', '.join(challenge_methods_supported)}). Proceeding with method "
             f"'{method}' regardless because nothing else is implemented. "
             f"This may fail.",
             UserWarning,

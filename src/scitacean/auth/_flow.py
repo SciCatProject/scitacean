@@ -6,6 +6,7 @@
 import os
 import warnings
 from collections.abc import Sequence
+from datetime import timedelta
 from typing import Literal
 
 import httpx
@@ -47,7 +48,7 @@ def login_via_oauth(
     oauth_client = _select_oauth_client(method, configured_oauth_clients)
     idp_token = oauth_client.login()
     return exchange_idp_token_for_scicat_token(
-        scicat_url=scicat_url, idp_token=idp_token
+        scicat_url=scicat_url, idp_token=idp_token, timeout=oauth_client.remote_timeout
     )
 
 
@@ -98,7 +99,7 @@ def _method_override() -> OAuthMethod:
 
 
 def exchange_idp_token_for_scicat_token(
-    *, scicat_url: str, idp_token: ExpiringToken
+    *, scicat_url: str, idp_token: ExpiringToken, timeout: timedelta
 ) -> ExpiringToken:
     """Get a SciCat token for a valid identity provider token.
 
@@ -108,6 +109,8 @@ def exchange_idp_token_for_scicat_token(
         URL of the SciCat api.
     idp_token:
         An access token for the identity provider.
+    timeout:
+        Timeout for the HTTP request.
 
     Returns
     -------
@@ -115,7 +118,10 @@ def exchange_idp_token_for_scicat_token(
         A valid SciCat token.
     """
     response = httpx.post(
-        url_concat(scicat_url, "auth/oidc/token"), json={"idToken": idp_token.get_str()}
+        url_concat(scicat_url, "auth/oidc/token"),
+        # `idp_token` is an access_token which SciCat requires despite the name:
+        json={"idToken": idp_token.get_str()},
+        timeout=timeout.total_seconds(),
     )
     if not response.is_success:
         raise AuthError(
