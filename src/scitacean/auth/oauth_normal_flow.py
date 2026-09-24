@@ -136,12 +136,9 @@ class OAuthClientNormal:
         if (auth_code := server.authorization_code) is not None:
             return auth_code, redirect_url
 
-        error = (
-            server.failure
-            or "Did not receive an authorization code from the identity provider."
-        )
         raise AuthError(
-            error + " Please check that you logged in correctly and check the login "
+            server.failure
+            + " Please check that you logged in correctly and check the login "
             "configuration.\nTip: Configure Python's logging framework to output "
             "INFO messages to the terminal and try again."
         )
