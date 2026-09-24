@@ -6,6 +6,7 @@
 import time
 import warnings
 from collections.abc import Iterable
+from contextlib import closing
 from datetime import timedelta
 from typing import Any
 
@@ -84,14 +85,13 @@ class OAuthClientDevice:
             verification_url = (
                 f"{flow_data['verification_uri']}?user_code={flow_data['user_code']}"
             )
-            open_in_browser(verification_url)
-
-            token = self._wait_for_token(
-                client,
-                code_verifier=code_verifier,
-                device_code=flow_data["device_code"],
-                interval=flow_data["interval"],
-            )
+            with closing(open_in_browser(verification_url)):
+                token = self._wait_for_token(
+                    client,
+                    code_verifier=code_verifier,
+                    device_code=flow_data["device_code"],
+                    interval=flow_data["interval"],
+                )
         return ExpiringToken.from_jwt(SecretStr(token))
 
     @property

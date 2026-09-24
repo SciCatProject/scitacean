@@ -6,6 +6,7 @@
 import secrets
 import warnings
 from collections.abc import Iterable
+from contextlib import closing
 from datetime import timedelta
 
 import httpx
@@ -129,8 +130,8 @@ class OAuthClientNormal:
                 state=state,
                 redirect_url=redirect_url,
             )
-            open_in_browser(auth_url)
-            server.handle_request()
+            with closing(open_in_browser(auth_url)):
+                server.handle_request()
 
         if (auth_code := server.authorization_code) is not None:
             return auth_code, redirect_url
