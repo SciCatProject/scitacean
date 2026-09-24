@@ -2,7 +2,8 @@
 # Copyright (c) 2026 SciCat Project (https://github.com/SciCatProject/scitacean)
 """Authentication client."""
 
+from ._oauth import OAuthClient
 from .oauth_device_flow import OAuthClientDevice
 from .oauth_normal_flow import OAuthClientNormal
 
-__all__ = ("OAuthClientDevice", "OAuthClientNormal")
+__all__ = ("OAuthClient", "OAuthClientDevice", "OAuthClientNormal")

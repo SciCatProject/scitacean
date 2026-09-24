@@ -20,7 +20,6 @@ from .error import (
     FileUploadError,
     IntegrityError,
     ScicatCommError,
-    ScicatLoginError,
 )
 from .file import File
 from .filesystem import RemotePath
@@ -44,7 +43,6 @@ __all__ = (
     "RemotePath",
     "Sample",
     "ScicatCommError",
-    "ScicatLoginError",
     "ScientificMetadataSchema",
     "Thumbnail",
     "VisibleDeprecationWarning",

@@ -57,10 +57,11 @@ Exceptions
    :template: scitacean-class-template.rst
    :recursive:
 
+   AuthError
+   FileNotAccessibleError
    FileUploadError
    IntegrityError
    ScicatCommError
-   ScicatLoginError
 
 Submodules
 ~~~~~~~~~~

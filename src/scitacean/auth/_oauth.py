@@ -6,9 +6,12 @@ from __future__ import annotations
 
 import dataclasses
 from functools import cache
+from typing import Protocol
 from urllib.parse import urljoin
 
 import httpx
+
+from ..util.credentials import ExpiringToken
 
 
 @cache
@@ -61,3 +64,10 @@ class Endpoints:
     authorization_endpoint: str | None
     device_authorization_endpoint: str | None
     token_endpoint: str
+
+
+class OAuthClient(Protocol):
+    """An OAuth client."""
+
+    def login(self) -> ExpiringToken:
+        """Run a login flow to get an access token from the identity provider."""

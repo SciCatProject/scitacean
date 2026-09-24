@@ -12,6 +12,7 @@ from typing import Any
 import httpx
 
 from ..error import AuthError
+from ..util.credentials import ExpiringToken, SecretStr
 from . import _pkce
 from ._oauth import IdPConfig, get_idp_config
 from ._user_agent import open_in_browser
@@ -57,7 +58,7 @@ class OAuthClientDevice:
         self._remote_timeout = remote_timeout
         self._scopes = set(scopes)
 
-    def login(self) -> str:
+    def login(self) -> ExpiringToken:
         """Log in with the IdP.
 
         This runs an interactive login flow via a web browser.
@@ -85,12 +86,13 @@ class OAuthClientDevice:
             )
             open_in_browser(verification_url)
 
-            return self._wait_for_token(
+            token = self._wait_for_token(
                 client,
                 code_verifier=code_verifier,
                 device_code=flow_data["device_code"],
                 interval=flow_data["interval"],
             )
+        return ExpiringToken.from_jwt(SecretStr(token))
 
     @property
     def _idp_config(self) -> IdPConfig:
