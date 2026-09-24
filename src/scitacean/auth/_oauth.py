@@ -6,33 +6,53 @@ from __future__ import annotations
 
 import dataclasses
 from functools import cache
-from typing import Protocol
+from typing import Any, Protocol
+from urllib.parse import urlsplit
 
 import httpx
 
-from .._internal.url import url_concat
+from .._internal.url import require_scheme, url_concat
 from ..util.credentials import ExpiringToken
 
 
 @cache
-def get_idp_config(provider_url: str) -> IdPConfig:
+def get_idp_config(provider_url: str, *, allow_http: bool) -> IdPConfig:
     """Read the IdP configuration from the given issuer.
 
     Assumes that the provider supports OpenID Connect and that there is a
     ``.well-known/openid-configuration`` endpoint.
     """
-    response = httpx.get(url_concat(provider_url, ".well-known/openid-configuration"))
+    allowed_schemes = ("https", "http") if allow_http else ("https",)
+    require_scheme(
+        provider_url,
+        allowed=allowed_schemes,
+        what="provider",
+    )
+    host = urlsplit(provider_url).netloc
+
+    response = httpx.get(
+        url_concat(provider_url, ".well-known/openid-configuration"),
+        follow_redirects=True,
+    )
     if not response.is_success:
         raise RuntimeError(
-            f"Failed to get IDP config from {provider_url}: {response.text}"
+            f"Failed to get IdP config from {provider_url}: {response.text}"
         )
 
     data = response.json()
+    if (
+        token_endpoint := _get_config_url(data, "token_endpoint", host, allowed_schemes)
+    ) is None:
+        raise RuntimeError("The IdP does not define a token endpoint")
     return IdPConfig(
         endpoints=Endpoints(
-            authorization_endpoint=data.get("authorization_endpoint"),
-            device_authorization_endpoint=data.get("device_authorization_endpoint"),
-            token_endpoint=data["token_endpoint"],
+            authorization_endpoint=_get_config_url(
+                data, "authorization_endpoint", host, allowed_schemes
+            ),
+            device_authorization_endpoint=_get_config_url(
+                data, "device_authorization_endpoint", host, allowed_schemes
+            ),
+            token_endpoint=token_endpoint,
         ),
         **{
             key: data[key]
@@ -44,6 +64,21 @@ def get_idp_config(provider_url: str) -> IdPConfig:
             )
         },
     )
+
+
+def _get_config_url(
+    data: dict[str, Any], key: str, host: str, allowed_schemes: tuple[str, ...]
+) -> str | None:
+    if (url := data.get(key)) is None:
+        return None
+    require_scheme(url, allowed=allowed_schemes, what=key)
+    if urlsplit(url).netloc != host:
+        raise RuntimeError(
+            f"The host of the '{key}' in the IdP config differs from the "
+            f"IdP itself ({host}): {url}\nThis is not allowed because this indicates "
+            f"a malicious or at least dangerous config."
+        )
+    return url
 
 
 @dataclasses.dataclass(frozen=True, slots=True)
