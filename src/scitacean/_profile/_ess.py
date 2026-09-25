@@ -47,7 +47,7 @@ def _ess_file_transfer() -> FileTransfer:
     try:
         from ..transfer.sftp import SFTPFileTransfer
 
-        children.append(SFTPFileTransfer(host="login.esss.dk"))
+        children.append(SFTPFileTransfer(host="sftp.esss.dk"))
     except ModuleNotFoundError as err:
         from ..logging import get_logger
 
