@@ -29,6 +29,10 @@ class OAuthClientNormal:
     so that opening ``http://localhost`` in a browser connects with the machine
     running the Python code. This is notably *not* the case when using a remote
     Jupyter instance. Use a different login method in such a case.
+
+    See Also
+    --------
+    :ref:`connecting-sso`
     """
 
     def __init__(

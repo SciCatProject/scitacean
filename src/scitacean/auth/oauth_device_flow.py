@@ -31,6 +31,10 @@ class OAuthClientDevice:
     flow via the user's web browser and a device code. The browser can be opened
     on any machine as long as the user enters the correct device code. This client
     is therefore usable on systems without a GUI and on remote Jupyter instances.
+
+    See Also
+    --------
+    :ref:`connecting-sso`
     """
 
     def __init__(
@@ -75,6 +79,15 @@ class OAuthClientDevice:
         """Log in with the IdP.
 
         This runs an interactive login flow via a web browser.
+
+        Parameters
+        ----------
+        open_browser:
+            A function that opens a given URL in the user's web browser.
+            By default, the client either uses the system's default browser
+            or, in Jupyter, opens a browser through JavaScript.
+            The return value is intended to close the browser window or at least
+            release any auxiliary resources.
 
         Returns
         -------

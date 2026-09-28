@@ -38,12 +38,17 @@ class Client:
     Clients hold all information needed to communicate with a SciCat instance
     and a filesystem that holds data files (via ``file_transfer``).
 
-    Use :func:`Client.from_token` or :func:`Client.from_credentials` to initialize
-    a client instead of the constructor directly.
+    Use one of Client's named constructors to create a client instead of
+    initializing one directly.
 
-    See the user guide for typical usage patterns.
-    In particular, `Downloading Datasets <../../user-guide/downloading.ipynb>`_
-    and `Uploading Datasets <../../user-guide/uploading.ipynb>`_.
+    See Also
+    --------
+    :ref:`connecting-to-scicat-and-file-servers`:
+        User guide on how to construct a client.
+    `Downloading Datasets <../../user-guide/downloading.ipynb>`_:
+        User guide on downloading datasets and files.
+    `Uploading Datasets <../../user-guide/uploading.ipynb>`_:
+        User guide on uploading datasets and files.
     """
 
     def __init__(
@@ -145,7 +150,6 @@ class Client:
         cls,
         profile: str | Profile | None = None,
         *,
-        url: str | None = None,
         method: OAuthMethod = "auto",
         file_transfer: FileTransfer | None = None,
     ) -> Client:
@@ -157,21 +161,22 @@ class Client:
             Encodes how to connect to SciCat.
             Elements are overridden by the other arguments if provided.
             The behavior is described in :class:`Profile`.
-        url:
-            URL of the SciCat api.
-            It should include the suffix `api/vn` where `n` is a number.
         method:
             OAuth method (a.k.a. flow) to use for authentication.
             The default is to pick the best client for the current system.
         file_transfer:
             Handler for down-/uploads of files.
 
+        See Also
+        --------
+        :ref:`connecting-sso`
+
         Returns
         -------
         :
             A new low-level client.
         """
-        p = gather_login_params(profile=profile, url=url, file_transfer=file_transfer)
+        p = gather_login_params(profile=profile, url=None, file_transfer=file_transfer)
         return Client(
             client=ScicatClient.login(
                 url=p.url, method=method, oauth_clients=p.oauth_clients
@@ -731,6 +736,10 @@ class ScicatClient:
         -------
         :
             A new low-level client.
+
+        See Also
+        --------
+        :ref:`connecting-sso`
         """
         token = login_via_oauth(
             scicat_url=url, method=method, configured_oauth_clients=oauth_clients

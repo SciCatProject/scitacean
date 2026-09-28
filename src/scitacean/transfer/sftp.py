@@ -262,7 +262,7 @@ class SFTPFileTransfer:
         password: str | StrStorage | None = None,
         key_filename: str | None = None,
         source_folder: str | RemotePath | None = None,
-        connect: Callable[[str, int | None], SFTPClient] | None = None,
+        connect: Callable[[str, int], SFTPClient] | None = None,
     ) -> None:
         """Construct a new SFTP file transfer.
 
@@ -406,7 +406,7 @@ def _connect(
     username: str | None,
     password: StrStorage | None,
     key_filename: str | None,
-    connect: Callable[[str, int | None], SFTPClient] | None,
+    connect: Callable[[str, int], SFTPClient] | None,
 ) -> SFTPClient:
     try:
         if connect is None:

@@ -71,6 +71,7 @@ Submodules
    :template: scitacean-module-template.rst
    :recursive:
 
+   auth
    model
    ontology
    testing
