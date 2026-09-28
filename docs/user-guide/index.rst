@@ -24,6 +24,23 @@ Basic usage
 
 
     .. grid-item-card::
+       :link: authentication.rst
+       :text-align: center
+
+       **Authentication**
+
+       .. image:: ../_static/icons/installation-light.svg
+          :class: only-light
+          :width: 40%
+       .. image:: ../_static/icons/installation-dark.svg
+          :class: only-dark
+          :width: 40%
+
+       ^^^
+       Authenticate with SciCat and file servers.
+
+
+    .. grid-item-card::
        :link: downloading.ipynb
        :text-align: center
 

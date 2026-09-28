@@ -145,7 +145,6 @@ class Client:
         cls,
         profile: str | Profile | None = None,
         *,
-        url: str | None = None,
         method: OAuthMethod = "auto",
         file_transfer: FileTransfer | None = None,
     ) -> Client:
@@ -157,9 +156,6 @@ class Client:
             Encodes how to connect to SciCat.
             Elements are overridden by the other arguments if provided.
             The behavior is described in :class:`Profile`.
-        url:
-            URL of the SciCat api.
-            It should include the suffix `api/vn` where `n` is a number.
         method:
             OAuth method (a.k.a. flow) to use for authentication.
             The default is to pick the best client for the current system.
@@ -171,7 +167,7 @@ class Client:
         :
             A new low-level client.
         """
-        p = gather_login_params(profile=profile, url=url, file_transfer=file_transfer)
+        p = gather_login_params(profile=profile, url=None, file_transfer=file_transfer)
         return Client(
             client=ScicatClient.login(
                 url=p.url, method=method, oauth_clients=p.oauth_clients
