@@ -146,7 +146,7 @@ def _get_file_transfer(
 
 
 def _get_builtin_profile(name: str) -> Profile:
-    profiles = _builtin_profiles()
+    profiles = builtin_profiles()
     try:
         factory = profiles[name]
     except KeyError:
@@ -157,7 +157,8 @@ def _get_builtin_profile(name: str) -> Profile:
 
 
 @cache
-def _builtin_profiles() -> dict[str, Callable[[], Profile]]:
+def builtin_profiles() -> dict[str, Callable[[], Profile]]:
+    """Return a dict of all builtin SciCat profiles."""
     from ._ess import profiles as ess_profiles
 
     profile_list = (*ess_profiles,)

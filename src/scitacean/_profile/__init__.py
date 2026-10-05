@@ -5,6 +5,7 @@
 from ._common import (
     Profile,
     ScientificMetadataSchema,
+    builtin_profiles,
     gather_login_params,
     locate_profile,
 )
@@ -12,6 +13,7 @@ from ._common import (
 __all__ = [
     "Profile",
     "ScientificMetadataSchema",
+    "builtin_profiles",
     "gather_login_params",
     "locate_profile",
 ]

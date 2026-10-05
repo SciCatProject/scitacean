@@ -10,7 +10,7 @@ try:
 except importlib.metadata.PackageNotFoundError:
     __version__ = "0.0.0"
 
-from ._profile import Profile, ScientificMetadataSchema
+from ._profile import Profile, ScientificMetadataSchema, builtin_profiles
 from .client import Client
 from .datablock import OrigDatablock
 from .dataset import Dataset
@@ -46,4 +46,5 @@ __all__ = (
     "ScientificMetadataSchema",
     "Thumbnail",
     "VisibleDeprecationWarning",
+    "builtin_profiles",
 )
