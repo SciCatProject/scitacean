@@ -21,7 +21,7 @@ import pydantic
 from . import model
 from ._internal.url import url_concat
 from ._profile import Profile, gather_login_params
-from .auth import OAuthClient, OAuthMethod, login_via_oauth
+from .auth import OAuthClient, OAuthFlow, login_via_oauth
 from .dataset import Dataset
 from .error import AuthError, FileNotAccessibleError, ScicatCommError
 from .file import File
@@ -150,7 +150,7 @@ class Client:
         cls,
         profile: str | Profile | None = None,
         *,
-        method: OAuthMethod = "auto",
+        flow: OAuthFlow = "auto",
         file_transfer: FileTransfer | None = None,
     ) -> Client:
         """Create a new client via single-sign-on.
@@ -161,8 +161,8 @@ class Client:
             Encodes how to connect to SciCat.
             Elements are overridden by the other arguments if provided.
             The behavior is described in :class:`Profile`.
-        method:
-            OAuth method (a.k.a. flow) to use for authentication.
+        flow:
+            Type of login method to use for authentication.
             The default is to pick the best client for the current system.
         file_transfer:
             Handler for down-/uploads of files.
@@ -179,7 +179,7 @@ class Client:
         p = gather_login_params(profile=profile, url=None, file_transfer=file_transfer)
         return Client(
             client=ScicatClient.login(
-                url=p.url, method=method, oauth_clients=p.oauth_clients
+                url=p.url, flow=flow, oauth_clients=p.oauth_clients
             ),
             file_transfer=p.file_transfer,
             profile=p,
@@ -715,7 +715,7 @@ class ScicatClient:
         cls,
         url: str,
         oauth_clients: Sequence[OAuthClient],
-        method: OAuthMethod = "auto",
+        flow: OAuthFlow = "auto",
         timeout: datetime.timedelta | None = None,
     ) -> ScicatClient:
         """Create a new low-level client via single-sign-on.
@@ -727,8 +727,8 @@ class ScicatClient:
             It should include the suffix `api/vn` where `n` is a number.
         oauth_clients:
             Available OAuth clients to use for authentication.
-        method:
-            OAuth method (a.k.a. flow) to use for authentication.
+        flow:
+            OAuth flow to use for authentication.
         timeout:
             Timeout for all API requests.
 
@@ -742,7 +742,7 @@ class ScicatClient:
         :ref:`connecting-sso`
         """
         token = login_via_oauth(
-            scicat_url=url, method=method, configured_oauth_clients=oauth_clients
+            scicat_url=url, flow=flow, configured_oauth_clients=oauth_clients
         )
         return ScicatClient.from_token(url=url, token=token, timeout=timeout)
 

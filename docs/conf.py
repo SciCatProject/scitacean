@@ -38,12 +38,12 @@ extensions = [
     "nbsphinx",
 ]
 
-# intersphinx_mapping = {
-#     "hypothesis": ("https://hypothesis.readthedocs.io/en/latest", None),
-#     "paramiko": ("https://docs.paramiko.org/en/latest", None),
-#     "pydantic": ("https://docs.pydantic.dev/latest", None),
-#     "python": ("https://docs.python.org/3", None),
-# }
+intersphinx_mapping = {
+    "hypothesis": ("https://hypothesis.readthedocs.io/en/latest", None),
+    "paramiko": ("https://docs.paramiko.org/en/latest", None),
+    "pydantic": ("https://docs.pydantic.dev/latest", None),
+    "python": ("https://docs.python.org/3", None),
+}
 
 # autodocs includes everything, even irrelevant API internals. autosummary
 # looks more suitable in the long run when the API grows.

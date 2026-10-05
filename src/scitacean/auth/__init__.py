@@ -21,7 +21,7 @@
   login_via_oauth
 """
 
-from ._flow import OAuthMethod, login_via_oauth
+from ._flow import OAuthFlow, login_via_oauth
 from ._oauth import OAuthClient
 from .oauth_device_flow import OAuthClientDevice
 from .oauth_normal_flow import OAuthClientNormal
@@ -30,6 +30,6 @@ __all__ = (
     "OAuthClient",
     "OAuthClientDevice",
     "OAuthClientNormal",
-    "OAuthMethod",
+    "OAuthFlow",
     "login_via_oauth",
 )

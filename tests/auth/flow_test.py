@@ -9,7 +9,7 @@ from scitacean.auth import OAuthClient, OAuthClientDevice, OAuthClientNormal
 
 # There are tests for an internal function because it is difficult
 # to test thoroughly through the public interface.
-from scitacean.auth._flow import OAuthMethod, _select_oauth_client
+from scitacean.auth._flow import OAuthFlow, _select_oauth_client
 
 
 def _configured_clients() -> Sequence[OAuthClient]:
@@ -20,20 +20,20 @@ def _configured_clients() -> Sequence[OAuthClient]:
 
 
 @pytest.mark.parametrize(
-    ("method", "expected"),
+    ("flow", "expected"),
     [("normal", OAuthClientNormal), ("device", OAuthClientDevice)],
 )
 @pytest.mark.parametrize("env", [None, "", "normal", "device", "auto", "bad"])
-def test_select_oauth_client_explicit_method(
-    method: OAuthMethod,
+def test_select_oauth_client_explicit_flow(
+    flow: OAuthFlow,
     expected: type,
     env: str | None,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     if env is not None:
-        monkeypatch.setenv("SCITACEAN_OAUTH_METHOD", env)
+        monkeypatch.setenv("SCITACEAN_OAUTH_FLOW", env)
 
-    client = _select_oauth_client(method, _configured_clients())
+    client = _select_oauth_client(flow, _configured_clients())
     assert isinstance(client, expected)
 
 
@@ -52,7 +52,7 @@ def test_select_oauth_client_auto(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     if env is not None:
-        monkeypatch.setenv("SCITACEAN_OAUTH_METHOD", env)
+        monkeypatch.setenv("SCITACEAN_OAUTH_FLOW", env)
 
     client = _select_oauth_client("auto", _configured_clients())
     assert isinstance(client, expected)
@@ -71,22 +71,22 @@ def test_select_oauth_client_auto_bad_env_var(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     if env is not None:
-        monkeypatch.setenv("SCITACEAN_OAUTH_METHOD", env)
+        monkeypatch.setenv("SCITACEAN_OAUTH_FLOW", env)
 
-    with pytest.warns(UserWarning, match="Unknown OAuth method"):
+    with pytest.warns(UserWarning, match="Unknown OAuth flow"):
         client = _select_oauth_client("auto", _configured_clients())
     assert isinstance(client, expected)
 
 
 @pytest.mark.parametrize("env", [None, "normal", "bad"])
-def test_select_oauth_client_abad_method(
+def test_select_oauth_client_bad_flow(
     env: str | None,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     if env is not None:
-        monkeypatch.setenv("SCITACEAN_OAUTH_METHOD", env)
+        monkeypatch.setenv("SCITACEAN_OAUTH_FLOW", env)
 
-    with pytest.raises(ValueError, match="Unknown OAuth method"):
+    with pytest.raises(ValueError, match="Unknown OAuth flow"):
         _select_oauth_client("bad", _configured_clients())  # type: ignore[arg-type]
 
 
