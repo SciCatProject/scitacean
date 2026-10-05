@@ -43,7 +43,6 @@ def derived_dataset(scicat_access: backend_config.SciCatAccess) -> UploadDataset
         usedSoftware=[],
         ownerGroup=scicat_access.user.group,
         accessGroups=["koelle"],
-        numberOfFilesArchived=0,
     )
 
 

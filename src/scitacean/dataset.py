@@ -520,10 +520,6 @@ class Dataset(DatasetBase):
         special = ("relationships", "techniques", "input_datasets", "used_software")
 
         return {
-            "numberOfFiles": self.number_of_files,
-            "numberOfFilesArchived": self.number_of_files_archived,
-            "size": self.size,
-            "packedSize": self.packed_size,
             "scientificMetadata": self._meta or None,
             "techniques": convert_user_to_upload_model(self.techniques),
             "relationships": convert_user_to_upload_model(self.relationships),

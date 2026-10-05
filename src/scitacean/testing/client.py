@@ -281,6 +281,9 @@ class FakeScicatClient(ScicatClient):
             raise ScicatCommError(f"No dataset with id {dblock.datasetId}")
         ingested = _process_orig_datablock(dblock, dset)
         self.main.orig_datablocks.setdefault(dblock.datasetId, []).append(ingested)
+        _update_dataset_for_datablock_upload(
+            dset, self.main.orig_datablocks[dblock.datasetId]
+        )
         return ingested
 
     @_conditionally_disabled
@@ -423,6 +426,16 @@ def _process_orig_datablock(
         **fields,
     )
     return processed
+
+
+def _update_dataset_for_datablock_upload(
+    dset: model.DownloadDataset, orig_datablocks: list[model.DownloadOrigDatablock]
+) -> None:
+    """Update dataset to mimic real SciCat."""
+    dset.numberOfFiles = sum(len(db.dataFileList or ()) for db in orig_datablocks)
+    dset.size = sum(db.size or 0 for db in orig_datablocks)
+    # If we start supporting archived datablocks, we also needs to update
+    # numberOfArchivedFiles and packedSize here.
 
 
 def _process_attachment(attachment: model.UploadAttachment) -> model.DownloadAttachment:
