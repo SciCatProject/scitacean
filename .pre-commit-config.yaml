@@ -22,7 +22,7 @@ repos:
       - id: end-of-file-fixer
         exclude: '\.idea/'
       - id: trailing-whitespace
-        args: [--markdown-linebreak-ext=md]
+        args: [ --markdown-linebreak-ext=md ]
 
   - repo: https://github.com/kynan/nbstripout
     rev: 0.9.1
@@ -58,11 +58,16 @@ repos:
         language: system
         files: "justfile"
 
+  - repo: https://github.com/betterleaks/betterleaks
+    rev: 81aff7a638638aae3a659845d089043e1d8fe9ac  # 1.9.0
+    hooks:
+      - id: betterleaks
+
   - repo: https://github.com/crate-ci/typos
     rev: v1.47.2
     hooks:
       - id: typos
-        args: [--force-exclude]
+        args: [ --force-exclude ]
 
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0
