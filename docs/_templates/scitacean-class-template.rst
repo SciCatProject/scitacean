@@ -1,6 +1,6 @@
 {{ fullname | escape | underline }}
 
-{% set constructors = {"Client": ["from_credentials", "from_token", "without_login"],
+{% set constructors = {"Client": ["from_credentials", "from_token", "login", "without_login"],
                        "Dataset": ["__init__", "from_download_model"],
                        "File": ["from_local", "from_remote", "from_download_model"],
                        "OrigDatablockProxy": ["__init__", "from_download_model"],
