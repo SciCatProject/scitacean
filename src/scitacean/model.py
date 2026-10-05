@@ -197,11 +197,8 @@ class UploadDataset(BaseModel):
     jobParameters: dict[str, Any] | None = None
     keywords: list[str] | None = None
     license: str | None = None
-    numberOfFiles: NonNegativeInt | None = None
-    numberOfFilesArchived: NonNegativeInt | None = None
     orcidOfOwner: str | None = None
     ownerEmail: str | None = None
-    packedSize: NonNegativeInt | None = None
     principalInvestigators: list[str] | None = None
     proposalIds: list[str] | None = None
     relationships: list[UploadRelationship] | None = None
@@ -211,7 +208,6 @@ class UploadDataset(BaseModel):
     scientificMetadataSchema: str | None = None
     scientificMetadataValid: bool | None = None
     sharedWith: list[str] | None = None
-    size: NonNegativeInt | None = None
     sourceFolderHost: str | None = None
     startTime: datetime | None = None
     techniques: list[UploadTechnique] | None = None

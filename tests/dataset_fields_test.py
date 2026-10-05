@@ -320,10 +320,6 @@ def test_make_raw_model() -> None:
         scientificMetadata=None,
         creationLocation="ANK/UU",
         sharedWith=["librarian", "hicks"],
-        numberOfFiles=0,
-        numberOfFilesArchived=0,
-        packedSize=0,
-        size=0,
         inputDatasets=[],
         usedSoftware=["scitacean"],
     )
@@ -357,10 +353,6 @@ def test_make_derived_model() -> None:
         scientificMetadata={"weight": {"value": 5.23, "unit": "kg"}},
         inputDatasets=[PID(pid="623-122")],
         usedSoftware=["scitacean", "magick"],
-        numberOfFiles=0,
-        numberOfFilesArchived=0,
-        packedSize=0,
-        size=0,
     )
     assert dset.make_upload_model() == expected
 

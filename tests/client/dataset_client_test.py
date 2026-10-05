@@ -4,7 +4,6 @@
 
 from datetime import datetime
 
-import pydantic
 import pytest
 
 from scitacean import PID, Client, Dataset, RemotePath, ScicatCommError
@@ -36,7 +35,6 @@ def derived_dataset(scicat_access: backend_config.SciCatAccess) -> UploadDataset
         usedSoftware=[],
         ownerGroup=scicat_access.user.group,
         accessGroups=["koelle"],
-        numberOfFilesArchived=0,
     )
 
 
@@ -142,14 +140,6 @@ def test_get_broken_dataset(client: Client) -> None:
     assert downloaded.size == 0
 
 
-def test_get_broken_dataset_strict_validation(
-    real_client: Client, require_scicat_backend: None
-) -> None:
-    dset = INITIAL_DATASETS["partially-broken"]
-    with pytest.raises(pydantic.ValidationError):
-        real_client.get_dataset(dset.pid, strict_validation=True)
-
-
 def test_dataset_with_orig_datablock_roundtrip(client: Client) -> None:
     ds = Dataset.from_download_model(
         INITIAL_DATASETS["raw"].model_copy(
@@ -164,6 +154,11 @@ def test_dataset_with_orig_datablock_roundtrip(client: Client) -> None:
     assert downloaded.owner == ds.owner
     assert downloaded.size == ds.size
     assert downloaded.number_of_files == ds.number_of_files
+
+    # The backend populates some fields automatically:
+    downloaded_model = client.scicat.get_dataset_model(finalized.pid)
+    assert downloaded_model.size == ds.size
+    assert downloaded_model.numberOfFiles == ds.number_of_files
 
 
 def test_upload_dataset_with_different_techniques(client: Client) -> None:

@@ -237,11 +237,14 @@ def test_upload_creates_dataset_and_datablock(
     assert client.datasets[finalized.pid].createdAt == finalized.created_at
     assert client.datasets[finalized.pid].datasetName == finalized.name
     assert client.datasets[finalized.pid].owner == finalized.owner
-    assert client.datasets[finalized.pid].size == finalized.size
 
     assert client.orig_datablocks[finalized.pid][0].createdBy == finalized.created_by
     assert client.orig_datablocks[finalized.pid][0].datasetId == finalized.pid
     assert client.orig_datablocks[finalized.pid][0].size == finalized.size
+    assert (
+        len(client.orig_datablocks[finalized.pid][0].dataFileList or ())
+        == finalized.number_of_files
+    )
 
 
 def test_upload_creates_attachments(
