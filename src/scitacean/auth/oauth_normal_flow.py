@@ -26,7 +26,7 @@ class OAuthClientNormal:
     flow via the user's web browser and a callback server on localhost.
 
     This requires that Python is running on the same machine as the user interface
-    so that opening ``http://localhost`` in a browser connects with the machine
+    so that opening ``127.0.0.1`` in a browser connects with the machine
     running the Python code. This is notably *not* the case when using a remote
     Jupyter instance. Use a different login method in such a case.
 
@@ -41,12 +41,22 @@ class OAuthClientNormal:
         provider: str,
         client_id: str,
         local_port: int = 0,
+        callback_path: str = "/callback",
         local_timeout: timedelta = timedelta(seconds=60),
         remote_timeout: timedelta = timedelta(seconds=5),
         scopes: Iterable[str] = ("openid",),
         allow_http: bool = False,
     ) -> None:
         """Create a new client.
+
+        This client uses a callback server that will be launched on
+
+        .. code-block::
+
+            127.0.0.1:{port}{callback_path}
+
+        This path needs to be whitelisted in the OAuth provider's
+        configuration for the client ID.
 
         Parameters
         ----------
@@ -57,6 +67,8 @@ class OAuthClientNormal:
         local_port:
             The port to use for the callback server on localhost.
             Defaults to 0, which means that the server will pick any free port.
+        callback_path:
+            The path to use for the callback server on localhost.
         local_timeout:
             Timeout for the callback server.
         remote_timeout:
@@ -72,6 +84,7 @@ class OAuthClientNormal:
         self._provider = provider
         self._client_id = client_id
         self._local_port = local_port
+        self._callback_path = "/" + callback_path.removeprefix("/")
         self._local_timeout = local_timeout
         self._remote_timeout = remote_timeout
         self._scopes = set(scopes)
@@ -136,7 +149,10 @@ class OAuthClientNormal:
         state: str,
     ) -> tuple[str, str]:
         with launch_auth_redirect_server(
-            port=self._local_port, timeout=self._local_timeout, state=state
+            port=self._local_port,
+            timeout=self._local_timeout,
+            state=state,
+            path=self._callback_path,
         ) as server:
             # Derive the URL from the server port in case the server picks a port.
             redirect_url = self._redirect_url(server.server_port)
@@ -233,9 +249,8 @@ class OAuthClientNormal:
         ).url
         return str(url)
 
-    @staticmethod
-    def _redirect_url(local_port: int) -> str:
-        return f"http://127.0.0.1:{local_port}/callback"
+    def _redirect_url(self, local_port: int) -> str:
+        return f"http://127.0.0.1:{local_port}{self._callback_path}"
 
     def _scope_param(self) -> str:
         # join by " " which translated to "+" when escaped:

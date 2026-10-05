@@ -21,7 +21,7 @@ _LOGGER_NAME = "OAuth-server"
 
 @contextmanager
 def launch_auth_redirect_server(
-    *, port: int, timeout: timedelta, state: str
+    *, port: int, timeout: timedelta, state: str, path: str
 ) -> Generator[OAuthRedirectServer, None, None]:
     """Launch a server to listen for OAuth redirects and store an authorization code.
 
@@ -43,6 +43,8 @@ def launch_auth_redirect_server(
         A ``TimeoutError`` is raised if the timeout is reached.
     state:
         The random OAuth state string for this interaction.
+    path:
+        The path to listen on. The server will respond with 404 to any other path.
 
     Returns
     -------
@@ -57,6 +59,7 @@ def launch_auth_redirect_server(
         _OAuthRedirectHandler,
         timeout=max(int(timeout.total_seconds()), 1),
         state=state,
+        path=path,
     ) as server:
         yield server
 
@@ -74,11 +77,13 @@ class OAuthRedirectServer(HTTPServer):
         *,
         timeout: float,
         state: str,
+        path: str,
     ) -> None:
         super().__init__(server_address, RequestHandlerClass)
         self.timeout = timeout
         self.base_timeout = timeout
         self.state = state
+        self.path = path
         self.authorization_code: str | None = None
         self.failure: str = ""
 
@@ -128,7 +133,7 @@ class _OAuthRedirectHandler(BaseHTTPRequestHandler):
         server: OAuthRedirectServer = self.server  # type: ignore[assignment]
 
         parsed = parse.urlparse(self.path)
-        if parsed.path != "/callback":
+        if parsed.path != server.path:
             self.send_response(404)
             self.send_header("Content-Length", "0")
             self.end_headers()
