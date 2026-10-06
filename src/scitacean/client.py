@@ -28,7 +28,7 @@ from .file import File
 from .filesystem import RemotePath
 from .logging import get_logger
 from .pid import PID
-from .typing import DownloadConnection, FileTransfer, UploadConnection
+from .typing import DownloadConnection, FileTransfer, SupportsClose, UploadConnection
 from .util.credentials import ExpiringToken, SecretStr, StrStorage
 
 
@@ -152,6 +152,7 @@ class Client:
         *,
         flow: OAuthFlow = "auto",
         file_transfer: FileTransfer | None = None,
+        open_browser: Callable[[str], SupportsClose] | None = None,
     ) -> Client:
         """Create a new client via single-sign-on.
 
@@ -166,6 +167,12 @@ class Client:
             The default is to pick the best client for the current system.
         file_transfer:
             Handler for down-/uploads of files.
+        open_browser:
+            A function that opens a given URL in the user's web browser.
+            By default, the client either uses the system's default browser
+            or, in Jupyter, opens a browser through JavaScript.
+            The return value is intended to close the browser window or at least
+            release any auxiliary resources.
 
         See Also
         --------
@@ -179,7 +186,10 @@ class Client:
         p = gather_login_params(profile=profile, url=None, file_transfer=file_transfer)
         return Client(
             client=ScicatClient.login(
-                url=p.url, flow=flow, oauth_clients=p.oauth_clients
+                url=p.url,
+                flow=flow,
+                oauth_clients=p.oauth_clients,
+                open_browser=open_browser,
             ),
             file_transfer=p.file_transfer,
             profile=p,
@@ -717,6 +727,7 @@ class ScicatClient:
         oauth_clients: Sequence[OAuthClient],
         flow: OAuthFlow = "auto",
         timeout: datetime.timedelta | None = None,
+        open_browser: Callable[[str], SupportsClose] | None = None,
     ) -> ScicatClient:
         """Create a new low-level client via single-sign-on.
 
@@ -731,6 +742,12 @@ class ScicatClient:
             OAuth flow to use for authentication.
         timeout:
             Timeout for all API requests.
+        open_browser:
+            A function that opens a given URL in the user's web browser.
+            By default, the client either uses the system's default browser
+            or, in Jupyter, opens a browser through JavaScript.
+            The return value is intended to close the browser window or at least
+            release any auxiliary resources.
 
         Returns
         -------
@@ -742,7 +759,10 @@ class ScicatClient:
         :ref:`connecting-sso`
         """
         token = login_via_oauth(
-            scicat_url=url, flow=flow, configured_oauth_clients=oauth_clients
+            scicat_url=url,
+            flow=flow,
+            configured_oauth_clients=oauth_clients,
+            open_browser=open_browser,
         )
         return ScicatClient.from_token(url=url, token=token, timeout=timeout)
 

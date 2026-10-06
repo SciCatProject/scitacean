@@ -5,13 +5,14 @@
 
 import secrets
 import warnings
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from contextlib import closing
 from datetime import timedelta
 
 import httpx
 
 from ..error import AuthError
+from ..typing import SupportsClose
 from ..util.credentials import ExpiringToken, SecretStr
 from . import _pkce
 from ._oauth import IdPConfig, get_idp_config
@@ -90,10 +91,23 @@ class OAuthClientNormal:
         self._scopes = set(scopes)
         self._allow_http = allow_http
 
-    def login(self) -> ExpiringToken:
+    def login(
+        self,
+        *,
+        open_browser: Callable[[str], SupportsClose] | None = None,
+    ) -> ExpiringToken:
         """Log in with the IdP.
 
         This runs an interactive login flow via the user's web browser.
+
+        Parameters
+        ----------
+        open_browser:
+            A function that opens a given URL in the user's web browser.
+            By default, the client either uses the system's default browser
+            or, in Jupyter, opens a browser through JavaScript.
+            The return value is intended to close the browser window or at least
+            release any auxiliary resources.
 
         Returns
         -------
@@ -110,7 +124,11 @@ class OAuthClientNormal:
 
         with httpx.Client(timeout=self._remote_timeout.total_seconds()) as client:
             auth_code, redirect_url = self._listen_for_authorization_code(
-                client, code_challenge, code_challenge_method, state
+                client,
+                code_challenge,
+                code_challenge_method,
+                state,
+                open_browser=open_browser or open_in_browser,
             )
             token = self._exchange_auth_code_for_token(
                 client,
@@ -147,6 +165,7 @@ class OAuthClientNormal:
         code_challenge: str,
         code_challenge_method: str,
         state: str,
+        open_browser: Callable[[str], SupportsClose],
     ) -> tuple[str, str]:
         with launch_auth_redirect_server(
             port=self._local_port,
@@ -163,7 +182,7 @@ class OAuthClientNormal:
                 state=state,
                 redirect_url=redirect_url,
             )
-            with closing(open_in_browser(auth_url)):
+            with closing(open_browser(auth_url)):
                 server.wait_for_authorization_code()
 
         if (auth_code := server.authorization_code) is not None:

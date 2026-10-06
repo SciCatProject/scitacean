@@ -16,7 +16,7 @@ from urllib import parse
 
 from . import _assets
 
-_LOGGER_NAME = "OAuth-server"
+_LOGGER_NAME = "scitacean.oauth-server"
 
 
 @contextmanager
@@ -32,7 +32,7 @@ def launch_auth_redirect_server(
     see https://developer.mozilla.org/en-US/docs/Web/API/Window/close.
     All other responses are 501.
 
-    The server writes logs to a logger called "OAuth-server".
+    The server writes logs to a logger called "scitacean.oauth-server".
 
     Parameters
     ----------

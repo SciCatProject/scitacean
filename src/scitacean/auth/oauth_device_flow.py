@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import time
 import warnings
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from contextlib import closing
 from dataclasses import dataclass
 from datetime import timedelta
@@ -18,6 +18,7 @@ from urllib.parse import quote_plus
 import httpx
 
 from ..error import AuthError
+from ..typing import SupportsClose
 from ..util.credentials import ExpiringToken, SecretStr
 from . import _pkce
 from ._oauth import IdPConfig, get_idp_config
@@ -75,7 +76,10 @@ class OAuthClientDevice:
         self._scopes = set(scopes)
         self._allow_http = allow_http
 
-    def login(self) -> ExpiringToken:
+    def login(
+        self,
+        open_browser: Callable[[str], SupportsClose] | None = None,
+    ) -> ExpiringToken:
         """Log in with the IdP.
 
         This runs an interactive login flow via a web browser.
@@ -97,6 +101,8 @@ class OAuthClientDevice:
         """
         self._check_idp_compatibility()
 
+        actual_open_browser = open_browser or open_in_browser
+
         code_verifier, (code_challenge, code_challenge_method) = (
             _pkce.generate_pkce_pair(self._idp_config.code_challenge_methods_supported)
         )
@@ -107,7 +113,7 @@ class OAuthClientDevice:
                 code_challenge=code_challenge,
                 code_challenge_method=code_challenge_method,
             )
-            with closing(open_in_browser(flow_data.verification_uri_complete)):
+            with closing(actual_open_browser(flow_data.verification_uri_complete)):
                 token = self._wait_for_token(
                     client,
                     code_verifier=code_verifier,

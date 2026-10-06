@@ -2,6 +2,7 @@
 # Copyright (c) 2025 SciCat Project (https://github.com/SciCatProject/scitacean)
 """Backend configuration."""
 
+import importlib.resources
 import json
 from dataclasses import dataclass
 from pathlib import Path
@@ -141,3 +142,14 @@ def dump_account_config(path: Path) -> None:
     """Write a functional account config for the backend."""
     with path.open("w") as f:
         json.dump([user.dump() for user in USERS.values()], f)
+
+
+def write_keycloak_imports(path: Path) -> None:
+    """Write Keycloak import data."""
+    path.mkdir(exist_ok=True)
+    imports = (
+        importlib.resources.files("scitacean.testing.backend")
+        .joinpath("keycloak-import.json")
+        .read_text()
+    )
+    path.joinpath("keycloak-import.json").write_text(imports)

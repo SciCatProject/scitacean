@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import dataclasses
+from collections.abc import Callable
 from datetime import timedelta
 from functools import cache
 from typing import Any, Protocol
@@ -13,6 +14,7 @@ from urllib.parse import urlsplit
 import httpx
 
 from .._internal.url import require_scheme, url_concat
+from ..typing import SupportsClose
 from ..util.credentials import ExpiringToken
 
 
@@ -96,7 +98,9 @@ class Endpoints:
 class OAuthClient(Protocol):
     """An OAuth client."""
 
-    def login(self) -> ExpiringToken:
+    def login(
+        self, *, open_browser: Callable[[str], SupportsClose] | None = None
+    ) -> ExpiringToken:
         """Run a login flow to get an access token from the identity provider."""
 
     @property

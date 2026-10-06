@@ -5,7 +5,7 @@
 
 import os
 import warnings
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from datetime import timedelta
 from typing import Literal
 
@@ -13,6 +13,7 @@ import httpx
 
 from .._internal.url import url_concat
 from ..error import AuthError
+from ..typing import SupportsClose
 from ..util.credentials import ExpiringToken, SecretStr
 from ._oauth import OAuthClient
 from .oauth_device_flow import OAuthClientDevice
@@ -27,6 +28,7 @@ def login_via_oauth(
     flow: OAuthFlow,
     configured_oauth_clients: Sequence[OAuthClient],
     scicat_url: str,
+    open_browser: Callable[[str], SupportsClose] | None = None,
 ) -> ExpiringToken:
     """Get a SciCat token via single-sign-on.
 
@@ -39,6 +41,12 @@ def login_via_oauth(
         Available OAuth clients to use for authentication.
     scicat_url:
         URL of the SciCat api.
+    open_browser:
+        A function that opens a given URL in the user's web browser.
+        By default, the client either uses the system's default browser
+        or, in Jupyter, opens a browser through JavaScript.
+        The return value is intended to close the browser window or at least
+        release any auxiliary resources.
 
     Returns
     -------
@@ -46,7 +54,7 @@ def login_via_oauth(
         A valid SciCat token.
     """
     oauth_client = _select_oauth_client(flow, configured_oauth_clients)
-    idp_token = oauth_client.login()
+    idp_token = oauth_client.login(open_browser=open_browser)
     return exchange_idp_token_for_scicat_token(
         scicat_url=scicat_url, idp_token=idp_token, timeout=oauth_client.remote_timeout
     )
@@ -117,6 +125,7 @@ def exchange_idp_token_for_scicat_token(
     :
         A valid SciCat token.
     """
+    # TODO handle v3 / v4 suffix (needs v3?)
     response = httpx.post(
         url_concat(scicat_url, "auth/oidc/token"),
         # `idp_token` is an access_token which SciCat requires despite the name:

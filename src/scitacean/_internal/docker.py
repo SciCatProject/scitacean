@@ -24,6 +24,9 @@ def docker_compose_up(config_file: _PathLike, *services: str) -> None:
             "up",
             "--detach",
             "--force-recreate",
+            "--wait",
+            "--wait-timeout",
+            "120",
             *services,
         ]
     )
