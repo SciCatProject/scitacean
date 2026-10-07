@@ -41,7 +41,7 @@ class OAuthClientNormal:
         *,
         provider: str,
         client_id: str,
-        local_port: int = 0,
+        local_port: int | Iterable[int] = 0,
         callback_path: str = "/callback",
         local_timeout: timedelta = timedelta(seconds=60),
         remote_timeout: timedelta = timedelta(seconds=5),
@@ -66,7 +66,8 @@ class OAuthClientNormal:
         client_id:
             The client ID of the OAuth client.
         local_port:
-            The port to use for the callback server on localhost.
+            The port(s) to use for the callback server on localhost.
+            If multiple, tries all ports in order until one is available.
             Defaults to 0, which means that the server will pick any free port.
         callback_path:
             The path to use for the callback server on localhost.

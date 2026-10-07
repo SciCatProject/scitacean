@@ -7,7 +7,7 @@ from __future__ import annotations
 import logging
 import secrets
 import time
-from collections.abc import Generator
+from collections.abc import Generator, Iterable
 from contextlib import contextmanager
 from datetime import timedelta
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -21,7 +21,7 @@ _LOGGER_NAME = "scitacean.oauth-server"
 
 @contextmanager
 def launch_auth_redirect_server(
-    *, port: int, timeout: timedelta, state: str, path: str
+    *, port: int | Iterable[int], timeout: timedelta, state: str, path: str
 ) -> Generator[OAuthRedirectServer, None, None]:
     """Launch a server to listen for OAuth redirects and store an authorization code.
 
@@ -37,7 +37,8 @@ def launch_auth_redirect_server(
     Parameters
     ----------
     port:
-        The port to listen on.
+        The port(s) to listen on.
+        If multiple, tries all ports in order until one is available.
     timeout:
         Timeout for waiting for the authorization code.
         A ``TimeoutError`` is raised if the timeout is reached.
@@ -54,14 +55,28 @@ def launch_auth_redirect_server(
         ``server.authorization_code``. This attribute is ``None`` if no code
         was received.
     """
-    with OAuthRedirectServer(
-        ("127.0.0.1", port),
-        _OAuthRedirectHandler,
-        timeout=max(int(timeout.total_seconds()), 1),
-        state=state,
-        path=path,
-    ) as server:
-        yield server
+    ports = (port,) if isinstance(port, int) else port
+    timeout_secs = max(int(timeout.total_seconds()), 1)
+
+    error = None
+    for candidate_port in ports:
+        try:
+            with OAuthRedirectServer(
+                ("127.0.0.1", candidate_port),
+                _OAuthRedirectHandler,
+                timeout=timeout_secs,
+                state=state,
+                path=path,
+            ) as server:
+                yield server
+        except OSError as err:
+            error = err
+        else:
+            return
+
+    if error is not None:
+        error.add_note(f"Tried ports {ports}")
+        raise error
 
 
 class OAuthRedirectServer(HTTPServer):
