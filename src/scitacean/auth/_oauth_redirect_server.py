@@ -21,7 +21,7 @@ _LOGGER_NAME = "scitacean.oauth-server"
 
 @contextmanager
 def launch_auth_redirect_server(
-    *, port: int | Iterable[int], timeout: timedelta, state: str, path: str
+    *, port: int | Iterable[int], issuer: str, state: str, path: str, timeout: timedelta
 ) -> Generator[OAuthRedirectServer, None, None]:
     """Launch a server to listen for OAuth redirects and store an authorization code.
 
@@ -39,13 +39,15 @@ def launch_auth_redirect_server(
     port:
         The port(s) to listen on.
         If multiple, tries all ports in order until one is available.
-    timeout:
-        Timeout for waiting for the authorization code.
-        A ``TimeoutError`` is raised if the timeout is reached.
+    issuer:
+        The issuer URL of the OAuth provider.
     state:
         The random OAuth state string for this interaction.
     path:
         The path to listen on. The server will respond with 404 to any other path.
+    timeout:
+        Timeout for waiting for the authorization code.
+        A ``TimeoutError`` is raised if the timeout is reached.
 
     Returns
     -------
@@ -67,6 +69,7 @@ def launch_auth_redirect_server(
                 timeout=timeout_secs,
                 state=state,
                 path=path,
+                issuer=issuer,
             ) as server:
                 yield server
         except OSError as err:
@@ -90,13 +93,15 @@ class OAuthRedirectServer(HTTPServer):
         server_address: tuple[str, int],
         RequestHandlerClass: type,
         *,
-        timeout: float,
+        issuer: str,
         state: str,
         path: str,
+        timeout: float,
     ) -> None:
         super().__init__(server_address, RequestHandlerClass)
         self.timeout = timeout
         self.base_timeout = timeout
+        self.issuer = issuer
         self.state = state
         self.path = path
         self.authorization_code: str | None = None
@@ -158,6 +163,12 @@ class _OAuthRedirectHandler(BaseHTTPRequestHandler):
         if errors := qs.get("error", []):
             self._send_result_page(success=False)
             server.failure = f"Authentication failed: {errors}."
+        elif not secrets.compare_digest("".join(qs.get("iss", ())), server.issuer):
+            self._send_result_page(success=False)
+            server.failure = (
+                "The identity provider returned an unexpected issuer. "
+                f"Got {qs.get('state', ())!r}, expected {server.issuer!r}."
+            )
         elif not secrets.compare_digest("".join(qs.get("state", ())), server.state):
             self._send_result_page(success=False)
             server.failure = "The identity provider used an invalid OAuth state."
