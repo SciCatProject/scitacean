@@ -65,6 +65,10 @@ These may be required for your setup to, e.g., select a specific port range.
         oauth_clients=(client_normal, client_device),
     )
 
+.. hint::
+
+    See :ref:`oauth-configuration` for the server setup.
+
 
 Auxiliary configuration
 -----------------------

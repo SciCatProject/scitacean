@@ -224,6 +224,7 @@ Single sign-on
 For some SciCat instances, you can authenticate using single sign-on (SSO).
 This requires a :class:`Profile`, either builtin or custom that defines how to connect to the identity provider.
 See the documentation on :ref:`building custom profiles <custom-profiles-single-sign-on>` if you want to configure your own profile.
+And see :ref:`oauth-configuration` if you want to configure your SciCat instance and identity provider.
 
 Call :meth:`Client.login` to create a client that uses SSO:
 
