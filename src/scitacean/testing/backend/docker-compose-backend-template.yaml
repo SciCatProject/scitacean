@@ -28,10 +28,10 @@ services:
       test:
         - CMD-SHELL
         - 'exec 3<>/dev/tcp/127.0.0.1/9000; printf "GET /health/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n" >&3; grep -q "UP" <&3'
-      interval: 3s
-      timeout: 3s
-      retries: 30
-      start_period: 10s
+      interval: 1s
+      timeout: 2s
+      retries: 90
+      start_period: 2s
     volumes:
       - ./keycloak-import:/opt/keycloak/data/import
 
@@ -77,6 +77,6 @@ services:
     healthcheck:
       test: [ "CMD-SHELL", "wget -q -O- http://localhost:3000/api/v3/health || exit 1" ]
       interval: 1s
-      timeout: 3s
-      retries: 40
-      start_period: 10s
+      timeout: 2s
+      retries: 90
+      start_period: 2s
