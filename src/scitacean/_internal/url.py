@@ -21,3 +21,11 @@ def require_scheme(url: str, allowed: Sequence[str], what: str) -> None:
             f"The {what}URL must have one of the following schemes: "
             f"{list(allowed)}\nGot {url}"
         )
+
+
+def normalize_api_url(url: str) -> str:
+    """Ensure a SciCat URL ends in /api."""
+    url = url.rstrip("/").removesuffix("/v3").removesuffix("/v4")
+    if not url.endswith("/api"):
+        return f"{url.rstrip('/')}/api"
+    return url

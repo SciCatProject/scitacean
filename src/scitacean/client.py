@@ -19,7 +19,7 @@ import httpx
 import pydantic
 
 from . import model
-from ._internal.url import url_concat
+from ._internal.url import normalize_api_url, url_concat
 from ._profile import Profile, gather_login_params
 from .auth import OAuthClient, OAuthFlow, login_via_oauth
 from .dataset import Dataset
@@ -643,7 +643,7 @@ class ScicatClient:
         token: str | StrStorage | None,
         timeout: datetime.timedelta | None,
     ):
-        self._base_url = _normalize_api_url(url)
+        self._base_url = normalize_api_url(url)
         self._timeout = datetime.timedelta(seconds=10) if timeout is None else timeout
         self._token: StrStorage | None = (
             ExpiringToken.from_jwt(SecretStr(token))
@@ -1458,13 +1458,6 @@ def _make_orig_datablock(
         _strict_validation=strict_validation,
         **{**fields, "dataFileList": files},
     )
-
-
-def _normalize_api_url(url: str) -> str:
-    url = url.rstrip("/").removesuffix("/v3").removesuffix("/v4")
-    if not url.endswith("/api"):
-        return f"{url.rstrip('/')}/api"
-    return url
 
 
 def _log_in_via_users_login(

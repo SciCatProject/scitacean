@@ -8,6 +8,7 @@ It may need to be changed if Keycloak changes.
 """
 
 import threading
+import time
 from datetime import timedelta
 from html.parser import HTMLParser
 
@@ -23,8 +24,10 @@ USERNAME = "user1"
 PASSWORD = "testpassword"  # noqa: S105 # betterleaks:allow
 
 
-@pytest.fixture
-def profile() -> Profile:
+@pytest.fixture(params=["", "/api", "/api/v3", "/api/v4"])
+def profile(request: pytest.FixtureRequest) -> Profile:
+    url_suffix = request.param
+
     client_normal = OAuthClientNormal(
         provider=ISSUER,
         client_id="scitacean-test",
@@ -42,7 +45,7 @@ def profile() -> Profile:
         remote_timeout=timedelta(seconds=2),
     )
     return Profile(
-        url=f"http://localhost:{config.SCICAT_PORT}/api/v3",
+        url=f"http://localhost:{config.SCICAT_PORT}{url_suffix}",
         file_transfer=None,
         oauth_clients=(client_normal, client_device),
     )
@@ -161,6 +164,11 @@ class _LoginFormParser(HTMLParser):
 # handling cookies and how redirect addresses are constructed.
 # This is too complicated for the tests. So we rely on the normal flow to test the
 # general setup and hope that the device flow continues to work.
+#
+# These tests must run in serial to avoid port conflicts.
+# They also need to be spaced out in time to avoid hitting SciCat's throttler
+# which allows only one request per second.
+@pytest.mark.xdist_group("oauth")
 def test_oauth_scicat_login_normal(
     profile: Profile, require_scicat_backend: None
 ) -> None:
@@ -169,3 +177,5 @@ def test_oauth_scicat_login_normal(
         cmd="GET", url="users/my/identity", operation="get_user_info"
     )
     assert info["profile"]["username"] == USERNAME
+
+    time.sleep(1.1)

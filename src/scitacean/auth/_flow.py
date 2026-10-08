@@ -11,7 +11,7 @@ from typing import Literal
 
 import httpx
 
-from .._internal.url import url_concat
+from .._internal.url import normalize_api_url
 from ..error import AuthError
 from ..typing import SupportsClose
 from ..util.credentials import ExpiringToken, SecretStr
@@ -125,9 +125,8 @@ def exchange_idp_token_for_scicat_token(
     :
         A valid SciCat token.
     """
-    # TODO handle v3 / v4 suffix (needs v3?)
     response = httpx.post(
-        url_concat(scicat_url, "auth/oidc/token"),
+        normalize_api_url(scicat_url) + "/v3/auth/oidc/token",
         # `idp_token` is an access_token which SciCat requires despite the name:
         json={"idToken": idp_token.get_str()},
         timeout=timeout.total_seconds(),
