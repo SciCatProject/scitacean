@@ -5,20 +5,8 @@
 from .filesystem import RemotePath
 
 
-class FileUploadError(RuntimeError):
-    """Raised when file upload fails."""
-
-
-class IntegrityError(RuntimeError):
-    """Raised when a dataset or file is broken."""
-
-
-class ScicatCommError(RuntimeError):
-    """Raised when communication with SciCat fails."""
-
-
-class ScicatLoginError(RuntimeError):
-    """Raised when login to SciCat server fails."""
+class AuthError(RuntimeError):
+    """Raised when authentication fails."""
 
 
 class FileNotAccessibleError(RuntimeError):
@@ -32,3 +20,15 @@ class FileNotAccessibleError(RuntimeError):
     def remote_path(self) -> RemotePath:
         """The remote path of the inaccessible file."""
         return self._remote_path
+
+
+class FileUploadError(RuntimeError):
+    """Raised when file upload fails."""
+
+
+class IntegrityError(RuntimeError):
+    """Raised when a dataset or file is broken."""
+
+
+class ScicatCommError(RuntimeError):
+    """Raised when communication with SciCat fails."""

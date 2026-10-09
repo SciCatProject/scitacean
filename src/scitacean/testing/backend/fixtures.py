@@ -16,7 +16,7 @@ from ...client import Client
 from .._pytest_helpers import init_pytest_work_dir
 from ..client import FakeClient
 from . import seed
-from ._backend import configure, wait_until_backend_is_live
+from ._backend import configure
 from ._pytest_helpers import backend_enabled, skip_if_not_backend
 from .config import SciCatAccess, local_access
 
@@ -218,8 +218,6 @@ def _backend_docker_up(target_dir: Path, version: str | None) -> None:
     )
     configure(docker_compose_file, version=version)
     docker.docker_compose_up(docker_compose_file)
-    log.info("Waiting for SciCat docker to become accessible")
-    wait_until_backend_is_live(max_time=60, n_tries=40)
     log.info("Successfully connected to SciCat backend")
 
 

@@ -67,7 +67,6 @@ If a test requires a backend but wants to construct a client manually, use
    skip_if_not_backend
    start_backend
    stop_backend
-   wait_until_backend_is_live
 """
 
 from . import config, seed
@@ -75,7 +74,6 @@ from ._backend import (
     configure,
     start_backend,
     stop_backend,
-    wait_until_backend_is_live,
 )
 from ._pytest_helpers import add_pytest_options, backend_enabled, skip_if_not_backend
 
@@ -88,5 +86,4 @@ __all__ = [
     "skip_if_not_backend",
     "start_backend",
     "stop_backend",
-    "wait_until_backend_is_live",
 ]

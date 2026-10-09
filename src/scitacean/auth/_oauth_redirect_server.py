@@ -1,0 +1,236 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) 2026 SciCat Project (https://github.com/SciCatProject/scitacean)
+"""An HTTP server to handle OAuth redirects."""
+
+from __future__ import annotations
+
+import logging
+import secrets
+import time
+from collections.abc import Generator, Iterable
+from contextlib import contextmanager
+from datetime import timedelta
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from typing import Never
+from urllib import parse
+
+from . import _assets
+
+_LOGGER_NAME = "scitacean.oauth-server"
+
+
+@contextmanager
+def launch_auth_redirect_server(
+    *, port: int | Iterable[int], issuer: str, state: str, path: str, timeout: timedelta
+) -> Generator[OAuthRedirectServer, None, None]:
+    """Launch a server to listen for OAuth redirects and store an authorization code.
+
+    Each server instance should only be used once.
+
+    The server returns 200 with an HTML page containing instruction on success or
+    failure. The page closes automatically under some circumstances but not always,
+    see https://developer.mozilla.org/en-US/docs/Web/API/Window/close.
+    All other responses are 501.
+
+    The server writes logs to a logger called "scitacean.oauth-server".
+
+    Parameters
+    ----------
+    port:
+        The port(s) to listen on.
+        If multiple, tries all ports in order until one is available.
+    issuer:
+        The issuer URL of the OAuth provider.
+    state:
+        The random OAuth state string for this interaction.
+    path:
+        The path to listen on. The server will respond with 404 to any other path.
+    timeout:
+        Timeout for waiting for the authorization code.
+        A ``TimeoutError`` is raised if the timeout is reached.
+
+    Returns
+    -------
+    :
+        A context manager for an OAuthHttpServer.
+        The authorization code can be read after the context manager exits via
+        ``server.authorization_code``. This attribute is ``None`` if no code
+        was received.
+    """
+    ports = (port,) if isinstance(port, int) else port
+    timeout_secs = max(int(timeout.total_seconds()), 1)
+
+    error = None
+    for candidate_port in ports:
+        try:
+            with OAuthRedirectServer(
+                ("127.0.0.1", candidate_port),
+                _OAuthRedirectHandler,
+                timeout=timeout_secs,
+                state=state,
+                path=path,
+                issuer=issuer,
+            ) as server:
+                yield server
+        except OSError as err:
+            error = err
+        else:
+            return
+
+    if error is not None:
+        error.add_note(f"Tried ports {ports}")
+        raise error
+
+
+class OAuthRedirectServer(HTTPServer):
+    """A Server to receive an OAuth authorization code.
+
+    Should always be created and managed via ``launch_auth_server``.
+    """
+
+    def __init__(
+        self,
+        server_address: tuple[str, int],
+        RequestHandlerClass: type,
+        *,
+        issuer: str,
+        state: str,
+        path: str,
+        timeout: float,
+    ) -> None:
+        super().__init__(server_address, RequestHandlerClass)
+        self.timeout = timeout
+        self.base_timeout = timeout
+        self.issuer = issuer
+        self.state = state
+        self.path = path
+        self.authorization_code: str | None = None
+        self.failure: str = ""
+
+    def handle_timeout(self) -> None:
+        super().handle_timeout()
+        _raise_timeout_error(self.base_timeout)
+
+    def wait_for_authorization_code(self) -> None:
+        """Wait for an authorization code to arrive.
+
+        This function waits either until
+        - An auth code arrives.
+        - An invalid request arrives.
+        - The timeout is reached.
+          In this case, the timeout applies across all requests,
+          including requests to paths other than /callback so that pinging the
+          server repeatedly cannot make it hang indefinitely.
+        """
+        deadline = time.monotonic() + self.base_timeout
+        try:
+            while self.authorization_code is None and not self.failure:
+                if (remaining := deadline - time.monotonic()) <= 0:
+                    _raise_timeout_error(self.base_timeout)
+                self.timeout = remaining
+                self.handle_request()
+        finally:
+            self.timeout = self.base_timeout
+
+
+def _raise_timeout_error(timeout: float) -> Never:
+    raise TimeoutError(
+        "The OAuth server did not receive an authorization code after "
+        f"{timeout} seconds. This means either that nobody logged "
+        "in successfully in time or that the identity provider did "
+        "not redirect or did not redirect correctly."
+    )
+
+
+class _OAuthRedirectHandler(BaseHTTPRequestHandler):
+    """Handler for the OAuth HTTP server."""
+
+    def do_GET(self) -> None:
+        """Handle GET requests.
+
+        Only allows OAuth redirects.
+        """
+        server: OAuthRedirectServer = self.server  # type: ignore[assignment]
+
+        parsed = parse.urlparse(self.path)
+        if parsed.path != server.path:
+            self.send_response(404)
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+            return
+
+        qs = parse.parse_qs(parsed.query)
+        if errors := qs.get("error", []):
+            self._send_result_page(success=False)
+            server.failure = f"Authentication failed: {errors}."
+        elif not secrets.compare_digest("".join(qs.get("iss", ())), server.issuer):
+            self._send_result_page(success=False)
+            server.failure = (
+                "The identity provider returned an unexpected issuer. "
+                f"Got {qs.get('state', ())!r}, expected {server.issuer!r}."
+            )
+        elif not secrets.compare_digest("".join(qs.get("state", ())), server.state):
+            self._send_result_page(success=False)
+            server.failure = "The identity provider used an invalid OAuth state."
+        elif (code := qs.get("code", [None])[0]) is None:
+            self._send_result_page(success=False)
+            server.failure = "The identity provider did not send an authorization code."
+        else:
+            server.authorization_code = code
+            self._send_result_page(success=True)
+
+    def _send_result_page(self, *, success: bool) -> None:
+        if success:
+            text = _success_page()
+        else:
+            text = _failure_page()
+        data = text.encode("utf-8")
+
+        self.send_response(200)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(data)))
+
+        # Prevent browser caching of the URL and using it as a referer as those
+        # would leak the authorization code which is included in the URL.
+        self.send_header("Cache-Control", "no-store, max-age=0")
+        self.send_header("Pragma", "no-cache")  # HTTP/1.0 caches
+        self.send_header("Referrer-Policy", "no-referrer")
+        self.send_header("X-Content-Type-Options", "nosniff")
+
+        # The page is self-contained, so do not allow any external sources.
+        self.send_header(
+            "Content-Security-Policy",
+            "default-src 'none'; style-src 'unsafe-inline'; "
+            "script-src 'unsafe-inline'; img-src data:",
+        )
+
+        self.end_headers()
+        self.wfile.write(data)
+
+    def log_request(
+        self, code: int | str = "-", *args: object, **kwargs: object
+    ) -> None:
+        # `self.path` contains the auth token, so only show basics about the request
+        logging.getLogger(_LOGGER_NAME).info(
+            "%s (%s) from %s", self.command, code, self.client_address
+        )
+
+    def log_error(self, *args: object, **kwargs: object) -> None:
+        # Override to avoid leaking the auth token
+        logging.getLogger(_LOGGER_NAME).error("Received error")
+
+    def log_message(self, *args: object, **kwargs: object) -> None:
+        # Override to avoid leaking the auth token
+        logging.getLogger(_LOGGER_NAME).info("Received message")
+
+
+def _success_page() -> str:
+    content = _assets.auth_redirect_success()
+    base = _assets.auth_redirect_page_template()
+    return base.substitute(content=content, title="Authenticated")
+
+
+def _failure_page() -> str:
+    content = _assets.auth_redirect_failure()
+    base = _assets.auth_redirect_page_template()
+    return base.substitute(content=content, title="Login failed")

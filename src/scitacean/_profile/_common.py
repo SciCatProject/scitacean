@@ -6,6 +6,7 @@ from dataclasses import dataclass, field, replace
 from functools import cache
 from typing import Any, Literal, TypeAlias
 
+from ..auth import OAuthClient
 from ..typing import FileTransfer
 
 ScientificMetadataSchema: TypeAlias = Literal["plain", "value-unit"]
@@ -33,6 +34,7 @@ class Profile:
     For example, at ESS, the web interface URL is ``"https://scicat.ess.eu"``.
     But the API URL is ``"https://scicat.ess.eu/api/v3"`` (at the time of writing).
     """
+
     file_transfer: FileTransfer | None
     """A file transfer object for uploading and downloading files.
 
@@ -44,6 +46,12 @@ class Profile:
     """URL of the SciCat frontend.
 
     See :attr:`Profile.url` for more information.
+    """
+
+    oauth_clients: tuple[OAuthClient, ...] = ()
+    """Available clients for OAuth authentication.
+
+    Leave empty if OAuth is not available for this SciCat instance.
     """
 
     scientific_metadata_schema: ScientificMetadataSchema = "plain"
@@ -138,7 +146,7 @@ def _get_file_transfer(
 
 
 def _get_builtin_profile(name: str) -> Profile:
-    profiles = _builtin_profiles()
+    profiles = builtin_profiles()
     try:
         factory = profiles[name]
     except KeyError:
@@ -149,7 +157,8 @@ def _get_builtin_profile(name: str) -> Profile:
 
 
 @cache
-def _builtin_profiles() -> dict[str, Callable[[], Profile]]:
+def builtin_profiles() -> dict[str, Callable[[], Profile]]:
+    """Return a dict of all builtin SciCat profiles."""
     from ._ess import profiles as ess_profiles
 
     profile_list = (*ess_profiles,)

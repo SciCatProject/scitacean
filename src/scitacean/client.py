@@ -9,7 +9,7 @@ import datetime
 import json
 import re
 from collections import Counter
-from collections.abc import Callable, Iterable, Iterator
+from collections.abc import Callable, Iterable, Iterator, Sequence
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
@@ -19,14 +19,16 @@ import httpx
 import pydantic
 
 from . import model
+from ._internal.url import normalize_api_url, url_concat
 from ._profile import Profile, gather_login_params
+from .auth import OAuthClient, OAuthFlow, login_via_oauth
 from .dataset import Dataset
-from .error import FileNotAccessibleError, ScicatCommError, ScicatLoginError
+from .error import AuthError, FileNotAccessibleError, ScicatCommError
 from .file import File
 from .filesystem import RemotePath
 from .logging import get_logger
 from .pid import PID
-from .typing import DownloadConnection, FileTransfer, UploadConnection
+from .typing import DownloadConnection, FileTransfer, SupportsClose, UploadConnection
 from .util.credentials import ExpiringToken, SecretStr, StrStorage
 
 
@@ -36,12 +38,17 @@ class Client:
     Clients hold all information needed to communicate with a SciCat instance
     and a filesystem that holds data files (via ``file_transfer``).
 
-    Use :func:`Client.from_token` or :func:`Client.from_credentials` to initialize
-    a client instead of the constructor directly.
+    Use one of Client's named constructors to create a client instead of
+    initializing one directly.
 
-    See the user guide for typical usage patterns.
-    In particular, `Downloading Datasets <../../user-guide/downloading.ipynb>`_
-    and `Uploading Datasets <../../user-guide/uploading.ipynb>`_.
+    See Also
+    --------
+    :ref:`connecting-to-scicat-and-file-servers`:
+        User guide on how to construct a client.
+    `Downloading Datasets <../../user-guide/downloading.ipynb>`_:
+        User guide on downloading datasets and files.
+    `Uploading Datasets <../../user-guide/uploading.ipynb>`_:
+        User guide on uploading datasets and files.
     """
 
     def __init__(
@@ -133,6 +140,56 @@ class Client:
         return Client(
             client=ScicatClient.from_credentials(
                 url=p.url, username=username, password=password
+            ),
+            file_transfer=p.file_transfer,
+            profile=p,
+        )
+
+    @classmethod
+    def login(
+        cls,
+        profile: str | Profile | None = None,
+        *,
+        flow: OAuthFlow = "auto",
+        file_transfer: FileTransfer | None = None,
+        open_browser: Callable[[str], SupportsClose] | None = None,
+    ) -> Client:
+        """Create a new client via single-sign-on.
+
+        Parameters
+        ----------
+        profile:
+            Encodes how to connect to SciCat.
+            Elements are overridden by the other arguments if provided.
+            The behavior is described in :class:`Profile`.
+        flow:
+            Type of login method to use for authentication.
+            The default is to pick the best client for the current system.
+        file_transfer:
+            Handler for down-/uploads of files.
+        open_browser:
+            A function that opens a given URL in the user's web browser.
+            By default, the client either uses the system's default browser
+            or, in Jupyter, opens a browser through JavaScript.
+            The return value is intended to close the browser window or at least
+            release any auxiliary resources.
+
+        See Also
+        --------
+        :ref:`connecting-sso`
+
+        Returns
+        -------
+        :
+            A new low-level client.
+        """
+        p = gather_login_params(profile=profile, url=None, file_transfer=file_transfer)
+        return Client(
+            client=ScicatClient.login(
+                url=p.url,
+                flow=flow,
+                oauth_clients=p.oauth_clients,
+                open_browser=open_browser,
             ),
             file_transfer=p.file_transfer,
             profile=p,
@@ -586,7 +643,7 @@ class ScicatClient:
         token: str | StrStorage | None,
         timeout: datetime.timedelta | None,
     ):
-        self._base_url = _normalize_api_url(url)
+        self._base_url = normalize_api_url(url)
         self._timeout = datetime.timedelta(seconds=10) if timeout is None else timeout
         self._token: StrStorage | None = (
             ExpiringToken.from_jwt(SecretStr(token))
@@ -662,6 +719,52 @@ class ScicatClient:
             ),
             timeout=timeout,
         )
+
+    @classmethod
+    def login(
+        cls,
+        url: str,
+        oauth_clients: Sequence[OAuthClient],
+        flow: OAuthFlow = "auto",
+        timeout: datetime.timedelta | None = None,
+        open_browser: Callable[[str], SupportsClose] | None = None,
+    ) -> ScicatClient:
+        """Create a new low-level client via single-sign-on.
+
+        Parameters
+        ----------
+        url:
+            URL of the SciCat api.
+            It should include the suffix `api/vn` where `n` is a number.
+        oauth_clients:
+            Available OAuth clients to use for authentication.
+        flow:
+            OAuth flow to use for authentication.
+        timeout:
+            Timeout for all API requests.
+        open_browser:
+            A function that opens a given URL in the user's web browser.
+            By default, the client either uses the system's default browser
+            or, in Jupyter, opens a browser through JavaScript.
+            The return value is intended to close the browser window or at least
+            release any auxiliary resources.
+
+        Returns
+        -------
+        :
+            A new low-level client.
+
+        See Also
+        --------
+        :ref:`connecting-sso`
+        """
+        token = login_via_oauth(
+            scicat_url=url,
+            flow=flow,
+            configured_oauth_clients=oauth_clients,
+            open_browser=open_browser,
+        )
+        return ScicatClient.from_token(url=url, token=token, timeout=timeout)
 
     @classmethod
     def without_login(
@@ -1311,7 +1414,7 @@ class ScicatClient:
         Note the use `quote_plus` for the PID. You must ensure to properly escape
         all URL components.
         """
-        full_url = _url_concat(f"{self._base_url}/{version}", url)
+        full_url = url_concat(f"{self._base_url}/{version}", url)
         logger = get_logger()
         logger.info("Calling SciCat API at %s for operation '%s'", full_url, operation)
 
@@ -1331,14 +1434,6 @@ class ScicatClient:
         logger.info("API call successful for operation '%s'", operation)
 
         return None if not response.text else response.json()
-
-
-def _url_concat(a: str, b: str) -> str:
-    # Combine two pieces or a URL without handling absolute
-    # paths as in urljoin.
-    a = a if a.endswith("/") else (a + "/")
-    b = b[1:] if b.endswith("/") else b
-    return a + b
 
 
 def _strip_token(error: Any, token: str) -> str:
@@ -1365,19 +1460,12 @@ def _make_orig_datablock(
     )
 
 
-def _normalize_api_url(url: str) -> str:
-    url = url.rstrip("/").removesuffix("/v3").removesuffix("/v4")
-    if not url.endswith("/api"):
-        return f"{url.rstrip('/')}/api"
-    return url
-
-
 def _log_in_via_users_login(
     url: str, username: StrStorage, password: StrStorage, timeout: datetime.timedelta
 ) -> httpx.Response:
     # Currently only used for functional accounts.
     response = httpx.post(
-        _url_concat(url, "auth/login"),
+        url_concat(url, "auth/login"),
         json={"username": username.get_str(), "password": password.get_str()},
         timeout=timeout.seconds,
     )
@@ -1397,7 +1485,7 @@ def _log_in_via_auth_msad(
     # Strip the api/vn suffix
     base_url = re.sub(r"/api/v\d+/?", "", url)
     response = httpx.post(
-        _url_concat(base_url, "auth/msad"),
+        url_concat(base_url, "auth/msad"),
         json={"username": username.get_str(), "password": password.get_str()},
         timeout=timeout.seconds,
     )
@@ -1431,7 +1519,7 @@ def _get_token(
         return str(response.json()["access_token"])
 
     get_logger().error("Failed log in:  %s", response.text)
-    raise ScicatLoginError(response.content)
+    raise AuthError(response.content)
 
 
 FileSelector = (

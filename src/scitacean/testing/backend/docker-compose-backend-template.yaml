@@ -10,6 +10,31 @@
 # for a list of all env variables.
 
 services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.5.0
+    container_name: scitacean_scicat_keycloak
+    command: start-dev --import-realm
+    ports:
+      - "8080:8080"
+      # For SciCat:
+      # This allows SciCat to access Keycloak while keeping it visible on localhost.
+      - "3000:3000"
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin  # betterleaks:allow
+      KC_HEALTH_ENABLED: "true"
+    healthcheck:
+      # The image has no curl/wget, so use bash's /dev/tcp
+      test:
+        - CMD-SHELL
+        - 'exec 3<>/dev/tcp/127.0.0.1/9000; printf "GET /health/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n" >&3; grep -q "UP" <&3'
+      interval: 1s
+      timeout: 2s
+      retries: 90
+      start_period: 2s
+    volumes:
+      - ./keycloak-import:/opt/keycloak/data/import
+
   mongodb:
     image: mongo:latest
     ports:
@@ -18,10 +43,13 @@ services:
   scicat:
     image: ghcr.io/scicatproject/backend-next:v5.3.2
     container_name: scitacean-test-scicat
+    network_mode: "service:keycloak"  # Give it access to and expose via keycloak
     depends_on:
-      - mongodb
-    ports:
-      - 3000:PLACEHOLDER
+      mongodb:
+        condition: service_started
+      keycloak:
+        condition: service_healthy
+    restart: on-failure
     environment:
       DOI_PREFIX: DOI.SAMPLE.PREFIX
       ELASTICSEARCH_ENABLED: no
@@ -31,8 +59,24 @@ services:
       JWT_SECRET: a_scicat_secret
       LOGBOOK_ENABLED: no  # we don't test these endpoints
       MONGODB_URI: mongodb://mongodb:27017/scicat
+      PORT: 3000
+
+      OIDC_ISSUER: "http://localhost:8080/realms/scitacean"
+      OIDC_AUTHORIZATION_URL: "http://localhost:8080/realms/scitacean"
+      OIDC_CLIENT_ID: "scicat"
+      OIDC_CLIENT_SECRET: "1FqGvrewZg1L08fEfarp5GzLVZOZGrib"  # betterleaks:allow
+      OIDC_CALLBACK_URL: "http://localhost:3000/api/v3/auth/oidc/callback"
+      OIDC_SCOPE: 'openid profile email'
+      OIDC_SUCCESS_URL: "http://localhost:4200/auth-callback"
+      OIDC_ACCESS_GROUPS: "accessgroups"
+      OIDC_ADDITIONAL_AUTHORIZED_PARTIES: "scitacean-test"
 
       # Those are configured in Python
       PID_PREFIX: PLACEHOLDER
       SITE: PLACEHOLDER
-      PORT: PLACEHOLDER
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -q -O- http://localhost:3000/api/v3/health || exit 1" ]
+      interval: 1s
+      timeout: 2s
+      retries: 90
+      start_period: 2s
