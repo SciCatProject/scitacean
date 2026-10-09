@@ -13,8 +13,11 @@ And you create a Client object by calling one of its named constructors.
 You need to answer three questions to choose a constructor and its arguments:
 
 - Which instance do you want to connect to?
+    -- Determined by the first argument or the ``url`` argument when creating a client.
 - How do you want to authenticate with SciCat?
+    -- Determined by which client constructor you use.
 - How do you want to transfer files? (Do you want to transfer files at all?)
+    -- Determined by the ``file_transfer`` argument.
 
 Each question is explored in a separate section below.
 
