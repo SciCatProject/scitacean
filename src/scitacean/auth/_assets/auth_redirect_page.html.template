@@ -59,11 +59,6 @@
             color: var(--color-failure);
         }
 
-        #close-button {
-            font-size: large;
-            cursor: pointer;
-        }
-
         #scitacean-logo {
             width: calc(min(20%, 7rem));
             display: block;
@@ -98,8 +93,6 @@
 </svg>
 
 ${content}
-
-<button id="close-button" onclick="window.close()">Close</button>
 
 <!-- Scitacean logo -->
 <svg
