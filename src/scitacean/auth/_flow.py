@@ -29,6 +29,8 @@ def login_via_oauth(
     configured_oauth_clients: Sequence[OAuthClient],
     scicat_url: str,
     open_browser: Callable[[str], SupportsClose] | None = None,
+    *,
+    allow_http: bool = False,
 ) -> ExpiringToken:
     """Get a SciCat token via single-sign-on.
 
@@ -47,6 +49,10 @@ def login_via_oauth(
         or, in Jupyter, opens a browser through JavaScript.
         The return value is intended to close the browser window or at least
         release any auxiliary resources.
+    allow_http:
+        Allow HTTP connections. Only used for requests to SciCat.
+        The OAuth config is separate.
+        This is insecure and should only be used for testing.
 
     Returns
     -------
@@ -56,7 +62,10 @@ def login_via_oauth(
     oauth_client = _select_oauth_client(flow, configured_oauth_clients)
     idp_token = oauth_client.login(open_browser=open_browser)
     return exchange_idp_token_for_scicat_token(
-        scicat_url=scicat_url, idp_token=idp_token, timeout=oauth_client.remote_timeout
+        scicat_url=scicat_url,
+        idp_token=idp_token,
+        timeout=oauth_client.remote_timeout,
+        allow_http=allow_http,
     )
 
 
@@ -107,7 +116,11 @@ def _flow_override() -> OAuthFlow:
 
 
 def exchange_idp_token_for_scicat_token(
-    *, scicat_url: str, idp_token: ExpiringToken, timeout: timedelta
+    *,
+    scicat_url: str,
+    idp_token: ExpiringToken,
+    timeout: timedelta,
+    allow_http: bool = False,
 ) -> ExpiringToken:
     """Get a SciCat token for a valid identity provider token.
 
@@ -119,6 +132,9 @@ def exchange_idp_token_for_scicat_token(
         An access token for the identity provider.
     timeout:
         Timeout for the HTTP request.
+    allow_http:
+        Allow HTTP connections.
+        This is insecure and should only be used for testing.
 
     Returns
     -------
@@ -126,7 +142,7 @@ def exchange_idp_token_for_scicat_token(
         A valid SciCat token.
     """
     response = httpx.post(
-        normalize_api_url(scicat_url) + "/v3/auth/oidc/token",
+        normalize_api_url(scicat_url, allow_http=allow_http) + "/v3/auth/oidc/token",
         # `idp_token` is an access_token which SciCat requires despite the name:
         json={"idToken": idp_token.get_str()},
         timeout=timeout.total_seconds(),
@@ -134,7 +150,7 @@ def exchange_idp_token_for_scicat_token(
     if not response.is_success:
         raise AuthError(
             f"Failed to exchange the identity provider token for a SciCat token: "
-            f"{response.text}"
+            f"{response.status_code} {response.reason_phrase}: {response.text}"
         )
     if (scicat_token := response.json().get("access_token")) is None:
         raise AuthError(

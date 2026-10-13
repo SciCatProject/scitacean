@@ -98,7 +98,7 @@ def test_get_dataset(client: Client) -> None:
 def test_can_get_public_dataset_without_login(
     require_scicat_backend: None, scicat_access: backend_config.SciCatAccess
 ) -> None:
-    client = Client.without_login(url=scicat_access.url)
+    client = Client.without_login(url=scicat_access.url, allow_http=True)
 
     dset = INITIAL_DATASETS["public"]
     downloaded = client.get_dataset(dset.pid, strict_validation=True)
@@ -116,7 +116,7 @@ def test_cannot_upload_without_login(
     derived_dataset: UploadDataset,
     scicat_access: backend_config.SciCatAccess,
 ) -> None:
-    client = Client.without_login(url=scicat_access.url)
+    client = Client.without_login(url=scicat_access.url, allow_http=True)
     with pytest.raises(ScicatCommError):  # TODO test return code 403
         client.scicat.create_dataset_model(derived_dataset)
 

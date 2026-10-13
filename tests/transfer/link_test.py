@@ -156,7 +156,7 @@ def test_client_with_link(tmp_path: Path) -> None:
     )
 
     client = FakeClient.without_login(
-        url="",
+        url="https://example.org",
         file_transfer=LinkFileTransfer(),
     )
     client.datasets[PID(prefix="UU.0123", pid="1234567890")] = ds
@@ -215,7 +215,7 @@ def test_client_with_link_local_file_exists(tmp_path: Path) -> None:
     )
 
     client = FakeClient.without_login(
-        url="",
+        url="https://example.org",
         file_transfer=LinkFileTransfer(),
     )
     client.datasets[PID(prefix="UU.0123", pid="1234567890")] = ds

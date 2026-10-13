@@ -15,10 +15,11 @@ import pydantic
 
 from .. import model
 from .._profile import Profile, gather_login_params
+from ..auth import OAuthFlow
 from ..client import Client, ScicatClient
 from ..error import ScicatCommError
 from ..pid import PID
-from ..typing import FileTransfer
+from ..typing import FileTransfer, SupportsClose
 from ..util.credentials import StrStorage
 
 
@@ -112,6 +113,7 @@ class FakeClient(Client):
         profile: Profile,
         file_transfer: FileTransfer | None = None,
         disable: dict[str, Exception] | None = None,
+        allow_http: bool = False,
     ) -> None:
         """Initialize a fake client with empty dataset storage.
 
@@ -126,7 +128,9 @@ class FakeClient(Client):
             when called and do nothing else.
         """
         super().__init__(
-            client=FakeScicatClient(self), file_transfer=file_transfer, profile=profile
+            client=FakeScicatClient(self, url=profile.url, allow_http=allow_http),
+            file_transfer=file_transfer,
+            profile=profile,
         )
 
         self.disabled = {} if disable is None else dict(disable)
@@ -145,13 +149,16 @@ class FakeClient(Client):
         url: str | None = None,
         token: str | StrStorage,
         file_transfer: FileTransfer | None = None,
+        allow_http: bool = False,
     ) -> FakeClient:
         """Create a new fake client.
 
         All arguments except ``file_Transfer`` are ignored.
         """
         p = gather_login_params(profile=profile, url=url, file_transfer=file_transfer)
-        return FakeClient(file_transfer=p.file_transfer, profile=p)
+        return FakeClient(
+            file_transfer=p.file_transfer, profile=p, allow_http=allow_http
+        )
 
     @classmethod
     def from_credentials(
@@ -162,13 +169,16 @@ class FakeClient(Client):
         username: str | StrStorage,
         password: str | StrStorage,
         file_transfer: FileTransfer | None = None,
+        allow_http: bool = False,
     ) -> FakeClient:
         """Create a new fake client.
 
         All arguments except ``file_Transfer`` are ignored.
         """
         p = gather_login_params(profile=profile, url=url, file_transfer=file_transfer)
-        return FakeClient(file_transfer=p.file_transfer, profile=p)
+        return FakeClient(
+            file_transfer=p.file_transfer, profile=p, allow_http=allow_http
+        )
 
     @classmethod
     def without_login(
@@ -177,20 +187,50 @@ class FakeClient(Client):
         *,
         url: str | None = None,
         file_transfer: FileTransfer | None = None,
+        allow_http: bool = False,
     ) -> FakeClient:
         """Create a new fake client.
 
         All arguments except ``file_Transfer`` are ignored.
         """
         p = gather_login_params(profile=profile, url=url, file_transfer=file_transfer)
-        return FakeClient(file_transfer=p.file_transfer, profile=p)
+        return FakeClient(
+            file_transfer=p.file_transfer, profile=p, allow_http=allow_http
+        )
+
+    @classmethod
+    def login(
+        cls,
+        profile: str | Profile | None = None,
+        *,
+        flow: OAuthFlow = "auto",
+        file_transfer: FileTransfer | None = None,
+        open_browser: Callable[[str], SupportsClose] | None = None,
+        allow_http: bool = False,
+    ) -> Client:
+        """Create a new fake client.
+
+        Raises ``NotImplementedError``.
+        """
+        raise NotImplementedError("FakeClient does not support OAuth login")
 
 
 class FakeScicatClient(ScicatClient):
     """Mimics a ScicatClient, to be used by FakeClient."""
 
-    def __init__(self, main_client: FakeClient) -> None:
-        super().__init__(url="", token="", timeout=datetime.timedelta(seconds=60))
+    def __init__(
+        self,
+        main_client: FakeClient,
+        *,
+        url: str = "https://scicat.example.org",
+        allow_http: bool = False,
+    ) -> None:
+        super().__init__(
+            url=url,
+            token="",
+            timeout=datetime.timedelta(seconds=60),
+            allow_http=allow_http,
+        )
         self.main = main_client
 
     @_conditionally_disabled

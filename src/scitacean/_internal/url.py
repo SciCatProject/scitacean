@@ -23,8 +23,9 @@ def require_scheme(url: str, allowed: Sequence[str], what: str) -> None:
         )
 
 
-def normalize_api_url(url: str) -> str:
+def normalize_api_url(url: str, allow_http: bool = False) -> str:
     """Ensure a SciCat URL ends in /api."""
+    require_scheme(url, ("https", "http") if allow_http else ("https",), "SciCat")
     url = url.rstrip("/").removesuffix("/v3").removesuffix("/v4")
     if not url.endswith("/api"):
         return f"{url.rstrip('/')}/api"
