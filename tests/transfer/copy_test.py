@@ -266,7 +266,9 @@ def test_client_download_with_copy(tmp_path: Path) -> None:
         chkAlg="md5",
     )
 
-    client = FakeClient.without_login(url="", file_transfer=CopyFileTransfer())
+    client = FakeClient.without_login(
+        url="https://example.org", file_transfer=CopyFileTransfer()
+    )
     client.datasets[PID(prefix="UU.0123", pid="1234567890")] = ds
     client.orig_datablocks[PID(prefix="UU.0123", pid="1234567890")] = [db]
 
@@ -322,7 +324,9 @@ def test_client_download_with_copy_local_file_exists(tmp_path: Path) -> None:
         chkAlg="md5",
     )
 
-    client = FakeClient.without_login(url="", file_transfer=CopyFileTransfer())
+    client = FakeClient.without_login(
+        url="https://example.org", file_transfer=CopyFileTransfer()
+    )
     client.datasets[PID(prefix="UU.0123", pid="1234567890")] = ds
     client.orig_datablocks[PID(prefix="UU.0123", pid="1234567890")] = [db]
 
@@ -361,7 +365,9 @@ def test_client_upload_with_copy(tmp_path: Path) -> None:
     )
     ds.add_local_files(local_dir / "file1.txt")
 
-    client = FakeClient.without_login(url="", file_transfer=CopyFileTransfer())
+    client = FakeClient.without_login(
+        url="https://example.org", file_transfer=CopyFileTransfer()
+    )
     client.upload_new_dataset_now(ds)
 
     assert remote_dir.joinpath("file1.txt").read_text() == content

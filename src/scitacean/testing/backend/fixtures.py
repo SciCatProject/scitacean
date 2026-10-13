@@ -50,10 +50,7 @@ def fake_client(scicat_access: SciCatAccess) -> FakeClient:
         A fake client that potentially contains the seed data.
         See :mod:`scitacean.testing.backend.seed`.
     """
-    client = FakeClient.from_credentials(
-        url=scicat_access.url,
-        **scicat_access.user.credentials,
-    )
+    client = scicat_access.make_client(FakeClient)
     client.datasets.update(
         {ds.pid: ds for ds in seed.INITIAL_DATASETS.values()}  # type: ignore[misc]
     )
@@ -82,10 +79,7 @@ def real_client(scicat_access: SciCatAccess, scicat_backend: bool) -> Client | N
     """
     if not scicat_backend:
         return None
-    return Client.from_credentials(
-        url=scicat_access.url,
-        **scicat_access.user.credentials,
-    )
+    return scicat_access.make_client(Client)
 
 
 @pytest.fixture(params=["real", "fake"])
@@ -200,10 +194,7 @@ def _seed_database(
     scicat_access: SciCatAccess,
     target_dir: Path,
 ) -> None:
-    client = client_class.from_credentials(
-        url=scicat_access.url,
-        **scicat_access.user.credentials,
-    )
+    client = scicat_access.make_client(client_class)
     seed.seed_database(client=client, scicat_access=scicat_access)
     seed.save_seed(target_dir)
 

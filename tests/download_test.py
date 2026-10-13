@@ -103,7 +103,7 @@ def test_download_files_creates_local_files_select_all(
 ) -> None:
     dataset, contents = dataset_and_files
     client = Client.without_login(
-        url="/", file_transfer=FakeFileTransfer(fs=fs, files=contents)
+        url="https://example.org", file_transfer=FakeFileTransfer(fs=fs, files=contents)
     )
     client.download_files(dataset, target="./download", select=True)
     assert load("download/file1.dat") == contents["/src/stibbons/774/file1.dat"]
@@ -120,7 +120,7 @@ def test_download_files_creates_local_files_select_none(
 ) -> None:
     dataset, contents = dataset_and_files
     client = Client.without_login(
-        url="/", file_transfer=FakeFileTransfer(fs=fs, files=contents)
+        url="https://example.org", file_transfer=FakeFileTransfer(fs=fs, files=contents)
     )
     client.download_files(dataset, target="./download", select=False)
     assert not list(Path("download").iterdir())
@@ -131,7 +131,7 @@ def test_download_files_creates_local_files_select_one_by_string(
 ) -> None:
     dataset, contents = dataset_and_files
     client = Client.without_login(
-        url="/", file_transfer=FakeFileTransfer(fs=fs, files=contents)
+        url="https://example.org", file_transfer=FakeFileTransfer(fs=fs, files=contents)
     )
     client.download_files(
         dataset, target="./download", select="/src/stibbons/774/thaum.dat"
@@ -145,7 +145,7 @@ def test_download_files_creates_local_files_select_two_by_string(
 ) -> None:
     dataset, contents = dataset_and_files
     client = Client.without_login(
-        url="/", file_transfer=FakeFileTransfer(fs=fs, files=contents)
+        url="https://example.org", file_transfer=FakeFileTransfer(fs=fs, files=contents)
     )
     client.download_files(
         dataset,
@@ -165,7 +165,7 @@ def test_download_files_creates_local_files_select_one_by_regex_name_only(
 ) -> None:
     dataset, contents = dataset_and_files
     client = Client.without_login(
-        url="/", file_transfer=FakeFileTransfer(fs=fs, files=contents)
+        url="https://example.org", file_transfer=FakeFileTransfer(fs=fs, files=contents)
     )
     client.download_files(dataset, target="./download", select=re.compile("thaum"))
     assert len(list(Path("download").iterdir())) == 1
@@ -177,7 +177,7 @@ def test_download_files_creates_local_files_select_two_by_regex_suffix(
 ) -> None:
     dataset, contents = dataset_and_files
     client = Client.without_login(
-        url="/", file_transfer=FakeFileTransfer(fs=fs, files=contents)
+        url="https://example.org", file_transfer=FakeFileTransfer(fs=fs, files=contents)
     )
     client.download_files(dataset, target="./download", select=re.compile(r"\.dat"))
     assert len(list(Path("download").iterdir())) == 2
@@ -190,7 +190,7 @@ def test_download_files_creates_local_files_select_one_by_regex_full_path(
 ) -> None:
     dataset, contents = dataset_and_files
     client = Client.without_login(
-        url="/", file_transfer=FakeFileTransfer(fs=fs, files=contents)
+        url="https://example.org", file_transfer=FakeFileTransfer(fs=fs, files=contents)
     )
     client.download_files(
         dataset, target="./download", select=re.compile(r"^file1\.dat$")
@@ -204,7 +204,7 @@ def test_download_files_creates_local_files_select_one_by_predicate(
 ) -> None:
     dataset, contents = dataset_and_files
     client = Client.without_login(
-        url="/", file_transfer=FakeFileTransfer(fs=fs, files=contents)
+        url="https://example.org", file_transfer=FakeFileTransfer(fs=fs, files=contents)
     )
     client.download_files(
         dataset, target="./download", select=lambda f: f.remote_path == "file1.dat"
@@ -228,7 +228,7 @@ def test_download_files_refuses_download_if_flattening_creates_clash(
         )
     )
     client = Client.without_login(
-        url="/", file_transfer=FakeFileTransfer(fs=fs, files=contents)
+        url="https://example.org", file_transfer=FakeFileTransfer(fs=fs, files=contents)
     )
     with pytest.raises(RuntimeError, match=r"file1\.dat"):
         client.download_files(dataset, target="./download", select=True)
@@ -241,7 +241,7 @@ def test_download_files_returns_updated_dataset(
     dataset, contents = dataset_and_files
     original = deepcopy(dataset)
     client = Client.without_login(
-        url="/", file_transfer=FakeFileTransfer(fs=fs, files=contents)
+        url="https://example.org", file_transfer=FakeFileTransfer(fs=fs, files=contents)
     )
     finalized = client.download_files(dataset, target="./download")
 
@@ -275,7 +275,7 @@ def test_download_files_ignores_checksum_if_alg_is_none(
     assert dataset.source_folder is not None
 
     client = Client.without_login(
-        url="/",
+        url="https://example.org",
         file_transfer=FakeFileTransfer(
             fs=fs, files={dataset.source_folder / "file.txt": content}
         ),
@@ -302,7 +302,7 @@ def test_download_files_detects_bad_checksum(
     assert dataset.source_folder is not None
 
     client = Client.without_login(
-        url="/",
+        url="https://example.org",
         file_transfer=FakeFileTransfer(
             fs=fs, files={dataset.source_folder / "file.txt": content}
         ),
@@ -331,7 +331,7 @@ def test_download_files_detects_bad_size(
     assert dataset.source_folder is not None
 
     client = Client.without_login(
-        url="/",
+        url="https://example.org",
         file_transfer=FakeFileTransfer(
             fs=fs, files={dataset.source_folder / "file.txt": content}
         ),
@@ -348,7 +348,7 @@ def test_download_does_not_download_up_to_date_file(
     # Ensure the file exists locally
     dataset, contents = dataset_and_files
     client = Client.without_login(
-        url="/", file_transfer=FakeFileTransfer(fs=fs, files=contents)
+        url="https://example.org", file_transfer=FakeFileTransfer(fs=fs, files=contents)
     )
     client.download_files(dataset, target="./download", select=True)
 
@@ -363,7 +363,7 @@ def test_download_does_not_download_up_to_date_file(
             raise RuntimeError("Download disabled")
 
     client = Client.without_login(
-        url="/",
+        url="https://example.org",
         file_transfer=RaisingDownloader(fs=fs),
     )
     # Does not raise
@@ -377,7 +377,7 @@ def test_download_does_not_download_up_to_date_file_manual_checksum(
     # Ensure the file exists locally
     dataset, contents = dataset_and_files
     client = Client.without_login(
-        url="/", file_transfer=FakeFileTransfer(fs=fs, files=contents)
+        url="https://example.org", file_transfer=FakeFileTransfer(fs=fs, files=contents)
     )
     client.download_files(dataset, target="./download", select=True)
 
@@ -392,7 +392,7 @@ def test_download_does_not_download_up_to_date_file_manual_checksum(
             raise RuntimeError("Download disabled")
 
     client = Client.without_login(
-        url="/",
+        url="https://example.org",
         file_transfer=RaisingDownloader(fs=fs),
     )
     # Does not raise
@@ -408,7 +408,7 @@ def test_override_datablock_checksum(
     # Ensure the file exists locally
     dataset, contents = dataset_and_files
     client = Client.without_login(
-        url="/", file_transfer=FakeFileTransfer(fs=fs, files=contents)
+        url="https://example.org", file_transfer=FakeFileTransfer(fs=fs, files=contents)
     )
     client.download_files(dataset, target="./download", select=True)
 
@@ -423,7 +423,7 @@ def test_override_datablock_checksum(
             raise RuntimeError("Download disabled")
 
     client = Client.without_login(
-        url="/",
+        url="https://example.org",
         file_transfer=RaisingDownloader(fs=fs),
     )
     with pytest.raises(RuntimeError, match="Download disabled"):
@@ -441,7 +441,7 @@ def test_force_file_download(
     # Ensure the file exists locally
     dataset, contents = dataset_and_files
     client = Client.without_login(
-        url="/", file_transfer=FakeFileTransfer(fs=fs, files=contents)
+        url="https://example.org", file_transfer=FakeFileTransfer(fs=fs, files=contents)
     )
     client.download_files(dataset, target="./download", select=True)
 
@@ -456,7 +456,7 @@ def test_force_file_download(
             raise RuntimeError("Download disabled")
 
     client = Client.without_login(
-        url="/",
+        url="https://example.org",
         file_transfer=RaisingDownloader(fs=fs),
     )
     with pytest.raises(RuntimeError, match="Download disabled"):

@@ -75,6 +75,7 @@ class Client:
         url: str | None = None,
         token: str | StrStorage,
         file_transfer: FileTransfer | None = None,
+        allow_http: bool = False,
     ) -> Client:
         """Create a new client and authenticate with a token.
 
@@ -90,6 +91,9 @@ class Client:
             User token to authenticate with SciCat.
         file_transfer:
             Handler for down-/uploads of files.
+        allow_http:
+            Allow HTTP connections.
+            This is insecure and should only be used for testing.
 
         Returns
         -------
@@ -98,7 +102,9 @@ class Client:
         """
         p = gather_login_params(profile=profile, url=url, file_transfer=file_transfer)
         return Client(
-            client=ScicatClient.from_token(url=p.url, token=token),
+            client=ScicatClient.from_token(
+                url=p.url, token=token, allow_http=allow_http
+            ),
             file_transfer=p.file_transfer,
             profile=p,
         )
@@ -112,6 +118,7 @@ class Client:
         username: str | StrStorage,
         password: str | StrStorage,
         file_transfer: FileTransfer | None = None,
+        allow_http: bool = False,
     ) -> Client:
         """Create a new client and authenticate with username and password.
 
@@ -130,6 +137,9 @@ class Client:
             Password of the user.
         file_transfer:
             Handler for down-/uploads of files.
+        allow_http:
+            Allow HTTP connections.
+            This is insecure and should only be used for testing.
 
         Returns
         -------
@@ -139,7 +149,7 @@ class Client:
         p = gather_login_params(profile=profile, url=url, file_transfer=file_transfer)
         return Client(
             client=ScicatClient.from_credentials(
-                url=p.url, username=username, password=password
+                url=p.url, username=username, password=password, allow_http=allow_http
             ),
             file_transfer=p.file_transfer,
             profile=p,
@@ -153,6 +163,7 @@ class Client:
         flow: OAuthFlow = "auto",
         file_transfer: FileTransfer | None = None,
         open_browser: Callable[[str], SupportsClose] | None = None,
+        allow_http: bool = False,
     ) -> Client:
         """Create a new client via single-sign-on.
 
@@ -173,6 +184,9 @@ class Client:
             or, in Jupyter, opens a browser through JavaScript.
             The return value is intended to close the browser window or at least
             release any auxiliary resources.
+        allow_http:
+            Allow HTTP connections.
+            This is insecure and should only be used for testing.
 
         See Also
         --------
@@ -190,6 +204,7 @@ class Client:
                 flow=flow,
                 oauth_clients=p.oauth_clients,
                 open_browser=open_browser,
+                allow_http=allow_http,
             ),
             file_transfer=p.file_transfer,
             profile=p,
@@ -202,6 +217,7 @@ class Client:
         *,
         url: str | None = None,
         file_transfer: FileTransfer | None = None,
+        allow_http: bool = False,
     ) -> Client:
         """Create a new client without authentication.
 
@@ -219,6 +235,9 @@ class Client:
             Must be provided is ``profile is None``.
         file_transfer:
             Handler for down-/uploads of files.
+        allow_http:
+            Allow HTTP connections.
+            This is insecure and should only be used for testing.
 
         Returns
         -------
@@ -227,7 +246,7 @@ class Client:
         """
         p = gather_login_params(profile=profile, url=url, file_transfer=file_transfer)
         return Client(
-            client=ScicatClient.without_login(url=p.url),
+            client=ScicatClient.without_login(url=p.url, allow_http=allow_http),
             file_transfer=p.file_transfer,
             profile=p,
         )
@@ -642,8 +661,10 @@ class ScicatClient:
         url: str,
         token: str | StrStorage | None,
         timeout: datetime.timedelta | None,
+        *,
+        allow_http: bool = False,
     ):
-        self._base_url = normalize_api_url(url)
+        self._base_url = normalize_api_url(url, allow_http=allow_http)
         self._timeout = datetime.timedelta(seconds=10) if timeout is None else timeout
         self._token: StrStorage | None = (
             ExpiringToken.from_jwt(SecretStr(token))
@@ -657,6 +678,8 @@ class ScicatClient:
         url: str,
         token: str | StrStorage,
         timeout: datetime.timedelta | None = None,
+        *,
+        allow_http: bool = False,
     ) -> ScicatClient:
         """Create a new low-level client and authenticate with a token.
 
@@ -668,13 +691,18 @@ class ScicatClient:
             User token to authenticate with SciCat.
         timeout:
             Timeout for all API requests.
+        allow_http:
+            Allow HTTP connections.
+            This is insecure and should only be used for testing.
 
         Returns
         -------
         :
             A new low-level client.
         """
-        return ScicatClient(url=url, token=token, timeout=timeout)
+        return ScicatClient(
+            url=url, token=token, timeout=timeout, allow_http=allow_http
+        )
 
     @classmethod
     def from_credentials(
@@ -683,6 +711,8 @@ class ScicatClient:
         username: str | StrStorage,
         password: str | StrStorage,
         timeout: datetime.timedelta | None = None,
+        *,
+        allow_http: bool = False,
     ) -> ScicatClient:
         """Create a new low-level client and authenticate with username and password.
 
@@ -697,6 +727,9 @@ class ScicatClient:
             Password of the user.
         timeout:
             Timeout for all API requests.
+        allow_http:
+            Allow HTTP connections.
+            This is insecure and should only be used for testing.
 
         Returns
         -------
@@ -718,6 +751,7 @@ class ScicatClient:
                 )
             ),
             timeout=timeout,
+            allow_http=allow_http,
         )
 
     @classmethod
@@ -728,6 +762,8 @@ class ScicatClient:
         flow: OAuthFlow = "auto",
         timeout: datetime.timedelta | None = None,
         open_browser: Callable[[str], SupportsClose] | None = None,
+        *,
+        allow_http: bool = False,
     ) -> ScicatClient:
         """Create a new low-level client via single-sign-on.
 
@@ -748,6 +784,9 @@ class ScicatClient:
             or, in Jupyter, opens a browser through JavaScript.
             The return value is intended to close the browser window or at least
             release any auxiliary resources.
+        allow_http:
+            Allow HTTP connections.
+            This is insecure and should only be used for testing.
 
         Returns
         -------
@@ -763,12 +802,19 @@ class ScicatClient:
             flow=flow,
             configured_oauth_clients=oauth_clients,
             open_browser=open_browser,
+            allow_http=allow_http,
         )
-        return ScicatClient.from_token(url=url, token=token, timeout=timeout)
+        return ScicatClient.from_token(
+            url=url, token=token, timeout=timeout, allow_http=allow_http
+        )
 
     @classmethod
     def without_login(
-        cls, url: str, timeout: datetime.timedelta | None = None
+        cls,
+        url: str,
+        timeout: datetime.timedelta | None = None,
+        *,
+        allow_http: bool = False,
     ) -> ScicatClient:
         """Create a new low-level client without authentication.
 
@@ -781,13 +827,16 @@ class ScicatClient:
             It should include the suffix `api/vn` where `n` is a number.
         timeout:
             Timeout for all API requests.
+        allow_http:
+            Allow HTTP connections.
+            This is insecure and should only be used for testing.
 
         Returns
         -------
         :
             A new low-level client.
         """
-        return ScicatClient(url=url, token=None, timeout=timeout)
+        return ScicatClient(url=url, token=None, timeout=timeout, allow_http=allow_http)
 
     def get_dataset_model(
         self,

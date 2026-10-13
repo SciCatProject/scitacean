@@ -172,7 +172,9 @@ class _LoginFormParser(HTMLParser):
 def test_oauth_scicat_login_normal(
     profile: Profile, require_scicat_backend: None
 ) -> None:
-    client = Client.login(profile, flow="normal", open_browser=_BrowserHandle)
+    client = Client.login(
+        profile, flow="normal", open_browser=_BrowserHandle, allow_http=True
+    )
     info = client.scicat.call_endpoint(
         cmd="GET", url="users/my/identity", operation="get_user_info"
     )

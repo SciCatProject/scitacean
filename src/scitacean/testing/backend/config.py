@@ -6,7 +6,10 @@ import importlib.resources
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TypedDict
+from typing import Any, TypedDict, overload
+
+from ...client import Client
+from ..client import FakeClient
 
 
 class ScicatCredentials(TypedDict):
@@ -119,6 +122,24 @@ class SciCatAccess:
 
     url: str
     user: ScicatUser
+
+    @overload
+    def make_client(
+        self, client_class: type[FakeClient], **kwargs: Any
+    ) -> FakeClient: ...
+
+    @overload
+    def make_client(self, client_class: type[Client], **kwargs: Any) -> Client: ...
+
+    def make_client(
+        self,
+        client_class: type[Client] | type[FakeClient],
+        **kwargs: Any,
+    ) -> Client | FakeClient:
+        """Construct and authenticate a client for this SciCat backend."""
+        return client_class.from_credentials(
+            url=self.url, allow_http=True, **self.user.credentials, **kwargs
+        )
 
 
 def local_access(user: str) -> SciCatAccess:

@@ -19,14 +19,14 @@ from scitacean.util.credentials import SecretStr
 
 def test_from_token_fake() -> None:
     # This should not call the API
-    client = FakeClient.from_token(url="some.url/api/v3", token="a-token")  # noqa: S106
+    client = FakeClient.from_token(url="https://some.url/api/v3", token="a-token")  # noqa: S106
     assert isinstance(client, FakeClient)
 
 
 def test_from_credentials_fake() -> None:
     # This should not call the API
     client = FakeClient.from_credentials(
-        url="some.url/api/v3",
+        url="https://some.url/api/v3",
         username="someone",
         password="the-fake-does-not-care",  # noqa: S106
     )
@@ -39,17 +39,19 @@ def test_from_credentials_fake() -> None:
 def test_from_credentials_real(
     scicat_access: backend_config.SciCatAccess, require_scicat_backend: None
 ) -> None:
-    Client.from_credentials(url=scicat_access.url, **scicat_access.user.credentials)
+    Client.from_credentials(
+        url=scicat_access.url, **scicat_access.user.credentials, allow_http=True
+    )
 
 
 def test_cannot_pickle_client_credentials_manual_token_str() -> None:
-    client = Client.from_token(url="/", token="the-token")  # noqa: S106
+    client = Client.from_token(url="https://example.org", token="the-token")  # noqa: S106
     with pytest.raises(TypeError):
         pickle.dumps(client)
 
 
 def test_cannot_pickle_client_credentials_manual_token_secret_str() -> None:
-    client = Client.from_token(url="/", token=SecretStr("the-token"))
+    client = Client.from_token(url="https://example.org", token=SecretStr("the-token"))
     with pytest.raises(TypeError):
         pickle.dumps(client)
 
@@ -58,7 +60,7 @@ def test_cannot_pickle_client_credentials_login(
     scicat_access: backend_config.SciCatAccess, require_scicat_backend: None
 ) -> None:
     client = Client.from_credentials(
-        url=scicat_access.url, **scicat_access.user.credentials
+        url=scicat_access.url, **scicat_access.user.credentials, allow_http=True
     )
     with pytest.raises(TypeError):
         pickle.dumps(client)
@@ -122,7 +124,7 @@ def make_token(exp_in: timedelta) -> str:
 def test_detects_expired_token_init() -> None:
     token = make_token(timedelta(milliseconds=0))
     with pytest.raises(RuntimeError, match="SciCat login has expired"):
-        Client.from_token(url="scicat.com", token=token)
+        Client.from_token(url="https://example.org", token=token)
 
 
 def test_detects_expired_token_get_dataset(
@@ -131,7 +133,7 @@ def test_detects_expired_token_get_dataset(
     # The token is invalid, but the expiration should be detected before
     # even sending it to SciCat.
     token = make_token(timedelta(milliseconds=2100))  # > than denial period = 2s
-    client = Client.from_token(url=scicat_access.url, token=token)
+    client = Client.from_token(url=scicat_access.url, token=token, allow_http=True)
     time.sleep(0.5)
     with pytest.raises(RuntimeError, match="SciCat login has expired"):
         client.get_dataset(INITIAL_DATASETS["public"].pid)  # type: ignore[arg-type]
