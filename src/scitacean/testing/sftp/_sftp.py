@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2025 SciCat Project (https://github.com/SciCatProject/scitacean)
 import importlib.resources
+import io
 import time
 from collections.abc import Iterable
 from dataclasses import dataclass
@@ -10,19 +11,6 @@ from typing import Any
 
 import paramiko
 import yaml
-
-
-@dataclass
-class SFTPUser:
-    username: str
-    password: str
-
-
-@dataclass
-class SFTPAccess:
-    host: str
-    port: int
-    user: SFTPUser
 
 
 def _read_resource_text(filename: str) -> str:
@@ -35,6 +23,38 @@ def _read_resource_text(filename: str) -> str:
 
 def _read_resource_yaml(filename: str) -> Any:
     return yaml.safe_load(_read_resource_text(filename))
+
+
+def ssh_private_key_text() -> str:
+    """Return the private SSH key for the testing SFTP server as a string.
+
+    This key is **publicly visible** and must only ever
+    be used with the local test server.
+    """
+    return _read_resource_text("ssh_keys/scitacean_test_key").replace("_", " ")
+
+
+def ssh_public_key_text() -> str:
+    """Return the public SSH key for the testing SFTP server as a string."""
+    return _read_resource_text("ssh_keys/scitacean_test_key.pub")
+
+
+@dataclass
+class SFTPUser:
+    username: str
+    password: str
+
+    @staticmethod
+    def private_key() -> paramiko.PKey:
+        """Return a valid private SSH key."""
+        return paramiko.Ed25519Key.from_private_key(io.StringIO(ssh_private_key_text()))
+
+
+@dataclass
+class SFTPAccess:
+    host: str
+    port: int
+    user: SFTPUser
 
 
 @lru_cache(maxsize=1)
@@ -77,6 +97,13 @@ def _copy_seed(target_seed_dir: Path) -> None:
         target_seed_dir.joinpath(name).write_text(content)
 
 
+def _write_public_key(target_pubkey_dir: Path) -> None:
+    # This directory must contain _only_ public keys.
+    key_file = target_pubkey_dir / "scitacean_test_key"
+    key_file.write_text(ssh_public_key_text())
+    key_file.chmod(0o644)
+
+
 def configure(target_dir: Path | str) -> Path:
     """Generate a config file for docker compose and copy seed data."""
     target_dir = Path(target_dir)
@@ -90,13 +117,19 @@ def configure(target_dir: Path | str) -> Path:
     target_seed_dir.mkdir()
     _copy_seed(target_seed_dir)
 
+    target_pubkey_dir = target_dir / "pubkeys"
+    target_pubkey_dir.mkdir()
+    target_pubkey_dir.chmod(0o755)
+    _write_public_key(target_pubkey_dir)
+
     config_target = target_dir / "docker-compose.yaml"
     config_target.write_text(yaml.dump(_docker_compose_file()))
     target_dir.joinpath("Dockerfile-sftp-server").write_text(_docker_file())
 
     target_dir.joinpath(".env").write_text(
         f"""DATA_DIR={target_dir / "data"}
-SEED_DIR={target_seed_dir}"""
+SEED_DIR={target_seed_dir}
+PUBKEY_DIR={target_pubkey_dir}"""
     )
 
     return config_target

@@ -14,7 +14,7 @@ import pytest
 
 from scitacean import Dataset, File, FileNotAccessibleError, RemotePath
 from scitacean.testing.client import FakeClient
-from scitacean.testing.sftp import IgnorePolicy, skip_if_not_sftp
+from scitacean.testing.sftp import IgnorePolicy, SFTPAccess, skip_if_not_sftp
 from scitacean.transfer.sftp import (
     SFTPDownloadConnection,
     SFTPFileTransfer,
@@ -66,6 +66,37 @@ def test_download_two_files(
             local=[tmp_path / "local-table.csv", tmp_path / "text.txt"],
         )
     assert tmp_path.joinpath("local-table.csv").read_text() == "7,2\n5,2\n"
+    assert (
+        tmp_path.joinpath("text.txt").read_text() == "This is some text for testing.\n"
+    )
+
+
+def test_download_one_file_with_ssh_key(
+    sftp_access: SFTPAccess, tmp_path: Path, dataset: Dataset
+) -> None:
+
+    def connect(host: str, port: int) -> paramiko.SFTPClient:
+        client = paramiko.SSHClient()
+        client.set_missing_host_key_policy(IgnorePolicy())
+        client.connect(
+            hostname=host,
+            port=port,
+            username=sftp_access.user.username,
+            pkey=sftp_access.user.private_key(),
+            allow_agent=False,
+            look_for_keys=False,
+        )
+        return client.open_sftp()
+
+    sftp = SFTPFileTransfer(
+        host=sftp_access.host,
+        port=sftp_access.port,
+        connect=connect,
+    )
+    with sftp.connect_for_download(dataset, RemotePath("/data")) as con:
+        con.download_files(
+            remote=[RemotePath("/data/seed/text.txt")], local=[tmp_path / "text.txt"]
+        )
     assert (
         tmp_path.joinpath("text.txt").read_text() == "This is some text for testing.\n"
     )
