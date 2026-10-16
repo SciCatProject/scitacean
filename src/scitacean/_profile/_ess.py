@@ -5,6 +5,7 @@
 from collections.abc import Callable, Iterable
 from typing import Any
 
+from ..auth import OAuthClient, OAuthClientDevice
 from ..transfer.copy import CopyFileTransfer
 from ..transfer.link import LinkFileTransfer
 from ..transfer.select import SelectFileTransfer
@@ -16,6 +17,7 @@ def ess_production_profile() -> Profile:
     return Profile(
         url="https://scicat.ess.eu/api/v3",
         file_transfer=_ess_file_transfer(),
+        oauth_clients=_ess_oauth_clients(),
         frontend_url="https://scicat.ess.eu",
         scientific_metadata_schema="value-unit",
         field_factories=_ess_field_factories(),
@@ -26,16 +28,27 @@ def ess_staging_profile() -> Profile:
     return Profile(
         url="https://staging.scicat.ess.eu/api/v3",
         file_transfer=_ess_file_transfer(),
+        oauth_clients=_ess_oauth_clients(),
         frontend_url="https://staging.scicat.ess.eu",
         scientific_metadata_schema="value-unit",
         field_factories=_ess_field_factories(),
     )
 
 
-profiles = (
+profile_factories = (
     ("ess", ess_production_profile),
     ("staging.ess", ess_staging_profile),
 )
+
+
+def _ess_oauth_clients() -> tuple[OAuthClient, ...]:
+    return (
+        # Normal client is missing because that is not properly configured yet.
+        OAuthClientDevice(
+            provider="https://login.ess.eu/",
+            client_id="scitacean",
+        ),
+    )
 
 
 def _ess_file_transfer() -> FileTransfer:
