@@ -1,17 +1,18 @@
 repos:
   - repo: local
     hooks:
-      - id: uv-lock
+      - id: pixi-lock
         name: lock dependencies
-        entry: just lock
+        entry: pixi lock
         language: system
-        files: ^(uv\.lock|pyproject\.toml|uv\.toml)$
+        files: ^(pixi\.lock|pyproject\.toml)$
         pass_filenames: false
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
       - id: check-added-large-files
+        args: [ '--maxkb=800' ]
       - id: check-case-conflict
       - id: check-illegal-windows-names
       - id: check-json
@@ -48,15 +49,6 @@ repos:
         additional_dependencies:
           - mdformat-beautysh
           - mdformat-ruff
-
-  - repo: local
-    hooks:
-      - id: just-format
-        name: just fmt
-        entry: just --fmt --unstable
-        pass_filenames: false
-        language: system
-        files: "justfile"
 
   - repo: https://github.com/betterleaks/betterleaks
     rev: 81aff7a638638aae3a659845d089043e1d8fe9ac  # 1.9.0

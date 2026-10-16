@@ -13,8 +13,7 @@ jobs:
       - run: sudo apt install --yes docker-compose
       - uses: actions/checkout@v7
       - name: Install uv
-        uses: astral-sh/setup-uv@v8.3.2
-      - name: Install Just
-        uses: extractions/setup-just@v4
+        uses: astral-sh/setup-uv@v10.3.0
       - name: Run Tests
-        run: just test-lowest
+        # This is not possible with pixi, so use uv.
+        run: uv run --resolution=lowest-direct --group=test --group=sftp pytest --backend-tests --sftp-tests
