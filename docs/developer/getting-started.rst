@@ -1,9 +1,8 @@
 Getting started
 ===============
 
-Scitacean is developed using `uv <https://docs.astral.sh/uv/>`_ to manage Python,
-dependencies, etc. (see also `Dependency management <./dependency-management.rst>`_)
-and `Just <https://just.systems>`_ as a task runner.
+Scitacean is developed using `pixi <https://pixi.prefix.dev/>`_ to manage Python,
+package dependencies, etc. (see also `Dependency management <./dependency-management.rst>`_).
 
 Setting up
 ----------
@@ -11,23 +10,15 @@ Setting up
 Dependencies
 ~~~~~~~~~~~~
 
-- Install **uv** using any of the methods described
-  `here <https://docs.astral.sh/uv/getting-started/installation/>`_.
-
-- You can install **Just** as described in its
-  `just documentation <https://just.systems/man/en/introduction.html>`_.
-  Or as a uv tool using
-
-  .. code-block:: shell
-
-      uv tool install rust-just
+- Install **pixi** using any of the methods described
+  `here <https://pixi.prefix.dev/latest/installation//>`_.
 
 - Optional: Install **prek** to run the same linters and code formatters.
   See the `prek documentation <https://prek.j178.dev/installation/>`_ or use
 
   .. code-block:: shell
 
-    uv tool install prek
+    pixi global install prek
 
 - Install **Pandoc** with is required building the documentation.
   `pandoc <https://pandoc.org/>`_ is not on PyPI and needs to be
@@ -49,7 +40,7 @@ This can be done conveniently using `prek <https://prek.j178.dev/>`_:
 
     prek install
 
-Alternatively, most checks can also be run manually through ``just``.
+Alternatively, most checks can also be run manually through ``pixi``.
 Take a look at ``.pre-commit-config.yaml`` for a list of all checks.
 
 Running tests
@@ -59,25 +50,23 @@ The tests can be run using
 
 .. code-block:: sh
 
-    just test
+    pixi run test
 
 If you also want to run backend and SFTP tests (requires Docker), use
 
 .. code-block:: sh
 
-    just test-all
+    pixi test-all
 
-The ``test`` and ``test-all`` rules accept arbitrary parameters which are
+The ``test`` and ``test-all`` tasks accept arbitrary parameters which are
 passed on to ``pytest``.
 E.g., filter tests by name and run 4 worker processes:
 
 .. code-block:: sh
 
-    just test -k <test_name> -n 4
+    pixi run test -k <test_name> -n 4
 
 The examples above automatically use the correct dependencies.
-If you don't want to use ``just``, take a look at ``justfile`` and ``pyproject.toml``
-to find the relevant commands.
 
 Building the docs
 -----------------
@@ -86,7 +75,7 @@ Build the documentation using
 
 .. code-block:: sh
 
-    just docs-build
+    pixi run docs
 
 This will build the documentation pages and store them in a folder called ``html``.
 
@@ -94,7 +83,7 @@ You can also automatically check the documentation using
 
 .. code-block:: sh
 
-    just docs
+    pixi run docs-all
 
 This takes longer but is recommended before committing changes.
 
@@ -105,7 +94,7 @@ Run Mypy using
 
 .. code-block:: sh
 
-    just mypy
+    pixi run mypy
 
 Linting the codebase
 --------------------
@@ -114,7 +103,7 @@ Lint the codebase using
 
 .. code-block:: sh
 
-    just lint
+    pixi run lint
 
 This will run a number of static analysis tools.
 
@@ -125,4 +114,4 @@ Run a number of formatters on the codebase using
 
 .. code-block:: sh
 
-    just format
+    pixi run fmt

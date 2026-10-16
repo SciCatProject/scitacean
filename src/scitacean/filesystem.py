@@ -280,7 +280,7 @@ def escape_path(path: P) -> P:
         path.posix if isinstance(path, RemotePath) else os.fspath(path)  # type: ignore[arg-type]
     )
     no_utf = s.encode("ascii", "backslashreplace").decode("ascii")
-    return type(path)(re.sub(r"[^\w .\-]", "_", no_utf))  # type: ignore[return-value]
+    return type(path)(re.sub(r"[^\w .\-]", "_", no_utf))
 
 
 try:

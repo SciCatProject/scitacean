@@ -93,9 +93,9 @@ open automatically:<div>
 @cache
 def _running_in_jupyter() -> bool:
     try:
-        from IPython import get_ipython  # type: ignore[attr-defined]
+        from IPython import get_ipython
 
-        ipython = get_ipython()  # type: ignore[no-untyped-call]
+        ipython = get_ipython()
         if ipython is None:
             return False
         # Check if it's a Jupyter kernel specifically

@@ -44,9 +44,9 @@ test = [
 ]
 
 [dependency-groups]
+build = ["build"]
 dev = [
     { include-group = "docs" },
-    { include-group = "sftp" },
     { include-group = "test" },
     "jinja2 >= 3.1",
     "jupyterlab >= 4.4.5",
@@ -57,6 +57,7 @@ dev = [
     "types-PyYAML >= 6.0",
 ]
 docs = [
+    { include-group = "test" }, # Docs import from testing package
     "autodoc_pydantic >= 2.2",
     "ipykernel >= 6.30",
     "ipython >= 9.0",
@@ -68,16 +69,16 @@ docs = [
     "sphinx-copybutton >= 0.5.2",
     "sphinx-design >= 0.6.1",
 ]
-sftp = ["paramiko >= 3"]
 test = [
     "filelock >= 3",
+    "paramiko >= 3",
     "hypothesis >= 6.48",
     "pyfakefs >= 5",
     "pytest >= 7",
     "pytest-randomly >= 3",
     "pytest-socket >= 0.7",
     "pytest-xdist >= 3",
-    "pyyaml >= 5",
+    "pyyaml >= 5", "cryptography",
 ]
 
 [project.urls]
@@ -167,3 +168,118 @@ Ntegrity = "Ntegrity"
 [tool.typos.default.extend-identifiers]
 # typos things it should be 'ser' -> 'set'
 plain_serializer_function_ser_schema = "plain_serializer_function_ser_schema"
+
+########
+# Pixi #
+########
+
+[tool.pixi.workspace]
+channels = ["conda-forge"]
+platforms = ["linux-64", "linux-aarch64", "osx-64", "osx-arm64", "win-64"]
+
+[tool.pixi.pypi-dependencies]
+scitacean = { path = ".", editable = true }
+
+[tool.pixi.environments]
+default = { features = ["py311"], solve-group = "default" }
+dev = { features = ["dev", "py311"], solve-group = "default" }
+docs = { features = ["docs", "py311"], solve-group = "default" }
+test = { features = ["test", "py311"], solve-group = "default" }
+
+build = { features = ["build", "py311"], solve-group = "build" }
+
+test-py311 = { features = ["test", "py311"], solve-group = "py311" }
+test-py312 = { features = ["test", "py312"], solve-group = "py312" }
+test-py313 = { features = ["test", "py313"], solve-group = "py313" }
+test-py314 = { features = ["test", "py314"], solve-group = "py314" }
+test-py315 = { features = ["test", "py315"], solve-group = "py315" }
+
+# --- Python versions ---
+
+[tool.pixi.feature.py311.dependencies]
+python = "3.11.*"
+
+[tool.pixi.feature.py312.dependencies]
+python = "3.12.*"
+
+[tool.pixi.feature.py313.dependencies]
+python = "3.13.*"
+
+[tool.pixi.feature.py314.dependencies]
+python = "3.14.*"
+
+[tool.pixi.feature.py315.dependencies]
+python = "3.15.*"
+
+# --- Tests ---
+
+[tool.pixi.feature.test.tasks.test]
+cmd = "python -m pytest"
+default-environment = "test"
+description = "Run tests that do not require expensive resources"
+
+[tool.pixi.feature.test.tasks.test-all]
+cmd = "python -m pytest --backend-tests --sftp-tests"
+default-environment = "test"
+description = "Run all tests"
+
+# --- Docs ---
+
+[tool.pixi.feature.docs.tasks.docs]
+cmd = "python -m sphinx -v -b html -d build/.doctrees docs html && touch html/.nojekyll && find html -type f -name '*.ipynb' -not -path 'html/_sources/*' -delete"
+description = "Build the documentation"
+
+[tool.pixi.feature.docs.tasks.docs-test]
+cmd = "python -m sphinx -v -b doctest -d build/.doctrees docs html"
+description = "Test the docs with doctest"
+
+[tool.pixi.feature.docs.tasks.docs-links]
+cmd = "python -m sphinx -v -b linkcheck -d build/.doctrees docs html"
+description = "Check links in the docs"
+
+[tool.pixi.feature.docs.tasks.docs-all]
+depends-on = ["docs", "docs-test", "docs-links"]
+description = "Build and test the docs"
+
+[tool.pixi.feature.docs.tasks.docs-clean]
+cmd = "rm -rf docs/generated build/.doctrees html"
+description = "Remove all docs output and intermediate files"
+
+# --- Linting ---
+
+[tool.pixi.feature.dev.tasks.lint]
+depends-on = ["lint-py", "spell"]
+description = "Run all fast linters; requires `prek`"
+
+[tool.pixi.feature.dev.tasks.lint-py]
+cmd = "prek run ruff -a"
+description = "Lint Python code; requiures `prek`"
+
+[tool.pixi.feature.dev.tasks.mypy]
+cmd = "python -m mypy {{ path }}"
+args = [
+    { "arg" = "path", "default" = "." }
+]
+description = "Check types with mypy"
+
+[tool.pixi.feature.dev.tasks.spell]
+cmd = "prek run typos -a"
+description = "Check spelling; requires `prek`"
+
+# --- Formatting ---
+
+[tool.pixi.feature.dev.tasks.fmt-py]
+cmd = "prek run ruff-format -a"
+description = "Format Python code; requires `prek`"
+
+[tool.pixi.feature.dev.tasks.fmt-md]
+cmd = "prek run mdformat -a"
+description = "Format Markdown; requires `prek`"
+
+[tool.pixi.feature.dev.tasks.fmt]
+cmd = "prek run ruff-format mdformat -a"
+description = "Run all formatters; requires `prek`"
+
+# --- Building ---
+[tool.pixi.feature.build.tasks.build]
+cmd = "python -m build"
