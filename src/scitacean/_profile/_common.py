@@ -146,29 +146,35 @@ def _get_file_transfer(
 
 
 def _get_builtin_profile(name: str) -> Profile:
-    profiles = builtin_profiles()
+    factories = builtin_profile_factories()
     try:
-        factory = profiles[name]
+        factory = factories[name]
     except KeyError:
         raise ValueError(
-            f"Unknown profile: '{name}'. Available profiles:\n{', '.join(profiles)}"
+            f"Unknown profile: '{name}'. Available profiles:\n{', '.join(factories)}"
         ) from None
     return factory()
 
 
 @cache
-def builtin_profiles() -> dict[str, Callable[[], Profile]]:
-    """Return a dict of all builtin SciCat profiles."""
-    from ._ess import profiles as ess_profiles
+def builtin_profile_factories() -> dict[str, Callable[[], Profile]]:
+    """Return a dict of all builtin SciCat profile factories.
 
-    profile_list = (*ess_profiles,)
-    profiles = {}
+    Returns
+    -------
+    :
+        A dict from profile names to nullary callables that return profiles.
+    """
+    from ._ess import profile_factories as ess
 
-    for name, profile in profile_list:
-        if name in profiles:
+    factory_list = (*ess,)
+    factories = {}
+
+    for name, profile in factory_list:
+        if name in factories:
             raise RuntimeError(
                 f"Duplicate profile name: '{name}'. "
                 "This is likely an internal Scitacean error."
             )
-        profiles[name] = profile
-    return profiles
+        factories[name] = profile
+    return factories

@@ -53,8 +53,8 @@ Here is a list of the available profiles:
 .. testcode::
     :hide:
 
-    from scitacean import builtin_profiles
-    print("\n".join(f"- {name!r}" for name in sorted(builtin_profiles())))
+    from scitacean import builtin_profile_factories
+    print("\n".join(f"- {name!r}" for name in sorted(builtin_profile_factories())))
 
 .. testoutput::
 
