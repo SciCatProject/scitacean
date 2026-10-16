@@ -2,7 +2,6 @@
 # Copyright (c) 2025 SciCat Project (https://github.com/SciCatProject/scitacean)
 import importlib.resources
 import os
-import time
 from copy import deepcopy
 from pathlib import Path
 from typing import Any
@@ -33,15 +32,12 @@ def _docker_compose_template() -> dict[str, Any]:
 def _apply_config(
     template: dict[str, Any],
     account_config_path: Path,
+    realm_import_path: Path,
     version: str | None,
 ) -> dict[str, Any]:
     res = deepcopy(template)
     scicat = res["services"]["scicat"]
-    ports = scicat["ports"][0].split(":")
-    scicat["ports"] = [f"{ports[0]}:{config.SCICAT_PORT}"]
-
     env = scicat["environment"]
-    env["PORT"] = config.SCICAT_PORT
     env["PID_PREFIX"] = config.PID_PREFIX
     env["SITE"] = config.SITE
 
@@ -52,6 +48,10 @@ def _apply_config(
     if version is not None:
         url = scicat["image"].split(":")[0]
         scicat["image"] = f"{url}:{version}"
+
+    res["services"]["keycloak"]["volumes"] = [
+        f"{realm_import_path}:/opt/keycloak/data/import"
+    ]
 
     return res
 
@@ -69,8 +69,15 @@ def configure(target_path: _PathLike, *, version: str | None = None) -> None:
     """
     account_config_path = Path(target_path).parent / "functionalAccounts.json"
     config.dump_account_config(account_config_path)
+    realm_import_path = Path(target_path).parent / "realm-import"
+    config.write_keycloak_imports(realm_import_path)
     c = yaml.dump(
-        _apply_config(_docker_compose_template(), account_config_path, version)
+        _apply_config(
+            _docker_compose_template(),
+            account_config_path=account_config_path,
+            realm_import_path=realm_import_path,
+            version=version,
+        )
     )
     if "PLACEHOLDER" in c:
         raise RuntimeError("Incorrect config")
@@ -110,32 +117,3 @@ def _can_connect() -> tuple[bool, str]:
     if response.is_success:
         return True, ""
     return False, str(f"{response}: {response.text}")
-
-
-def wait_until_backend_is_live(max_time: float, n_tries: int) -> None:
-    """Sleep until a connection to the backend can be made.
-
-    The backend takes a few seconds to become usable after the
-    docker container was started.
-    This function attempts to connect periodically until the connection
-    succeeds or ``max_time`` is reached.
-
-    Parameters
-    ----------
-    max_time:
-        Maximum time in seconds to wait for the backend to become usable.
-    n_tries:
-        Number of connection attempts within ``max_time``.
-
-    Raises
-    ------
-    RuntimeError
-        If no connection can be made within the time limit.
-    """
-    for _ in range(n_tries):
-        if _can_connect()[0]:
-            return
-        time.sleep(max_time / n_tries)
-    ok, err = _can_connect()
-    if not ok:
-        raise RuntimeError(f"Cannot connect to backend: {err}")

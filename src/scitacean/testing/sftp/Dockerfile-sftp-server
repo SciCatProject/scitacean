@@ -2,7 +2,9 @@ FROM ghcr.io/linuxserver/openssh-server
 RUN echo -e "Match Group *,!root \n\
   ForceCommand internal-sftp \n\
   PasswordAuthentication yes \n\
+  PubkeyAuthentication yes \n\
   PermitTunnel no \n\
   AllowAgentForwarding no \n\
   AllowTcpForwarding no \n\
+  LogLevel DEBUG3 \n\
   X11Forwarding no" >> /etc/ssh/sshd_config

@@ -467,7 +467,7 @@ def test_client_with_sftp(
     tmp_path.joinpath("file1.txt").write_text("File contents")
 
     client = FakeClient.without_login(
-        url="",
+        url="https://example.org",
         file_transfer=SFTPTestFileTransfer(
             connect=sftp_connect_with_username_password,
             host=sftp_access.host,

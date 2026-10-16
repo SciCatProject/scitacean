@@ -2,10 +2,14 @@
 # Copyright (c) 2025 SciCat Project (https://github.com/SciCatProject/scitacean)
 """Backend configuration."""
 
+import importlib.resources
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TypedDict
+from typing import Any, TypedDict, overload
+
+from ...client import Client
+from ..client import FakeClient
 
 
 class ScicatCredentials(TypedDict):
@@ -119,6 +123,24 @@ class SciCatAccess:
     url: str
     user: ScicatUser
 
+    @overload
+    def make_client(
+        self, client_class: type[FakeClient], **kwargs: Any
+    ) -> FakeClient: ...
+
+    @overload
+    def make_client(self, client_class: type[Client], **kwargs: Any) -> Client: ...
+
+    def make_client(
+        self,
+        client_class: type[Client] | type[FakeClient],
+        **kwargs: Any,
+    ) -> Client | FakeClient:
+        """Construct and authenticate a client for this SciCat backend."""
+        return client_class.from_credentials(
+            url=self.url, allow_http=True, **self.user.credentials, **kwargs
+        )
+
 
 def local_access(user: str) -> SciCatAccess:
     """Return parameters to connect a client to a local SciCat backend.
@@ -141,3 +163,14 @@ def dump_account_config(path: Path) -> None:
     """Write a functional account config for the backend."""
     with path.open("w") as f:
         json.dump([user.dump() for user in USERS.values()], f)
+
+
+def write_keycloak_imports(path: Path) -> None:
+    """Write Keycloak import data."""
+    path.mkdir(exist_ok=True)
+    imports = (
+        importlib.resources.files("scitacean.testing.backend")
+        .joinpath("keycloak-import.json")
+        .read_text()
+    )
+    path.joinpath("keycloak-import.json").write_text(imports)

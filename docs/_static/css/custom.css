@@ -25,7 +25,7 @@ html[data-theme="dark"] {
 }
 
 /* Code cells from nbsphinx */
-div.nbinput.container div.input_area{
+div.nbinput.container div.input_area {
     border: none !important;
     padding: 0.5rem !important;
 }
@@ -100,4 +100,10 @@ a.headerlink {
 
 .search-button:hover > svg {
     color: var(--pst-color-primary);
+}
+
+img.inline-icon {
+    /* Center the icon on the text instead of placing it on the baseline. */
+    vertical-align: -0.16em;
+    margin: 0;
 }

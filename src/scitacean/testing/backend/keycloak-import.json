@@ -1,0 +1,97 @@
+{
+  "realm": "scitacean",
+  "enabled": true,
+  "clients": [
+    {
+      "clientId": "scitacean-test",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "redirectUris": [
+        "http://127.0.0.1:8081/login-callback"
+      ],
+      "webOrigins": [
+        "*"
+      ],
+      "standardFlowEnabled": true,
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "attributes": {
+        "oauth2.device.authorization.grant.enabled": "true"
+      },
+      "protocolMappers": [
+        {
+          "name": "SciCat backend",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "scicat",
+            "id.token.claim": "false",
+            "lightweight.claim": "false",
+            "introspection.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "false"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "scicat",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "1FqGvrewZg1L08fEfarp5GzLVZOZGrib",
+      "redirectUris": [
+        "/*"
+      ],
+      "webOrigins": [
+        "/*"
+      ],
+      "standardFlowEnabled": true,
+      "publicClient": false,
+      "protocol": "openid-connect",
+      "attributes": {
+        "realm_client": "false",
+        "oidc.ciba.grant.enabled": "false",
+        "client.secret.creation.time": "1791294516",
+        "backchannel.logout.session.required": "true",
+        "standard.token.exchange.enabled": "false",
+        "oauth2.device.authorization.grant.enabled": "false",
+        "backchannel.logout.revoke.offline.tokens": "false",
+        "dpop.bound.access.tokens": "false",
+        "pkce.code.challenge.method": "",
+        "login_theme": "",
+        "display.on.consent.screen": "false",
+        "consent.screen.text": "",
+        "frontchannel.logout.url": "",
+        "frontchannel.logout.session.required": "true",
+        "logout.confirmation.enabled": "false"
+      }
+    }
+  ],
+  "users": [
+    {
+      "username": "user1",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "user1@example.com",
+      "firstName": "Test",
+      "lastName": "User",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "testpassword",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "offline_access",
+        "uma_authorization"
+      ],
+      "attributes": {
+        "accessgroups": [
+          "group1"
+        ]
+      }
+    }
+  ]
+}

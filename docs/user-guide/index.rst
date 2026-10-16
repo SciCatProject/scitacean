@@ -4,7 +4,7 @@ User guide
 Basic usage
 -----------
 
-.. grid:: 3
+.. grid:: 2
 
     .. grid-item-card::
        :link: installation.rst
@@ -21,6 +21,23 @@ Basic usage
 
        ^^^
        Install Scitacean with Pip or Conda.
+
+
+    .. grid-item-card::
+       :link: connecting.rst
+       :text-align: center
+
+       **Connecting to SciCat**
+
+       .. image:: ../_static/icons/connect-light.svg
+          :class: only-light
+          :width: 40%
+       .. image:: ../_static/icons/connect-dark.svg
+          :class: only-dark
+          :width: 40%
+
+       ^^^
+       Connect to SciCat and file servers.
 
 
     .. grid-item-card::
@@ -59,6 +76,7 @@ Basic usage
    :hidden:
 
    installation
+   connecting
    downloading
    uploading
 
@@ -83,8 +101,17 @@ Advanced usage
        ^^^
        Overview of classes in Scitacean and how they are used to interact with SciCat.
 
+    .. grid-item-card::
+       :link: custom-profiles.rst
+       :text-align: center
+
+       Custom profiles
+       ^^^
+       How to create profiles for SciCat instances.
+
 .. toctree::
    :hidden:
 
    testing
    classes-and-concepts
+   custom-profiles

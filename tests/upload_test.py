@@ -83,9 +83,8 @@ def attachments() -> list[Attachment]:
 def client(
     fs: FakeFilesystem, scicat_access: backend_config.SciCatAccess
 ) -> FakeClient:
-    return FakeClient.from_credentials(
-        url="",
-        **scicat_access.user.credentials,
+    return scicat_access.make_client(
+        FakeClient,
         file_transfer=FakeFileTransfer(fs=fs, files={}, reverted={}),
     )
 

@@ -12,3 +12,4 @@ Developer documentation
    coding-conventions
    dependency-management
    testing
+   oauth-configuration

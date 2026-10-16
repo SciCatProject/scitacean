@@ -1,0 +1,8 @@
+# BetterLeaks configuration
+#
+# Allowlists cover credentials that are intentionally committed because they are
+# only used by the local test backend (Keycloak / SciCat) spun up via Docker.
+[[allowlists]]
+description = "Static client secret for the 'scicat' client in the Keycloak realm used by the local testing backend. Not a real credential."
+paths = ['''src/scitacean/testing/backend/keycloak-import\.json''']
+regexes = ['''1FqGvrewZg1L08fEfarp5GzLVZOZGrib''']

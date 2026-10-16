@@ -31,10 +31,7 @@ def real_client(
     scicat_backend: bool,
 ) -> Client:
     skip_if_not_backend(request)
-    return Client.from_credentials(
-        url=ingestor_access.url,
-        **ingestor_access.user.credentials,
-    )
+    return ingestor_access.make_client(Client)
 
 
 @pytest.fixture

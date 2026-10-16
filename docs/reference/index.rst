@@ -57,10 +57,11 @@ Exceptions
    :template: scitacean-class-template.rst
    :recursive:
 
+   AuthError
+   FileNotAccessibleError
    FileUploadError
    IntegrityError
    ScicatCommError
-   ScicatLoginError
 
 Submodules
 ~~~~~~~~~~
@@ -70,6 +71,7 @@ Submodules
    :template: scitacean-module-template.rst
    :recursive:
 
+   auth
    model
    ontology
    testing

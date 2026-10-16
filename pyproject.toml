@@ -98,6 +98,7 @@ addopts = """
 -ra
 -v
 --hypothesis-profile=scitacean
+--dist loadgroup
 """
 filterwarnings = [
     "error",

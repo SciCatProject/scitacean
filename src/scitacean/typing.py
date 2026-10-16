@@ -139,3 +139,10 @@ class Uploader(Protocol):
 
 class FileTransfer(Downloader, Uploader, Protocol):
     """Handler for file down-/uploads."""
+
+
+class SupportsClose(Protocol):
+    """A type with a close method."""
+
+    def close(self) -> None:
+        """Close the resource."""

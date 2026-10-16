@@ -62,6 +62,7 @@ repos:
     rev: 81aff7a638638aae3a659845d089043e1d8fe9ac  # 1.9.0
     hooks:
       - id: betterleaks
+        args: [ --config, .betterleaks.toml ]
 
   - repo: https://github.com/crate-ci/typos
     rev: v1.47.2

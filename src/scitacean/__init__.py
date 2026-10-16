@@ -10,16 +10,16 @@ try:
 except importlib.metadata.PackageNotFoundError:
     __version__ = "0.0.0"
 
-from ._profile import Profile, ScientificMetadataSchema
+from ._profile import Profile, ScientificMetadataSchema, builtin_profiles
 from .client import Client
 from .datablock import OrigDatablock
 from .dataset import Dataset
 from .error import (
+    AuthError,
     FileNotAccessibleError,
     FileUploadError,
     IntegrityError,
     ScicatCommError,
-    ScicatLoginError,
 )
 from .file import File
 from .filesystem import RemotePath
@@ -31,6 +31,7 @@ from .warning import VisibleDeprecationWarning
 __all__ = (
     "PID",
     "Attachment",
+    "AuthError",
     "Client",
     "Dataset",
     "File",
@@ -42,8 +43,8 @@ __all__ = (
     "RemotePath",
     "Sample",
     "ScicatCommError",
-    "ScicatLoginError",
     "ScientificMetadataSchema",
     "Thumbnail",
     "VisibleDeprecationWarning",
+    "builtin_profiles",
 )
