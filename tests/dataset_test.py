@@ -777,7 +777,7 @@ def test_replace_remove_meta(initial: Dataset) -> None:
 @given(initial=sst.datasets())
 @settings(max_examples=1)
 def test_replace_preserves_attachments(
-    initial: Dataset, attachments: None | list[model.Attachment]
+    initial: Dataset, attachments: list[model.Attachment] | None
 ) -> None:
     initial.attachments = attachments
     replaced = initial.replace(owner="a-new-owner")
@@ -796,8 +796,8 @@ def test_replace_preserves_attachments(
 @settings(max_examples=1)
 def test_replace_attachments(
     initial: Dataset,
-    attachments: None | list[model.Attachment],
-    target_attachments: None | list[model.Attachment],
+    attachments: list[model.Attachment] | None,
+    target_attachments: list[model.Attachment] | None,
 ) -> None:
     replaced = initial.replace(attachments=target_attachments)
     assert replaced.attachments == target_attachments
@@ -888,7 +888,7 @@ def test_derive_requires_pid(initial: Dataset) -> None:
 @given(initial=sst.datasets(pid=PID(pid="some-id")))
 @settings(max_examples=1)
 def test_derive_removes_attachments(
-    initial: Dataset, attachments: None | list[model.Attachment]
+    initial: Dataset, attachments: list[model.Attachment] | None
 ) -> None:
     initial.attachments = attachments
     derived = initial.derive()

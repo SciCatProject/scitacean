@@ -225,7 +225,7 @@ def _new_hash(algorithm: str) -> Any:
     return hashlib.new(algorithm, usedforsecurity=False)
 
 
-# size based on http://git.savannah.gnu.org/gitweb/?p=coreutils.git;a=blob;f=src/ioblksize.h;h=ed2f4a9c4d77462f357353eb73ee4306c28b37f1;hb=HEAD#l23  # noqa: E501
+# size based on http://git.savannah.gnu.org/gitweb/?p=coreutils.git;a=blob;f=src/ioblksize.h;h=ed2f4a9c4d77462f357353eb73ee4306c28b37f1;hb=HEAD#l23
 def checksum_of_file(path: str | Path, *, algorithm: str) -> str:
     """Compute the checksum of a local file.
 
