@@ -40,9 +40,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - { python: '3.14', os: ubuntu-24.04, command: test-all }
-          - { python: '3.13', os: ubuntu-24.04, command: test-all }
-          - { python: '3.12', os: ubuntu-24.04, command: test-all }
+          - { python: '3.15', os: ubuntu-24.04, command: test-all }
           - { python: '3.11', os: ubuntu-24.04, command: test-all }
           - { python: '3.11', os: macos-14, command: test }
           - { python: '3.11', os: windows-2022, command: test }
