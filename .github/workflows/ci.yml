@@ -18,9 +18,8 @@ jobs:
           pixi-version: v0.82.0
           environments: dev
           frozen: true
-      - name: Install prek
-        run: pixi global install prek=0.5.1
-      - run: prek run -a
+      - uses: j178/prek-action@1382ad72dea72f9d53832f2bcb65b3e87a947204 # v3.0.1
+        name: Run prek
 
   type-checking:
     name: Type checking
