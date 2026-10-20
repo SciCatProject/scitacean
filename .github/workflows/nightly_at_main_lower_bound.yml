@@ -16,4 +16,4 @@ jobs:
         uses: astral-sh/setup-uv@v10.3.0
       - name: Run Tests
         # This is not possible with pixi, so use uv.
-        run: uv run --resolution=lowest-direct --group=test --group=sftp pytest --backend-tests --sftp-tests
+        run: uv run --resolution=lowest-direct --group=test pytest --backend-tests --sftp-tests
