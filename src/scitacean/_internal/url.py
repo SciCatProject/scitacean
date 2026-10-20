@@ -2,7 +2,8 @@
 # Copyright (c) 2026 SciCat Project (https://github.com/SciCatProject/scitacean)
 
 from collections.abc import Sequence
-from urllib.parse import urlsplit
+from typing import Any
+from urllib.parse import parse_qs, urlencode, urlsplit, urlunsplit
 
 
 def url_concat(a: str, b: str) -> str:
@@ -30,3 +31,11 @@ def normalize_api_url(url: str, allow_http: bool = False) -> str:
     if not url.endswith("/api"):
         return f"{url.rstrip('/')}/api"
     return url
+
+
+def add_query_to_url(url: str, query: dict[str, Any]) -> str:
+    """Return a copy of the given URL with added query parameters."""
+    parts = list(urlsplit(url))
+    # The query is always at index 3
+    parts[3] = urlencode({**parse_qs(parts[3]), **query}, doseq=True)
+    return urlunsplit(parts)

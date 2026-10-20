@@ -17,6 +17,7 @@ from urllib.parse import quote_plus
 
 import httpx
 
+from .._internal.url import add_query_to_url
 from ..error import AuthError
 from ..typing import SupportsClose
 from ..util.credentials import ExpiringToken, SecretStr
@@ -46,6 +47,7 @@ class OAuthClientDevice:
         local_timeout: timedelta = timedelta(seconds=60),
         remote_timeout: timedelta = timedelta(seconds=5),
         scopes: Iterable[str] = ("openid",),
+        extra_request_parameters: dict[str, str] | None = None,
         allow_http: bool = False,
     ) -> None:
         """Create a new client.
@@ -64,6 +66,8 @@ class OAuthClientDevice:
         scopes:
             The scopes to request from the identity provider.
             Only change this if login fails with the default.
+        extra_request_parameters:
+            Parameters to add to URLs.
         allow_http:
             Whether to allow the use of HTTP instead of HTTPS.
             Only use this for testing!
@@ -74,6 +78,7 @@ class OAuthClientDevice:
         self._local_timeout = local_timeout
         self._remote_timeout = remote_timeout
         self._scopes = set(scopes)
+        self._extra_request_parameters = extra_request_parameters or {}
         self._allow_http = allow_http
 
     def login(
@@ -113,7 +118,10 @@ class OAuthClientDevice:
                 code_challenge=code_challenge,
                 code_challenge_method=code_challenge_method,
             )
-            with closing(actual_open_browser(flow_data.verification_uri_complete)):
+            verification_uri = add_query_to_url(
+                flow_data.verification_uri_complete, self._extra_request_parameters
+            )
+            with closing(actual_open_browser(verification_uri)):
                 token = self._wait_for_token(
                     client,
                     code_verifier=code_verifier,
@@ -166,6 +174,7 @@ class OAuthClientDevice:
                 # join by " " which translated to "+" when escaped:
                 "scope": " ".join(self._scopes),
             },
+            params=self._extra_request_parameters,
         )
         response.raise_for_status()
         try:
