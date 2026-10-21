@@ -167,7 +167,7 @@ class _OAuthRedirectHandler(BaseHTTPRequestHandler):
             self._send_result_page(success=False)
             server.failure = (
                 "The identity provider returned an unexpected issuer. "
-                f"Got {qs.get('state', ())!r}, expected {server.issuer!r}."
+                f"Got {qs.get('iss', ())!r}, expected {server.issuer!r}."
             )
         elif not secrets.compare_digest("".join(qs.get("state", ())), server.state):
             self._send_result_page(success=False)
