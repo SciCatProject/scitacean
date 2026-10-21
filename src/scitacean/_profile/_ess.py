@@ -5,7 +5,7 @@
 from collections.abc import Callable, Iterable
 from typing import Any
 
-from ..auth import OAuthClient, OAuthClientDevice
+from ..auth import OAuthClient, OAuthClientDevice, OAuthClientNormal
 from ..transfer.copy import CopyFileTransfer
 from ..transfer.link import LinkFileTransfer
 from ..transfer.select import SelectFileTransfer
@@ -42,11 +42,18 @@ profile_factories = (
 
 
 def _ess_oauth_clients() -> tuple[OAuthClient, ...]:
+    provider = "https://login.ess.eu/"
+    client_id = "scitacean"
     return (
-        # Normal client is missing because that is not properly configured yet.
+        OAuthClientNormal(
+            provider=provider,
+            client_id=client_id,
+            callback_path="login-callback",
+            local_port=(3001, 10002, 8081),
+        ),
         OAuthClientDevice(
-            provider="https://login.ess.eu/",
-            client_id="scitacean",
+            provider=provider,
+            client_id=client_id,
             extra_request_parameters={"app": "scitacean"},
         ),
     )
