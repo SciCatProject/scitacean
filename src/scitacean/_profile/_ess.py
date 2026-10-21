@@ -47,6 +47,7 @@ def _ess_oauth_clients() -> tuple[OAuthClient, ...]:
         OAuthClientDevice(
             provider="https://login.ess.eu/",
             client_id="scitacean",
+            extra_request_parameters={"app": "scitacean"},
         ),
     )
 
