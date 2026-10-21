@@ -57,7 +57,7 @@ jobs:
           echo "name=test-py${PYVER//./}" >> "$GITHUB_OUTPUT"
       - uses: prefix-dev/setup-pixi@v0.11.2
         with:
-          pixi-version: v0.82.0
+          pixi-version: v0.82.1
           environments: ${{ steps.pixi-env.outputs.name }}
           frozen: true
       - run: pixi run -e ${{ steps.pixi-env.outputs.name }} ${{ inputs.command }}
