@@ -15,13 +15,19 @@ from typing import Never
 from urllib import parse
 
 from . import _assets
+from ._oauth import IdPConfig
 
 _LOGGER_NAME = "scitacean.oauth-server"
 
 
 @contextmanager
 def launch_auth_redirect_server(
-    *, port: int | Iterable[int], issuer: str, state: str, path: str, timeout: timedelta
+    *,
+    port: int | Iterable[int],
+    idp_config: IdPConfig,
+    state: str,
+    path: str,
+    timeout: timedelta,
 ) -> Generator[OAuthRedirectServer, None, None]:
     """Launch a server to listen for OAuth redirects and store an authorization code.
 
@@ -39,8 +45,8 @@ def launch_auth_redirect_server(
     port:
         The port(s) to listen on.
         If multiple, tries all ports in order until one is available.
-    issuer:
-        The issuer URL of the OAuth provider.
+    idp_config:
+        Configuration of the identity provider.
     state:
         The random OAuth state string for this interaction.
     path:
@@ -69,7 +75,7 @@ def launch_auth_redirect_server(
                 timeout=timeout_secs,
                 state=state,
                 path=path,
-                issuer=issuer,
+                idp_config=idp_config,
             ) as server:
                 yield server
         except OSError as err:
@@ -93,7 +99,7 @@ class OAuthRedirectServer(HTTPServer):
         server_address: tuple[str, int],
         RequestHandlerClass: type,
         *,
-        issuer: str,
+        idp_config: IdPConfig,
         state: str,
         path: str,
         timeout: float,
@@ -101,7 +107,7 @@ class OAuthRedirectServer(HTTPServer):
         super().__init__(server_address, RequestHandlerClass)
         self.timeout = timeout
         self.base_timeout = timeout
-        self.issuer = issuer
+        self.idp_config = idp_config
         self.state = state
         self.path = path
         self.authorization_code: str | None = None
@@ -163,11 +169,17 @@ class _OAuthRedirectHandler(BaseHTTPRequestHandler):
         if errors := qs.get("error", []):
             self._send_result_page(success=False)
             server.failure = f"Authentication failed: {errors}."
-        elif not secrets.compare_digest("".join(qs.get("iss", ())), server.issuer):
+        elif (
+            server.idp_config.authorization_response_iss_parameter_supported
+            and not secrets.compare_digest(
+                "".join(qs.get("iss", ())), server.idp_config.issuer
+            )
+        ):
+            # https://www.rfc-editor.org/rfc/rfc9207.html#name-providing-the-issuer-identi
             self._send_result_page(success=False)
             server.failure = (
                 "The identity provider returned an unexpected issuer. "
-                f"Got {qs.get('iss', ())!r}, expected {server.issuer!r}."
+                f"Got {qs.get('iss', ())!r}, expected {server.idp_config.issuer!r}."
             )
         elif not secrets.compare_digest("".join(qs.get("state", ())), server.state):
             self._send_result_page(success=False)

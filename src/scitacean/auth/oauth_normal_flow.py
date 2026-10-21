@@ -173,7 +173,7 @@ class OAuthClientNormal:
             timeout=self._local_timeout,
             state=state,
             path=self._callback_path,
-            issuer=self._provider,
+            idp_config=self._idp_config,
         ) as server:
             # Derive the URL from the server port in case the server picks a port.
             redirect_url = self._redirect_url(server.server_port)

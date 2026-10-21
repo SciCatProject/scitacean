@@ -51,6 +51,7 @@ def get_idp_config(
     ) is None:
         raise RuntimeError("The IdP does not define a token endpoint")
     return IdPConfig(
+        issuer=data["issuer"],
         endpoints=Endpoints(
             authorization_endpoint=_get_config_url(
                 data, "authorization_endpoint", host, allowed_schemes
@@ -59,6 +60,9 @@ def get_idp_config(
                 data, "device_authorization_endpoint", host, allowed_schemes
             ),
             token_endpoint=token_endpoint,
+        ),
+        authorization_response_iss_parameter_supported=data.get(
+            "authorization_response_iss_parameter_supported", False
         ),
         response_types_supported=tuple(data["response_types_supported"]),
         **{
@@ -79,11 +83,13 @@ def get_idp_config(
 class IdPConfig:
     """Identity provider configuration."""
 
+    issuer: str
     endpoints: Endpoints
     code_challenge_methods_supported: tuple[str, ...]
     grant_types_supported: tuple[str, ...]
     response_types_supported: tuple[str, ...]
     scopes_supported: tuple[str, ...]
+    authorization_response_iss_parameter_supported: bool
 
 
 @dataclasses.dataclass(frozen=True, slots=True)
