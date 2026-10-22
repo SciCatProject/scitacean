@@ -39,9 +39,10 @@ Compared to Pyscicat, Scitacean offers:
 - Automated handling of a number of fields and some database details like data blocks.
 - Basic validation of metadata.
 - File upload and download utilities.
+- Authentication with identity providers
 
-While Scitacean provides access to a lower level interface similar to Pyscicat, it only supports a small subset of the SciCat API.
-Consider using Pyscicat if you need to access data that is not exposed through Scitacean.
+While Scitacean also provides access to a lower level interface similar to Pyscicat, it only supports a small subset of the SciCat API.
+Consider using Pyscicat if you need functionality that is not exposed through Scitacean.
 
 .. include:: user-guide/installation.rst
 
