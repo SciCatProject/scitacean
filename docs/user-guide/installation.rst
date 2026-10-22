@@ -15,7 +15,7 @@ Installation
 
                     uv add scitacean
 
-                If you need to transfer files via SFTP, i.e., with :class:`scitacean.transfer.sftp.SFTPFileTransfer`, specify the ``sftp``:
+                If you need to transfer files via SFTP, i.e., with :class:`scitacean.transfer.sftp.SFTPFileTransfer`, specify the ``sftp`` extra:
 
                 .. code-block:: sh
 
