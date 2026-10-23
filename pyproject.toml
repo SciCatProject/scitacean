@@ -78,7 +78,7 @@ test = [
     "pytest-randomly >= 3",
     "pytest-socket >= 0.7",
     "pytest-xdist >= 3",
-    "pyyaml >= 5", "cryptography",
+    "pyyaml >= 5",
 ]
 
 [project.urls]
