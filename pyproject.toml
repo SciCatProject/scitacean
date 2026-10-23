@@ -44,7 +44,7 @@ test = [
 ]
 
 [dependency-groups]
-build = ["build"]
+build = ["build >= 1.6.1"]
 dev = [
     { include-group = "docs" },
     { include-group = "test" },
@@ -77,8 +77,8 @@ test = [
     "pytest >= 7",
     "pytest-randomly >= 3",
     "pytest-socket >= 0.7",
-    "pytest-xdist >= 3",
-    "pyyaml >= 5", "cryptography",
+    "pytest-xdist >= 3.8",
+    "pyyaml >= 5",
 ]
 
 [project.urls]
