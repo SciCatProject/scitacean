@@ -15,7 +15,7 @@ from json import JSONDecodeError
 from typing import Any
 from urllib.parse import quote_plus
 
-import httpx
+import httpx2 as httpx
 
 from .._internal.url import add_query_to_url
 from ..error import AuthError

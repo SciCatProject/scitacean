@@ -12,7 +12,7 @@ import time
 from datetime import timedelta
 from html.parser import HTMLParser
 
-import httpx
+import httpx2 as httpx
 import pytest
 
 from scitacean import Client, Profile

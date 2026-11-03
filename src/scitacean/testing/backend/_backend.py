@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urljoin
 
-import httpx
+import httpx2 as httpx
 import yaml
 
 from ..._internal.docker import docker_compose_down, docker_compose_up

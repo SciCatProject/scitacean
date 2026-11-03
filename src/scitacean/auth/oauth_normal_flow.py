@@ -9,7 +9,7 @@ from collections.abc import Callable, Iterable
 from contextlib import closing
 from datetime import timedelta
 
-import httpx
+import httpx2 as httpx
 
 from ..error import AuthError
 from ..typing import SupportsClose
