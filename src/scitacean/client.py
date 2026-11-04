@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import quote_plus
 
-import httpx
+import httpx2 as httpx
 import pydantic
 
 from . import model

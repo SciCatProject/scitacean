@@ -11,7 +11,7 @@ from functools import cache
 from typing import Any, Protocol
 from urllib.parse import urlsplit
 
-import httpx
+import httpx2 as httpx
 
 from .._internal.url import require_scheme, url_concat
 from ..typing import SupportsClose

@@ -9,7 +9,7 @@ from collections.abc import Callable, Sequence
 from datetime import timedelta
 from typing import Literal
 
-import httpx
+import httpx2 as httpx
 
 from .._internal.url import normalize_api_url
 from ..error import AuthError
