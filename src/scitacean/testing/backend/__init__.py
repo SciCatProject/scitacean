@@ -55,35 +55,11 @@ If a test requires a backend but wants to construct a client manually, use
             **scicat_access.user.credentials
         )
         # assert something
-
-.. rubric:: Functions
-
-.. autosummary::
-   :toctree: ../functions
-
-   add_pytest_options
-   backend_enabled
-   configure
-   skip_if_not_backend
-   start_backend
-   stop_backend
 """
 
 from . import config, seed
-from ._backend import (
-    configure,
-    start_backend,
-    stop_backend,
-)
-from ._pytest_helpers import add_pytest_options, backend_enabled, skip_if_not_backend
 
 __all__ = [
-    "add_pytest_options",
-    "backend_enabled",
     "config",
-    "configure",
     "seed",
-    "skip_if_not_backend",
-    "start_backend",
-    "stop_backend",
 ]

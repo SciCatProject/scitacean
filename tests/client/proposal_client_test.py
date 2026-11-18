@@ -24,7 +24,7 @@ def ingestor_access(
 ) -> backend_config.SciCatAccess:
     return backend_config.SciCatAccess(
         url=scicat_access.url,
-        user=backend_config.USERS["ingestor"],
+        user=backend_config.local_access("ingestor").user,
     )
 
 

@@ -10,15 +10,28 @@
 # for a list of all env variables.
 
 services:
+  network:
+    image: alpine:3
+    command: sleep 2147483647
+    init: true
+    ports:
+      - ${SFTP_PORT}:${SFTP_PORT}
+      - ${SCICAT_PORT}:${SCICAT_PORT}
+      # Keycloak always listens on 8080
+      - 8080:${KEYCLOAK_PORT}
+    healthcheck:
+      test:
+        - 'CMD'
+        - 'true'
+      interval: 1s
+      timeout: 2s
+      retries: 10
+      start_period: 1s
+
   keycloak:
     image: quay.io/keycloak/keycloak:26.5.0
-    container_name: scitacean_scicat_keycloak
     command: start-dev --import-realm
-    ports:
-      - "8080:8080"
-      # For SciCat:
-      # This allows SciCat to access Keycloak while keeping it visible on localhost.
-      - "3000:3000"
+    network_mode: "service:network"
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin  # betterleaks:allow
@@ -33,17 +46,15 @@ services:
       retries: 90
       start_period: 2s
     volumes:
-      - ./keycloak-import:/opt/keycloak/data/import
+      - ${KEYCLOACK_REALM_IMPORT_DIR}:/opt/keycloak/data/import
 
   mongodb:
     image: mongo:latest
-    ports:
-      - "27017:27017"
+    network_mode: "service:network"
 
   scicat:
     image: ghcr.io/scicatproject/backend-next:v5.3.2
-    container_name: scitacean-test-scicat
-    network_mode: "service:keycloak"  # Give it access to and expose via keycloak
+    network_mode: "service:network"
     depends_on:
       mongodb:
         condition: service_started
@@ -58,25 +69,49 @@ services:
       JWT_EXPIRES_IN: 3600  # in s (expiry of token)
       JWT_SECRET: a_scicat_secret
       LOGBOOK_ENABLED: no  # we don't test these endpoints
-      MONGODB_URI: mongodb://mongodb:27017/scicat
-      PORT: 3000
-
-      OIDC_ISSUER: "http://localhost:8080/realms/scitacean"
-      OIDC_AUTHORIZATION_URL: "http://localhost:8080/realms/scitacean"
+      MONGODB_URI: mongodb://localhost:27017/scicat
+      PID_PREFIX: PID.prefix.a0b1
+      PORT: ${SCICAT_PORT}
+      SITE: SCITACEAN
+      OIDC_ISSUER: "http://localhost:${KEYCLOAK_PORT}/realms/scitacean"
+      OIDC_AUTHORIZATION_URL: "http://localhost:${KEYCLOAK_PORT}/realms/scitacean"
       OIDC_CLIENT_ID: "scicat"
       OIDC_CLIENT_SECRET: "1FqGvrewZg1L08fEfarp5GzLVZOZGrib"  # betterleaks:allow
-      OIDC_CALLBACK_URL: "http://localhost:3000/api/v3/auth/oidc/callback"
+      OIDC_CALLBACK_URL: "http://localhost:${SCICAT_PORT}/api/v3/auth/oidc/callback"
       OIDC_SCOPE: 'openid profile email'
       OIDC_SUCCESS_URL: "http://localhost:4200/auth-callback"
       OIDC_ACCESS_GROUPS: "accessgroups"
       OIDC_ADDITIONAL_AUTHORIZED_PARTIES: "scitacean-test"
-
-      # Those are configured in Python
-      PID_PREFIX: PLACEHOLDER
-      SITE: PLACEHOLDER
     healthcheck:
-      test: [ "CMD-SHELL", "wget -q -O- http://localhost:3000/api/v3/health || exit 1" ]
+      test: [ "CMD-SHELL", "wget -q -O- http://localhost:${SCICAT_PORT}/api/v3/health || exit 1" ]
       interval: 1s
       timeout: 2s
       retries: 90
       start_period: 2s
+    volumes:
+      - ${SCICAT_ACCOUNT_CONFIG_PATH}:/home/node/app/functionalAccounts.json
+
+  # TODO add health check
+  sftp:
+    build:
+      context: .
+      dockerfile: Dockerfile-sftp-server
+    network_mode: "service:network"
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=CET  # Not UTC on purpose to test timezone detection
+      # The directory contains _only_ the public key shipped with Scitacean.
+      - PUBLIC_KEY_DIR=/pubkeys
+      - SUDO_ACCESS=false
+      - PASSWORD_ACCESS=true
+      - USER_NAME=the-scitacean
+      - USER_PASSWORD=sup3r-str0ng
+    volumes:
+      - ${SFTP_DATA_DIR}:/data
+      - ${SFTP_SEED_DIR}:/data/seed
+      - ${SSH_PUBKEY_DIR}:/pubkeys:ro
+    restart: unless-stopped

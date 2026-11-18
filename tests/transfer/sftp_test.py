@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
-# mypy: disable-error-code="no-untyped-def, return-value, arg-type, union-attr"
+# mypy: disable-error-code="arg-type, union-attr"
 
 import dataclasses
 import tempfile
@@ -14,17 +14,19 @@ import pytest
 
 from scitacean import Dataset, File, FileNotAccessibleError, RemotePath
 from scitacean.testing.client import FakeClient
-from scitacean.testing.sftp import IgnorePolicy, SFTPAccess, skip_if_not_sftp
+from scitacean.testing.sftp import IgnorePolicy, SFTPAccess
 from scitacean.transfer.sftp import (
+    ConnectFn,
     SFTPDownloadConnection,
     SFTPFileTransfer,
     SFTPUploadConnection,
 )
 
 
-@pytest.fixture(scope="session", autouse=True)
-def _server(request, sftp_fileserver) -> None:
-    skip_if_not_sftp(request)
+# Nothing in this file can run without the server.
+@pytest.fixture(autouse=True)
+def _server(require_sftp_fileserver: None) -> None:
+    pass
 
 
 @pytest.fixture
@@ -33,7 +35,10 @@ def dataset() -> Dataset:
 
 
 def test_download_one_file(
-    sftp_access, sftp_connect_with_username_password, tmp_path, dataset: Dataset
+    sftp_access: SFTPAccess,
+    sftp_connect_with_username_password: ConnectFn,
+    tmp_path: Path,
+    dataset: Dataset,
 ) -> None:
     sftp = SFTPFileTransfer(
         host=sftp_access.host,
@@ -50,7 +55,10 @@ def test_download_one_file(
 
 
 def test_download_two_files(
-    sftp_access, sftp_connect_with_username_password, tmp_path, dataset: Dataset
+    sftp_access: SFTPAccess,
+    sftp_connect_with_username_password: ConnectFn,
+    tmp_path: Path,
+    dataset: Dataset,
 ) -> None:
     sftp = SFTPFileTransfer(
         host=sftp_access.host,
@@ -103,7 +111,10 @@ def test_download_one_file_with_ssh_key(
 
 
 def test_download_raises_if_file_does_not_exist(
-    sftp_access, sftp_connect_with_username_password, tmp_path, dataset: Dataset
+    sftp_access: SFTPAccess,
+    sftp_connect_with_username_password: ConnectFn,
+    tmp_path,
+    dataset: Dataset,
 ) -> None:
     sftp = SFTPFileTransfer(
         host=sftp_access.host,
@@ -120,8 +131,8 @@ def test_download_raises_if_file_does_not_exist(
 
 
 def test_upload_one_file_source_folder_in_dataset(
-    sftp_access,
-    sftp_connect_with_username_password,
+    sftp_access: SFTPAccess,
+    sftp_connect_with_username_password: ConnectFn,
     tmp_path,
     sftp_data_dir,
     dataset: Dataset,
@@ -147,7 +158,10 @@ def test_upload_one_file_source_folder_in_dataset(
 
 
 def test_upload_one_file_source_folder_in_transfer(
-    sftp_access, sftp_connect_with_username_password, tmp_path, sftp_data_dir
+    sftp_access: SFTPAccess,
+    sftp_connect_with_username_password: ConnectFn,
+    tmp_path,
+    sftp_data_dir,
 ):
     ds = Dataset(type="raw", owner="librarian")
     tmp_path.joinpath("file1.txt").write_text("File no. 2")
@@ -173,7 +187,10 @@ def test_upload_one_file_source_folder_in_transfer(
 
 
 def test_upload_two_files(
-    sftp_access, sftp_connect_with_username_password, tmp_path, sftp_data_dir
+    sftp_access: SFTPAccess,
+    sftp_connect_with_username_password: ConnectFn,
+    tmp_path,
+    sftp_data_dir,
 ):
     ds = Dataset(type="raw", source_folder=RemotePath("/data/upload2"))
     tmp_path.joinpath("file2.1.md").write_text("First part of file 2")
@@ -202,7 +219,10 @@ def test_upload_two_files(
 
 
 def test_upload_one_file_existing_source_folder(
-    sftp_access, sftp_connect_with_username_password, tmp_path, sftp_data_dir
+    sftp_access: SFTPAccess,
+    sftp_connect_with_username_password: ConnectFn,
+    tmp_path,
+    sftp_data_dir,
 ):
     ds = Dataset(type="raw", source_folder=RemotePath("/data/upload-multiple"))
     tmp_path.joinpath("file3.1.md").write_text("First part of file 3")
@@ -243,8 +263,8 @@ def test_upload_one_file_existing_source_folder(
 
 
 def test_upload_does_not_overwrite_remote_file(
-    sftp_access,
-    sftp_connect_with_username_password,
+    sftp_access: SFTPAccess,
+    sftp_connect_with_username_password: ConnectFn,
     tmp_path,
     sftp_data_dir,
     dataset: Dataset,
@@ -278,7 +298,10 @@ def test_upload_does_not_overwrite_remote_file(
 
 
 def test_revert_all_uploaded_files_single(
-    sftp_access, sftp_connect_with_username_password, tmp_path, sftp_data_dir
+    sftp_access: SFTPAccess,
+    sftp_connect_with_username_password: ConnectFn,
+    tmp_path,
+    sftp_data_dir,
 ):
     ds = Dataset(type="raw", source_folder=RemotePath("/data/revert-all-test-1"))
     tmp_path.joinpath("file3.txt").write_text("File that should get reverted")
@@ -297,7 +320,10 @@ def test_revert_all_uploaded_files_single(
 
 
 def test_revert_all_uploaded_files_two(
-    sftp_access, sftp_connect_with_username_password, tmp_path, sftp_data_dir
+    sftp_access: SFTPAccess,
+    sftp_connect_with_username_password: ConnectFn,
+    tmp_path,
+    sftp_data_dir,
 ):
     ds = Dataset(type="raw", source_folder=RemotePath("/data/revert-all-test-2"))
     tmp_path.joinpath("file3.1.txt").write_text("File that should get reverted 1")
@@ -318,7 +344,10 @@ def test_revert_all_uploaded_files_two(
 
 
 def test_revert_one_uploaded_file(
-    sftp_access, sftp_connect_with_username_password, tmp_path, sftp_data_dir
+    sftp_access: SFTPAccess,
+    sftp_connect_with_username_password: ConnectFn,
+    tmp_path,
+    sftp_data_dir,
 ):
     ds = Dataset(type="raw", source_folder=RemotePath("/data/revert-test"))
     tmp_path.joinpath("file4.txt").write_text("File that should get reverted")
@@ -345,7 +374,10 @@ def test_revert_one_uploaded_file(
 
 
 def test_stat_uploaded_file(
-    sftp_access, sftp_connect_with_username_password, tmp_path, sftp_data_dir
+    sftp_access: SFTPAccess,
+    sftp_connect_with_username_password: ConnectFn,
+    tmp_path,
+    sftp_data_dir,
 ):
     ds = Dataset(type="raw", source_folder=RemotePath("/data/upload6"))
     tmp_path.joinpath("file6.txt").write_text("File to test upload no 6")
@@ -394,7 +426,7 @@ class CorruptingTransfer(paramiko.Transport):
 
 
 @pytest.fixture
-def sftp_corrupting_connect(sftp_access, sftp_connection_config) -> None:
+def sftp_corrupting_connect(sftp_access: SFTPAccess, sftp_connection_config) -> None:
     def connect(host: str, port: int) -> paramiko.SFTPClient:
         client = paramiko.SSHClient()
         client.set_missing_host_key_policy(IgnorePolicy())

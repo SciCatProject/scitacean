@@ -1,0 +1,51 @@
+[
+  {
+    "username": "ingestor",
+    "password": "aman",
+    "email": "scicatingestor@your.site",
+    "role": "ingestor",
+    "global": false
+  },
+  {
+    "username": "user1",
+    "password": "a609316768619f154ef58db4d847b75e",
+    "email": "user1@your.site",
+    "role": "group1",
+    "global": false
+  },
+  {
+    "username": "user2",
+    "password": "f522d1d715970073a6413474ca0e0f63",
+    "email": "user2@your.site",
+    "role": "group2",
+    "global": false
+  },
+  {
+    "username": "user3",
+    "password": "70dc489e8ee823ae815e18d664424df2",
+    "email": "user3@your.site",
+    "role": "group3",
+    "global": false
+  },
+  {
+    "username": "user4",
+    "password": "0014890e7020f515b92b767227ef2dfa",
+    "email": "user4@your.site",
+    "role": "group4",
+    "global": false
+  },
+  {
+    "username": "user5.1",
+    "password": "359a5fda99bfe5dbc42ee9b3ede77fb7",
+    "email": "user5.1@your.site",
+    "role": "group5",
+    "global": false
+  },
+  {
+    "username": "user5.2",
+    "password": "f3ebd2e4def95db59ef95ee32ef45242",
+    "email": "user5.2@your.site",
+    "role": "group5",
+    "global": false
+  }
+]

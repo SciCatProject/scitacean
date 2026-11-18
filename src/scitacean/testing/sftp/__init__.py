@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2022 Scitacean contributors (https://github.com/SciCatProject/scitacean)
+# Copyright (c) 2026 Scitacean contributors (https://github.com/SciCatProject/scitacean)
 """Helpers for running tests with an SFTP server.
 
 This subpackage is primarily meant for testing
@@ -97,24 +97,16 @@ This is required when ``pytest-xdist`` is used.
 Otherwise, those files will not be present.
 """
 
-from ._pytest_helpers import add_pytest_option, sftp_enabled, skip_if_not_sftp
-from ._sftp import (
+from ._config import (
     IgnorePolicy,
     SFTPAccess,
     SFTPUser,
-    configure,
     local_access,
-    wait_until_sftp_server_is_live,
 )
 
 __all__ = [
     "IgnorePolicy",
     "SFTPAccess",
     "SFTPUser",
-    "add_pytest_option",
-    "configure",
     "local_access",
-    "sftp_enabled",
-    "skip_if_not_sftp",
-    "wait_until_sftp_server_is_live",
 ]

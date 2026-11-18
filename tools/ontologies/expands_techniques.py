@@ -25,7 +25,7 @@ import json
 from pathlib import Path
 from typing import Any, TypeAlias
 
-import httpx
+import httpx2 as httpx
 
 SOURCE_URL = "https://pan-ontologies.github.io/PaNET/ontology.jsonld"
 

@@ -9,7 +9,6 @@ from scitacean import Client, ScicatCommError
 from scitacean.client import ScicatClient
 from scitacean.model import DownloadSample, Sample, UploadSample
 from scitacean.testing.backend import config as backend_config
-from scitacean.testing.backend import skip_if_not_backend
 
 
 # Creating samples requires at least ingestor permissions.
@@ -19,7 +18,7 @@ def ingestor_access(
 ) -> backend_config.SciCatAccess:
     return backend_config.SciCatAccess(
         url=scicat_access.url,
-        user=backend_config.USERS["ingestor"],
+        user=backend_config.local_access("ingestor").user,
     )
 
 
@@ -28,9 +27,8 @@ def ingestor_access(
 def real_client(
     request: pytest.FixtureRequest,
     ingestor_access: backend_config.SciCatAccess,
-    scicat_backend: bool,
+    require_scicat_backend: None,
 ) -> Client:
-    skip_if_not_backend(request)
     return ingestor_access.make_client(Client)
 
 
