@@ -91,7 +91,6 @@ services:
     volumes:
       - ${SCICAT_ACCOUNT_CONFIG_PATH}:/home/node/app/functionalAccounts.json
 
-  # TODO add health check
   sftp:
     build:
       context: .
@@ -115,3 +114,12 @@ services:
       - ${SFTP_SEED_DIR}:/data/seed
       - ${SSH_PUBKEY_DIR}:/pubkeys:ro
     restart: unless-stopped
+    healthcheck:
+      # Performs an SSH handshake, so it only passes once sshd accepts connections.
+      test:
+        - CMD-SHELL
+        - 'ssh-keyscan -T 2 -t ed25519 -p ${SFTP_PORT} 127.0.0.1 2>/dev/null | grep -q ssh-ed25519'
+      interval: 1s
+      timeout: 3s
+      retries: 30
+      start_period: 1s
