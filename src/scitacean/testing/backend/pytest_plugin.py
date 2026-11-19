@@ -8,7 +8,7 @@ import pytest
 
 from ...client import Client
 from .._logging import get_logger
-from .._services.docker import DockerComposeProject
+from .._testing_project import TestingProject
 from ..client import FakeClient
 from . import seed
 from .config import SciCatAccess, local_access
@@ -117,7 +117,7 @@ def client(request: pytest.FixtureRequest, scicat_backend: bool) -> Client | Fak
 @pytest.fixture(scope="session")
 def scicat_backend(
     request: pytest.FixtureRequest,
-    docker_project: DockerComposeProject,
+    scitacean_testing_project: TestingProject,
     scicat_access: SciCatAccess,
 ) -> bool:
     """Fixture to declare that a test needs a local scicat backend.
@@ -139,19 +139,19 @@ def scicat_backend(
     if backend_enabled:
         get_logger().info("Preparing SciCat with real backend")
         client_class = Client
-        docker_project.ensure_running("scicat")
+        scitacean_testing_project.ensure_running("scicat")
     else:
         get_logger().info("Preparing SciCat without real backend")
         client_class = FakeClient
 
-    with docker_project.lock():
-        if seed.is_seeded(docker_project.path):
-            seed.seed_worker(docker_project.path)
+    with scitacean_testing_project.lock():
+        if seed.is_seeded(scitacean_testing_project.path):
+            seed.seed_worker(scitacean_testing_project.path)
         else:
             _seed_database(
                 client_class,
                 scicat_access=scicat_access,
-                target_dir=docker_project.path,
+                target_dir=scitacean_testing_project.path,
             )
 
     return backend_enabled

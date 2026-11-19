@@ -199,7 +199,7 @@ def _write_keycloak_imports(output_dir: Path) -> Path:
 def _write_ssh_pubkeys(output_dir: Path) -> Path:
     # This directory must contain _only_ public keys.
     pubkey_dir = output_dir / "pubkeys"
-    pubkey_dir.mkdir()
+    pubkey_dir.mkdir(exist_ok=True)
     pubkey_dir.chmod(0o755)  # Required by OpenSSH
 
     key_file = pubkey_dir / "scitacean_test_key.pub"
@@ -210,13 +210,13 @@ def _write_ssh_pubkeys(output_dir: Path) -> Path:
 
 def _write_sftp_data(output_dir: Path) -> Path:
     data_dir = output_dir / SFTP_DATA_DIR_NAME
-    data_dir.mkdir(parents=True)
+    data_dir.mkdir(parents=True, exist_ok=True)
     # Make world-writable so that the docker user has write access regardless of whether
     # its UID matches the host UID.
     data_dir.chmod(0o777)
 
     seed_dir = data_dir / "seed"
-    seed_dir.mkdir()
+    seed_dir.mkdir(exist_ok=True)
 
     for name, content in assets.sftp_seed_files():
         seed_dir.joinpath(name).write_text(content)

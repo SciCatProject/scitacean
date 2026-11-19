@@ -16,23 +16,11 @@ from pathlib import Path
 
 import pytest
 
-from ._services.docker import DockerComposeProject
 from ._testing_project import TestingProject
 
 # Share the project path across all xdist workers.
 _PROJECT_LOCATION = pytest.StashKey[tuple[Path, str]]()
 _WORKER_LOCATION = "scitacean_project_location"
-
-
-@pytest.fixture(scope="session")
-def docker_project(
-    request: pytest.FixtureRequest, scitacean_testing_project: TestingProject
-) -> DockerComposeProject:
-    """Return the docker compose project for this test session."""
-    return DockerComposeProject.get_or_create(
-        scitacean_testing_project,
-        scicat_version=request.config.getoption("--scitacean-backend-version"),
-    )
 
 
 @pytest.fixture(scope="session")
@@ -48,7 +36,11 @@ def scitacean_testing_project(
         name = f"scitacean-test-{uuid.uuid4().hex}"
         config.stash[_PROJECT_LOCATION] = (base, name)
 
-    return TestingProject.get_or_create(base=base, project_name=name)
+    return TestingProject.get_or_create(
+        base=base,
+        project_name=name,
+        scicat_version=request.config.getoption("--scitacean-backend-version"),
+    )
 
 
 @pytest.hookimpl(optionalhook=True)
@@ -77,4 +69,4 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int):
         base, name = location
         project = TestingProject.load_existing(base, project_name=name)
         if project is not None:
-            DockerComposeProject(project).teardown()
+            project.teardown()

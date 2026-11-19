@@ -10,7 +10,7 @@ from paramiko import SFTPClient, SSHClient
 
 from .._logging import get_logger
 from .._services.config import SFTP_DATA_DIR_NAME
-from .._services.docker import DockerComposeProject
+from .._testing_project import TestingProject
 from ._config import (
     IgnorePolicy,
     SFTPAccess,
@@ -50,7 +50,7 @@ def sftp_access(request: pytest.FixtureRequest) -> SFTPAccess:
 @pytest.fixture(scope="session")
 def sftp_data_dir(
     request: pytest.FixtureRequest,
-    docker_project: DockerComposeProject,
+    scitacean_testing_project: TestingProject,
 ) -> Path | None:
     """Fixture that returns the data directory for the SFTP server setup.
 
@@ -64,7 +64,7 @@ def sftp_data_dir(
     """
     if not _sftp_enabled(request):
         return None
-    return docker_project.path.joinpath(SFTP_DATA_DIR_NAME)
+    return scitacean_testing_project.docker_path.joinpath(SFTP_DATA_DIR_NAME)
 
 
 @pytest.fixture(scope="session")
@@ -116,7 +116,7 @@ def sftp_connect_with_username_password(
 @pytest.fixture(scope="session")
 def sftp_fileserver(
     request: pytest.FixtureRequest,
-    docker_project: DockerComposeProject,
+    scitacean_testing_project: TestingProject,
 ) -> bool:
     """Fixture to declare that a test needs a local SFTP server.
 
@@ -135,7 +135,7 @@ def sftp_fileserver(
         return False
 
     get_logger().info("Preparing SFTP server")
-    docker_project.ensure_running("sftp")
+    scitacean_testing_project.ensure_running("sftp")
     return True
 
 
