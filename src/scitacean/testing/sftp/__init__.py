@@ -3,16 +3,16 @@
 """Helpers for running tests with an SFTP server.
 
 This subpackage is primarily meant for testing
-:class:`scitacean.testing.sftp.SFTPFileTransfer`.
+:class:`scitacean.transfer.sftp.SFTPFileTransfer`.
 But it can also be used to test downstream code that uses the SFTP file transfer.
 
 The `pytest <https://docs.pytest.org>`_ fixtures in this package manage an SFTP server
 running in a docker container on the local machine.
-They, therefore, require docker to be installed and running.
+They, therefore, require Docker to be installed and running.
 
-Use the :func:`scitacean.testing.sftp.fixtures.sftp_fileserver`
+Use the :func:`scitacean.testing.sftp.pytest_plugin.sftp_fileserver`
 fixture to manage the server and use
-:func:`scitacean.testing.sftp.fixtures.sftp_access`
+:func:`scitacean.testing.sftp.pytest_plugin.sftp_access`
 to get all required access parameters.
 See below for examples.
 
@@ -64,16 +64,17 @@ for an example.
 Implementation notes
 --------------------
 When the server fixture is first used, it initializes the server using these steps:
+(The first step is also executed when requesting the SciCat backend fixture.
 
 1. Create a temporary directory with contents::
 
        tmpdir
-         ├ docker-compose.yaml
-         ├ .env         (specifies paths for docker volumes)
-         ├ counter      (number of workers currently using the server)
-         ├ counter.lock (file lock)
-         └ data         (storage of files)
-            └ seed      (populated from scitacean/testing/sftp/sftp_server_seed)
+         └ docker
+             ├ docker-compose.yaml
+             ├ .env         (specifies paths for docker volumes)
+             ├ [...]
+             └ sftp_data    (storage of files)
+                └ seed      (populated from scitacean/testing/sftp/sftp_server_seed)
 
 2. Start docker.
 3. Make data writable by the user in docker.
@@ -90,11 +91,6 @@ Corresponds to ``/data/seed`` on the server.
 
 Use the base data directory (``sftp_data_dir``) to test uploads.
 Corresponds to ``/data`` on the server.
-
-The counter and counter.lock files are used to synchronize starting and stopping
-of the docker container between processes.
-This is required when ``pytest-xdist`` is used.
-Otherwise, those files will not be present.
 """
 
 from ._config import (

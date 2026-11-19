@@ -3,11 +3,9 @@
 # mypy: disable-error-code="arg-type, union-attr"
 
 import dataclasses
-from collections.abc import Iterator
-from contextlib import contextmanager
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any, cast
+from typing import cast
 
 import paramiko
 import pytest
@@ -15,12 +13,7 @@ import pytest
 from scitacean import Dataset, File, FileNotAccessibleError, RemotePath
 from scitacean.testing.client import FakeClient
 from scitacean.testing.sftp import IgnorePolicy, SFTPAccess
-from scitacean.transfer.sftp import (
-    ConnectFn,
-    SFTPDownloadConnection,
-    SFTPFileTransfer,
-    SFTPUploadConnection,
-)
+from scitacean.transfer.sftp import ConnectFn, SFTPFileTransfer
 
 
 # Nothing in this file can run without the server.
@@ -462,30 +455,6 @@ def test_upload_file_reverts_if_upload_fails(
     assert "upload8" not in (p.name for p in sftp_data_dir.iterdir())
 
 
-class SFTPTestFileTransfer(SFTPFileTransfer):
-    def __init__(self, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
-
-    @contextmanager
-    def connect_for_download(
-        self, dataset: Dataset, representative_file_path: RemotePath
-    ) -> Iterator[SFTPDownloadConnection]:
-        with super().connect_for_download(
-            dataset, representative_file_path
-        ) as connection:
-            yield connection
-
-    @contextmanager
-    def connect_for_upload(
-        self, dataset: Dataset, representative_file_path: RemotePath
-    ) -> Iterator[SFTPUploadConnection]:
-        with super().connect_for_upload(
-            dataset, representative_file_path
-        ) as connection:
-            yield connection
-
-
-# This test is referenced in the docs.
 def test_client_with_sftp(
     require_sftp_fileserver: None,
     sftp_access: SFTPAccess,
@@ -497,7 +466,7 @@ def test_client_with_sftp(
 
     client = FakeClient.without_login(
         url="https://example.org",
-        file_transfer=SFTPTestFileTransfer(
+        file_transfer=SFTPFileTransfer(
             connect=sftp_connect_with_username_password,
             host=sftp_access.host,
             port=sftp_access.port,
