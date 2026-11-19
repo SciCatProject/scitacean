@@ -27,6 +27,23 @@ Tests in `tests/client <https://github.com/SciCatProject/scitacean/tree/main/tes
 
 Use ``--backend-tests`` with ``pytest`` to run these tests.
 
+To generate the shared Docker Compose configuration without running the tests, use
+
+.. code-block:: sh
+
+    pixi run -e test python tools/configure_test_backend.py /tmp/scitacean-services
+    docker compose -p scitacean-manual-test -f /tmp/scitacean-services/docker-compose.yaml up -d
+
+The output directory must not exist or must be empty. It contains the Compose file,
+environment settings, and assets for SciCat, Keycloak, and SFTP; paths in the
+environment file are absolute, so regenerate the configuration if it is moved.
+The generated services and credentials are only intended for local testing.
+Stop the services and remove their volumes when finished:
+
+.. code-block:: sh
+
+    docker compose -p scitacean-manual-test -f /tmp/scitacean-services/docker-compose.yaml down --volumes
+
 SFTP file transfer
 ------------------
 

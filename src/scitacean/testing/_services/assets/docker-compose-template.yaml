@@ -1,5 +1,5 @@
-# Docker configuration for testing Scitacean against a SciCat backend.
-# This file needs to be processed by `scitacean.testing.backend.configure`
+# Docker configuration for testing Scitacean against local services.
+# This template is processed by `scitacean.testing._services.config.configure_services`
 # before it can be used by docker compose.
 #
 # The images are based on the CI setup of the SciCat backend

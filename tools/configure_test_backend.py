@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2026 SciCat Project (https://github.com/SciCatProject/scitacean)
-"""Configure a test backend by building a docker compose file and auxiliary files."""
+"""Configure the test services by writing a Docker Compose file and its assets."""
 
 import argparse
 from pathlib import Path
 from typing import cast
 
-from scitacean.testing import backend
+from scitacean.testing._services.config import configure_services
 
 
 def main() -> None:
@@ -19,11 +19,13 @@ def main() -> None:
         if any(output_dir.iterdir()):
             raise ValueError(f"{args.output_dir} exists but is not empty")
     output_dir.mkdir(parents=True, exist_ok=True)
-    backend.configure(target_path=output_dir / "docker-compose.yaml")
+    configure_services(
+        output_dir, docker_filename="docker-compose.yaml", scicat_version=None
+    )
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Configure a Scitacean test backend.")
+    parser = argparse.ArgumentParser(description="Configure Scitacean test services.")
     parser.add_argument(
         "output_dir",
         type=Path,
