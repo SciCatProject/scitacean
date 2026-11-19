@@ -43,7 +43,6 @@ def local_access(user: str) -> SciCatAccess:
     ----------
     user:
         User name.
-        Must be in :attr:`scitacean.testing.backend.config.USERS`.
 
     Returns
     -------
@@ -53,3 +52,6 @@ def local_access(user: str) -> SciCatAccess:
     return SciCatAccess(
         url=f"http://localhost:{SCICAT_PORT}/api/v3/", user=scicat_users()[user]
     )
+
+
+__all__ = ["SCICAT_PORT", "SciCatAccess", "ScicatUser", "local_access", "scicat_users"]

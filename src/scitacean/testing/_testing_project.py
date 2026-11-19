@@ -107,7 +107,7 @@ class TestingProject:
             yield
 
     @contextmanager
-    def lock(self):
+    def lock(self) -> Generator[None, None, None]:
         """Acquire the lock for short-lived project initialization tasks."""
         with self._project_lock(self._path.parent):
             yield

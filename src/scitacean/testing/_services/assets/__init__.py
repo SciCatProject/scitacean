@@ -10,7 +10,7 @@ import yaml
 
 @cache
 def docker_compose_template() -> dict[str, Any]:
-    return yaml.safe_load(_read_text("docker-compose-template.yaml"))
+    return yaml.safe_load(_read_text("docker-compose-template.yaml"))  # type: ignore[no-any-return]
 
 
 @cache

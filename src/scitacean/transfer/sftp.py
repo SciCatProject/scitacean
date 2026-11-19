@@ -415,7 +415,6 @@ def _connect(
             return _default_connect(host, port, username, password, key_filename)
         return connect(host, port)
     except Exception as exception:
-        raise
         new_exception = type(exception)(exception.args)
         if "known_host" in new_exception.args[0]:
             new_exception.__notes__ = [

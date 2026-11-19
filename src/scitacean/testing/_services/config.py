@@ -224,5 +224,5 @@ def _write_sftp_data(output_dir: Path) -> Path:
     return data_dir
 
 
-def _write_ssh_dockerfile(output_dir: Path):
+def _write_ssh_dockerfile(output_dir: Path) -> None:
     output_dir.joinpath("Dockerfile-sftp-server").write_text(assets.ssh_dockerfile())

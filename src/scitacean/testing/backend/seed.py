@@ -29,7 +29,8 @@ from ...model import (
 )
 from ...pid import PID
 from ...thumbnail import Thumbnail
-from .config import SciCatAccess, ScicatUser
+from .._services.config import ScicatUser
+from .config import SciCatAccess
 
 # Dataset models to upload to the database.
 _DATASETS: dict[str, UploadDataset] = {

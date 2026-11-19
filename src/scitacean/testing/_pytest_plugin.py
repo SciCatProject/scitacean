@@ -12,7 +12,9 @@ Both include this plugin.
 """
 
 import uuid
+from collections.abc import Generator
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -44,7 +46,7 @@ def scitacean_testing_project(
 
 
 @pytest.hookimpl(optionalhook=True)
-def pytest_configure_node(node) -> None:
+def pytest_configure_node(node: Any) -> None:
     """Pass the same project location to every local xdist worker."""
     location = node.config.stash.get(_PROJECT_LOCATION, None)
     if location is None:
@@ -57,7 +59,9 @@ def pytest_configure_node(node) -> None:
 
 
 @pytest.hookimpl(hookwrapper=True)
-def pytest_sessionfinish(session: pytest.Session, exitstatus: int):
+def pytest_sessionfinish(
+    session: pytest.Session, exitstatus: int
+) -> Generator[None, None, None]:
     yield  # Let xdist's session-finish hooks complete first.
 
     config = session.config

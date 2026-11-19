@@ -138,7 +138,7 @@ def scicat_backend(
     backend_enabled = _backend_enabled(request)
     if backend_enabled:
         get_logger().info("Preparing SciCat with real backend")
-        client_class = Client
+        client_class: type[Client | FakeClient] = Client
         scitacean_testing_project.ensure_running("scicat")
     else:
         get_logger().info("Preparing SciCat without real backend")

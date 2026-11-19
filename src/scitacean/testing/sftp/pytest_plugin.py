@@ -162,6 +162,4 @@ def _skip_if_not_sftp(request: pytest.FixtureRequest) -> None:
 
 def _sftp_enabled(request: pytest.FixtureRequest) -> bool:
     """Return True if SFTP tests are enabled."""
-    return COMMAND_LINE_OPTION is not None and bool(
-        request.config.getoption(COMMAND_LINE_OPTION)
-    )
+    return bool(request.config.getoption(COMMAND_LINE_OPTION))

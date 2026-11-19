@@ -3,11 +3,11 @@
 # mypy: disable-error-code="arg-type, union-attr"
 
 import dataclasses
-import tempfile
 from collections.abc import Iterator
 from contextlib import contextmanager
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from typing import Any, cast
 
 import paramiko
 import pytest
@@ -113,7 +113,7 @@ def test_download_one_file_with_ssh_key(
 def test_download_raises_if_file_does_not_exist(
     sftp_access: SFTPAccess,
     sftp_connect_with_username_password: ConnectFn,
-    tmp_path,
+    tmp_path: Path,
     dataset: Dataset,
 ) -> None:
     sftp = SFTPFileTransfer(
@@ -133,10 +133,10 @@ def test_download_raises_if_file_does_not_exist(
 def test_upload_one_file_source_folder_in_dataset(
     sftp_access: SFTPAccess,
     sftp_connect_with_username_password: ConnectFn,
-    tmp_path,
-    sftp_data_dir,
+    tmp_path: Path,
+    sftp_data_dir: Path,
     dataset: Dataset,
-):
+) -> None:
     ds = Dataset(type="raw", source_folder=RemotePath("/data/upload"))
     tmp_path.joinpath("file0.txt").write_text("File to test upload123")
 
@@ -160,9 +160,9 @@ def test_upload_one_file_source_folder_in_dataset(
 def test_upload_one_file_source_folder_in_transfer(
     sftp_access: SFTPAccess,
     sftp_connect_with_username_password: ConnectFn,
-    tmp_path,
-    sftp_data_dir,
-):
+    tmp_path: Path,
+    sftp_data_dir: Path,
+) -> None:
     ds = Dataset(type="raw", owner="librarian")
     tmp_path.joinpath("file1.txt").write_text("File no. 2")
 
@@ -189,9 +189,9 @@ def test_upload_one_file_source_folder_in_transfer(
 def test_upload_two_files(
     sftp_access: SFTPAccess,
     sftp_connect_with_username_password: ConnectFn,
-    tmp_path,
-    sftp_data_dir,
-):
+    tmp_path: Path,
+    sftp_data_dir: Path,
+) -> None:
     ds = Dataset(type="raw", source_folder=RemotePath("/data/upload2"))
     tmp_path.joinpath("file2.1.md").write_text("First part of file 2")
     tmp_path.joinpath("file2.2.md").write_text("Second part of file 2")
@@ -221,9 +221,9 @@ def test_upload_two_files(
 def test_upload_one_file_existing_source_folder(
     sftp_access: SFTPAccess,
     sftp_connect_with_username_password: ConnectFn,
-    tmp_path,
-    sftp_data_dir,
-):
+    tmp_path: Path,
+    sftp_data_dir: Path,
+) -> None:
     ds = Dataset(type="raw", source_folder=RemotePath("/data/upload-multiple"))
     tmp_path.joinpath("file3.1.md").write_text("First part of file 3")
     tmp_path.joinpath("file3.2.md").write_text("Second part of file 3")
@@ -265,8 +265,8 @@ def test_upload_one_file_existing_source_folder(
 def test_upload_does_not_overwrite_remote_file(
     sftp_access: SFTPAccess,
     sftp_connect_with_username_password: ConnectFn,
-    tmp_path,
-    sftp_data_dir,
+    tmp_path: Path,
+    sftp_data_dir: Path,
     dataset: Dataset,
 ) -> None:
     sftp = SFTPFileTransfer(
@@ -300,9 +300,9 @@ def test_upload_does_not_overwrite_remote_file(
 def test_revert_all_uploaded_files_single(
     sftp_access: SFTPAccess,
     sftp_connect_with_username_password: ConnectFn,
-    tmp_path,
-    sftp_data_dir,
-):
+    tmp_path: Path,
+    sftp_data_dir: Path,
+) -> None:
     ds = Dataset(type="raw", source_folder=RemotePath("/data/revert-all-test-1"))
     tmp_path.joinpath("file3.txt").write_text("File that should get reverted")
 
@@ -322,9 +322,9 @@ def test_revert_all_uploaded_files_single(
 def test_revert_all_uploaded_files_two(
     sftp_access: SFTPAccess,
     sftp_connect_with_username_password: ConnectFn,
-    tmp_path,
-    sftp_data_dir,
-):
+    tmp_path: Path,
+    sftp_data_dir: Path,
+) -> None:
     ds = Dataset(type="raw", source_folder=RemotePath("/data/revert-all-test-2"))
     tmp_path.joinpath("file3.1.txt").write_text("File that should get reverted 1")
     tmp_path.joinpath("file3.2.txt").write_text("File that should get reverted 2")
@@ -346,9 +346,9 @@ def test_revert_all_uploaded_files_two(
 def test_revert_one_uploaded_file(
     sftp_access: SFTPAccess,
     sftp_connect_with_username_password: ConnectFn,
-    tmp_path,
-    sftp_data_dir,
-):
+    tmp_path: Path,
+    sftp_data_dir: Path,
+) -> None:
     ds = Dataset(type="raw", source_folder=RemotePath("/data/revert-test"))
     tmp_path.joinpath("file4.txt").write_text("File that should get reverted")
     tmp_path.joinpath("file5.txt").write_text("File that should be kept")
@@ -376,9 +376,9 @@ def test_revert_one_uploaded_file(
 def test_stat_uploaded_file(
     sftp_access: SFTPAccess,
     sftp_connect_with_username_password: ConnectFn,
-    tmp_path,
-    sftp_data_dir,
-):
+    tmp_path: Path,
+    sftp_data_dir: Path,
+) -> None:
     ds = Dataset(type="raw", source_folder=RemotePath("/data/upload6"))
     tmp_path.joinpath("file6.txt").write_text("File to test upload no 6")
 
@@ -403,61 +403,24 @@ def test_stat_uploaded_file(
     assert datetime.now(tz=UTC) - uploaded.creation_time < timedelta(seconds=5)
 
 
-class CorruptingSFTP(paramiko.SFTPClient):
-    """Appends bytes to uploaded files to simulate a broken transfer."""
-
-    def put(
-        self, localpath, remotepath, callback=None, confirm=True
-    ) -> paramiko.SFTPAttributes:
-        with open(localpath) as f:
-            content = f.read()
-        with tempfile.TemporaryDirectory() as tempdir:
-            corrupted_path = Path(tempdir) / "corrupted"
-            with open(corrupted_path, "w") as f:
-                f.write(content + "\nevil bytes")
-            return super().put(str(corrupted_path), remotepath, callback, confirm)
-
-
-class CorruptingTransfer(paramiko.Transport):
-    """Uses CorruptingSFTP to simulate a broken connection."""
-
-    def open_sftp_client(self) -> paramiko.SFTPClient:
-        return CorruptingSFTP.from_transport(self)
-
-
-@pytest.fixture
-def sftp_corrupting_connect(sftp_access: SFTPAccess, sftp_connection_config) -> None:
-    def connect(host: str, port: int) -> paramiko.SFTPClient:
-        client = paramiko.SSHClient()
-        client.set_missing_host_key_policy(IgnorePolicy())
-        client.connect(
-            hostname=host,
-            port=port,
-            username=sftp_access.user.username,
-            password=sftp_access.user.password,
-            allow_agent=False,
-            look_for_keys=False,
-            transport_factory=CorruptingTransfer,
-        )
-        return client.open_sftp()
-
-    return connect
-
-
 class RaisingSFTP(paramiko.SFTPClient):
-    def put(
-        self, localpath, remotepath, callback=None, confirm=True
+    def put(  # type: ignore[no-untyped-def]
+        self,
+        localpath,
+        remotepath,
+        callback=None,
+        confirm=True,
     ) -> paramiko.SFTPAttributes:
         raise RuntimeError("Upload disabled")
 
 
 class RaisingTransfer(paramiko.Transport):
     def open_sftp_client(self) -> paramiko.SFTPClient:
-        return RaisingSFTP.from_transport(self)
+        return cast(paramiko.SFTPClient, RaisingSFTP.from_transport(self))
 
 
 @pytest.fixture
-def sftp_raising_connect(sftp_access) -> None:
+def sftp_raising_connect(sftp_access: SFTPAccess) -> ConnectFn:
     def connect(host: str, port: int) -> paramiko.SFTPClient:
         client = paramiko.SSHClient()
         client.set_missing_host_key_policy(IgnorePolicy())
@@ -476,8 +439,11 @@ def sftp_raising_connect(sftp_access) -> None:
 
 
 def test_upload_file_reverts_if_upload_fails(
-    sftp_access, sftp_raising_connect, tmp_path, sftp_data_dir
-):
+    sftp_access: SFTPAccess,
+    sftp_raising_connect: ConnectFn,
+    tmp_path: Path,
+    sftp_data_dir: Path,
+) -> None:
     ds = Dataset(type="raw", source_folder=RemotePath("/data/upload8"))
     tmp_path.joinpath("file8.txt").write_text("File to test upload no 8")
 
@@ -497,7 +463,7 @@ def test_upload_file_reverts_if_upload_fails(
 
 
 class SFTPTestFileTransfer(SFTPFileTransfer):
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
     @contextmanager
@@ -521,12 +487,12 @@ class SFTPTestFileTransfer(SFTPFileTransfer):
 
 # This test is referenced in the docs.
 def test_client_with_sftp(
-    require_sftp_fileserver,
-    sftp_access,
-    sftp_connect_with_username_password,
-    sftp_data_dir,
-    tmp_path,
-):
+    require_sftp_fileserver: None,
+    sftp_access: SFTPAccess,
+    sftp_connect_with_username_password: ConnectFn,
+    sftp_data_dir: Path,
+    tmp_path: Path,
+) -> None:
     tmp_path.joinpath("file1.txt").write_text("File contents")
 
     client = FakeClient.without_login(
