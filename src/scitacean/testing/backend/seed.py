@@ -7,6 +7,7 @@ The contents of this module are used to initialize
 the local database before making it available to tests.
 """
 
+import logging
 import pickle
 from copy import deepcopy
 from datetime import datetime
@@ -28,7 +29,8 @@ from ...model import (
 )
 from ...pid import PID
 from ...thumbnail import Thumbnail
-from .config import SITE, SciCatAccess, ScicatUser
+from .._services.config import ScicatUser
+from .config import SciCatAccess
 
 # Dataset models to upload to the database.
 _DATASETS: dict[str, UploadDataset] = {
@@ -46,7 +48,7 @@ _DATASETS: dict[str, UploadDataset] = {
         sourceFolder=RemotePath("/hex/data/123"),
         type="raw",
         principalInvestigators=["Ponder Stibbons"],
-        creationLocation=SITE,
+        creationLocation="SCITACEAN",
         techniques=[UploadTechnique(pid="DM666", name="dark_magic")],
         scientificMetadata={
             "data_type": "event data",
@@ -91,7 +93,7 @@ _DATASETS: dict[str, UploadDataset] = {
         sourceFolder=RemotePath("/hex/secret/stuff"),
         type="raw",
         principalInvestigators=["Mustrum Ridcully"],
-        creationLocation=SITE,
+        creationLocation="SCITACEAN",
         techniques=[UploadTechnique(pid="S", name="shoes")],
         inputDatasets=[],
         usedSoftware=["scitacean"],
@@ -344,6 +346,7 @@ def seed_database(*, client: Client, scicat_access: SciCatAccess) -> None:
     Initializes ``INITIAL_DATASETS``, ``INITIAL_ORIG_DATABLOCKS``,
     and ``INITIAL_ATTACHMENTS`` with finalized datasets returned by the client.
     """
+    logging.getLogger("scitacean.testing").info("Seeding SciCat database")
     upload_datasets = {
         key: _apply_config_dataset(dset, scicat_access.user)
         for key, dset in _DATASETS.items()
@@ -392,7 +395,8 @@ def seed_database(*, client: Client, scicat_access: SciCatAccess) -> None:
 
 def save_seed(target_dir: Path) -> None:
     """Save the processed seed to a file."""
-    with open(target_dir / "seed", "wb") as f:
+    logging.getLogger("scitacean.testing").info("Saving SciCat seed to file")
+    with open(target_dir / "scicat-seed", "wb") as f:
         pickle.dump(
             {
                 "datasets": INITIAL_DATASETS,
@@ -405,8 +409,14 @@ def save_seed(target_dir: Path) -> None:
 
 def seed_worker(target_dir: Path) -> None:
     """Load the processed seed from a file."""
-    with open(target_dir / "seed", "rb") as f:
+    logging.getLogger("scitacean.testing").info("Reading SciCat seed from file")
+    with open(target_dir / "scicat-seed", "rb") as f:
         loaded = pickle.load(f)  # noqa: S301
         INITIAL_DATASETS.update(loaded["datasets"])
         INITIAL_ORIG_DATABLOCKS.update(loaded["orig_datablocks"])
         INITIAL_ATTACHMENTS.update(loaded["attachments"])
+
+
+def is_seeded(target_dir: Path) -> bool:
+    """Return True if the seed has been saved to a file."""
+    return (target_dir / "scicat-seed").exists()

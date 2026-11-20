@@ -4,10 +4,10 @@
 
 This subpackage provides tools for using a real SciCat backend running in docker
 containers on the local machine.
-It, therefore, requires docker to be installed and running.
+It, therefore, requires Docker to be installed and running.
 The package is in particular intended to be used with
 `pytest <https://docs.pytest.org>`_ and the fixtures provided by the
-:mod:`scitacean.testing.backend.fixtures` submodule.
+:mod:`scitacean.testing.backend.pytest_plugin` submodule.
 But it is also possible to set up tests in a different way by using the functions
 provided here.
 
@@ -18,7 +18,8 @@ fails to tear down the backend completely if tests are aborted in an unusual way
 (pressing Ctrl-C is fine).
 If this happens, a running docker container may be left behind.
 It needs to be stopped manually.
-Failing this, future tests may freeze indefinitely during start up.
+Failing this, future tests should fail early with a message saying that a container
+is already running.
 
 Attention
 ---------
@@ -55,35 +56,11 @@ If a test requires a backend but wants to construct a client manually, use
             **scicat_access.user.credentials
         )
         # assert something
-
-.. rubric:: Functions
-
-.. autosummary::
-   :toctree: ../functions
-
-   add_pytest_options
-   backend_enabled
-   configure
-   skip_if_not_backend
-   start_backend
-   stop_backend
 """
 
 from . import config, seed
-from ._backend import (
-    configure,
-    start_backend,
-    stop_backend,
-)
-from ._pytest_helpers import add_pytest_options, backend_enabled, skip_if_not_backend
 
 __all__ = [
-    "add_pytest_options",
-    "backend_enabled",
     "config",
-    "configure",
     "seed",
-    "skip_if_not_backend",
-    "start_backend",
-    "stop_backend",
 ]

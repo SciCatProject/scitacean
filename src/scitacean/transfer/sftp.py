@@ -18,6 +18,8 @@ from ..logging import get_logger
 from ..util.credentials import SecretStr, StrStorage
 from ._util import source_folder_for
 
+ConnectFn = Callable[[str, int], SFTPClient]
+
 
 class SFTPDownloadConnection:
     """Connection for downloading files with SFTP.
@@ -262,7 +264,7 @@ class SFTPFileTransfer:
         password: str | StrStorage | None = None,
         key_filename: str | None = None,
         source_folder: str | RemotePath | None = None,
-        connect: Callable[[str, int], SFTPClient] | None = None,
+        connect: ConnectFn | None = None,
     ) -> None:
         """Construct a new SFTP file transfer.
 
@@ -460,4 +462,9 @@ def _remote_file_exists(sftp: SFTPClient, path: RemotePath) -> bool:
     return _try_remote_stat(sftp, path) is not None
 
 
-__all__ = ["SFTPDownloadConnection", "SFTPFileTransfer", "SFTPUploadConnection"]
+__all__ = [
+    "ConnectFn",
+    "SFTPDownloadConnection",
+    "SFTPFileTransfer",
+    "SFTPUploadConnection",
+]

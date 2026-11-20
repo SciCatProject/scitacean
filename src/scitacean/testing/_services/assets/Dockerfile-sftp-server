@@ -1,5 +1,7 @@
 FROM ghcr.io/linuxserver/openssh-server
-RUN echo -e "Match Group *,!root \n\
+# Exempt loopback from PerSourcePenalties so the compose health check does not get blocked.
+RUN echo -e "PerSourcePenaltyExemptList 127.0.0.1/32,::1/128 \n\
+Match Group *,!root \n\
   ForceCommand internal-sftp \n\
   PasswordAuthentication yes \n\
   PubkeyAuthentication yes \n\
