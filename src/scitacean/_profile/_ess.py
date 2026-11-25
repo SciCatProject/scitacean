@@ -15,10 +15,11 @@ from ._common import Profile
 
 def ess_production_profile() -> Profile:
     return Profile(
+        name="ESS",
         url="https://scicat.ess.eu/api/v3",
+        frontend_url="https://scicat.ess.eu",
         file_transfer=_ess_file_transfer(),
         oauth_clients=_ess_oauth_clients(),
-        frontend_url="https://scicat.ess.eu",
         scientific_metadata_schema="value-unit",
         field_factories=_ess_field_factories(),
     )
@@ -26,10 +27,11 @@ def ess_production_profile() -> Profile:
 
 def ess_staging_profile() -> Profile:
     return Profile(
+        name="ESS Staging",
         url="https://staging.scicat.ess.eu/api/v3",
+        frontend_url="https://staging.scicat.ess.eu",
         file_transfer=_ess_file_transfer(),
         oauth_clients=_ess_oauth_clients(),
-        frontend_url="https://staging.scicat.ess.eu",
         scientific_metadata_schema="value-unit",
         field_factories=_ess_field_factories(),
     )
