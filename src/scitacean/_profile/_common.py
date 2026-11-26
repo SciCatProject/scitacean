@@ -42,6 +42,9 @@ class Profile:
     implementations provided by Scitacean.
     """
 
+    name: str | None = None
+    """Human-readable name of the profile."""
+
     frontend_url: str | None = None
     """URL of the SciCat frontend.
 
